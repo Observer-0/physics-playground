@@ -180,3 +180,7 @@ der Browsertest nutzt einen vorhandenen Chrome oder Edge.
 - Tensorgleichungen werden komponentenweise dimensional geprüft, nicht strukturell
 - Gespeicherte Zustände und gelöste Aufgaben liegen nur im lokalen Browser; zum Weitergeben den Zustands-Code nutzen
 - Fadenpendel: Die Periodendauern sind exakt, die Bewegung wird aber als Kosinus gezeichnet – bei großen Amplituden ist die echte Schwingung flacher
+
+## Weiterentwicklung
+
+Geplant ist ein Bereich „Offene Fragen“ (Warum 1/4, Λ, Informationsparadoxon, Messproblem, Anforderungen an eine Quantengravitation). Plan, Leitlinien und die Regel „theoriefrei jenseits von ART und Quantentheorie“ stehen in [ROADMAP.md](ROADMAP.md).
