@@ -187,6 +187,7 @@
       if (vo) q.set('vo', vo);
     } else {
       q.set('view', S.view);
+      if (S.view === 'theorie' && S.theorySec) q.set('sec', S.theorySec);
       if (S.view === 'custom') {
         q.set('eq', S.custom.src);
         const d = Object.keys(S.custom.dims).map((k) => k + ':' + S.custom.dims[k]).join(';');

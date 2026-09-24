@@ -92,6 +92,7 @@
     'Keine deutschen Reste in den englischen Beschriftungen der Visualisierungen': 'No German left in the English labels of the visualisations',
     'Hawking-Temperatur': 'Hawking temperature',
     'Graph': 'Graph',
+    'Grundlagen: jeder Abschnitt hat Kurztitel und Kurzbeschreibung, der Direktlink #view=theorie&sec=… bleibt im Zustand': 'Foundations: every section has a short title and a one-line summary, the direct link #view=theorie&sec=… stays in the state',
     'Schraffur je Größe: „nach der Landung“ betrifft y(t) und x(t), aber nicht R und H': 'Hatching per quantity: “after landing” affects y(t) and x(t), but not R and H',
     'Schraffur je Größe: Die Kleinwinkelnäherung betrifft T₀, nicht die exakte Periodendauer T': 'Hatching per quantity: the small-angle approximation affects T₀, not the exact period T',
     'Jede Modellgrenze aus einem Check hat einen kurzen Grund, auf Englisch ohne deutsche Reste': 'Every model limit from a check has a short reason, in English without German',
@@ -590,6 +591,17 @@
   });
 
   /* --- Sprache --- */
+  test('UI (im Browser)', 'Grundlagen: jeder Abschnitt hat Kurztitel und Kurzbeschreibung, der Direktlink #view=theorie&sec=… bleibt im Zustand', () => {
+    if (!PP.ui || !PP.ui.theory || !PP.ui.stateString) return;
+    const U = PP.ui;
+    for (const lang of ['de', 'en']) I.with(lang, () => U.theory.sections.forEach((sec) => { const m = U.theory.meta(sec); ok(m.short && m.teaser, lang + ': ' + sec.id); }));
+    const prev = { view: U.S.view, sec: U.S.theorySec };
+    try {
+      U.S.view = 'theorie'; U.S.theorySec = 'gap';
+      ok(/view=theorie&sec=gap/.test(U.stateString()), U.stateString());
+    } finally { U.S.view = prev.view; U.S.theorySec = prev.sec; }
+  });
+
   /* --- Hawking-Temperatur: Schnittpunkt der vier Theorien --- */
   test('Hawking-Temperatur', 'Drei Wege, ein Wert: ħc³/(8πGMk_B) = ħκ/(2πck_B) = T_P·m_P/(8πM), κ = c⁴/(4GM)', () => {
     for (const Mx of [M.C.M_sun.value, 1e12, 6.5e9 * M.C.M_sun.value]) {

@@ -180,6 +180,9 @@
     body: {
       de: () =>
         '<p>Kaum ein Begriff der Physik wird so oft benutzt und so oft missverstanden. Das liegt auch daran, dass „Entropie“ heute gut ein halbes Dutzend verschiedene, aber verwandte Größen bezeichnet. Sie wurden über hundert Jahre hinweg in ganz unterschiedlichen Gebieten erfunden.</p>' +
+        '<p class="th-lead">Zuerst zum Ausprobieren, was Entropie im Kleinen bedeutet: Alle Teilchen starten links, dann springt jeweils ein zufälliges Teilchen auf die andere Seite. Das Modell zählt, auf wie viele Arten Ω sich jeder Stand verwirklichen lässt – Physiker sagen: wie viele <b>Mikrozustände</b> zu einem <b>Makrozustand</b> gehören.</p>' +
+        entHTML() +
+        '<p>Das System läuft zur Mitte und bleibt dort, weil dort fast alle Mikrozustände liegen. Die Teilchen „wollen“ nichts, es gibt einfach überwältigend mehr Möglichkeiten, halb verteilt zu sein. Bei ' + t('N = 4') + ' kehrt der Zustand „alle links“ oft zurück. Bei ' + t('N = 100') + ' stehen die Chancen 1 zu 10³⁰. In einem Liter Luft sind es rund 10²² Moleküle. Der zweite Hauptsatz ist also <b>kein Naturgesetz im strengen Sinn, sondern Statistik</b> – aber eine, deren Ausnahmen man in der Lebensdauer des Universums nie beobachten wird.</p>' +
 
         '<h3 class="th-h3">1865 – Clausius: der Begriff entsteht</h3>' +
         '<p>Rudolf Clausius suchte eine Größe, die beschreibt, warum Wärme von selbst nur vom Warmen zum Kalten fließt. Er definierte sie über die Wärme ' + t(R`\delta Q`) + ', die bei der Temperatur ' + t('T') + ' umkehrbar zugeführt wird:</p>' +
@@ -191,9 +194,7 @@
         '<h3 class="th-h3">1877 – Boltzmann: Entropie heißt Abzählen</h3>' +
         '<p>Ludwig Boltzmann fand die mikroskopische Bedeutung. Ein <b>Makrozustand</b> (Druck, Temperatur, „wie viele Teilchen links“) lässt sich durch sehr viele <b>Mikrozustände</b> verwirklichen – verschiedene Anordnungen der einzelnen Teilchen, die von außen gleich aussehen. Die Entropie zählt diese Anordnungen:</p>' +
         d(R`S = k_B \ln \Omega`) +
-        '<p>' + t('k_B') + ' rechnet nur die Einheiten auf J/K um. Die Formel ist auf Boltzmanns Grab in Wien eingraviert; in genau dieser Form aufgeschrieben hat sie allerdings erst Max Planck. Probier es aus: Alle Teilchen starten links, dann springt jeweils ein zufälliges Teilchen auf die andere Seite.</p>' +
-        entHTML() +
-        '<p>Das System läuft zur Mitte und bleibt dort, weil dort fast alle Mikrozustände liegen. Die Teilchen „wollen“ nichts, es gibt einfach überwältigend mehr Möglichkeiten, halb verteilt zu sein. Bei ' + t('N = 4') + ' kehrt der Zustand „alle links“ oft zurück. Bei ' + t('N = 100') + ' stehen die Chancen 1 zu 10³⁰. In einem Liter Luft sind es rund 10²² Moleküle. Der zweite Hauptsatz ist also <b>kein Naturgesetz im strengen Sinn, sondern Statistik</b> – aber eine, deren Ausnahmen man in der Lebensdauer des Universums nie beobachten wird.</p>' +
+        '<p>' + t('k_B') + ' rechnet nur die Einheiten auf J/K um. Die Formel ist auf Boltzmanns Grab in Wien eingraviert; in genau dieser Form aufgeschrieben hat sie allerdings erst Max Planck. Genau diese Anordnungen Ω zählt das Modell oben.</p>' +
         '<p>Josiah Willard Gibbs verallgemeinerte die Formel auf Mikrozustände, die nicht alle gleich wahrscheinlich sind:</p>' +
         d(R`S = -k_B \sum_{i} p_i \ln p_i`) +
 
@@ -203,7 +204,7 @@
         '<p>Eine faire Münze hat 1 bit, eine gezinkte, die immer Kopf zeigt, 0 bit. Überliefert ist, dass John von Neumann Shannon zum Namen „Entropie“ geraten habe – die Formel sehe ohnehin so aus, und niemand wisse wirklich, was Entropie sei, man habe in jeder Diskussion also den Vorteil. Die Verbindung ist tiefer als ein Wortspiel: Die thermodynamische Entropie ist die Shannon-Information, die einem über den Mikrozustand fehlt, umgerechnet mit ' + t(R`k_B \ln 2`) + ' pro bit. Das Widget oben zeigt beide Zahlen nebeneinander.</p>' +
         '<p>Dass das physikalisch ernst gemeint ist, zeigt das <b>Landauer-Prinzip</b> (1961): Das Löschen von einem bit Information erzeugt mindestens ' + t(R`k_B T \ln 2`) + ' Wärme. 2012 wurde das im Labor mit einem einzelnen Kolloid-Teilchen bestätigt. Information ist physikalisch.</p>' +
 
-        '<h3 class="th-h3">1927/32 – von Neumann: Entropie der Quantenwelt</h3>' +
+        '<h3 class="th-h3 th-deep">1927/32 – von Neumann: Entropie der Quantenwelt</h3>' +
         '<p>In der Quantenmechanik ersetzt die Dichtematrix ' + t(R`\rho`) + ' die Wahrscheinlichkeiten ' + t('p_i') + ':</p>' +
         d(R`S = -k_B\, \mathrm{Tr}\left(\rho \ln \rho\right)`) +
         '<p>Ein vollständig bekannter Quantenzustand hat die Entropie null. Das Überraschende kommt mit der ' + sec('qm', 'Verschränkung') + ': Sind zwei Teilchen verschränkt, hat das Paar als Ganzes die Entropie null, jedes einzelne Teilchen für sich aber eine positive. Man weiß alles über das Ganze und trotzdem nicht alles über die Teile. Diese <b>Verschränkungsentropie</b> ist heute ein zentrales Werkzeug der Quanteninformation – und der Quantengravitation.</p>' +
@@ -214,7 +215,7 @@
         '<p>Auf vier Planck-Flächen kommt also eine Einheit ' + t('k_B') + ', umgerechnet etwa 0,36 bit pro Planck-Fläche. Das ist gewaltig: Ein Schwarzes Loch mit der Masse der Sonne hätte etwa ' + t(R`10^{77}\,k_B`) + ', die Sonne selbst hat rund ' + t(R`10^{58}\,k_B`) + '. Für ihre Größe sind Schwarze Löcher die entropiereichsten Objekte, die es geben kann. ' + exp('bh-entropy', 'Zum Experiment Bekenstein-Hawking-Entropie') + '.</p>' +
         '<p>Dass die Entropie mit der <i>Fläche</i> wächst und nicht mit dem Volumen, ist rätselhaft. Bei jedem gewöhnlichen System ist es umgekehrt. Daraus entstand das <b>holographische Prinzip</b>: die Vermutung, dass die Information in einem Raumgebiet grundsätzlich auf dessen Rand passt. In dieser Formel stehen ' + t('c') + ', ' + t('G') + ', ' + t(R`\hbar`) + ' und ' + t('k_B') + ' gleichzeitig. Sie ist einer der wenigen festen Anhaltspunkte, die jede künftige Quantengravitation reproduzieren muss.</p>' +
 
-        '<h3 class="th-h3">1993 – Wald: Entropie aus der Wirkung</h3>' +
+        '<h3 class="th-h3 th-deep">1993 – Wald: Entropie aus der Wirkung</h3>' +
         '<p>Robert Wald stellte die Frage allgemeiner: Woher kommt die Formel ' + t('A/4') + ' eigentlich? Seine Antwort: Die Entropie eines Schwarzen Lochs ist eine <b>Noether-Ladung</b>. Man erhält sie aus der ' + sec('action', 'Wirkung') + ' und der Zeitverschiebungs-Symmetrie am Horizont – mit derselben Idee, mit der ' + sec('history', 'Emmy Noether') + ' Energieerhaltung erklärt hat. Für die Einstein-Hilbert-Wirkung kommt genau ' + t('A/4') + ' heraus. Für abgewandelte Gravitationstheorien mit zusätzlichen Krümmungstermen liefert die <b>Wald-Entropie</b> Korrekturen. Die Flächenformel ist also eine Eigenschaft von Einsteins Theorie, die Wald-Formel die allgemeine Regel dahinter.</p>' +
 
         '<h3 class="th-h3">Alle auf einen Blick</h3>' + OVERVIEW() +
@@ -228,6 +229,9 @@
         '<div class="honest"><b>Der rote Faden:</b> Alle diese Entropien messen im Kern dasselbe – wie viel man über ein System <i>nicht</i> weiß, gegeben das, was man weiß. Sie unterscheiden sich darin, was man als „die Möglichkeiten“ zählt: Wärme, Teilchenanordnungen, Nachrichten, Quantenzustände oder Geometrien.</div>',
       en: () =>
         '<p>Hardly any concept in physics is used so often and misunderstood so often. One reason is that “entropy” today refers to a good half-dozen different but related quantities. They were invented over a hundred years in quite different fields.</p>' +
+        '<p class="th-lead">First, something to try out – what entropy means on a small scale: all particles start on the left, then one random particle at a time jumps to the other side. The model counts in how many ways Ω each state can be realised – physicists say: how many <b>microstates</b> belong to a <b>macrostate</b>.</p>' +
+        entHTML() +
+        '<p>The system runs to the middle and stays there, because that is where almost all the microstates are. The particles do not “want” anything; there are simply overwhelmingly more ways of being spread out half and half. With ' + t('N = 4') + ', the state “all on the left” returns often. With ' + t('N = 100') + ', the odds are 1 in 10³⁰. A litre of air contains around 10²² molecules. So the second law is <b>not a law of nature in the strict sense but statistics</b> – but statistics whose exceptions you will never observe in the lifetime of the universe.</p>' +
 
         '<h3 class="th-h3">1865 – Clausius: the concept is born</h3>' +
         '<p>Rudolf Clausius was looking for a quantity that describes why heat flows by itself only from hot to cold. He defined it through the heat ' + t(R`\delta Q`) + ' that is supplied reversibly at temperature ' + t('T') + ':</p>' +
@@ -239,9 +243,7 @@
         '<h3 class="th-h3">1877 – Boltzmann: entropy means counting</h3>' +
         '<p>Ludwig Boltzmann found the microscopic meaning. A <b>macrostate</b> (pressure, temperature, “how many particles are on the left”) can be realised by a great many <b>microstates</b> – different arrangements of the individual particles that look the same from outside. Entropy counts these arrangements:</p>' +
         d(R`S = k_B \ln \Omega`) +
-        '<p>' + t('k_B') + ' merely converts the units to J/K. The formula is engraved on Boltzmann’s grave in Vienna, although it was Max Planck who first wrote it down in exactly this form. Try it: all particles start on the left, then one random particle at a time jumps to the other side.</p>' +
-        entHTML() +
-        '<p>The system runs to the middle and stays there, because that is where almost all the microstates are. The particles do not “want” anything; there are simply overwhelmingly more ways of being spread out half and half. With ' + t('N = 4') + ', the state “all on the left” returns often. With ' + t('N = 100') + ', the odds are 1 in 10³⁰. A litre of air contains around 10²² molecules. So the second law is <b>not a law of nature in the strict sense but statistics</b> – but statistics whose exceptions you will never observe in the lifetime of the universe.</p>' +
+        '<p>' + t('k_B') + ' merely converts the units to J/K. The formula is engraved on Boltzmann’s grave in Vienna, although it was Max Planck who first wrote it down in exactly this form. These are exactly the arrangements Ω that the model above counts.</p>' +
         '<p>Josiah Willard Gibbs generalised the formula to microstates that are not all equally likely:</p>' +
         d(R`S = -k_B \sum_{i} p_i \ln p_i`) +
 
@@ -251,7 +253,7 @@
         '<p>A fair coin has 1 bit; a rigged one that always shows heads has 0 bits. John von Neumann is said to have advised Shannon to call it “entropy” – the formula looked like it anyway, and nobody really knew what entropy was, so he would always have the advantage in a debate. The connection runs deeper than a pun: thermodynamic entropy is the Shannon information you are missing about the microstate, converted at ' + t(R`k_B \ln 2`) + ' per bit. The widget above shows both numbers side by side.</p>' +
         '<p>That this is meant physically is shown by <b>Landauer’s principle</b> (1961): erasing one bit of information produces at least ' + t(R`k_B T \ln 2`) + ' of heat. In 2012 this was confirmed in the lab with a single colloidal particle. Information is physical.</p>' +
 
-        '<h3 class="th-h3">1927/32 – von Neumann: the entropy of the quantum world</h3>' +
+        '<h3 class="th-h3 th-deep">1927/32 – von Neumann: the entropy of the quantum world</h3>' +
         '<p>In quantum mechanics, the density matrix ' + t(R`\rho`) + ' replaces the probabilities ' + t('p_i') + ':</p>' +
         d(R`S = -k_B\, \mathrm{Tr}\left(\rho \ln \rho\right)`) +
         '<p>A completely known quantum state has zero entropy. The surprise comes with ' + sec('qm', 'entanglement') + ': if two particles are entangled, the pair as a whole has zero entropy, but each particle on its own has a positive entropy. You know everything about the whole and yet not everything about the parts. This <b>entanglement entropy</b> is now a central tool of quantum information – and of quantum gravity.</p>' +
@@ -262,7 +264,7 @@
         '<p>So every four Planck areas contribute one unit of ' + t('k_B') + ', which works out at about 0.36 bits per Planck area. That is enormous: a black hole with the mass of the Sun would have about ' + t(R`10^{77}\,k_B`) + ', while the Sun itself has around ' + t(R`10^{58}\,k_B`) + '. For their size, black holes are the most entropy-rich objects there can be. ' + exp('bh-entropy', 'To the Bekenstein–Hawking entropy experiment') + '.</p>' +
         '<p>That the entropy grows with the <i>area</i> and not with the volume is puzzling. For every ordinary system it is the other way round. This gave rise to the <b>holographic principle</b>: the conjecture that the information in a region of space fundamentally fits on its boundary. The formula contains ' + t('c') + ', ' + t('G') + ', ' + t(R`\hbar`) + ' and ' + t('k_B') + ' all at once. It is one of the few firm reference points that any future theory of quantum gravity has to reproduce.</p>' +
 
-        '<h3 class="th-h3">1993 – Wald: entropy from the action</h3>' +
+        '<h3 class="th-h3 th-deep">1993 – Wald: entropy from the action</h3>' +
         '<p>Robert Wald asked the question more generally: where does the formula ' + t('A/4') + ' actually come from? His answer: the entropy of a black hole is a <b>Noether charge</b>. You get it from the ' + sec('action', 'action') + ' and the time-translation symmetry at the horizon – with the same idea that ' + sec('history', 'Emmy Noether') + ' used to explain energy conservation. For the Einstein–Hilbert action, exactly ' + t('A/4') + ' comes out. For modified theories of gravity with additional curvature terms, the <b>Wald entropy</b> gives corrections. So the area formula is a property of Einstein’s theory, and Wald’s formula the general rule behind it.</p>' +
 
         '<h3 class="th-h3">All of them at a glance</h3>' + OVERVIEW() +

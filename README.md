@@ -106,7 +106,7 @@ Alle Dateien erweitern den globalen Namensraum `PP`; die Ladereihenfolge steht i
 | `src/ui/sections/tensor.js` | Abschnitte „Indizes μν“ und „Tensor-Aufbau“ mit interaktiven Widgets; hängt sich in `src/ui/theory.js` ein |
 | `src/ui/sections/action.js` | Abschnitte „Einstein-Hilbert-Wirkung“ (Wirkungs-Demo mit exakter Formel ΔS = mπ²/(4τ)·(ε₁² + 4ε₂²)) und „Die Köpfe hinter der ART“ |
 | `src/ui/sections/entropy.js` | Abschnitt „Entropie – ein Wort, viele Bedeutungen“ mit Ehrenfest-Modell |
-| `src/ui/theory.js` | Grundlagen-Seite (Theorie-Abschnitte als Daten, Direktlink per `#view=theorie&sec=dim` / `inertia` / `rel` / `idx` / `tensor` / `action` / `history` / `qm` / `entropy` / `gap`) |
+| `src/ui/theory.js` | Grundlagen: Übersicht mit einer Karte je Abschnitt (`#view=theorie`), jeder Abschnitt als eigene Seite (`#view=theorie&sec=dim` / `inertia` / `rel` / `idx` / `tensor` / `action` / `history` / `qm` / `entropy` / `gap`) mit Text in Lesebreite, breiten Widgets, aufklappbaren Vertiefungen (`<h3 class="th-h3 th-deep">`), sticky Inhaltsverzeichnis und „Weiter zu“; Unterpunkte in der Seitenleiste; Vergleichsleiste „Charakter der Theorie“ |
 
 ### Neues Experiment hinzufügen
 

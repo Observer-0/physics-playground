@@ -39,6 +39,8 @@ for (const e of M.registry) {
   if (globalThis.PP.sources.byId[e.id]) hashes.push('exp=' + e.id + '&tab=sources');
 }
 for (const v of ['hall', 'custom', 'theorie', 'constants', 'saved', 'about']) hashes.push('view=' + v);
+// Grundlagen: jeder Abschnitt hat eine eigene Seite
+for (const sec of ['dim', 'inertia', 'rel', 'idx', 'tensor', 'action', 'history', 'qm', 'entropy', 'gap']) hashes.push('view=theorie&sec=' + sec);
 hashes.push('exp=newton-gravity&cmp=1&b=m1:2;m2:1;r:0.5', 'exp=special-rel&a=beta:1;tau:1;L0:1;m:1', 'exp=planck&vo=q:T', 'exp=newton-gravity&brk=1', 'view=custom&eq=E%20%3D%20m%20g%20h');
 let jobs = [];
 for (const lang of ['de', 'en']) { for (const h of hashes) jobs.push({ h, lang }); jobs.push({ h: 'view=tests', lang, tests: true }); }
