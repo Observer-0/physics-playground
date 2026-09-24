@@ -90,6 +90,18 @@
     'Keine deutschen Reste in den englischen Texten der Experimente und Konstanten': 'No German left in the English texts of the experiments and constants',
     'Jeder Test hat einen englischen Namen': 'Every test has an English name',
     'Keine deutschen Reste in den englischen Beschriftungen der Visualisierungen': 'No German left in the English labels of the visualisations',
+    'Hawking-Temperatur': 'Hawking temperature',
+    'Graph': 'Graph',
+    'Grundlagen: jeder Abschnitt hat Kurztitel und Kurzbeschreibung, der Direktlink #view=theorie&sec=… bleibt im Zustand': 'Foundations: every section has a short title and a one-line summary, the direct link #view=theorie&sec=… stays in the state',
+    'Schraffur je Größe: „nach der Landung“ betrifft y(t) und x(t), aber nicht R und H': 'Hatching per quantity: “after landing” affects y(t) and x(t), but not R and H',
+    'Schraffur je Größe: Die Kleinwinkelnäherung betrifft T₀, nicht die exakte Periodendauer T': 'Hatching per quantity: the small-angle approximation affects T₀, not the exact period T',
+    'Jede Modellgrenze aus einem Check hat einen kurzen Grund, auf Englisch ohne deutsche Reste': 'Every model limit from a check has a short reason, in English without German',
+    'Standardbereich: verweist auf vorhandene Ausgaben und liegt im Regler-Bereich; freier Fall endet kurz nach dem Aufprall': 'Default range: refers to existing outputs and lies within the slider range; free fall ends shortly after impact',
+    'Formelsatz: tfrac12 ist der Bruch ½, frac{12}{3} bleibt zweistellig, circ und ddot werden gesetzt': 'Typesetting: tfrac12 is the fraction ½, frac{12}{3} keeps two digits, circ and ddot are typeset',
+    'Drei Wege, ein Wert: ħc³/(8πGMk_B) = ħκ/(2πck_B) = T_P·m_P/(8πM), κ = c⁴/(4GM)': 'Three routes, one value: ħc³/(8πGMk_B) = ħκ/(2πck_B) = T_P·m_P/(8πM), κ = c⁴/(4GM)',
+    'Grenzfälle im Break-Modus: G → 0 „außerhalb des Modells“, G = 0 undefiniert, ħ = 0 ergibt T_H = 0, k_B·T_H bleibt bei k_B ÷ 1000': 'Limits in Break mode: G → 0 “outside the model”, G = 0 undefined, ħ = 0 gives T_H = 0, k_B·T_H is unchanged for k_B ÷ 1000',
+    'Schnittpunkt-Block: Symbole, Kette, Aha-Kasten und Wörterbuch verweisen nur auf vorhandene Engine-Größen': 'Crossroads block: symbols, chain, aha box and dictionary only refer to existing engine quantities',
+    'Schwarzes Loch: G = 0, ħ = 0, k_B = 0 und c × 10¹² zeichnen ohne „NaN“': 'Black hole: G = 0, ħ = 0, k_B = 0 and c × 10¹² draw without “NaN”',
   };
   const pair = (de) => (Object.prototype.hasOwnProperty.call(EN, de) ? { de, en: EN[de] } : de);
   const test = (group, name, fn) => T.push(I.localize({ group: pair(group), name: pair(name), fn }));
@@ -508,7 +520,7 @@
   const COL = { bg: '#000', panel: '#111', panel2: '#222', ink: '#eee', ink2: '#bbb', ink3: '#777', grid: '#333', accent: '#fa0', cyan: '#0cd', red: '#f55', green: '#5c5', violet: '#a8f', mono: 'monospace', sans: 'sans-serif' };
   const draw = (id, vals, o = {}) => {
     const exp = M.byId[id], form = o.form || exp.forms[0].id, ctx = recCtx();
-    const S = PP.vizState({ exp, form, vals: Object.assign(M.defaults(exp), vals || {}), consts: {}, base: o.base ? Object.assign(M.defaults(exp), o.base) : null, baseLabel: 'Test', t: o.t || 1.3, opts: o.opts || {}, col: COL });
+    const S = PP.vizState({ exp, form, vals: Object.assign(M.defaults(exp), vals || {}), consts: o.consts || {}, base: o.base ? Object.assign(M.defaults(exp), o.base) : null, baseLabel: 'Test', t: o.t || 1.3, opts: o.opts || {}, col: COL });
     PP.viz[exp.viz](ctx, o.W || 640, o.H || 330, S);
     return ctx.texts;
   };
@@ -579,6 +591,120 @@
   });
 
   /* --- Sprache --- */
+  test('UI (im Browser)', 'Grundlagen: jeder Abschnitt hat Kurztitel und Kurzbeschreibung, der Direktlink #view=theorie&sec=… bleibt im Zustand', () => {
+    if (!PP.ui || !PP.ui.theory || !PP.ui.stateString) return;
+    const U = PP.ui;
+    for (const lang of ['de', 'en']) I.with(lang, () => U.theory.sections.forEach((sec) => { const m = U.theory.meta(sec); ok(m.short && m.teaser, lang + ': ' + sec.id); }));
+    const prev = { view: U.S.view, sec: U.S.theorySec };
+    try {
+      U.S.view = 'theorie'; U.S.theorySec = 'gap';
+      ok(/view=theorie&sec=gap/.test(U.stateString()), U.stateString());
+    } finally { U.S.view = prev.view; U.S.theorySec = prev.sec; }
+  });
+
+  /* --- Hawking-Temperatur: Schnittpunkt der vier Theorien --- */
+  test('Hawking-Temperatur', 'Drei Wege, ein Wert: ħc³/(8πGMk_B) = ħκ/(2πck_B) = T_P·m_P/(8πM), κ = c⁴/(4GM)', () => {
+    for (const Mx of [M.C.M_sun.value, 1e12, 6.5e9 * M.C.M_sun.value]) {
+      const r = run('hawking', { M: Mx });
+      close(val(r, 'THk'), val(r, 'TH'), 1e-12, 'T aus κ');
+      close(val(r, 'THp'), val(r, 'TH'), 1e-12, 'T_P·m_P/(8πM)');
+      close(val(r, 'kappa'), Math.pow(M.C.c.value, 4) / (4 * M.C.G.value * Mx), 1e-12, 'κ');
+      close(val(r, 'MmP') * val(r, 'mP'), Mx, 1e-12, 'M/m_P');
+    }
+    const p = run('planck');
+    close(val(run('hawking'), 'TP'), val(p, 'TP'), 1e-12, 'T_P wie bei den Planck-Einheiten');
+  });
+  test('Hawking-Temperatur', 'Grenzfälle im Break-Modus: G → 0 „außerhalb des Modells“, G = 0 undefiniert, ħ = 0 ergibt T_H = 0, k_B·T_H bleibt bei k_B ÷ 1000', () => {
+    const exp = M.byId.hawking, v = M.defaults(exp), C = M.C;
+    const at = (consts) => M.compute(exp, 'main', v, { consts });
+    const base = at({});
+    ok(!base.issues.some((i) => i.cat === 'model'), 'ohne Änderung keine Modellgrenze: ' + base.issues.map((i) => i.msg).join(' | '));
+    const g = at({ G: C.G.value * 1e-3 });
+    ok(g.issues.some((i) => i.cat === 'model' && /Horizont/.test(i.msg)), 'G ÷ 1000: Modellgrenze fehlt');
+    close(val(g, 'TH'), val(base, 'TH') * 1e3, 1e-9, 'T_H ∝ 1/G');
+    const g0 = at({ G: 0 });
+    ok(!g0.out.TH.ok && g0.issues.some((i) => i.cat === 'math') && g0.issues.some((i) => i.cat === 'model' && /G ≤ 0/.test(i.msg)), 'G = 0: ' + g0.issues.map((i) => i.cat).join(','));
+    ok(at({ c: C.c.value * 10 }).issues.some((i) => i.cat === 'model' && /c → ∞/.test(i.msg)), 'c × 10: Hinweis auf c → ∞ fehlt');
+    const h0 = at({ hbar: 0 });
+    ok(h0.out.TH.ok && h0.out.TH.s === 0 && h0.issues.some((i) => i.cat === 'info' && /ħ → 0/.test(i.msg)), 'ħ = 0: T_H = 0 und Hinweis erwartet');
+    const k = at({ k_B: C.k_B.value * 1e-3 });
+    close(val(k, 'TH') * C.k_B.value * 1e-3, val(base, 'TH') * C.k_B.value, 1e-12, 'k_B·T_H');
+    ok(k.issues.some((i) => i.cat === 'info' && /k_B rechnet nur/.test(i.msg)), 'k_B: Hinweis fehlt');
+  });
+  test('Hawking-Temperatur', 'Schnittpunkt-Block: Symbole, Kette, Aha-Kasten und Wörterbuch verweisen nur auf vorhandene Engine-Größen', () => {
+    const exp = M.byId.hawking, xr = exp.crossroads;
+    const outOf = (id, form) => M.formOf(M.byId[id], form).c.outputs.map((o) => o.key);
+    xr.num.concat(xr.den).forEach((k) => ok(Object.prototype.hasOwnProperty.call(xr.symbols, k), 'Symbol ' + k));
+    Object.values(xr.symbols).forEach((s) => { if (s.live && s.live.c) ok(M.C[s.live.c], 'Konstante ' + s.live.c); if (s.live && s.live.v) ok(exp.vars[s.live.v], 'Eingabe ' + s.live.v); });
+    const main = outOf('hawking');
+    xr.chain.steps.concat(xr.aha.parts).forEach((p) => ok(main.includes(p.key), 'Ausgabe ' + p.key));
+    xr.epistemic.filter((e) => e.value).forEach((e) => ok(main.includes(e.value.key), 'Ausgabe ' + e.value.key));
+    for (const id of xr.dict.pair) ok(M.byId[id] && (M.byId[id].dict || (M.byId[id].crossroads || {}).dict) === xr.dict, id + ' zeigt das Wörterbuch nicht');
+    xr.dict.rows.forEach((r) => [r.l.src, r.r.src].forEach((s) => ok(s.var ? M.byId.hawking.vars[s.var] : outOf(s.exp, s.form).includes(s.key), JSON.stringify(s))));
+  });
+  test('Visualisierung', 'Schwarzes Loch: G = 0, ħ = 0, k_B = 0 und c × 10¹² zeichnen ohne „NaN“', () => {
+    if (!PP.viz) return;
+    for (const consts of [{ G: 0 }, { hbar: 0 }, { k_B: 0 }, { c: M.C.c.value * 1e12 }]) {
+      const bad = draw('hawking', {}, { consts }).find((x) => /NaN|undefined|Infinity/.test(x));
+      ok(!bad, JSON.stringify(consts) + ': „' + bad + '“');
+    }
+  });
+
+  /* --- Graph: Schraffur je Größe, Gründe, Standardbereich --- */
+  const issue = (r, re) => r.issues.find((i) => re.test(i.msg));
+  test('Graph', 'Schraffur je Größe: „nach der Landung“ betrifft y(t) und x(t), aber nicht R und H', () => {
+    const exp = M.byId.projectile, f = exp.forms[0];
+    const r = run('projectile', { al: 10, t: 1 });
+    const i = issue(r, /gelandet/);
+    ok(i && i.why === 'nach der Landung', 'Warnung mit Grund fehlt');
+    for (const k of ['R', 'H', 'tf', 'vx']) ok(!M.affects(f, i, k), k + ' sollte nicht betroffen sein');
+    for (const k of ['x', 'y', 'vy']) ok(M.affects(f, i, k), k + ' sollte betroffen sein');
+    const m = run('projectile', { v0: 100 });
+    ok(M.affects(f, issue(m, /Luftwiderstand/), 'R'), 'Luftwiderstand betrifft alle Größen');
+  });
+  test('Graph', 'Schraffur je Größe: Die Kleinwinkelnäherung betrifft T₀, nicht die exakte Periodendauer T', () => {
+    const f = M.byId.pendulum.forms[0], i = issue(run('pendulum', { th: 60 }), /Kleinwinkelnäherung sin θ/);
+    ok(i, 'Warnung fehlt');
+    ok(M.affects(f, i, 'T0') && M.affects(f, i, 'q') && !M.affects(f, i, 'T') && !M.affects(f, i, 'vmax'), 'falsche Zuordnung');
+    const g0 = M.compute(M.byId.hawking, 'main', M.defaults(M.byId.hawking), { consts: { G: 0 } });
+    const dz = g0.issues.find((j) => j.cat === 'math' && j.out === 'TH');
+    ok(dz && M.affects(M.byId.hawking.forms[0], dz, 'TH') && !M.affects(M.byId.hawking.forms[0], dz, 'rs'), 'Engine-Fehler: nur T_H und davon abhängige Größen');
+  });
+  test('Graph', 'Jede Modellgrenze aus einem Check hat einen kurzen Grund, auf Englisch ohne deutsche Reste', () => {
+    const bad = [];
+    const german = /[äöüÄÖÜß]|\b(und|der|die|das|nicht|mit|unter|nach|Grenze)\b/;
+    for (const exp of M.registry) {
+      const cases = [{}].concat((exp.presets || []).map((p) => p.values), [{ t: 60 }, { al: 5, t: 1 }, { th: 120 }, { T: 20 }, { T: 5e4 }, { h0: 2e5 }, { r: 1e-6 }, { M: 1e-7 }, { v0: 9000 }, { x: 0.4 }]);
+      for (const c of cases) for (const f of exp.forms) {
+        const v = Object.assign(M.defaults(exp), c);
+        for (const lang of ['de', 'en']) I.with(lang, () => M.compute(exp, f.id, v).issues).forEach((i) => {
+          if (!['math', 'unreal', 'model'].includes(i.cat) || i.out) return;
+          if (!i.why) bad.push(exp.id + ': ohne Grund – ' + i.msg.slice(0, 50));
+          else if (lang === 'en' && german.test(i.why)) bad.push(exp.id + ': ' + i.why);
+        });
+      }
+    }
+    ok(!bad.length, [...new Set(bad)].slice(0, 4).join(' | '));
+  });
+  test('Graph', 'Standardbereich: verweist auf vorhandene Ausgaben und liegt im Regler-Bereich; freier Fall endet kurz nach dem Aufprall', () => {
+    for (const exp of M.registry) {
+      const gv = exp.graph && exp.graph.view;
+      if (!gv) continue;
+      const xv = exp.vars[exp.graph.x];
+      if (gv.to) ok(exp.forms[0].c.outputs.some((o) => o.key === gv.to), exp.id + ': ' + gv.to);
+      if (gv.range) ok(gv.range[0] >= xv.min && gv.range[1] <= xv.max && gv.range[0] < gv.range[1], exp.id + ': ' + gv.range);
+    }
+    const tf = val(run('free-fall'), 'tf'), gv = M.byId['free-fall'].graph.view;
+    ok(tf * gv.f < M.byId['free-fall'].vars.t.max / 2, 'Standardbereich des freien Falls ist kaum kürzer als der Regler-Bereich');
+  });
+  test('Formatierung', 'Formelsatz: tfrac12 ist der Bruch ½, frac{12}{3} bleibt zweistellig, circ und ddot werden gesetzt', () => {
+    if (!PP.tex) return;
+    const r = PP.tex.render, R = String.raw;
+    ok(/<span class="mnu"><span class="mn">1<\/span><\/span><span class="mde"><span class="mn">2<\/span><\/span>/.test(r(R`h_0 - \tfrac12\, g t^2`)), '½ falsch gesetzt');
+    ok(/<span class="mnu"><span class="mn">12<\/span><\/span>/.test(r(R`\frac{12}{3}`)), '12/3 falsch gesetzt');
+    ok(!/circ|ddot/.test(r(R`\ddot\theta = 45^{\circ}`).replace(/<[^>]+>/g, '')), 'Befehlsname im Text');
+  });
+
   test('Sprache', 'Engine-Meldungen und Dimensionsnamen gibt es auf Deutsch und Englisch', () => {
     const msg = () => E.evaluate(E.parse('1/0'), {}).issues[0].msg;
     ok(/Division durch 0/.test(I.with('de', msg)), I.with('de', msg));

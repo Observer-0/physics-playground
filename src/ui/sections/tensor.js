@@ -294,9 +294,9 @@
         d(R`x^{\mu} = \left(x^{0},\, x^{1},\, x^{2},\, x^{3}\right) = \left(ct,\; x,\; y,\; z\right)`) +
         '<p>Ein Index bedeutet also vier Zahlen. Ein Beispiel ist der Viererimpuls ' + t(R`p^{\mu} = \left(E/c,\; p_x,\; p_y,\; p_z\right)`) + ', der Energie und Impuls in ein Objekt packt. Zwei Indizes bedeuten 4 × 4 = 16 Zahlen, die man als Tabelle schreiben kann. ' + t(R`G_{\mu\nu}`) + ' ist also keine einzelne Größe, sondern die Kurzschrift für eine ganze Tabelle. Die Zeile ist ' + t(R`\mu`) + ', die Spalte ' + t(R`\nu`) + '.</p>' +
         gridHTML() +
-        '<h3 class="th-h3">Warum 10 und nicht 16?</h3>' +
+        '<h3 class="th-h3 th-deep">Warum 10 und nicht 16?</h3>' +
         '<p>' + t(R`G_{\mu\nu}`) + ', ' + t(R`T_{\mu\nu}`) + ' und ' + t(R`g_{\mu\nu}`) + ' sind <b>symmetrisch</b>: Der Eintrag in Zeile 1, Spalte 2 ist derselbe wie in Zeile 2, Spalte 1. Unabhängig sind nur die 4 Einträge auf der Diagonale plus die 6 darüber. Die Feldgleichungen sind deshalb in Wahrheit <b>10 gekoppelte Gleichungen</b>, eine pro Tabellenplatz: Krümmung in Richtung ' + t(R`\mu\nu`) + ' gleich Materie in Richtung ' + t(R`\mu\nu`) + '. ' + exp('efe', 'Zu den Feldgleichungen') + '.</p>' +
-        '<h3 class="th-h3">Die 00-Komponente ist Newton</h3>' +
+        '<h3 class="th-h3 th-deep">Die 00-Komponente ist Newton</h3>' +
         '<p>Bei langsam bewegter Materie und schwachen Feldern überwiegt ' + t(R`T_{00} = \rho c^{2}`) + ' alle anderen Einträge bei Weitem. Dann wird die 00-Komponente der Feldgleichungen zu</p>' +
         d(R`\nabla^{2}\Phi = 4\pi G \rho`) +
         '<p>– das ist Newtons Gravitationsgesetz in Feldform. Die Allgemeine Relativitätstheorie enthält Newton als Grenzfall, als einen einzigen Eintrag der Tabelle. ' + exp('newton-gravity', 'Zu Newton') + '.</p>' +
@@ -312,9 +312,9 @@
         d(R`x^{\mu} = \left(x^{0},\, x^{1},\, x^{2},\, x^{3}\right) = \left(ct,\; x,\; y,\; z\right)`) +
         '<p>So one index means four numbers. An example is the four-momentum ' + t(R`p^{\mu} = \left(E/c,\; p_x,\; p_y,\; p_z\right)`) + ', which packs energy and momentum into one object. Two indices mean 4 × 4 = 16 numbers, which can be written as a table. ' + t(R`G_{\mu\nu}`) + ' is therefore not a single quantity but shorthand for a whole table. The row is ' + t(R`\mu`) + ', the column ' + t(R`\nu`) + '.</p>' +
         gridHTML() +
-        '<h3 class="th-h3">Why 10 and not 16?</h3>' +
+        '<h3 class="th-h3 th-deep">Why 10 and not 16?</h3>' +
         '<p>' + t(R`G_{\mu\nu}`) + ', ' + t(R`T_{\mu\nu}`) + ' and ' + t(R`g_{\mu\nu}`) + ' are <b>symmetric</b>: the entry in row 1, column 2 is the same as in row 2, column 1. Only the 4 entries on the diagonal plus the 6 above it are independent. The field equations are therefore really <b>10 coupled equations</b>, one per slot in the table: curvature in the ' + t(R`\mu\nu`) + ' direction equals matter in the ' + t(R`\mu\nu`) + ' direction. ' + exp('efe', 'To the field equations') + '.</p>' +
-        '<h3 class="th-h3">The 00 component is Newton</h3>' +
+        '<h3 class="th-h3 th-deep">The 00 component is Newton</h3>' +
         '<p>For slowly moving matter and weak fields, ' + t(R`T_{00} = \rho c^{2}`) + ' outweighs all other entries by far. The 00 component of the field equations then becomes</p>' +
         d(R`\nabla^{2}\Phi = 4\pi G \rho`) +
         '<p>– which is Newton’s law of gravitation in field form. General relativity contains Newton as a limiting case, as a single entry of the table. ' + exp('newton-gravity', 'To Newton') + '.</p>' +
@@ -334,6 +334,11 @@
     body: {
       de: () =>
         '<p>Oft hört man: „Ein Tensor ist eine mehrdimensionale Zahlentabelle.“ Das ist nur die halbe Wahrheit. Die Tabelle ist die Verpackung. Was einen Tensor ausmacht, ist, <b>wie sich die Zahlen verändern, wenn man das Koordinatensystem wechselt</b>.</p>' +
+        '<h3 class="th-h3">Das Entscheidende: wie sich die Zahlen verwandeln</h3>' +
+        '<p>Ein Pfeil zeigt in dieselbe Richtung, egal wie man ein Koordinatenkreuz darüberlegt. Dreht man die Achsen, ändern sich trotzdem seine Komponenten, also seine „Schatten“ auf den Achsen. Sie ändern sich aber nach einer festen Regel, und zwar genau so, dass der Pfeil selbst gleich bleibt. Probier es aus:</p>' +
+        xformHTML() +
+        '<p>Bei der Drehung im Raum bleibt ' + t(R`x^{2} + y^{2}`) + ' gleich: Die Spitze liegt immer auf demselben Kreis. In der Raumzeit tritt der <b>Lorentz-Boost</b> an die Stelle der Drehung – der Wechsel zu einem bewegten Beobachter. Unverändert bleibt dort ' + t(R`-(ct)^{2} + x^{2}`) + ', und das Ereignis liegt deshalb auf einer <b>Hyperbel</b> statt auf einem Kreis. Die Achsen des bewegten Beobachters klappen dabei wie eine Schere auf die Lichtlinie zu. Beides kommt vom Minuszeichen in ' + t(R`\eta_{00}`) + ', und daraus folgen Zeitdilatation und Längenkontraktion. ' + exp('special-rel', 'Zum Lorentz-Faktor') + '.</p>' +
+        '<p>Zum Vergleich: Ein Zahlenpaar wie (Temperatur, Druck) ist <i>kein</i> Vektor. Dreht man die Achsen, bleiben beide Zahlen einfach, wie sie sind – sie mischen sich nicht.</p>' +
         '<h3 class="th-h3">Die Stufen</h3>' +
         '<div class="th-scroll"><table class="t th-cmp"><thead><tr><th>Stufe</th><th>Indizes</th><th>Zahlen in 4D</th><th>Beispiele</th></tr></thead><tbody>' +
         [['0 – Skalar', '–', '1', 'Masse, Ladung, Eigenzeit ' + t(R`\tau`)],
@@ -342,17 +347,12 @@
           ['4', t(R`R^{\rho}_{\sigma\mu\nu}`), '256 (nur 20 unabhängig)', 'Riemannscher Krümmungstensor']]
           .map((r) => '<tr>' + r.map((c) => '<td>' + c + '</td>').join('') + '</tr>').join('') +
         '</tbody></table></div>' +
-        '<h3 class="th-h3">Das Entscheidende: wie sich die Zahlen verwandeln</h3>' +
-        '<p>Ein Pfeil zeigt in dieselbe Richtung, egal wie man ein Koordinatenkreuz darüberlegt. Dreht man die Achsen, ändern sich trotzdem seine Komponenten, also seine „Schatten“ auf den Achsen. Sie ändern sich aber nach einer festen Regel, und zwar genau so, dass der Pfeil selbst gleich bleibt. Probier es aus:</p>' +
-        xformHTML() +
-        '<p>Bei der Drehung im Raum bleibt ' + t(R`x^{2} + y^{2}`) + ' gleich: Die Spitze liegt immer auf demselben Kreis. In der Raumzeit tritt der <b>Lorentz-Boost</b> an die Stelle der Drehung – der Wechsel zu einem bewegten Beobachter. Unverändert bleibt dort ' + t(R`-(ct)^{2} + x^{2}`) + ', und das Ereignis liegt deshalb auf einer <b>Hyperbel</b> statt auf einem Kreis. Die Achsen des bewegten Beobachters klappen dabei wie eine Schere auf die Lichtlinie zu. Beides kommt vom Minuszeichen in ' + t(R`\eta_{00}`) + ', und daraus folgen Zeitdilatation und Längenkontraktion. ' + exp('special-rel', 'Zum Lorentz-Faktor') + '.</p>' +
-        '<p>Zum Vergleich: Ein Zahlenpaar wie (Temperatur, Druck) ist <i>kein</i> Vektor. Dreht man die Achsen, bleiben beide Zahlen einfach, wie sie sind – sie mischen sich nicht.</p>' +
         '<div class="callout"><b>Warum Physiker Tensoren lieben:</b> Ist ein Tensor in einem Koordinatensystem null, dann ist er in jedem null. Eine Gleichung zwischen Tensoren gilt deshalb für alle Beobachter zugleich. Das Relativitätsprinzip aus ' + sec('inertia', 'Abschnitt 2') + ' und ' + sec('rel', '3') + ' bekommt man so mathematisch geschenkt. Deshalb schrieb Einstein die Physik in Tensoren.</div>' +
-        '<h3 class="th-h3">Indizes oben und unten</h3>' +
+        '<h3 class="th-h3 th-deep">Indizes oben und unten</h3>' +
         '<p>Die Position des Index trägt Information. Obere Indizes (<i>kontravariant</i>) gehören zu Größen wie Verschiebungen ' + t(R`dx^{\mu}`) + ', untere (<i>kovariant</i>) zu Größen wie Gradienten. Die Metrik übersetzt zwischen beiden: ' + t(R`v_{\mu} = g_{\mu\nu}\, v^{\nu}`) + ' (mit Summenkonvention). In der flachen Raumzeit dreht das nur das Vorzeichen der Zeitkomponente um. Kombiniert man einen oberen mit einem unteren Index, entsteht ein Skalar, auf den sich alle Beobachter einigen, zum Beispiel beim Viererimpuls:</p>' +
         d(R`p_{\mu}\, p^{\mu} = -\frac{E^{2}}{c^{2}} + |\vec{p}\,|^{2} = -m^{2}c^{2}`) +
         '<p>Für ein ruhendes Teilchen (' + t(R`\vec{p} = 0`) + ') steht da ' + t(R`E = mc^{2}`) + '. Die berühmteste Formel der Physik ist also die Aussage, dass die „Länge“ des Viererimpulses für alle gleich ist.</p>' +
-        '<h3 class="th-h3">Von der Metrik zur Krümmung</h3>' +
+        '<h3 class="th-h3 th-deep">Von der Metrik zur Krümmung</h3>' +
         '<p>In der ART beginnt alles mit der Metrik ' + t(R`g_{\mu\nu}`) + ', dem Lineal, das an jedem Punkt festlegt, wie Abstände und Zeiten gemessen werden. Die Tabelle oben zeigt sie unter „Metrik Schwarzes Loch“. Aus ihr baut man Schritt für Schritt die linke Seite der Feldgleichungen:</p>' +
         chain([
           'Metrik – Abstände und Zeiten; 10 Funktionen von Ort und Zeit',
@@ -363,6 +363,11 @@
         '<p>Den Riemann-Tensor kann man sich so vorstellen: Schiebt man einen Pfeil auf einer Kugel entlang eines Dreiecks, ohne ihn zu drehen, zeigt er am Ende trotzdem in eine andere Richtung. Auf einer flachen Ebene passiert das nie. Der Einstein-Tensor ist genau die Kombination, deren „Quellenfreiheit“ automatisch zur Erhaltung von Energie und Impuls auf der rechten Seite passt. Deshalb steht er in den Feldgleichungen – und nicht der Riemann-Tensor selbst.</p>',
       en: () =>
         '<p>You often hear: “A tensor is a multi-dimensional table of numbers.” That is only half the truth. The table is the packaging. What makes a tensor a tensor is <b>how its numbers change when you switch coordinate systems</b>.</p>' +
+        '<h3 class="th-h3">What really matters: how the numbers transform</h3>' +
+        '<p>An arrow points in the same direction however you lay a set of coordinate axes over it. Rotate the axes, though, and its components – its “shadows” on the axes – still change. But they change according to a fixed rule, in exactly such a way that the arrow itself stays the same. Try it:</p>' +
+        xformHTML() +
+        '<p>In a rotation in space, ' + t(R`x^{2} + y^{2}`) + ' stays the same: the tip always lies on the same circle. In spacetime, the <b>Lorentz boost</b> takes the place of the rotation – switching to a moving observer. What stays unchanged there is ' + t(R`-(ct)^{2} + x^{2}`) + ', so the event lies on a <b>hyperbola</b> instead of a circle. The moving observer’s axes close in on the light line like a pair of scissors. Both come from the minus sign in ' + t(R`\eta_{00}`) + ', and time dilation and length contraction follow from it. ' + exp('special-rel', 'To the Lorentz factor') + '.</p>' +
+        '<p>For comparison: a pair of numbers such as (temperature, pressure) is <i>not</i> a vector. Rotate the axes and both numbers simply stay as they are – they do not mix.</p>' +
         '<h3 class="th-h3">The ranks</h3>' +
         '<div class="th-scroll"><table class="t th-cmp"><thead><tr><th>Rank</th><th>Indices</th><th>Numbers in 4D</th><th>Examples</th></tr></thead><tbody>' +
         [['0 – scalar', '–', '1', 'mass, charge, proper time ' + t(R`\tau`)],
@@ -371,17 +376,12 @@
           ['4', t(R`R^{\rho}_{\sigma\mu\nu}`), '256 (only 20 independent)', 'Riemann curvature tensor']]
           .map((r) => '<tr>' + r.map((c) => '<td>' + c + '</td>').join('') + '</tr>').join('') +
         '</tbody></table></div>' +
-        '<h3 class="th-h3">What really matters: how the numbers transform</h3>' +
-        '<p>An arrow points in the same direction however you lay a set of coordinate axes over it. Rotate the axes, though, and its components – its “shadows” on the axes – still change. But they change according to a fixed rule, in exactly such a way that the arrow itself stays the same. Try it:</p>' +
-        xformHTML() +
-        '<p>In a rotation in space, ' + t(R`x^{2} + y^{2}`) + ' stays the same: the tip always lies on the same circle. In spacetime, the <b>Lorentz boost</b> takes the place of the rotation – switching to a moving observer. What stays unchanged there is ' + t(R`-(ct)^{2} + x^{2}`) + ', so the event lies on a <b>hyperbola</b> instead of a circle. The moving observer’s axes close in on the light line like a pair of scissors. Both come from the minus sign in ' + t(R`\eta_{00}`) + ', and time dilation and length contraction follow from it. ' + exp('special-rel', 'To the Lorentz factor') + '.</p>' +
-        '<p>For comparison: a pair of numbers such as (temperature, pressure) is <i>not</i> a vector. Rotate the axes and both numbers simply stay as they are – they do not mix.</p>' +
         '<div class="callout"><b>Why physicists love tensors:</b> if a tensor is zero in one coordinate system, it is zero in every one. An equation between tensors therefore holds for all observers at once. The principle of relativity from ' + sec('inertia', 'section 2') + ' and ' + sec('rel', '3') + ' comes for free mathematically. That is why Einstein wrote physics in tensors.</div>' +
-        '<h3 class="th-h3">Upper and lower indices</h3>' +
+        '<h3 class="th-h3 th-deep">Upper and lower indices</h3>' +
         '<p>The position of an index carries information. Upper indices (<i>contravariant</i>) belong to quantities like displacements ' + t(R`dx^{\mu}`) + ', lower ones (<i>covariant</i>) to quantities like gradients. The metric translates between the two: ' + t(R`v_{\mu} = g_{\mu\nu}\, v^{\nu}`) + ' (with the summation convention). In flat spacetime this only flips the sign of the time component. Combining an upper with a lower index gives a scalar that all observers agree on – for the four-momentum, for example:</p>' +
         d(R`p_{\mu}\, p^{\mu} = -\frac{E^{2}}{c^{2}} + |\vec{p}\,|^{2} = -m^{2}c^{2}`) +
         '<p>For a particle at rest (' + t(R`\vec{p} = 0`) + ') this reads ' + t(R`E = mc^{2}`) + '. So the most famous formula in physics is the statement that the “length” of the four-momentum is the same for everyone.</p>' +
-        '<h3 class="th-h3">From the metric to curvature</h3>' +
+        '<h3 class="th-h3 th-deep">From the metric to curvature</h3>' +
         '<p>In general relativity, everything starts with the metric ' + t(R`g_{\mu\nu}`) + ', the ruler that fixes at every point how distances and times are measured. The table above shows it under “Black hole metric”. From it you build the left-hand side of the field equations step by step:</p>' +
         chain([
           'Metric – distances and times; 10 functions of position and time',

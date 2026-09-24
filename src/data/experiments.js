@@ -17,7 +17,7 @@
   /* ============================ MECHANIK ============================ */
 
   define({
-    id: 'newton-gravity', group: MECH, title: { de: 'Newtonsche Gravitation', en: 'Newtonian gravity' }, short: { de: 'Gravitation', en: 'Gravity' },
+    id: 'newton-gravity', group: MECH, field: 'mech', title: { de: 'Newtonsche Gravitation', en: 'Newtonian gravity' }, short: { de: 'Gravitation', en: 'Gravity' },
     tex: 'F = G\\,\\frac{m_1\\, m_2}{r^2}',
     vars: {
       G:  { label: 'G', tex: 'G', name: { de: 'Gravitationskonstante', en: 'Gravitational constant' }, dim: 'L^3 M^-1 T^-2', constant: 'G', min: 1e-15, max: 1e-3, scale: 'log' },
@@ -42,11 +42,11 @@
       const rs = o('rs');
       if (v.r > 0 && isFinite(rs) && rs > 0) {
         const q = rs / v.r;
-        if (q >= 1) issues.push({ cat: 'model', msg: T('r liegt innerhalb des Schwarzschild-Radius der Gesamtmasse (r_s ≈ ' + fmt(rs, 3) + ' m). Das Newton-Bild verliert hier jede Bedeutung.', 'r lies inside the Schwarzschild radius of the total mass (r_s ≈ ' + fmt(rs, 3) + ' m). The Newtonian picture loses all meaning here.') });
-        else if (q > 0.01) issues.push({ cat: 'model', msg: T('r ist nur ' + fmt(1 / q, 3) + ' r_s: starkes Gravitationsfeld – hier braucht es die Allgemeine Relativitätstheorie.', 'r is only ' + fmt(1 / q, 3) + ' r_s: a strong gravitational field – this needs general relativity.') });
+        if (q >= 1) issues.push({ cat: 'model', why: T('innerhalb von r_s', 'inside r_s'), msg: T('r liegt innerhalb des Schwarzschild-Radius der Gesamtmasse (r_s ≈ ' + fmt(rs, 3) + ' m). Das Newton-Bild verliert hier jede Bedeutung.', 'r lies inside the Schwarzschild radius of the total mass (r_s ≈ ' + fmt(rs, 3) + ' m). The Newtonian picture loses all meaning here.') });
+        else if (q > 0.01) issues.push({ cat: 'model', why: T('starkes Feld: ART nötig', 'strong field: GR needed'), msg: T('r ist nur ' + fmt(1 / q, 3) + ' r_s: starkes Gravitationsfeld – hier braucht es die Allgemeine Relativitätstheorie.', 'r is only ' + fmt(1 / q, 3) + ' r_s: a strong gravitational field – this needs general relativity.') });
         else if (q > 1e-9) issues.push({ cat: 'info', msg: T('Schwachfeld-Parameter r_s/r ≈ ' + fmt(q, 2) + ': relativistische Korrekturen sind klein, aber je nach Präzision messbar (vgl. Periheldrehung des Merkur).', 'Weak-field parameter r_s/r ≈ ' + fmt(q, 2) + ': relativistic corrections are small but, depending on precision, measurable (cf. the perihelion precession of Mercury).') });
       }
-      if (v.r > 0 && v.r < 5e-5) issues.push({ cat: 'model', msg: T('Das 1/r²-Gesetz ist experimentell nur bis hinunter zu etwa 50 µm getestet (Torsionswaagen). Darunter ist das eine Extrapolation.', 'The 1/r² law has only been tested experimentally down to about 50 µm (torsion balances). Below that it is an extrapolation.') });
+      if (v.r > 0 && v.r < 5e-5) issues.push({ cat: 'model', why: T('unter 50 µm nicht getestet', 'untested below 50 µm'), msg: T('Das 1/r²-Gesetz ist experimentell nur bis hinunter zu etwa 50 µm getestet (Torsionswaagen). Darunter ist das eine Extrapolation.', 'The 1/r² law has only been tested experimentally down to about 50 µm (torsion balances). Below that it is an extrapolation.') });
       issues.push({ cat: 'assume', msg: T('Punktmassen oder kugelsymmetrische Körper; r ist der Abstand der Schwerpunkte.', 'Point masses or spherically symmetric bodies; r is the distance between the centres of mass.') });
     },
     presets: [
@@ -85,7 +85,7 @@
   });
 
   define({
-    id: 'kinematics', group: MECH, title: { de: 'Gleichmäßig beschleunigte Bewegung', en: 'Uniformly accelerated motion' }, short: { de: 'Kinematik', en: 'Kinematics' },
+    id: 'kinematics', group: MECH, field: 'mech', title: { de: 'Gleichmäßig beschleunigte Bewegung', en: 'Uniformly accelerated motion' }, short: { de: 'Kinematik', en: 'Kinematics' },
     tex: 's(t) = s_0 + v_0\\,t + \\tfrac12\\,a\\,t^2',
     vars: {
       s0: { label: 's₀', tex: 's_0', name: { de: 'Startposition', en: 'Initial position' }, dim: 'L', default: 0, min: -100, max: 100, scale: 'lin' },
@@ -105,8 +105,8 @@
     checks({ v, o, issues, C }) {
       if (v.t < 0) issues.push({ cat: 'info', msg: T('Negative Zeit: Die Formel extrapoliert rückwärts. Mathematisch zulässig, sofern die Beschleunigung vorher schon konstant war.', 'Negative time: the formula extrapolates backwards. Mathematically fine, provided the acceleration was already constant before.') });
       const vel = Math.abs(o('v'));
-      if (vel > 0.1 * C.c) issues.push({ cat: 'model', msg: T('|v| > 0,1 c: nichtrelativistische Kinematik ist hier ungenau.', '|v| > 0.1 c: non-relativistic kinematics is inaccurate here.') });
-      if (vel > C.c) issues.push({ cat: 'unreal', msg: T('Schneller als Licht – für massive Körper ausgeschlossen. Konstante Beschleunigung kann nicht beliebig lange andauern.', 'Faster than light – impossible for massive bodies. Constant acceleration cannot go on indefinitely.') });
+      if (vel > 0.1 * C.c) issues.push({ cat: 'model', why: T('|v| > 0,1 c: relativistisch', '|v| > 0.1 c: relativistic'), msg: T('|v| > 0,1 c: nichtrelativistische Kinematik ist hier ungenau.', '|v| > 0.1 c: non-relativistic kinematics is inaccurate here.') });
+      if (vel > C.c) issues.push({ cat: 'unreal', why: T('schneller als Licht', 'faster than light'), msg: T('Schneller als Licht – nach der Relativitätstheorie für massive Körper ausgeschlossen. Konstante Beschleunigung kann nicht beliebig lange andauern.', 'Faster than light – ruled out for massive bodies by relativity. Constant acceleration cannot go on indefinitely.') });
       issues.push({ cat: 'assume', msg: T('Die Beschleunigung ist über die ganze Zeit exakt konstant.', 'The acceleration is exactly constant the whole time.') });
     },
     presets: [
@@ -139,7 +139,7 @@
   });
 
   define({
-    id: 'free-fall', group: MECH, title: { de: 'Freier Fall', en: 'Free fall' }, short: { de: 'Freier Fall', en: 'Free fall' },
+    id: 'free-fall', group: MECH, field: 'mech', title: { de: 'Freier Fall', en: 'Free fall' }, short: { de: 'Freier Fall', en: 'Free fall' },
     tex: 'h(t) = h_0 - \\tfrac12\\, g\\, t^2',
     vars: {
       h0: { label: 'h₀', tex: 'h_0', name: { de: 'Starthöhe', en: 'Initial height' }, dim: 'L', default: 100, min: 0, max: 1000, scale: 'lin' },
@@ -158,10 +158,10 @@
     ],
     symbols: { t_F: { dim: 'T' } },
     checks({ v, o, issues }) {
-      if (o('h') < 0) issues.push({ cat: 'model', msg: T('h < 0: Der Körper wäre schon bei t ≈ ' + PP.engine.fmt(o('tf'), 3) + ' s aufgeschlagen. Danach beschreibt die Formel nichts Reales mehr.', 'h < 0: the body would already have hit the ground at t ≈ ' + PP.engine.fmt(o('tf'), 3) + ' s. After that the formula no longer describes anything real.') });
-      if (v.h0 < 0) issues.push({ cat: 'unreal', msg: T('Negative Starthöhe: Der Körper läge unter dem Boden.', 'Negative initial height: the body would be below the ground.') });
-      if (o('v') > 30) issues.push({ cat: 'model', msg: T('In Luft wäre der Luftwiderstand bei über 30 m/s bereits erheblich. Das Modell gilt streng nur im Vakuum.', 'In air, drag would already be considerable above 30 m/s. Strictly, the model only holds in a vacuum.') });
-      if (v.h0 > 1e5) issues.push({ cat: 'model', msg: T('Über ~100 km Höhe nimmt g merklich ab; konstantes g ist dann eine schlechte Näherung.', 'Above ~100 km altitude g drops noticeably; a constant g is then a poor approximation.') });
+      if (o('h') < 0) issues.push({ cat: 'model', why: T('nach dem Aufprall', 'after impact'), on: ['t'], msg: T('h < 0: Der Körper wäre schon bei t ≈ ' + PP.engine.fmt(o('tf'), 3) + ' s aufgeschlagen. Danach beschreibt die Formel nichts Reales mehr.', 'h < 0: the body would already have hit the ground at t ≈ ' + PP.engine.fmt(o('tf'), 3) + ' s. After that the formula no longer describes anything real.') });
+      if (v.h0 < 0) issues.push({ cat: 'unreal', why: T('Start unter dem Boden', 'start below the ground'), msg: T('Negative Starthöhe: Der Körper läge unter dem Boden.', 'Negative initial height: the body would be below the ground.') });
+      if (o('v') > 30) issues.push({ cat: 'model', why: T('in Luft: Luftwiderstand (v > 30 m/s)', 'in air: drag (v > 30 m/s)'), on: ['t'], msg: T('In Luft wäre der Luftwiderstand bei über 30 m/s bereits erheblich. Das Modell gilt streng nur im Vakuum.', 'In air, drag would already be considerable above 30 m/s. Strictly, the model only holds in a vacuum.') });
+      if (v.h0 > 1e5) issues.push({ cat: 'model', why: T('über 100 km: g nicht konstant', 'above 100 km: g not constant'), msg: T('Über ~100 km Höhe nimmt g merklich ab; konstantes g ist dann eine schlechte Näherung.', 'Above ~100 km altitude g drops noticeably; a constant g is then a poor approximation.') });
       issues.push({ cat: 'assume', msg: T('Vakuum, konstantes g, Start aus der Ruhe.', 'Vacuum, constant g, starting from rest.') });
     },
     presets: [
@@ -171,7 +171,7 @@
       { name: { de: 'Jupiter (Wolkenobergrenze)', en: 'Jupiter (cloud tops)' }, note: { de: 'g ≈ 24,8 m/s²', en: 'g ≈ 24.8 m/s²' }, values: { h0: 100, g: 24.79, t: 1.5 } },
       { name: { de: 'Fallturm Bremen', en: 'Bremen Drop Tower' }, note: { de: 'Fallstrecke ≈ 110 m in einer evakuierten Röhre', en: 'drop height ≈ 110 m in an evacuated tube' }, values: { h0: 110, g: C.g_n.value, t: 3 } },
     ],
-    graph: { x: 't', y: 'h', also: ['v'] },
+    graph: { x: 't', y: 'h', also: ['v'], view: { to: 'tf', f: 1.1 } },
     viz: 'freefall', animateVar: 't', animateUntil: 'tf',
     explain: {
       intuition: {
@@ -197,7 +197,7 @@
   });
 
   define({
-    id: 'spring', group: MECH, title: { de: 'Federpendel (Hookesches Gesetz)', en: 'Mass on a spring (Hooke’s law)' }, short: { de: 'Feder', en: 'Spring' },
+    id: 'spring', group: MECH, field: 'mech', title: { de: 'Federpendel (Hookesches Gesetz)', en: 'Mass on a spring (Hooke’s law)' }, short: { de: 'Feder', en: 'Spring' },
     tex: 'F = -k\\,x',
     vars: {
       k: { label: 'k', tex: 'k', name: { de: 'Federkonstante', en: 'Spring constant' }, dim: 'M T^-2', default: 50, min: 0.1, max: 1e6, scale: 'log', positive: true },
@@ -216,7 +216,7 @@
       { label: { de: 'Periodendauer', en: 'Period' }, eq: 'T = 2*pi*sqrt(m/k)' },
     ],
     checks({ v, issues }) {
-      if (Math.abs(v.x) > 0.3) issues.push({ cat: 'model', msg: T('Große Auslenkung: Reale Federn verlassen irgendwann den linearen Bereich – dann gilt F = −kx nicht mehr.', 'Large displacement: real springs eventually leave the linear range – then F = −kx no longer holds.') });
+      if (Math.abs(v.x) > 0.3) issues.push({ cat: 'model', why: T('Feder nicht mehr linear', 'spring no longer linear'), msg: T('Große Auslenkung: Reale Federn verlassen irgendwann den linearen Bereich – dann gilt F = −kx nicht mehr.', 'Large displacement: real springs eventually leave the linear range – then F = −kx no longer holds.') });
       issues.push({ cat: 'assume', msg: T('Ideale, masselose Feder ohne Dämpfung.', 'Ideal, massless spring without damping.') });
     },
     presets: [
@@ -249,7 +249,7 @@
   });
 
   define({
-    id: 'circular', group: MECH, title: { de: 'Gleichförmige Kreisbewegung', en: 'Uniform circular motion' }, short: { de: 'Kreisbewegung', en: 'Circular motion' },
+    id: 'circular', group: MECH, field: 'mech', title: { de: 'Gleichförmige Kreisbewegung', en: 'Uniform circular motion' }, short: { de: 'Kreisbewegung', en: 'Circular motion' },
     tex: 'a = \\frac{v^2}{r}',
     vars: {
       v: { label: 'v', tex: 'v', name: { de: 'Bahngeschwindigkeit', en: 'Orbital speed' }, dim: 'L T^-1', default: 10, min: 0.01, max: 1e6, scale: 'log', positive: true },
@@ -268,8 +268,8 @@
       { label: { de: 'Zentripetalkraft', en: 'Centripetal force' }, eq: 'F = m*v^2/r' },
     ],
     checks({ v, issues, C }) {
-      if (v.v > C.c) issues.push({ cat: 'unreal', msg: T('v > c: Kein massiver Körper erreicht Lichtgeschwindigkeit.', 'v > c: no massive body reaches the speed of light.') });
-      else if (v.v > 0.1 * C.c) issues.push({ cat: 'model', msg: T('v > 0,1 c: relativistische Korrekturen werden wichtig.', 'v > 0.1 c: relativistic corrections become important.') });
+      if (v.v > C.c) issues.push({ cat: 'unreal', why: 'v > c', msg: T('v > c: Kein massiver Körper erreicht Lichtgeschwindigkeit.', 'v > c: no massive body reaches the speed of light.') });
+      else if (v.v > 0.1 * C.c) issues.push({ cat: 'model', why: T('v > 0,1 c: relativistisch', 'v > 0.1 c: relativistic'), msg: T('v > 0,1 c: relativistische Korrekturen werden wichtig.', 'v > 0.1 c: relativistic corrections become important.') });
       issues.push({ cat: 'assume', msg: T('Konstanter Betrag der Geschwindigkeit, exakte Kreisbahn.', 'Constant speed, exactly circular path.') });
     },
     presets: [
@@ -302,7 +302,7 @@
   });
 
   define({
-    id: 'pendulum', group: MECH, title: { de: 'Fadenpendel: Näherung und exakte Lösung', en: 'Simple pendulum: approximation and exact solution' }, short: { de: 'Fadenpendel', en: 'Pendulum' },
+    id: 'pendulum', group: MECH, field: 'mech', title: { de: 'Fadenpendel: Näherung und exakte Lösung', en: 'Simple pendulum: approximation and exact solution' }, short: { de: 'Fadenpendel', en: 'Pendulum' },
     tex: 'T = 4\\sqrt{\\frac{L}{g}}\\;K\\left(\\sin\\frac{\\theta_0}{2}\\right)',
     vars: {
       L: { label: 'L', tex: 'L', name: { de: 'Fadenlänge', en: 'Length of the string' }, dim: 'L', default: 1, min: 0.01, max: 100, scale: 'log', positive: true },
@@ -325,9 +325,9 @@
     checks({ v, o, issues, fmt }) {
       const err = o('err');
       if (v.th < 0) issues.push({ cat: 'info', msg: T('Negativer Winkel heißt nur: zur anderen Seite ausgelenkt. T hängt von |θ₀| ab.', 'A negative angle just means a swing to the other side. T depends on |θ₀|.') });
-      if (isFinite(err) && err >= 1) issues.push({ cat: 'model', msg: T('Die Kleinwinkelnäherung sin θ ≈ θ liegt hier um ' + fmt(err, 2) + ' % daneben: T₀ ist zu kurz. Die exakte Periodendauer T bleibt gültig.', 'The small-angle approximation sin θ ≈ θ is off by ' + fmt(err, 2) + ' % here: T₀ is too short. The exact period T remains valid.') });
+      if (isFinite(err) && err >= 1) issues.push({ cat: 'model', why: T('Kleinwinkelnäherung ≥ 1 % daneben', 'small-angle approximation off by ≥ 1 %'), on: ['T0'], msg: T('Die Kleinwinkelnäherung sin θ ≈ θ liegt hier um ' + fmt(err, 2) + ' % daneben: T₀ ist zu kurz. Die exakte Periodendauer T bleibt gültig.', 'The small-angle approximation sin θ ≈ θ is off by ' + fmt(err, 2) + ' % here: T₀ is too short. The exact period T remains valid.') });
       else if (isFinite(err) && err >= 0.1) issues.push({ cat: 'info', msg: T('Die Kleinwinkelnäherung weicht um ' + fmt(err, 2) + ' % ab – für eine Pendeluhr schon viel.', 'The small-angle approximation is off by ' + fmt(err, 2) + ' % – already a lot for a pendulum clock.') });
-      if (Math.abs(v.th) > 90) issues.push({ cat: 'model', msg: T('Über 90° würde ein Faden anfangs schlaff: Das Modell gilt dann nur für eine starre Stange.', 'Beyond 90° a string would go slack at first: the model then only applies to a rigid rod.') });
+      if (Math.abs(v.th) > 90) issues.push({ cat: 'model', why: T('über 90°: Faden schlaff', 'beyond 90°: string goes slack'), msg: T('Über 90° würde ein Faden anfangs schlaff: Das Modell gilt dann nur für eine starre Stange.', 'Beyond 90° a string would go slack at first: the model then only applies to a rigid rod.') });
       issues.push({ cat: 'assume', msg: T('Punktmasse an masseloser, starrer Aufhängung; keine Reibung; konstantes g.', 'Point mass on a massless, rigid suspension; no friction; constant g.') });
     },
     presets: [
@@ -364,7 +364,7 @@
   });
 
   define({
-    id: 'projectile', group: MECH, title: { de: 'Schiefer Wurf', en: 'Projectile motion' }, short: { de: 'Schiefer Wurf', en: 'Projectile' },
+    id: 'projectile', group: MECH, field: 'mech', title: { de: 'Schiefer Wurf', en: 'Projectile motion' }, short: { de: 'Schiefer Wurf', en: 'Projectile' },
     tex: 'R = \\frac{v_0^2\\,\\sin 2\\alpha}{g}',
     vars: {
       v0: { label: 'v₀', tex: 'v_0', name: { de: 'Abwurfgeschwindigkeit', en: 'Launch speed' }, dim: 'L T^-1', default: 20, min: 0.1, max: 1000, scale: 'log', positive: true },
@@ -387,9 +387,9 @@
       { label: { de: 'Bahnkurve y(x)', en: 'Trajectory y(x)' }, eq: 'y = x*tan(al*pi/180) - g*x^2/(2*v0^2*cos(al*pi/180)^2)' },
     ],
     checks({ v, o, issues, fmt }) {
-      if (o('y') < 0 && v.t > 0) issues.push({ cat: 'model', msg: T('y < 0: Der Körper ist schon bei t ≈ ' + fmt(o('tf'), 3) + ' s gelandet. Danach beschreibt die Formel nichts Reales mehr.', 'y < 0: the body already landed at t ≈ ' + fmt(o('tf'), 3) + ' s. After that the formula no longer describes anything real.') });
-      if (v.v0 > 7900) issues.push({ cat: 'model', msg: T('Nahe der ersten kosmischen Geschwindigkeit (≈ 7,9 km/s) ist die Erde nicht mehr flach und g nicht konstant – die Bahn wird zur Ellipse.', 'Close to orbital speed (≈ 7.9 km/s) the Earth is no longer flat and g not constant – the path becomes an ellipse.') });
-      else if (v.v0 > 30) issues.push({ cat: 'model', msg: T('Bei über 30 m/s bremst in Luft der Luftwiderstand schon deutlich: Reale Weiten sind kürzer, und der beste Winkel liegt unter 45°.', 'Above 30 m/s, air resistance already slows things down noticeably in air: real ranges are shorter, and the best angle is below 45°.') });
+      if (o('y') < 0 && v.t > 0) issues.push({ cat: 'model', why: T('nach der Landung', 'after landing'), on: ['t'], msg: T('y < 0: Der Körper ist schon bei t ≈ ' + fmt(o('tf'), 3) + ' s gelandet. Danach beschreibt die Formel nichts Reales mehr.', 'y < 0: the body already landed at t ≈ ' + fmt(o('tf'), 3) + ' s. After that the formula no longer describes anything real.') });
+      if (v.v0 > 7900) issues.push({ cat: 'model', why: T('Erde nicht mehr flach', 'Earth no longer flat'), msg: T('Nahe der ersten kosmischen Geschwindigkeit (≈ 7,9 km/s) ist die Erde nicht mehr flach und g nicht konstant – die Bahn wird zur Ellipse.', 'Close to orbital speed (≈ 7.9 km/s) the Earth is no longer flat and g not constant – the path becomes an ellipse.') });
+      else if (v.v0 > 30) issues.push({ cat: 'model', why: T('in Luft: Luftwiderstand (v₀ > 30 m/s)', 'in air: drag (v₀ > 30 m/s)'), msg: T('Bei über 30 m/s bremst in Luft der Luftwiderstand schon deutlich: Reale Weiten sind kürzer, und der beste Winkel liegt unter 45°.', 'Above 30 m/s, air resistance already slows things down noticeably in air: real ranges are shorter, and the best angle is below 45°.') });
       issues.push({ cat: 'assume', msg: T('Kein Luftwiderstand, flacher Boden, konstantes g; Abwurf und Landung auf gleicher Höhe.', 'No air resistance, flat ground, constant g; launch and landing at the same height.') });
     },
     presets: [
@@ -427,7 +427,7 @@
   /* ======================= SPEZIELLE RELATIVITÄT ======================= */
 
   define({
-    id: 'special-rel', group: { de: 'Relativität', en: 'Relativity' }, title: { de: 'Spezielle Relativität: Lorentz-Faktor', en: 'Special relativity: Lorentz factor' }, short: { de: 'Lorentz-Faktor', en: 'Lorentz factor' },
+    id: 'special-rel', group: { de: 'Relativität', en: 'Relativity' }, field: 'rel', title: { de: 'Spezielle Relativität: Lorentz-Faktor', en: 'Special relativity: Lorentz factor' }, short: { de: 'Lorentz-Faktor', en: 'Lorentz factor' },
     tex: '\\gamma = \\frac{1}{\\sqrt{1 - v^2/c^2}}',
     vars: {
       beta: { label: 'β = v/c', tex: '\\beta', name: { de: 'Geschwindigkeit in Einheiten von c', en: 'Speed in units of c' }, dim: '', default: 0.8, min: 0, max: 1, scale: 'toone', toone: 12 },
@@ -452,7 +452,7 @@
     ],
     symbols: { v: { dim: 'L T^-1' }, E_k: { dim: 'M L^2 T^-2' } },
     checks({ v, issues }) {
-      if (v.beta >= 1) issues.push({ cat: 'math', msg: T('β ≥ 1: Für β = 1 wird γ unendlich, für β > 1 imaginär. Massive Körper können c nicht erreichen.', 'β ≥ 1: at β = 1, γ becomes infinite; for β > 1 it becomes imaginary. Massive bodies cannot reach c.') });
+      if (v.beta >= 1) issues.push({ cat: 'math', why: 'β ≥ 1', msg: T('β ≥ 1: Für β = 1 wird γ unendlich, für β > 1 imaginär. Massive Körper können c nicht erreichen.', 'β ≥ 1: at β = 1, γ becomes infinite; for β > 1 it becomes imaginary. Massive bodies cannot reach c.') });
       if (v.beta < 0) issues.push({ cat: 'info', msg: T('Negatives β bedeutet nur die Gegenrichtung; γ hängt von β² ab.', 'A negative β just means the opposite direction; γ depends on β².') });
       if (v.beta > 0 && v.beta < 1e-4) issues.push({ cat: 'info', msg: T('γ − 1 ≈ β²/2 ist winzig. E_kin wird deshalb über eine umgeformte Formel berechnet – die naive Differenz (γ−1)mc² würde hier durch Rundung ausgelöscht.', 'γ − 1 ≈ β²/2 is tiny. E_kin is therefore computed from a rearranged formula – the naive difference (γ−1)mc² would be wiped out by rounding here.') });
       issues.push({ cat: 'assume', msg: T('Inertialsysteme, flache Raumzeit (keine Gravitation).', 'Inertial frames, flat spacetime (no gravity).') });
@@ -493,7 +493,7 @@
 
   const NA = C.N_A.value;
   define({
-    id: 'ideal-gas', group: { de: 'Thermodynamik', en: 'Thermodynamics' }, title: { de: 'Ideales Gas', en: 'Ideal gas' }, short: { de: 'Ideales Gas', en: 'Ideal gas' },
+    id: 'ideal-gas', group: { de: 'Thermodynamik', en: 'Thermodynamics' }, field: 'thermo', title: { de: 'Ideales Gas', en: 'Ideal gas' }, short: { de: 'Ideales Gas', en: 'Ideal gas' },
     tex: 'p\\,V = N\\,k_{\\mathrm{B}}\\,T',
     vars: {
       N: { label: 'N', tex: 'N', name: { de: 'Teilchenzahl', en: 'Number of particles' }, dim: '', default: NA, min: 1, max: 1e30, scale: 'log', positive: true },
@@ -518,10 +518,10 @@
     symbols: { E_k: { dim: 'M L^2 T^-2' } },
     checks({ v, o, issues, fmt }) {
       const d = o('d'), lam = o('lam');
-      if (isFinite(d) && isFinite(lam) && d < 10 * lam) issues.push({ cat: 'model', msg: T('Die Teilchen stehen so dicht (d ≈ ' + fmt(d, 2) + ' m), dass ihre Wellenlänge (λ ≈ ' + fmt(lam, 2) + ' m) vergleichbar wird. Dann braucht es Quantenstatistik statt des idealen Gases.', 'The particles are so close together (d ≈ ' + fmt(d, 2) + ' m) that their wavelength (λ ≈ ' + fmt(lam, 2) + ' m) becomes comparable. Then quantum statistics is needed instead of the ideal gas.') });
-      if (o('p') > 1e7) issues.push({ cat: 'model', msg: T('Über ≈ 100 bar weichen reale Gase deutlich ab: Die Teilchen brauchen Platz und ziehen sich an (van-der-Waals-Gleichung).', 'Above ≈ 100 bar real gases deviate noticeably: the particles take up space and attract each other (van der Waals equation).') });
-      if (v.T < 90) issues.push({ cat: 'model', msg: T('Unter ≈ 90 K sind Stickstoff und Sauerstoff bei Normaldruck flüssig. Das ideale Gas kennt keine Kondensation.', 'Below ≈ 90 K, nitrogen and oxygen are liquid at normal pressure. The ideal gas knows nothing about condensation.') });
-      if (v.T > 1e4) issues.push({ cat: 'model', msg: T('Über ≈ 10 000 K zerfallen Moleküle, und Atome werden ionisiert – aus dem Gas wird ein Plasma.', 'Above ≈ 10,000 K molecules break apart and atoms are ionised – the gas turns into a plasma.') });
+      if (isFinite(d) && isFinite(lam) && d < 10 * lam) issues.push({ cat: 'model', why: T('Quantenentartung', 'quantum degeneracy'), msg: T('Die Teilchen stehen so dicht (d ≈ ' + fmt(d, 2) + ' m), dass ihre Wellenlänge (λ ≈ ' + fmt(lam, 2) + ' m) vergleichbar wird. Dann braucht es Quantenstatistik statt des idealen Gases.', 'The particles are so close together (d ≈ ' + fmt(d, 2) + ' m) that their wavelength (λ ≈ ' + fmt(lam, 2) + ' m) becomes comparable. Then quantum statistics is needed instead of the ideal gas.') });
+      if (o('p') > 1e7) issues.push({ cat: 'model', why: T('über 100 bar: reales Gas', 'above 100 bar: real gas'), msg: T('Über ≈ 100 bar weichen reale Gase deutlich ab: Die Teilchen brauchen Platz und ziehen sich an (van-der-Waals-Gleichung).', 'Above ≈ 100 bar real gases deviate noticeably: the particles take up space and attract each other (van der Waals equation).') });
+      if (v.T < 90) issues.push({ cat: 'model', why: T('unter 90 K: Kondensation', 'below 90 K: condensation'), msg: T('Unter ≈ 90 K sind Stickstoff und Sauerstoff bei Normaldruck flüssig. Das ideale Gas kennt keine Kondensation.', 'Below ≈ 90 K, nitrogen and oxygen are liquid at normal pressure. The ideal gas knows nothing about condensation.') });
+      if (v.T > 1e4) issues.push({ cat: 'model', why: T('über 10 000 K: Plasma', 'above 10,000 K: plasma'), msg: T('Über ≈ 10 000 K zerfallen Moleküle, und Atome werden ionisiert – aus dem Gas wird ein Plasma.', 'Above ≈ 10,000 K molecules break apart and atoms are ionised – the gas turns into a plasma.') });
       if (v.N < 1000) issues.push({ cat: 'info', msg: T('Bei so wenigen Teilchen schwankt der Druck stark; p ist nur noch ein Mittelwert.', 'With this few particles the pressure fluctuates strongly; p is only an average.') });
       issues.push({ cat: 'assume', msg: T('Punktförmige Teilchen ohne Anziehung, nur elastische Stöße; thermisches Gleichgewicht.', 'Point-like particles without attraction, only elastic collisions; thermal equilibrium.') });
     },
@@ -531,7 +531,7 @@
       { name: { de: 'Heliumballon', en: 'Helium balloon' }, note: { de: '≈ 10 l bei 20 °C und 1 atm', en: '≈ 10 l at 20 °C and 1 atm' }, values: { N: 2.504e23, T: 293.15, V: 0.01, m: 6.6465e-27 } },
       { name: { de: 'Interstellares Gas', en: 'Interstellar gas' }, note: { de: '≈ 1 Wasserstoffatom pro cm³ bei ≈ 100 K', en: '≈ 1 hydrogen atom per cm³ at ≈ 100 K' }, values: { N: 1e6, T: 100, V: 1, m: 1.6735e-27 } },
     ],
-    graph: { x: 'T', y: 'p', xlog: false, ylog: false },
+    graph: { x: 'T', y: 'p', xlog: false, ylog: false, view: { range: [1, 12000] } },
     viz: 'gas',
     explain: {
       intuition: {
@@ -560,9 +560,129 @@
 
   const BH_THERMO = { de: 'Thermodynamik Schwarzer Löcher', en: 'Black hole thermodynamics' };
   const SCALAR = { de: 'skalar', en: 'scalar' };
+  // Gemessene bzw. festgelegte Werte – für die Checks im Break-Modus („Konstante verkleinert?“)
+  const K0 = { hbar: C.hbar.value, c: C.c.value, G: C.G.value, k_B: C.k_B.value };
+
+  /* Wörterbuch Mechanik Schwarzer Löcher ↔ Thermodynamik – steht auf der Hawking- und der Entropie-Seite.
+     src: woher die Zahl kommt (Ausgabe eines Experiments oder Eingabe); gerechnet wird immer in der Engine. */
+  const BH_DICT = {
+    pair: ['hawking', 'bh-entropy'],
+    title: { de: 'Wörterbuch: Schwarzes Loch ↔ Thermodynamik', en: 'Dictionary: black hole ↔ thermodynamics' },
+    rows: [
+      { l: { tex: '\\kappa', name: { de: 'Oberflächengravitation', en: 'surface gravity' }, src: { exp: 'hawking', key: 'kappa' } },
+        r: { tex: 'T', name: { de: 'Temperatur', en: 'temperature' }, src: { exp: 'hawking', key: 'TH' } } },
+      { l: { tex: 'A', name: { de: 'Horizontfläche', en: 'horizon area' }, src: { exp: 'bh-entropy', form: 'mass', key: 'A' } },
+        r: { tex: 'S', name: { de: 'Entropie', en: 'entropy' }, src: { exp: 'bh-entropy', form: 'mass', key: 'S' } } },
+      { l: { tex: 'M', name: { de: 'Masse', en: 'mass' }, src: { var: 'M' } },
+        r: { tex: 'E = Mc^2', name: { de: 'Energie', en: 'energy' }, src: { exp: 'hawking', key: 'E' } } },
+    ],
+    law: 'c^2\\,\\mathrm{d}M = \\frac{\\kappa\\, c^2}{8\\pi G}\\,\\mathrm{d}A \\;\\;\\longleftrightarrow\\;\\; \\mathrm{d}E = T\\,\\mathrm{d}S',
+    both: '\\xc{res}{T_{\\mathrm{H}}} = \\frac{\\xc{q}{\\hbar}\\,\\xc{rel}{c^3}}{8\\pi\\,\\xc{grav}{G}\\,M\\,\\xc{thermo}{k_{\\mathrm{B}}}} \\qquad \\xc{res}{S_{\\mathrm{BH}}} = \\frac{\\xc{thermo}{k_{\\mathrm{B}}}\\,\\xc{rel}{c^3}\\,A}{4\\,\\xc{grav}{G}\\,\\xc{q}{\\hbar}}',
+    text: {
+      de: 'Bardeen, Carter und Hawking fanden 1973 für Schwarze Löcher Gesetze, die genau wie die Hauptsätze der Thermodynamik aussehen. Zunächst war das eine formale Analogie. Mit T_H und S_BH wurde daraus – im Rahmen der semiklassischen Gravitation – eine physikalische Aussage. Beide Formeln enthalten alle vier Konstanten ħ, c, G und k_B.',
+      en: 'In 1973 Bardeen, Carter and Hawking found laws for black holes that look exactly like the laws of thermodynamics. At first this was a formal analogy. With T_H and S_BH it became a physical statement – within semiclassical gravity. Both formulas contain all four constants ħ, c, G and k_B.',
+    },
+    link: {
+      hawking: { de: 'Zur Hawking-Temperatur →', en: 'To the Hawking temperature →' },
+      'bh-entropy': { de: 'Zur Bekenstein-Hawking-Entropie →', en: 'To the Bekenstein–Hawking entropy →' },
+    },
+  };
+
+  /* Schnittpunkt-Block der Hawking-Seite (src/ui/crossroads.js zeichnet ihn).
+     color: q = Quantenmechanik, rel = Relativität, grav = Gravitation/Geometrie, thermo = Thermodynamik,
+            mass = das Schwarze Loch, geo = reine Zahl. live: Knopf, der die Größe im Break-Modus verändert. */
+  const HAWKING_XR = {
+    lhs: 'T_{\\mathrm{H}}', num: ['hbar', 'c'], den: ['8pi', 'G', 'M', 'k_B'],
+    lead: {
+      de: 'Ein Schnittpunkt, keine Vereinigung: Vier Theorien berühren sich hier in einer Zeile. Eine gemeinsame Theorie der Quantengravitation gibt es noch nicht.',
+      en: 'A crossroads, not a unification: four theories touch here in a single line. A common theory of quantum gravity does not exist yet.',
+    },
+    gapLink: { de: 'Warum beide (noch) nicht zusammenpassen →', en: 'Why the two don’t fit together (yet) →' },
+    hint: { de: 'Zeig auf ein Symbol oder tippe es an: Welche Theorie steckt dahinter – und was passiert, wenn man sie abschaltet?', en: 'Point at a symbol or tap it: which theory is behind it – and what happens if you switch it off?' },
+    symbols: {
+      hbar: {
+        tex: '\\hbar', color: 'q', theory: { de: 'Quantenmechanik', en: 'Quantum mechanics' },
+        role: { de: 'Das Wirkungsquantum bringt die Quantenfeldtheorie ins Spiel: Hawking rechnete mit Quantenfeldern auf der gekrümmten Raumzeit vor dem Horizont. T_H ist proportional zu ħ.',
+          en: 'The quantum of action brings in quantum field theory: Hawking calculated with quantum fields on the curved spacetime outside the horizon. T_H is proportional to ħ.' },
+        limit: '\\hbar \\to 0 \\;\\Rightarrow\\; T_{\\mathrm{H}} \\to 0',
+        limitText: { de: 'Klassisch ist ein Schwarzes Loch vollkommen schwarz: Es verschluckt alles und strahlt nichts ab. Hawking-Strahlung ist ein reiner Quanteneffekt.',
+          en: 'Classically a black hole is perfectly black: it swallows everything and emits nothing. Hawking radiation is a pure quantum effect.' },
+        live: { c: 'hbar', f: 1e-3, zero: true },
+      },
+      c: {
+        tex: 'c^3', color: 'rel', theory: { de: 'Relativität', en: 'Relativity' },
+        role: { de: 'Die Lichtgeschwindigkeit legt fest, wo der Horizont liegt: Innerhalb von r_s = 2GM/c² kann nicht einmal Licht entkommen. Sie steht in dritter Potenz im Zähler.',
+          en: 'The speed of light fixes where the horizon lies: inside r_s = 2GM/c² not even light can escape. It appears to the third power in the numerator.' },
+        limit: 'c \\to \\infty \\;\\Rightarrow\\; r_{\\mathrm{s}} \\to 0',
+        limitText: { de: 'Relativität „abschalten“ heißt c → ∞, das ist Newtons Physik. Dann schrumpft r_s auf null, und es gibt keinen Ereignishorizont – den kennt erst die Relativitätstheorie.',
+          en: 'Switching relativity “off” means c → ∞, which is Newton’s physics. Then r_s shrinks to zero and there is no event horizon – only relativity knows about horizons.' },
+        live: { c: 'c', f: 10 },
+      },
+      G: {
+        tex: 'G', color: 'grav', theory: { de: 'Gravitation – Geometrie der Raumzeit', en: 'Gravity – the geometry of spacetime' },
+        role: { de: 'G sagt, wie stark Masse die Raumzeit krümmt. Mehr G heißt ein größerer Horizont und damit ein kälteres Loch: T_H ist proportional zu 1/G.',
+          en: 'G says how strongly mass curves spacetime. More G means a larger horizon and therefore a colder hole: T_H is proportional to 1/G.' },
+        limit: 'G \\to 0 \\;\\Rightarrow\\; r_{\\mathrm{s}} \\to 0',
+        limitText: { de: 'Ohne Gravitation gibt es keinen Horizont und kein Schwarzes Loch. Die Formel liefert trotzdem eine immer höhere Temperatur – ein Zeichen, dass sie dort nicht mehr gilt. Die App meldet das als „Außerhalb des Modells“.',
+          en: 'Without gravity there is no horizon and no black hole. The formula still returns an ever higher temperature – a sign that it no longer applies there. The app reports this as “Outside the model”.' },
+        live: { c: 'G', f: 1e-3, zero: true },
+      },
+      k_B: {
+        tex: 'k_{\\mathrm{B}}', color: 'thermo', theory: { de: 'Thermodynamik', en: 'Thermodynamics' },
+        role: { de: 'Die Boltzmann-Konstante macht aus einer Energie eine Temperatur. Durch sie wird das Schwarze Loch zu einem thermischen Körper – mit Temperatur und mit Entropie.',
+          en: 'The Boltzmann constant turns an energy into a temperature. Through it the black hole becomes a thermal body – with a temperature and with an entropy.' },
+        limit: 'k_{\\mathrm{B}} \\to 0 \\;\\Rightarrow\\; T_{\\mathrm{H}} \\to \\infty',
+        limitText: { de: 'Die Temperatur in Kelvin divergiert, die Energie k_B·T_H = ħc³/(8πGM) bleibt aber gleich. k_B rechnet nur zwischen Energie und Temperatur um; seit 2019 ist ihr Wert exakt festgelegt.',
+          en: 'The temperature in kelvin diverges, but the energy k_B·T_H = ħc³/(8πGM) stays the same. k_B only converts between energy and temperature; since 2019 its value has been fixed exactly.' },
+        live: { c: 'k_B', f: 1e-3 },
+      },
+      M: {
+        tex: 'M', color: 'mass', theory: { de: 'Das Schwarze Loch selbst', en: 'The black hole itself' },
+        role: { de: 'Die Masse ist die einzige Eigenschaft eines ungeladenen, nicht rotierenden Lochs – und die einzige Größe, die du hier frei wählst. Sie steht im Nenner: Je schwerer, desto kälter.',
+          en: 'The mass is the only property of an uncharged, non-rotating hole – and the only quantity you choose freely here. It sits in the denominator: the heavier, the colder.' },
+        limit: 'M \\to \\infty \\;\\Rightarrow\\; T_{\\mathrm{H}} \\to 0',
+        limitText: { de: 'Große Löcher sind kalt, kleine heiß. Für M → 0 würde T_H divergieren – doch nahe der Planck-Masse (≈ 22 µg) versagt die semiklassische Rechnung.',
+          en: 'Large holes are cold, small ones hot. As M → 0, T_H would diverge – but near the Planck mass (≈ 22 µg) the semiclassical calculation breaks down.' },
+        live: { v: 'M', f: 1e-3 },
+      },
+      '8pi': {
+        tex: '8\\pi', color: 'geo', theory: { de: 'Geometrie + Quantenperiodizität', en: 'Geometry + quantum periodicity' },
+        role: { de: '8π = 4 · 2π. Die 4 stammt aus der Geometrie des Horizonts (κ = c⁴/4GM), die 2π aus der Periodizität der Quantenfelder in imaginärer Zeit – derselbe Faktor wie beim Unruh-Effekt.',
+          en: '8π = 4 · 2π. The 4 comes from the geometry of the horizon (κ = c⁴/4GM), the 2π from the periodicity of the quantum fields in imaginary time – the same factor as in the Unruh effect.' },
+        limit: '8\\pi = 4 \\cdot 2\\pi',
+        limitText: { de: 'Eine reine Zahl – die Dimensionsanalyse kann sie nicht liefern. Sie ergibt ħc³/(GMk_B) nur bis auf einen solchen Faktor; erst die vollständige Rechnung zeigt, dass es 8π ist.',
+          en: 'A pure number – dimensional analysis cannot supply it. It gives ħc³/(GMk_B) only up to such a factor; only the full calculation shows that it is 8π.' },
+      },
+    },
+    chain: {
+      title: { de: 'Von der Geometrie zur Temperatur', en: 'From geometry to temperature' },
+      steps: [
+        { tex: '\\kappa = \\frac{\\xc{rel}{c^4}}{\\xc{geo}{4}\\,\\xc{grav}{G}\\,M}', key: 'kappa', text: { de: 'Oberflächengravitation des Horizonts – reine Geometrie', en: 'Surface gravity of the horizon – pure geometry' } },
+        { tex: 'T_{\\mathrm{H}} = \\frac{\\xc{q}{\\hbar}\\,\\kappa}{\\xc{geo}{2\\pi}\\,\\xc{rel}{c}\\,\\xc{thermo}{k_{\\mathrm{B}}}}', key: 'THk', text: { de: 'Temperatur über die Quantenperiodizität', en: 'Temperature via the quantum periodicity' } },
+      ],
+      note: { de: '8π = 4 · 2π: Die 4 kommt aus der Horizontgeometrie, die 2π aus der Quantenperiodizität. Nach demselben Muster misst ein gleichmäßig beschleunigter Beobachter im leeren Raum die Unruh-Temperatur T = ħa/(2πck_B).',
+        en: '8π = 4 · 2π: the 4 comes from the horizon geometry, the 2π from the quantum periodicity. Following the same pattern, a uniformly accelerated observer in empty space measures the Unruh temperature T = ħa/(2πck_B).' },
+    },
+    aha: {
+      title: { de: 'Aha: die Planck-Temperatur, verdünnt', en: 'Aha: the Planck temperature, diluted' },
+      tex: 'T_{\\mathrm{H}} = T_{\\mathrm{P}} \\cdot \\frac{m_{\\mathrm{P}}}{8\\pi M}',
+      parts: [{ key: 'TP', tex: 'T_{\\mathrm{P}}' }, { key: 'MmP', tex: 'M/m_{\\mathrm{P}}' }, { key: 'THp', tex: 'T_{\\mathrm{H}}' }],
+      text: { de: 'Ein Loch mit Planck-Masse hätte – bis auf den Faktor 8π – die Planck-Temperatur. Jede Verzehnfachung der Masse macht es zehnmal kälter.',
+        en: 'A hole with the Planck mass would have the Planck temperature – up to the factor 8π. Every tenfold increase in mass makes it ten times colder.' },
+    },
+    epistemic: [
+      { type: 'assume', text: { de: 'Semiklassisch: Quantenfelder auf einer klassischen, gekrümmten Raumzeit (Hawking 1974/75) – kein Ergebnis einer Quantengravitation.', en: 'Semiclassical: quantum fields on a classical, curved spacetime (Hawking 1974/75) – not a result of quantum gravity.' } },
+      { type: 'measured', text: { de: 'Nicht direkt beobachtet. Sonnenmasse: T_H ≈ ', en: 'Not observed directly. Solar mass: T_H ≈ ' }, value: { key: 'TH', at: { M: MS } },
+        after: { de: ' – kälter als die kosmische Hintergrundstrahlung (≈ 2,7 K).', en: ' – colder than the cosmic microwave background (≈ 2.7 K).' } },
+      { type: 'model', text: { de: 'Elektromagnetismus fehlt: Weder e noch ε₀ kommen vor. Die Formel gilt für ungeladene, nicht rotierende Löcher.', en: 'Electromagnetism is missing: neither e nor ε₀ appears. The formula holds for uncharged, non-rotating holes.' } },
+    ],
+    dict: BH_DICT,
+  };
 
   define({
-    id: 'hawking', group: 'Famous Equations', hall: true, title: { de: 'Hawking-Temperatur', en: 'Hawking temperature' }, short: { de: 'Hawking-Temperatur', en: 'Hawking temperature' },
+    id: 'hawking', group: 'Famous Equations', field: 'famous', hall: true, title: { de: 'Hawking-Temperatur', en: 'Hawking temperature' }, short: { de: 'Hawking-Temperatur', en: 'Hawking temperature' },
+    subtitle: { de: 'Wo Quantenmechanik, Relativität, Gravitation und Thermodynamik in einer Zeile zusammentreffen.', en: 'Where quantum mechanics, relativity, gravity and thermodynamics meet in a single line.' },
+    crossroads: HAWKING_XR,
     tex: 'T_{\\mathrm{H}} = \\frac{\\hbar\\, c^3}{8\\pi\\, G\\, M\\, k_{\\mathrm{B}}}',
     meta: { mathType: SCALAR, mainDim: { de: 'Temperatur', en: 'Temperature' }, domain: BH_THERMO, status: { de: 'theoretische Vorhersage, nicht beobachtet', en: 'theoretical prediction, not observed' } },
     vars: {
@@ -574,6 +694,14 @@
       { key: 'rs', sym: 'r_s', tex: 'r_{\\mathrm{s}}', name: { de: 'Schwarzschild-Radius', en: 'Schwarzschild radius' }, expr: '2*G*M/c^2', dim: 'L' },
       { key: 'tev', sym: 't_evap', tex: 't_{\\mathrm{evap}}', name: { de: 'Verdampfungszeit (grobe Abschätzung)', en: 'Evaporation time (rough estimate)' }, expr: '5120*pi*G^2*M^3/(hbar*c^4)', dim: 'T', note: { de: 'nur Photonen, ohne Greybody-Faktoren, ohne Einstrahlung', en: 'photons only, without greybody factors, without incoming radiation' } },
       { key: 'tevy', sym: { de: 't_evap / Jahr', en: 't_evap / year' }, tex: 't_{\\mathrm{evap}}/\\mathrm{a}', name: { de: 'Verdampfungszeit in Jahren', en: 'Evaporation time in years' }, expr: 'tev/31557600', dim: '', noEq: true },
+      { key: 'kappa', sym: 'κ', tex: '\\kappa', name: { de: 'Oberflächengravitation am Horizont', en: 'Surface gravity at the horizon' }, expr: 'c^4/(4*G*M)', dim: 'L T^-2' },
+      // Hilfsgrößen (aux) für den Schnittpunkt-Block: dieselbe Temperatur auf zwei anderen Wegen, nicht in der Ergebnisliste
+      { key: 'THk', sym: 'T_H(κ)', tex: 'T_{\\mathrm{H}}(\\kappa)', name: { de: 'Hawking-Temperatur aus κ: ħκ/(2π c k_B)', en: 'Hawking temperature from κ: ħκ/(2π c k_B)' }, expr: 'hbar*kappa/(2*pi*c*k_B)', dim: 'Θ', aux: true },
+      { key: 'TP', sym: 'T_P', tex: 'T_{\\mathrm{P}}', name: { de: 'Planck-Temperatur', en: 'Planck temperature' }, expr: 'sqrt(hbar*c^5/(G*k_B^2))', dim: 'Θ', aux: true },
+      { key: 'mP', sym: 'm_P', tex: 'm_{\\mathrm{P}}', name: { de: 'Planck-Masse', en: 'Planck mass' }, expr: 'sqrt(hbar*c/G)', dim: 'M', aux: true },
+      { key: 'MmP', sym: 'M/m_P', tex: 'M/m_{\\mathrm{P}}', name: { de: 'Masse in Planck-Massen', en: 'Mass in Planck masses' }, expr: 'M/mP', dim: '', aux: true },
+      { key: 'THp', sym: 'T_H(Planck)', tex: 'T_{\\mathrm{P}}\\,m_{\\mathrm{P}}/(8\\pi M)', name: { de: 'Hawking-Temperatur aus Planck-Größen: T_P · m_P / (8πM)', en: 'Hawking temperature from Planck quantities: T_P · m_P / (8πM)' }, expr: 'TP*mP/(8*pi*M)', dim: 'Θ', aux: true },
+      { key: 'E', sym: 'E', tex: 'E', name: { de: 'Energie Mc²', en: 'Energy Mc²' }, expr: 'M*c^2', dim: 'M L^2 T^-2', aux: true },
     ],
     equations: [
       { label: { de: 'Hawking-Temperatur', en: 'Hawking temperature' }, eq: 'T_H = hbar*c^3/(8*pi*G*M*k_B)' },
@@ -583,8 +711,19 @@
     checks({ v, o, issues, C, fmt }) {
       const Th = o('TH');
       if (isFinite(Th) && Th < C.T_cmb) issues.push({ cat: 'info', msg: T('T_H ≈ ' + fmt(Th, 3) + ' K liegt unter der Temperatur der Hintergrundstrahlung (≈ 2,7 K). Heute absorbiert so ein Loch mehr Strahlung, als es abgibt – es wächst netto.', 'T_H ≈ ' + fmt(Th, 3) + ' K is below the temperature of the cosmic microwave background (≈ 2.7 K). Today such a hole absorbs more radiation than it emits – it grows on balance.') });
-      if (v.M > 0 && v.M < 1e-6) issues.push({ cat: 'model', msg: T('Nahe der Planck-Masse (≈ 2,2 × 10⁻⁸ kg) versagt die semiklassische Rechnung – dafür bräuchte es eine Quantengravitation.', 'Near the Planck mass (≈ 2.2 × 10⁻⁸ kg) the semiclassical calculation breaks down – that would take a theory of quantum gravity.') });
+      if (v.M > 0 && v.M < 1e-6) issues.push({ cat: 'model', why: T('nahe der Planck-Masse', 'near the Planck mass'), msg: T('Nahe der Planck-Masse (≈ 2,2 × 10⁻⁸ kg) versagt die semiklassische Rechnung – dafür bräuchte es eine Quantengravitation.', 'Near the Planck mass (≈ 2.2 × 10⁻⁸ kg) the semiclassical calculation breaks down – that would take a theory of quantum gravity.') });
       if (v.M > 0 && v.M < 5e11) issues.push({ cat: 'info', msg: T('Für so kleine Massen wäre die abgeschätzte Lebensdauer kürzer als das Alter des Universums. Solche primordialen Schwarzen Löcher sind hypothetisch.', 'For masses this small, the estimated lifetime would be shorter than the age of the universe. Such primordial black holes are hypothetical.') });
+      // Break-Modus: eine der vier Theorien „abschalten“
+      const rs = o('rs');
+      if (!(C.G > 0)) issues.push({ cat: 'model', why: T('kein Horizont (G ≤ 0)', 'no horizon (G ≤ 0)'), msg: T('G ≤ 0: Ohne Gravitation gibt es keinen Horizont (r_s = 0) und damit kein Schwarzes Loch. T_H hat hier keine Bedeutung.', 'G ≤ 0: without gravity there is no horizon (r_s = 0) and therefore no black hole. T_H has no meaning here.') });
+      else if (C.G < K0.G * (1 - 1e-9)) issues.push({ cat: 'model', why: T('Horizont schrumpft (G → 0)', 'horizon shrinks (G → 0)'), msg: T('G ist kleiner als gemessen: r_s schrumpft mit G (hier ≈ ' + fmt(rs, 3) + ' m), T_H wächst wie 1/G. Für G → 0 verschwindet der Horizont – ohne Horizont gibt es kein Schwarzes Loch und keine Hawking-Strahlung. Dass die Formel dann eine immer höhere Temperatur liefert, heißt nur: Sie gilt dort nicht mehr.',
+        'G is smaller than measured: r_s shrinks with G (here ≈ ' + fmt(rs, 3) + ' m), and T_H grows like 1/G. As G → 0 the horizon disappears – without a horizon there is no black hole and no Hawking radiation. That the formula then returns an ever higher temperature only means that it no longer applies there.') });
+      if (C.c > K0.c * (1 + 1e-9)) issues.push({ cat: 'model', why: T('Horizont schrumpft (c → ∞)', 'horizon shrinks (c → ∞)'), msg: T('c ist größer als gemessen: r_s ∝ 1/c² schrumpft (hier ≈ ' + fmt(rs, 3) + ' m). Im Grenzfall c → ∞ – Newtons Physik – gibt es keinen Ereignishorizont; den kennt erst die Relativitätstheorie.',
+        'c is larger than measured: r_s ∝ 1/c² shrinks (here ≈ ' + fmt(rs, 3) + ' m). In the limit c → ∞ – Newton’s physics – there is no event horizon; only relativity knows about horizons.') });
+      if (C.hbar < K0.hbar * (1 - 1e-9)) issues.push({ cat: 'info', msg: T('ħ ist kleiner als gemessen, und T_H ∝ ħ sinkt mit. Im Grenzfall ħ → 0 ist T_H = 0: Klassisch ist ein Schwarzes Loch vollkommen schwarz – Hawking-Strahlung ist ein reiner Quanteneffekt.',
+        'ħ is smaller than measured, and T_H ∝ ħ drops with it. In the limit ħ → 0, T_H = 0: classically a black hole is perfectly black – Hawking radiation is a pure quantum effect.') });
+      if (C.k_B < K0.k_B * (1 - 1e-9)) issues.push({ cat: 'info', msg: T('k_B ist kleiner als festgelegt: T_H in Kelvin steigt, die Energie k_B·T_H bleibt aber gleich. k_B rechnet nur zwischen Energie und Temperatur um.',
+        'k_B is smaller than defined: T_H in kelvin rises, but the energy k_B·T_H stays the same. k_B only converts between energy and temperature.') });
       issues.push({ cat: 'assume', msg: T('Idealisiertes Schwarzschild-Loch (ungeladen, nicht rotierend) in semiklassischer Gravitation.', 'Idealised Schwarzschild black hole (uncharged, non-rotating) in semiclassical gravity.') });
     },
     presets: [
@@ -627,7 +766,8 @@
   const SCHW_R = { de: 'Schwarzschild-Radius', en: 'Schwarzschild radius' };
 
   define({
-    id: 'bh-entropy', group: 'Famous Equations', hall: true, title: BH_ENTROPY, short: { de: 'BH-Entropie', en: 'BH entropy' },
+    id: 'bh-entropy', group: 'Famous Equations', field: 'famous', hall: true, title: BH_ENTROPY, short: { de: 'BH-Entropie', en: 'BH entropy' },
+    dict: BH_DICT,
     tex: 'S_{\\mathrm{BH}} = \\frac{k_{\\mathrm{B}}\\, c^3 A}{4\\, G\\, \\hbar}',
     meta: { mathType: SCALAR, mainDim: { de: 'Entropie', en: 'Entropy' }, domain: BH_THERMO, status: { de: 'theoretisches Ergebnis, nicht gemessen', en: 'theoretical result, not measured' } },
     vars: {
@@ -665,7 +805,7 @@
     ],
     symbols: { S_BH: { dim: 'M L^2 T^-2 Θ^-1' }, S_kB: { dim: '' }, r_s: { dim: 'L' } },
     checks({ v, issues }) {
-      if (v.M > 0 && v.M < 1e-6) issues.push({ cat: 'model', msg: T('Nahe der Planck-Masse ist die Flächenformel nicht mehr verlässlich.', 'Near the Planck mass the area formula is no longer reliable.') });
+      if (v.M > 0 && v.M < 1e-6) issues.push({ cat: 'model', why: T('nahe der Planck-Masse', 'near the Planck mass'), msg: T('Nahe der Planck-Masse ist die Flächenformel nicht mehr verlässlich.', 'Near the Planck mass the area formula is no longer reliable.') });
       issues.push({ cat: 'assume', msg: T('Semiklassisches Ergebnis für Ereignishorizonte.', 'Semiclassical result for event horizons.') });
     },
     presets: [
@@ -700,7 +840,7 @@
   });
 
   define({
-    id: 'efe', group: 'Famous Equations', hall: true, title: { de: 'Einsteinsche Feldgleichungen', en: 'Einstein field equations' }, short: { de: 'Feldgleichungen', en: 'Field equations' },
+    id: 'efe', group: 'Famous Equations', field: 'famous', hall: true, title: { de: 'Einsteinsche Feldgleichungen', en: 'Einstein field equations' }, short: { de: 'Feldgleichungen', en: 'Field equations' },
     tex: 'G_{\\mu\\nu} + \\Lambda\\, g_{\\mu\\nu} = \\frac{8\\pi G}{c^4}\\, T_{\\mu\\nu}',
     meta: {
       mathType: { de: 'Tensorgleichung (10 gekoppelte nichtlineare PDGs)', en: 'Tensor equation (10 coupled nonlinear PDEs)' },
@@ -727,7 +867,7 @@
       T_mn: { dim: 'M L^-1 T^-2', name: { de: 'Energie-Impuls-Tensor (Energiedichte, Druck)', en: 'Stress–energy tensor (energy density, pressure)' } },
     },
     checks({ issues }) {
-      issues.push({ cat: 'model', msg: T('Nur eine Größenordnung: Die tatsächliche Krümmung folgt erst aus einer vollständigen Lösung (Symmetrie, Druck, Randbedingungen).', 'Only an order of magnitude: the actual curvature follows only from a full solution (symmetry, pressure, boundary conditions).') });
+      issues.push({ cat: 'model', why: T('nur Größenordnung', 'order of magnitude only'), msg: T('Nur eine Größenordnung: Die tatsächliche Krümmung folgt erst aus einer vollständigen Lösung (Symmetrie, Druck, Randbedingungen).', 'Only an order of magnitude: the actual curvature follows only from a full solution (symmetry, pressure, boundary conditions).') });
       issues.push({ cat: 'assume', msg: T('Energiedichte ≈ ρc² (Staub, Druck vernachlässigt).', 'Energy density ≈ ρc² (dust, pressure neglected).') });
     },
     presets: [
@@ -767,7 +907,7 @@
   const ENERGY = { de: 'Energie', en: 'Energy' };
 
   define({
-    id: 'schroedinger', group: 'Famous Equations', hall: true, title: { de: 'Schrödinger-Gleichung', en: 'Schrödinger equation' }, short: 'Schrödinger',
+    id: 'schroedinger', group: 'Famous Equations', field: 'famous', hall: true, title: { de: 'Schrödinger-Gleichung', en: 'Schrödinger equation' }, short: 'Schrödinger',
     tex: 'i\\hbar\\,\\frac{\\partial \\psi}{\\partial t} = \\Bigl[-\\frac{\\hbar^2}{2m}\\nabla^2 + V\\Bigr]\\psi',
     meta: {
       mathType: { de: 'lineare partielle Differentialgleichung', en: 'linear partial differential equation' },
@@ -815,7 +955,7 @@
     ],
     checks({ o, issues }) {
       const r = o('ratio');
-      if (isFinite(r) && r > 0.01) issues.push({ cat: 'model', msg: T('E_n ist mehr als 1 % der Ruheenergie mc²: Die nichtrelativistische Schrödinger-Gleichung reicht nicht mehr (Dirac-Gleichung, Quantenfeldtheorie).', 'E_n is more than 1 % of the rest energy mc²: the non-relativistic Schrödinger equation is no longer enough (Dirac equation, quantum field theory).') });
+      if (isFinite(r) && r > 0.01) issues.push({ cat: 'model', why: T('relativistisch: E_n > 1 % mc²', 'relativistic: E_n > 1 % mc²'), msg: T('E_n ist mehr als 1 % der Ruheenergie mc²: Die nichtrelativistische Schrödinger-Gleichung reicht nicht mehr (Dirac-Gleichung, Quantenfeldtheorie).', 'E_n is more than 1 % of the rest energy mc²: the non-relativistic Schrödinger equation is no longer enough (Dirac equation, quantum field theory).') });
       issues.push({ cat: 'assume', msg: T('Unendlich hohe Wände (idealer Potentialtopf), ein einzelnes Teilchen ohne Spin.', 'Infinitely high walls (ideal potential well), a single particle without spin.') });
     },
     presets: [
@@ -852,7 +992,7 @@
   });
 
   define({
-    id: 'planck', group: 'Famous Equations', hall: true, title: { de: 'Planck-Einheiten', en: 'Planck units' }, short: { de: 'Planck-Einheiten', en: 'Planck units' },
+    id: 'planck', group: 'Famous Equations', field: 'famous', hall: true, title: { de: 'Planck-Einheiten', en: 'Planck units' }, short: { de: 'Planck-Einheiten', en: 'Planck units' },
     subtitle: { de: 'Wenn Dimensionen zu Physik werden', en: 'When dimensions turn into physics' },
     tex: 'l_{\\mathrm{P}} = \\sqrt{\\frac{\\hbar G}{c^3}}',
     meta: {

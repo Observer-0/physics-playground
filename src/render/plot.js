@@ -6,6 +6,24 @@
 (function (PP) {
   'use strict';
   const E = PP.engine, tr = PP.i18n.T;
+  const escH = (x) => String(x).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  // Schraffur eines Bereichs; pat wählt die Richtung, damit angrenzende Gründe unterscheidbar bleiben
+  function hatch(ctx, za, zb, top, h, pat, step = 9) {
+    ctx.beginPath();
+    if (pat % 3 === 2) { for (let x = za + 3; x < zb; x += step - 2) { ctx.moveTo(x, top); ctx.lineTo(x, top + h); } }
+    else {
+      const dir = pat % 3 === 0 ? 1 : -1;
+      for (let x = za - h; x < zb + h; x += step) {
+        const x0 = x, x1 = x + h * dir;
+        // Strecke (x0, top+h) → (x1, top), auf [za, zb] geschnitten
+        const t0 = Math.max(0, Math.min(1, (za - x0) / (x1 - x0))), t1 = Math.max(0, Math.min(1, (zb - x0) / (x1 - x0)));
+        const ta = Math.min(t0, t1), tb = Math.max(t0, t1);
+        if (tb <= ta) continue;
+        ctx.moveTo(x0 + (x1 - x0) * ta, top + h - h * ta); ctx.lineTo(x0 + (x1 - x0) * tb, top + h - h * tb);
+      }
+    }
+    ctx.stroke();
+  }
 
   function niceStep(span, target) {
     const raw = span / Math.max(1, target);
@@ -83,7 +101,8 @@
       c.addEventListener('pointerleave', () => { this.hover = null; this.draw(); });
       c.addEventListener('dblclick', () => this.reset());
     }
-    curView() { return this.view || this.cfg.xdomT; }
+    // Ansicht: vom Nutzer gezoomt, sonst der Standardbereich (view0), sonst der ganze Bereich
+    curView() { return this.view || this.cfg.view0T || this.cfg.xdomT; }
     zoomAt(px, f) {
       const [a, b] = this.curView();
       const x = a + ((px - this.pl) / this.pw) * (b - a);
@@ -100,7 +119,8 @@
       const keepView = this.cfg && cfg && this.cfg.key === cfg.key;
       this.cfg = cfg;
       if (!keepView) this.view = null;
-      if (cfg) cfg.xdomT = cfg.xlog ? [Math.log10(cfg.xdom[0]), Math.log10(cfg.xdom[1])] : cfg.xdom.slice();
+      const tx = (d) => (cfg.xlog ? [Math.log10(d[0]), Math.log10(d[1])] : d.slice());
+      if (cfg) { cfg.xdomT = tx(cfg.xdom); cfg.view0T = cfg.view0 ? tx(cfg.view0) : null; }
       this.draw();
     }
     toT(num, isLog) {
@@ -155,7 +175,7 @@
       const pad = (ymax - ymin) * 0.07;
       ymin -= pad; ymax += pad;
 
-      ctx.font = '11px ' + col.mono;
+      ctx.font = '12px ' + col.mono;
       const yt = ticks(ymin, ymax, Math.max(3, Math.floor(H / 55)), cfg.ylog);
       const ystep = yt.length > 1 ? yt[1] - yt[0] : 1;
       const ylabels = yt.map((v) => tickLabel(v, cfg.ylog, ystep));
@@ -172,7 +192,13 @@
       const xt = ticks(x0, x1, Math.max(3, Math.floor(pw / 90)), cfg.xlog);
       const xstep = xt.length > 1 ? xt[1] - xt[0] : 1;
       ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-      xt.forEach((v) => { const x = Math.round(X(v)) + 0.5; ctx.beginPath(); ctx.moveTo(x, pt); ctx.lineTo(x, pt + ph); ctx.stroke(); ctx.fillText(tickLabel(v, cfg.xlog, xstep), x, pt + ph + 6); });
+      xt.forEach((v) => {
+        const x = Math.round(X(v)) + 0.5, s = tickLabel(v, cfg.xlog, xstep);
+        ctx.beginPath(); ctx.moveTo(x, pt); ctx.lineTo(x, pt + ph); ctx.stroke();
+        // am rechten Rand nicht abschneiden
+        const w = ctx.measureText(s).width;
+        ctx.fillText(s, Math.min(x, W - 2 - w / 2), pt + ph + 6);
+      });
       ctx.strokeStyle = col.ink3; ctx.strokeRect(pl + 0.5, pt + 0.5, pw, ph);
       // zero line
       if (!cfg.ylog && ymin < 0 && ymax > 0) { ctx.strokeStyle = col.ink3; ctx.setLineDash([2, 3]); ctx.beginPath(); ctx.moveTo(pl, Y(0)); ctx.lineTo(pl + pw, Y(0)); ctx.stroke(); ctx.setLineDash([]); }
@@ -189,22 +215,26 @@
       const zones = (cfg.zones || []).filter((z) => z.b > x0 && z.a < x1);
       zones.forEach((z) => {
         const za = Math.max(pl, X(z.a)), zb = Math.min(pl + pw, X(z.b));
-        ctx.fillStyle = z.color; ctx.globalAlpha = 0.07; ctx.fillRect(za, pt, zb - za, ph);
-        ctx.globalAlpha = 0.28; ctx.strokeStyle = z.color; ctx.lineWidth = 1;
-        ctx.beginPath();
-        for (let x = za - ph; x < zb; x += 9) { ctx.moveTo(Math.max(x, za), pt + ph - Math.max(0, za - x)); ctx.lineTo(Math.min(x + ph, zb), pt + ph - Math.min(ph, zb - x)); }
-        ctx.stroke(); ctx.globalAlpha = 1;
+        // Grund betrifft nur einzelne Kurven: schmaler Streifen am unteren Rand, die Kurven selbst werden gestrichelt
+        const top = z.part ? pt + ph - 8 : pt, hh = z.part ? 8 : ph;
+        ctx.fillStyle = z.color; ctx.globalAlpha = z.part ? 0.18 : 0.07; ctx.fillRect(za, top, zb - za, hh);
+        ctx.globalAlpha = z.part ? 0.7 : 0.3; ctx.strokeStyle = z.color; ctx.lineWidth = 1;
+        hatch(ctx, za, zb, top, hh, z.pat || 0, z.part ? 5 : 9);
+        // Grenzlinie, wo der Bereich beginnt bzw. endet
+        ctx.globalAlpha = 0.6; ctx.setLineDash([3, 3]); ctx.beginPath();
+        if (X(z.a) > pl + 1) { ctx.moveTo(Math.round(za) + 0.5, pt); ctx.lineTo(Math.round(za) + 0.5, pt + ph); }
+        if (X(z.b) < pl + pw - 1) { ctx.moveTo(Math.round(zb) + 0.5, pt); ctx.lineTo(Math.round(zb) + 0.5, pt + ph); }
+        ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha = 1;
       });
       // refs
       refs.forEach((r) => {
         ctx.strokeStyle = r.color || col.ink3; ctx.setLineDash([6, 4]); ctx.lineWidth = 1;
         ctx.beginPath(); ctx.moveTo(pl, Y(r.t)); ctx.lineTo(pl + pw, Y(r.t)); ctx.stroke(); ctx.setLineDash([]);
-        ctx.fillStyle = col.ink2; ctx.font = '11px ' + col.sans; ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+        ctx.fillStyle = col.ink2; ctx.font = '12px ' + col.sans; ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
         ctx.fillText(r.label, pl + 6, Y(r.t) - 3);
       });
       // curves
-      for (const s of series) {
-        ctx.strokeStyle = s.color; ctx.lineWidth = s.width || 2; ctx.setLineDash(s.dash || []);
+      const curve = (s) => {
         ctx.beginPath();
         let pen = false;
         for (const [x, y] of s.pts) {
@@ -212,7 +242,19 @@
           const py = Math.max(-1e4, Math.min(1e4, Y(y)));
           if (!pen) { ctx.moveTo(X(x), py); pen = true; } else ctx.lineTo(X(x), py);
         }
-        ctx.stroke(); ctx.setLineDash([]);
+        ctx.stroke();
+      };
+      for (const s of series) {
+        ctx.strokeStyle = s.color; ctx.lineWidth = s.width || 2;
+        const own = zones.filter((z) => z.part && s.key && z.keys && z.keys.includes(s.key));
+        if (!own.length) { ctx.setLineDash(s.dash || []); curve(s); ctx.setLineDash([]); continue; }
+        // außerhalb der eigenen Grenzen durchgezogen, innerhalb gestrichelt und blasser
+        const rects = (c) => own.forEach((z) => { const za = Math.max(pl, X(z.a)), zb = Math.min(pl + pw, X(z.b)); if (zb > za) c.rect(za, pt - 2, zb - za, ph + 4); });
+        ctx.save(); ctx.beginPath(); ctx.rect(pl, pt - 2, pw, ph + 4); rects(ctx); ctx.clip('evenodd');
+        ctx.setLineDash(s.dash || []); curve(s); ctx.restore();
+        ctx.save(); ctx.beginPath(); rects(ctx); ctx.clip();
+        ctx.setLineDash([5, 4]); ctx.globalAlpha = 0.75; curve(s); ctx.restore();
+        ctx.setLineDash([]); ctx.globalAlpha = 1;
       }
       // current marker
       if (marker && marker.x !== null && marker.y !== null) {
@@ -221,10 +263,22 @@
       }
       ctx.restore();
       // Legende der schraffierten Bereiche
+      // Legende: Muster und Grund je schraffiertem Bereich, auf einem Hintergrund, damit Kurven sie nicht verdecken
       const zl = [...new Map(zones.map((z) => [z.label, z])).values()];
       if (zl.length) {
-        ctx.font = '11px ' + col.sans; ctx.textAlign = 'right'; ctx.textBaseline = 'top';
-        zl.forEach((z, i) => { ctx.fillStyle = z.color; ctx.fillText(tr('schraffiert: ', 'hatched: ') + z.label, pl + pw - 6, pt + 6 + i * 15); });
+        ctx.font = '12px ' + col.sans; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+        const lines = zl.map((z) => z.legend || tr('schraffiert: ', 'hatched: ') + z.label);
+        const w = Math.min(pw - 12, Math.max(...lines.map((l) => ctx.measureText(l).width)) + 30), lh = 17;
+        const bx = pl + pw - 6 - w, by = pt + 6;
+        ctx.fillStyle = col.panel; ctx.globalAlpha = 0.88; ctx.fillRect(bx, by, w, zl.length * lh + 4); ctx.globalAlpha = 1;
+        zl.forEach((z, i) => {
+          const y = by + 2 + i * lh;
+          ctx.save(); ctx.beginPath(); ctx.rect(bx + 5, y + 3, 14, lh - 6); ctx.clip();
+          ctx.fillStyle = z.color; ctx.globalAlpha = 0.15; ctx.fillRect(bx + 5, y + 3, 14, lh - 6);
+          ctx.globalAlpha = 0.9; ctx.strokeStyle = z.color; ctx.lineWidth = 1; hatch(ctx, bx + 5, bx + 19, y + 3, lh - 6, z.pat || 0, 4);
+          ctx.restore();
+          ctx.fillStyle = z.color; ctx.fillText(lines[i], bx + 24, y + lh / 2, w - 28);
+        });
       }
       if (empty) {
         ctx.fillStyle = col.ink2; ctx.font = '13px ' + col.sans; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
@@ -239,6 +293,8 @@
         const lines = [];
         const xv = cfg.xlog ? Math.pow(10, xt_) : xt_;
         lines.push(cfg.xsym + ' = ' + E.fmt(E.mk(xv), 4) + ' ' + (cfg.xunit || ''));
+        // Grund der Schraffur an dieser Stelle
+        zones.filter((z) => xt_ >= z.a && xt_ <= z.b).forEach((z) => lines.push('<b style="color:' + z.color + '">▨ ' + escH(z.label) + '</b>' + (z.catLabel ? ' <span style="opacity:.7">(' + escH(z.catLabel) + ')</span>' : '')));
         for (const s of series) {
           const i = Math.round(((xt_ - x0) / (x1 - x0)) * (s.pts.length - 1));
           const p = s.pts[Math.max(0, Math.min(s.pts.length - 1, i))];

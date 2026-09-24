@@ -24,7 +24,7 @@ im Browser und veröffentlicht `dist/` auf GitHub Pages (`.github/workflows/page
 Entwicklung (Node ≥ 18; `npm install` holt nur ESLint):
 
 ```bash
-npm test          # 80 Tests in Node (die 6 UI-Tests laufen vollständig nur im Browser)
+npm test          # 90 Tests in Node (die 7 UI-Tests laufen vollständig nur im Browser)
 npm run lint      # ESLint
 npm run build     # bündelt alles nach dist/index.html
 npm run check:ui  # lädt jede Seite in beiden Sprachen in Headless-Chrome/-Edge und prüft sie,
@@ -42,17 +42,20 @@ Die Ladereihenfolge der Dateien steht nur in `src/index.html`; `npm run build` l
 | Relativität | Lorentz-Faktor (Zeitdilatation, Längenkontraktion, Energie) |
 | Thermodynamik | Ideales Gas (pV = N k_B T) |
 | Famous Equations | Hawking-Temperatur · Bekenstein-Hawking-Entropie · Einsteinsche Feldgleichungen · Schrödinger-Gleichung · Planck-Einheiten (Länge, Zeit, Masse, Temperatur, Energie; mit Boltzmann und k_B) |
-| Grundlagen | Theorie kurz erklärt: Dimensionsanalyse · Inertialprinzip & Trägheit · Relativitätstheorie · Indizes μν (interaktive 4×4-Tabelle) · Tensor-Aufbau (Drehung/Boost-Demo) · Einstein-Hilbert-Wirkung (Demo zum Prinzip der kleinsten Wirkung) · Die Köpfe hinter der ART (Poincaré, Minkowski, Grossmann, Hilbert, Noether) · Quantenmechanik · Entropie (Clausius bis Wald, mit Mikrozustands-Demo) · Warum beide (noch) nicht zusammenpassen |
+| Grundlagen | Theorie kurz erklärt – Übersicht mit Karten, jeder Abschnitt als eigene Seite: Dimensionsanalyse · Inertialprinzip & Trägheit · Relativitätstheorie · Indizes μν (interaktive 4×4-Tabelle) · Tensor-Aufbau (Drehung/Boost-Demo) · Einstein-Hilbert-Wirkung (Demo zum Prinzip der kleinsten Wirkung) · Die Köpfe hinter der ART (Poincaré, Minkowski, Grossmann, Hilbert, Noether) · Quantenmechanik · Entropie (Clausius bis Wald, mit Mikrozustands-Demo) · Warum beide (noch) nicht zusammenpassen |
 | Werkzeuge | Eigene/falsche Gleichungen prüfen · Konstanten · Gespeichert · Tests im Browser |
 
 Funktionen: log/lin-Regler, freie Zahleneingabe (auch `3×10^8`, `2*M_sun`), Graph mit freier
-Achsenwahl, lin/log, Zoom, Tooltips, mehreren Kurven und schraffierten Modellgrenzen,
+Achsenwahl, lin/log, Zoom, Tooltips, mehreren Kurven und schraffierten Modellgrenzen (mit Grund, nur bei
+den Größen, die eine Grenze betrifft; Standardbereich so, dass der gültige Bereich das Bild bestimmt),
 Vergleichsmodus A/B mit Verhältnis und %-Änderung (Satz B blass im Bild), Presets mit Quellen,
 „Probier mal“-Aufgaben mit automatischer Prüfung, Tab „Quellen“ mit Originalarbeiten und DOIs,
 Break-the-Physics-Modus, Nightmare Mode der Dimensionsanalyse, Zustand in der URL (auch die
-Einstellungen der Visualisierung), lokales Speichern, helles und dunkles Theme. Bei den berühmten
-Gleichungen öffnet zuerst das Labor; auf dem Handy bleibt das Bild beim Scrollen durch die Regler
-oben stehen.
+Einstellungen der Visualisierung), lokales Speichern, helles und dunkles Theme. Jedes Experiment
+hat dieselben Tabs (Graph & Labor, Formel & Variablen, Dimensionsanalyse, Physik & Grenzen, Quellen)
+und öffnet mit dem Labor; auf dem Handy bleibt das Bild beim Scrollen durch die Regler oben stehen.
+Die Hawking-Temperatur zeigt über dem Labor, wie sich Quantenmechanik, Relativität, Gravitation und
+Thermodynamik in ihr treffen – mit Grenzfällen, die sich im Break-Modus live ausprobieren lassen.
 
 ## Architektur
 
@@ -99,13 +102,14 @@ Alle Dateien erweitern den globalen Namensraum `PP`; die Ladereihenfolge steht i
 | `src/render/plot.js` | Canvas-Graph in transformierten Koordinaten |
 | `src/render/viz.js` | Canvas-Visualisierungen. `PP.vizState` liefert alle Zahlen aus der Engine: `o`/`lg`/`fo` für die Ergebnisse, `at(änderungen)` für dieselben Formeln mit anderen Eingaben (Spuren, Kurven, Skalen) oder für ein anderes Experiment, dazu die Warnkategorien und die Bezugswerte (Preset/Ausgangswert). Die Zeichenfunktionen rechnen keine Formel selbst nach |
 | `src/ui/core.js` | Zustand, Routing, URL-State, Speichern, Navigation, gemeinsame Animationsschleife der Theorie-Widgets (`U.widgetLoop`) |
-| `src/ui/lab.js` | Labor: Parameter, Ergebnisse, Status, Graph mit schraffierten Modellgrenzen, Animation (Anhalten, Pendeln eines Werts), Warnhinweise im Kopf der Visualisierung, Vergleich (Satz B blass im Bild), „Probier mal“, Tab „Quellen“, Textbeschreibung des Bildes für Screenreader |
+| `src/ui/lab.js` | Labor: Parameter, Ergebnisse, Status, Graph mit schraffierten Modellgrenzen (Grund `why`, betroffene Größen über `on` und `PP.model.affects`, Standardbereich `graph.view`), Animation (Anhalten, Pendeln eines Werts), Warnhinweise im Kopf der Visualisierung, Vergleich (Satz B blass im Bild), „Probier mal“, Tab „Quellen“, Textbeschreibung des Bildes für Screenreader |
+| `src/ui/crossroads.js` | Schnittpunkt-Block der Hawking-Temperatur (`exp.crossroads`): Formel mit anklickbaren Symbolen und Karten je Theorie, Grenzfälle live im Break-Modus, Kette κ → T, „Aha“-Kasten, Epistemik-Zeile; Wörterbuch Schwarzes Loch ↔ Thermodynamik (`exp.dict`) auf der Hawking- und der Entropie-Seite. Zahlen kommen aus der Engine |
 | `src/ui/dims.js` | Erklär-Ebenen, Dimensionsanalyse, Nightmare Mode, eigene Gleichungen (mit Hinweisen auf mehrdeutige Symbole wie h, T, e und auf „a / b c“) |
 | `src/ui/pages.js` | Hall of Fame, Konstanten, Gespeichert, Tests, Über |
 | `src/ui/sections/tensor.js` | Abschnitte „Indizes μν“ und „Tensor-Aufbau“ mit interaktiven Widgets; hängt sich in `src/ui/theory.js` ein |
 | `src/ui/sections/action.js` | Abschnitte „Einstein-Hilbert-Wirkung“ (Wirkungs-Demo mit exakter Formel ΔS = mπ²/(4τ)·(ε₁² + 4ε₂²)) und „Die Köpfe hinter der ART“ |
 | `src/ui/sections/entropy.js` | Abschnitt „Entropie – ein Wort, viele Bedeutungen“ mit Ehrenfest-Modell |
-| `src/ui/theory.js` | Grundlagen-Seite (Theorie-Abschnitte als Daten, Direktlink per `#view=theorie&sec=dim` / `inertia` / `rel` / `idx` / `tensor` / `action` / `history` / `qm` / `entropy` / `gap`) |
+| `src/ui/theory.js` | Grundlagen: Übersicht mit einer Karte je Abschnitt (`#view=theorie`), jeder Abschnitt als eigene Seite (`#view=theorie&sec=dim` / `inertia` / `rel` / `idx` / `tensor` / `action` / `history` / `qm` / `entropy` / `gap`) mit Text in Lesebreite, breiten Widgets, aufklappbaren Vertiefungen (`<h3 class="th-h3 th-deep">`), sticky Inhaltsverzeichnis und „Weiter zu“; Unterpunkte in der Seitenleiste; Vergleichsleiste „Charakter der Theorie“ |
 
 ### Neues Experiment hinzufügen
 
@@ -114,7 +118,7 @@ Ein weiterer `define({ … })`-Block in `src/data/experiments.js`. Jeder Text st
 
 ```js
 define({
-  id: 'mein-exp', group: MECH, title: { de: 'Ruheenergie', en: 'Rest energy' }, short: { de: 'Ruheenergie', en: 'Rest energy' }, tex: 'E = m c^2',
+  id: 'mein-exp', group: MECH, field: 'mech', title: { de: 'Ruheenergie', en: 'Rest energy' }, short: { de: 'Ruheenergie', en: 'Rest energy' }, tex: 'E = m c^2',
   vars:    { m: { label: 'm', tex: 'm', name: { de: 'Masse', en: 'Mass' }, dim: 'M', default: 1, min: 1e-3, max: 1e3, scale: 'log', positive: true } },
   outputs: [{ key: 'E', sym: 'E', tex: 'E', name: { de: 'Energie', en: 'Energy' }, expr: 'm*c^2', dim: 'M L^2 T^-2', primary: true }],
   equations: [{ label: { de: 'Ruheenergie', en: 'Rest energy' }, eq: 'E = m*c^2' }],
@@ -122,6 +126,10 @@ define({
   explain: { intuition: { de: '…', en: '…' }, math: [], physics: { de: '…', en: '…' }, epistemics: [] },
 });
 ```
+
+`field` ordnet das Experiment einem Themenfeld zu (`mech`, `rel`, `thermo`, `famous`). Name, Icon und
+Farbe des Felds stehen in `src/ui/core.js` (`U.FIELDS`) bzw. `src/styles.css` (`[data-field]`); ohne
+bekanntes `field` bekommt das Experiment eine neutrale Gruppe mit seinem `group`-Namen.
 
 Aufgaben kommen nach `src/data/tasks.js`, Quellen nach `src/data/sources.js`.
 

@@ -12,9 +12,9 @@
     kappa: 'κ', lambda: 'λ', mu: 'μ', nu: 'ν', xi: 'ξ', pi: 'π', rho: 'ρ', sigma: 'σ', tau: 'τ', phi: 'φ', varphi: 'φ',
     chi: 'χ', psi: 'ψ', omega: 'ω',
     Gamma: 'Γ', Delta: 'Δ', Theta: 'Θ', Lambda: 'Λ', Pi: 'Π', Sigma: 'Σ', Phi: 'Φ', Psi: 'Ψ', Omega: 'Ω',
-    hbar: 'ħ', partial: '∂', nabla: '∇', infty: '∞', odot: '☉', oplus: '⊕', ell: 'ℓ', langle: '⟨', rangle: '⟩',
+    hbar: 'ħ', partial: '∂', nabla: '∇', infty: '∞', odot: '☉', oplus: '⊕', ell: 'ℓ', langle: '⟨', rangle: '⟩', circ: '∘',
   };
-  const UPRIGHT_GREEK = new Set(['Gamma', 'Delta', 'Theta', 'Lambda', 'Pi', 'Sigma', 'Phi', 'Psi', 'Omega', 'infty', 'nabla', 'partial', 'odot', 'oplus', 'langle', 'rangle']);
+  const UPRIGHT_GREEK = new Set(['Gamma', 'Delta', 'Theta', 'Lambda', 'Pi', 'Sigma', 'Phi', 'Psi', 'Omega', 'infty', 'nabla', 'partial', 'odot', 'oplus', 'langle', 'rangle', 'circ']);
   const OPS = {
     times: '×', cdot: '·', propto: '∝', Rightarrow: '⇒', rightarrow: '→', to: '→', longleftrightarrow: '⟷',
     leftrightarrow: '↔', in: '∈', approx: '≈', sim: '∼', le: '≤', ge: '≥', leq: '≤', geq: '≥', neq: '≠', ne: '≠',
@@ -62,8 +62,10 @@
       const t = toks[p++];
       if (!t) return { html: '', frac: false };
       if (t.k === 'ch' && t.v === '{') return mode === 'raw' ? { raw: rawUntilClose() } : group('}');
+      if (mode === 'raw') return { raw: t.v };
+      // Ohne Klammern ist ein Argument genau ein Zeichen, wie in TeX: \tfrac12 = ½, nicht „12“ über nichts
+      if (t.k === 'ch' && /[0-9]/.test(t.v)) return { html: '<span class="mn">' + t.v + '</span>', frac: false };
       p--;
-      if (mode === 'raw') { p++; return { raw: t.v }; }
       const a = atom();
       return a ? { html: a.html, frac: a.frac } : { html: '' };
     }
@@ -151,7 +153,10 @@
       if (c === 'mathsf') return { html: '<span class="msf">' + esc(arg('raw').raw) + '</span>' };
       if (c === 'mathbf') return { html: '<b class="mbf">' + render(arg('raw').raw, { upright: true }) + '</b>' };
       if (c === 'mathbb') { const r = arg('raw').raw; return { html: '<span class="mu">' + ({ R: 'ℝ', C: 'ℂ', N: 'ℕ', Z: 'ℤ' }[r] || r) + '</span>' }; }
+      // \xc{Farbe}{…}: Teilformel in einer benannten Farbe (Klasse xc-Farbe in styles.css), z. B. \xc{q}{\hbar}
+      if (c === 'xc') { const k = String(arg('raw').raw).replace(/[^a-z]/g, ''); const a = arg(); return { html: '<span class="xc xc-' + k + '">' + a.html + '</span>', frac: a.frac }; }
       if (c === 'hat') { const a = arg(); return { html: '<span class="mhat">' + a.html + '</span>' }; }
+      if (c === 'dot' || c === 'ddot') { const a = arg(); return { html: '<span class="m' + c + '">' + a.html + '</span>' }; }
       if (c === 'vec') { const a = arg(); return { html: '<span class="mvec">' + a.html + '</span>' }; }
       if (c === 'int') return { html: '<span class="mint">∫</span>', big: true };
       if (c === 'sum') return { html: '<span class="mint">∑</span>', big: true };

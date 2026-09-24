@@ -16,6 +16,27 @@
   const table = (head, rows) => '<div class="th-scroll"><table class="t th-cmp"><thead><tr><th></th>' + head.map((h) => '<th>' + h + '</th>').join('') + '</tr></thead><tbody>' +
     rows.map((r) => '<tr><td><b>' + r[0] + '</b></td><td>' + r[1] + '</td><td>' + r[2] + '</td></tr>').join('') + '</tbody></table></div>';
 
+  const sec = (id, label) => '<a href="#view=theorie&amp;sec=' + id + '">' + esc(label) + '</a>';
+  /* Vergleichsleiste „Charakter der Theorie“: dieselbe Leiste in den Abschnitten zur Relativität, zur
+     Quantenmechanik und zur Lücke zwischen beiden – hervorgehoben ist jeweils die Theorie des Abschnitts */
+  const CHAR = I.localize({
+    cols: [{ de: 'Größen', en: 'Quantities' }, { de: 'Vorhersagen', en: 'Predictions' }, { de: 'Raum und Zeit', en: 'Space and time' }],
+    rows: [
+      { key: 'gr', sec: 'rel', name: { de: 'Allgemeine Relativitätstheorie', en: 'General relativity' },
+        tags: [{ de: 'klassisch – stets bestimmte Werte', en: 'classical – always definite values' }, { de: 'deterministisch', en: 'deterministic' }, { de: 'kontinuierlich und dynamisch', en: 'continuous and dynamic' }] },
+      { key: 'qm', sec: 'qm', name: { de: 'Quantentheorie (QM, QFT)', en: 'Quantum theory (QM, QFT)' },
+        tags: [{ de: 'quantisiert – Operatoren, Unschärfe', en: 'quantised – operators, uncertainty' }, { de: 'probabilistisch bei Messung', en: 'probabilistic upon measurement' }, { de: 'feste Raumzeit als Bühne', en: 'fixed spacetime as a stage' }] },
+    ],
+  });
+  function charBar(focus, note) {
+    const n = (id) => SECTIONS.findIndex((x) => x.id === id) + 1;
+    const also = ['rel', 'qm', 'gap'].map((id) => sec(id, String(n(id)))).join(', ');
+    return '<div class="th-char th-wide"><div class="th-char-h"><b>' + T('Charakter der Theorie', 'Character of the theory') + '</b><span class="faint"> · ' + T('dieselbe Leiste in den Abschnitten ', 'the same bar in sections ') + also + '</span></div>' +
+      '<div class="th-scroll"><table><thead><tr><th></th>' + CHAR.cols.map((c) => '<th scope="col">' + esc(c) + '</th>').join('') + '</tr></thead><tbody>' +
+      CHAR.rows.map((r) => '<tr class="' + (focus === 'both' || focus === r.key ? 'on' : 'off') + '"><th scope="row">' + sec(r.sec, r.name) + '</th>' + r.tags.map((x) => '<td><span class="th-kind">' + esc(x) + '</span></td>').join('') + '</tr>').join('') +
+      '</tbody></table></div>' + (note ? '<p>' + note + '</p>' : '') + '</div>';
+  }
+
   const SECTIONS = I.localize([
     /* ------------------------------------------------------------ */
     {
@@ -97,7 +118,7 @@
           '<p>Die SRT gilt nur für Inertialsysteme und kennt keine Gravitation. Einsteins Ausweg über das Äquivalenzprinzip: <b>Gravitation ist keine Kraft, sondern Krümmung der Raumzeit.</b> Masse und Energie krümmen die Raumzeit; frei fallende Körper folgen darin den „geradesten möglichen“ Bahnen (Geodäten). Die Erde zieht den Apfel nicht – der Apfel bewegt sich kräftefrei durch eine gekrümmte Raumzeit. John Wheeler fasste das so zusammen: Materie sagt der Raumzeit, wie sie sich krümmen soll, und die Raumzeit sagt der Materie, wie sie sich bewegen soll. Mathematisch sind das die Feldgleichungen:</p>' +
           d(R`G_{\mu\nu} + \Lambda\, g_{\mu\nu} = \frac{8\pi G}{c^{4}}\, T_{\mu\nu}`) +
           '<p>Links steht die Geometrie, rechts Energie und Impuls der Materie. Bestätigte Vorhersagen: die Periheldrehung des Merkur, die Lichtablenkung an der Sonne, langsamer gehende Uhren im Gravitationsfeld (GPS muss das korrigieren), Gravitationswellen (LIGO, 2015) und Schwarze Löcher (Event Horizon Telescope, 2019). ' + exp('efe', 'Zu den Feldgleichungen') + '.</p>' +
-          '<div class="callout"><b>Charakter der Theorie:</b> ' + kind('klassisch') + ' ' + kind('deterministisch') + ' ' + kind('kontinuierlich') + ' Die Raumzeit ist ein glattes, dynamisches Gebilde; jede Größe hat zu jedem Zeitpunkt einen bestimmten Wert. Das wird im letzten Abschnitt wichtig.</div>',
+          charBar('gr', 'Die Raumzeit ist ein glattes, dynamisches Gebilde; jede Größe hat zu jedem Zeitpunkt einen bestimmten Wert. Das wird im ' + sec('gap', 'letzten Abschnitt') + ' wichtig.'),
         en: () =>
           '<h3 class="th-h3">Special relativity (1905)</h3>' +
           '<p>Einstein combined Galileo’s principle of relativity with an experimental finding: the speed of light is the same for every observer, however fast they are moving. Holding on to both statements at once is only possible if space and time themselves are not absolute. The consequences:</p>' +
@@ -108,7 +129,7 @@
           '<p>Special relativity only holds in inertial frames and knows nothing about gravity. Einstein’s way out, via the equivalence principle: <b>gravity is not a force but the curvature of spacetime.</b> Mass and energy curve spacetime; freely falling bodies follow the “straightest possible” paths in it (geodesics). The Earth does not pull the apple – the apple moves free of forces through curved spacetime. John Wheeler summed it up like this: matter tells spacetime how to curve, and spacetime tells matter how to move. Mathematically, these are the field equations:</p>' +
           d(R`G_{\mu\nu} + \Lambda\, g_{\mu\nu} = \frac{8\pi G}{c^{4}}\, T_{\mu\nu}`) +
           '<p>On the left is geometry, on the right the energy and momentum of matter. Confirmed predictions: the perihelion precession of Mercury, the bending of light by the Sun, clocks running slower in a gravitational field (GPS has to correct for this), gravitational waves (LIGO, 2015) and black holes (Event Horizon Telescope, 2019). ' + exp('efe', 'To the field equations') + '.</p>' +
-          '<div class="callout"><b>Character of the theory:</b> ' + kind('classical') + ' ' + kind('deterministic') + ' ' + kind('continuous') + ' Spacetime is a smooth, dynamic structure; every quantity has a definite value at every moment. This becomes important in the last section.</div>',
+          charBar('gr', 'Spacetime is a smooth, dynamic structure; every quantity has a definite value at every moment. This becomes important in the ' + sec('gap', 'last section') + '.'),
       },
     },
     /* ------------------------------------------------------------ */
@@ -126,7 +147,7 @@
           d(R`\Delta x\,\Delta p \;\geq\; \frac{\hbar}{2}`) +
           '<p><b>Quantisierung.</b> Diskrete Energieniveaus – etwa im Atom – ergeben sich, weil die Wellenfunktion bestimmte Randbedingungen erfüllen muss, ähnlich wie eine eingespannte Saite nur bestimmte Töne erzeugt. ' + exp('schroedinger', 'Zur Schrödinger-Gleichung') + '.</p>' +
           '<p>Die Quantenmechanik ist die am genauesten getestete Theorie überhaupt: Beim magnetischen Moment des Elektrons stimmen Rechnung und Messung auf etwa 12 Stellen überein. Halbleiter, Laser, LEDs und MRT beruhen auf ihr. Ihre Verbindung mit der Speziellen Relativitätstheorie ist die <b>Quantenfeldtheorie</b>, die Grundlage des Standardmodells der Teilchenphysik – sie beschreibt drei der vier Grundkräfte.</p>' +
-          '<div class="callout"><b>Charakter der Theorie:</b> ' + kind('quantisiert') + ' ' + kind('probabilistisch bei Messung') + ' ' + kind('feste Raumzeit als Bühne') + ' Die Mathematik ist unumstritten; was eine Messung physikalisch „ist“ (das Messproblem), ist eine offene Interpretationsfrage – Kopenhagen, Viele-Welten, Bohm und andere machen dieselben Vorhersagen.</div>',
+          charBar('qm', 'Die Mathematik ist unumstritten; was eine Messung physikalisch „ist“ (das Messproblem), ist eine offene Interpretationsfrage – Kopenhagen, Viele-Welten, Bohm und andere machen dieselben Vorhersagen.'),
         en: () =>
           '<p>Around 1900, experiments with light and atoms no longer fitted classical physics. Planck had to assume that energy is only exchanged in portions, ' + t(R`E = hf`) + '. Einstein showed that light consists of such portions (photons), and de Broglie that, conversely, matter also behaves like a wave: ' + t(R`\lambda = h/p`) + '. By 1926 this had grown into quantum mechanics.</p>' +
           '<h3 class="th-h3">The core ideas</h3>' +
@@ -138,7 +159,7 @@
           d(R`\Delta x\,\Delta p \;\geq\; \frac{\hbar}{2}`) +
           '<p><b>Quantisation.</b> Discrete energy levels – in an atom, for instance – arise because the wave function has to satisfy certain boundary conditions, much as a string clamped at both ends can only produce certain notes. ' + exp('schroedinger', 'To the Schrödinger equation') + '.</p>' +
           '<p>Quantum mechanics is the most precisely tested theory there is: for the magnetic moment of the electron, calculation and measurement agree to about 12 digits. Semiconductors, lasers, LEDs and MRI all rest on it. Its union with special relativity is <b>quantum field theory</b>, the foundation of the Standard Model of particle physics – which describes three of the four fundamental forces.</p>' +
-          '<div class="callout"><b>Character of the theory:</b> ' + kind('quantised') + ' ' + kind('probabilistic upon measurement') + ' ' + kind('fixed spacetime as a stage') + ' The mathematics is undisputed; what a measurement physically “is” (the measurement problem) is an open question of interpretation – Copenhagen, many-worlds, Bohm and others all make the same predictions.</div>',
+          charBar('qm', 'The mathematics is undisputed; what a measurement physically “is” (the measurement problem) is an open question of interpretation – Copenhagen, many-worlds, Bohm and others all make the same predictions.'),
       },
     },
     /* ------------------------------------------------------------ */
@@ -147,13 +168,14 @@
       body: {
         de: () =>
           '<p>Beide Theorien sind in ihrem Bereich extrem erfolgreich, und es gibt <b>kein heutiges Experiment, das ihnen widerspricht</b>. Das Problem ist ein anderes: Sie beschreiben die Welt mit unvereinbaren Grundannahmen, und es gibt Situationen, in denen man beide gleichzeitig bräuchte.</p>' +
+          charBar('both', 'Die Leisten aus den Abschnitten zur Relativität und zur Quantenmechanik nebeneinander: In jeder Spalte widersprechen sich die Grundannahmen. Die Tabelle zeigt die Einzelheiten.') +
           table(['Allgemeine Relativitätstheorie', 'Quantenfeldtheorie'], [
             ['Raumzeit', 'dynamisch – wird von Materie verformt und ist selbst ein physikalisches Objekt', 'feste Bühne, auf der die Felder spielen'],
             ['Größen', 'haben stets bestimmte Werte', 'sind Operatoren, haben Unschärfen, können überlagert sein'],
             ['Zeit', 'Teil der dynamischen Geometrie – es gibt keine Uhr von außen', 'Koordinate einer fest vorgegebenen Raumzeit: relativistisch (Zeitdilatation gilt), aber selbst nicht dynamisch'],
             ['Vorhersagen', 'deterministisch', 'Wahrscheinlichkeiten bei Messung']]) +
           '<h3 class="th-h3">1. Welche Geometrie hat eine Überlagerung?</h3>' +
-          '<p>Die rechte Seite der Feldgleichungen, ' + t(R`T_{\mu\nu}`) + ', braucht einen bestimmten Wert. Eine Masse in Superposition – „hier und dort zugleich“ – hat keinen. Soll die Raumzeit dann in beide Richtungen gleichzeitig gekrümmt sein? Die Notlösung setzt den quantenmechanischen Mittelwert ein, ' + t(R`\langle T_{\mu\nu}\rangle`) + ' (<i>semiklassische Gravitation</i>). Das funktioniert als Näherung, führt aber bei makroskopischen Überlagerungen zu Vorhersagen, die experimentell ausgeschlossen wurden. Konsequent wäre, auch die Geometrie zu quantisieren – und genau daran scheitert man bisher.</p>' +
+          '<p>Die rechte Seite der Feldgleichungen, ' + t(R`T_{\mu\nu}`) + ', braucht einen bestimmten Wert. Eine Masse in Superposition – „hier und dort zugleich“ – hat keinen. Soll die Raumzeit dann in beide Richtungen gleichzeitig gekrümmt sein? Die Notlösung setzt den quantenmechanischen Mittelwert ein, ' + t(R`\langle T_{\mu\nu}\rangle`) + ' (<i>semiklassische Gravitation</i>). Das funktioniert als Näherung, führt aber bei makroskopischen Überlagerungen zu Widersprüchen in Gedankenexperimenten. Experimentell entschieden ist die Frage nicht. Konsequent wäre, auch die Geometrie zu quantisieren – und genau daran scheitert man bisher.</p>' +
           '<h3 class="th-h3">2. Quantisierte Gravitation explodiert bei hohen Energien</h3>' +
           '<p>Die anderen drei Kräfte hat man erfolgreich quantisiert: Unendlichkeiten in den Rechnungen lassen sich durch endlich viele gemessene Parameter auffangen (<i>Renormierung</i>). Macht man dasselbe mit der Gravitation – mit einem Austauschteilchen, dem Graviton –, braucht man unendlich viele neue Parameter; die Theorie ist <b>nicht renormierbar</b>. Das lässt sich mit Dimensionsanalyse sehen: Die Gravitationskonstante ' + t('G') + ' hat, anders als die Kopplung des Elektromagnetismus, eine Dimension. Die dimensionslose Stärke der Gravitation zwischen zwei Teilchen der Energie ' + t('E') + ' ist</p>' +
           d(R`\alpha_G \sim \frac{G\,E^{2}}{\hbar\, c^{5}} = \left(\frac{E}{E_P}\right)^{2}`) +
@@ -169,13 +191,14 @@
           '<div class="honest"><b>Einordnung:</b> Das ist keine Krise im Sinne von „die Physik ist falsch“. Beide Theorien sind hervorragend bestätigt. Es ist eine offene Lücke: Wir wissen, dass es eine umfassendere Theorie geben muss, aber noch nicht, wie sie aussieht.</div>',
         en: () =>
           '<p>Both theories are extremely successful in their own domains, and <b>no experiment today contradicts them</b>. The problem is a different one: they describe the world with incompatible basic assumptions, and there are situations in which you would need both at the same time.</p>' +
+          charBar('both', 'The bars from the sections on relativity and quantum mechanics side by side: in every column the basic assumptions contradict each other. The table shows the details.') +
           table(['General relativity', 'Quantum field theory'], [
             ['Spacetime', 'dynamic – deformed by matter and itself a physical object', 'a fixed stage on which the fields play'],
             ['Quantities', 'always have definite values', 'are operators, have uncertainties, can be superposed'],
             ['Time', 'part of the dynamic geometry – there is no clock outside', 'a coordinate of a fixed, given spacetime: relativistic (time dilation applies), but not itself dynamic'],
             ['Predictions', 'deterministic', 'probabilities upon measurement']]) +
           '<h3 class="th-h3">1. What geometry does a superposition have?</h3>' +
-          '<p>The right-hand side of the field equations, ' + t(R`T_{\mu\nu}`) + ', needs a definite value. A mass in superposition – “here and there at once” – does not have one. Should spacetime then be curved both ways at the same time? The stopgap is to insert the quantum-mechanical expectation value, ' + t(R`\langle T_{\mu\nu}\rangle`) + ' (<i>semiclassical gravity</i>). That works as an approximation, but for macroscopic superpositions it leads to predictions that have been ruled out experimentally. The consistent step would be to quantise the geometry as well – and that is exactly where attempts have failed so far.</p>' +
+          '<p>The right-hand side of the field equations, ' + t(R`T_{\mu\nu}`) + ', needs a definite value. A mass in superposition – “here and there at once” – does not have one. Should spacetime then be curved both ways at the same time? The stopgap is to insert the quantum-mechanical expectation value, ' + t(R`\langle T_{\mu\nu}\rangle`) + ' (<i>semiclassical gravity</i>). That works as an approximation, but for macroscopic superpositions it leads to contradictions in thought experiments. The question has not been decided experimentally. The consistent step would be to quantise the geometry as well – and that is exactly where attempts have failed so far.</p>' +
           '<h3 class="th-h3">2. Quantised gravity blows up at high energies</h3>' +
           '<p>The other three forces have been quantised successfully: infinities in the calculations can be absorbed into a finite number of measured parameters (<i>renormalisation</i>). Do the same with gravity – with an exchange particle, the graviton – and you need infinitely many new parameters; the theory is <b>not renormalisable</b>. Dimensional analysis shows why: unlike the coupling of electromagnetism, the gravitational constant ' + t('G') + ' has a dimension. The dimensionless strength of gravity between two particles of energy ' + t('E') + ' is</p>' +
           d(R`\alpha_G \sim \frac{G\,E^{2}}{\hbar\, c^{5}} = \left(\frac{E}{E_P}\right)^{2}`) +
@@ -193,26 +216,103 @@
     },
   ]);
 
-  function render(el) {
-    let h = '<header class="xhead"><div><div class="crumb">' + T('Grundlagen', 'Foundations') + '</div><h1>' + T('Theorie kurz erklärt', 'Theory in brief') + '</h1><div class="sub">' + T('Die Ideen hinter den Experimenten – ohne Formelballast, aber ehrlich', 'The ideas behind the experiments – without excess formulas, but honest') + '</div></div></header>';
-    h += '<nav class="th-toc" aria-label="' + T('Inhalt', 'Contents') + '">' + SECTIONS.map((s, i) => '<button class="btn" data-jump="' + s.id + '">' + (i + 1) + '. ' + esc(s.title) + '</button>').join('') + '</nav>';
-    h += '<div class="prose th">' + SECTIONS.map((s, i) => '<section id="th-' + s.id + '"><h2 class="sec">' + (i + 1) + '. ' + esc(s.title) + '</h2>' + s.body() + '</section>').join('') + '</div>';
+  /* ---------- Seitenleiste, Übersicht, Einzelseiten ----------
+     #view=theorie            Übersicht mit einer Karte je Abschnitt
+     #view=theorie&sec=<id>   ein Abschnitt: Text in Lesebreite, Widgets breit, Vertiefungen aufklappbar,
+                              sticky Inhaltsverzeichnis und „Weiter zu“ am Ende */
+  const S = U.S;
+  const TITLE = () => T('Theorie kurz erklärt', 'Theory in brief');
+  // Kurztitel (Seitenleiste) und ein Satz je Abschnitt (Übersicht, Untertitel)
+  const META = I.localize({
+    dim: { short: { de: 'Dimensionsanalyse', en: 'Dimensional analysis' }, teaser: { de: 'Warum man nur Gleiches mit Gleichem vergleichen kann – und wo die Methode blind ist.', en: 'Why you can only compare like with like – and where the method is blind.' } },
+    inertia: { short: { de: 'Inertialprinzip & Trägheit', en: 'Principle of inertia' }, teaser: { de: 'Bewegung braucht keine Ursache, nur ihre Änderung – und warum träge und schwere Masse gleich sind.', en: 'Motion needs no cause, only a change of motion does – and why inertial and gravitational mass are equal.' } },
+    rel: { short: { de: 'Relativitätstheorie', en: 'Relativity' }, teaser: { de: 'Raum und Zeit sind nicht absolut, und Gravitation ist Krümmung der Raumzeit.', en: 'Space and time are not absolute, and gravity is the curvature of spacetime.' } },
+    idx: { short: { de: 'Indizes μν', en: 'Indices μν' }, teaser: { de: 'Wie aus zwei griechischen Buchstaben eine 4×4-Tabelle wird – zum Antippen.', en: 'How two Greek letters turn into a 4×4 table – tap the cells.' } },
+    tensor: { short: { de: 'Tensor-Aufbau', en: 'How a tensor is built' }, teaser: { de: 'Mehr als eine Tabelle: Entscheidend ist, wie sich die Zahlen beim Wechsel der Koordinaten verwandeln.', en: 'More than a table: what matters is how the numbers transform when the coordinates change.' } },
+    action: { short: { de: 'Einstein-Hilbert-Wirkung', en: 'Einstein–Hilbert action' }, teaser: { de: 'Die ganze ART aus einem Prinzip – dem der kleinsten Wirkung, ausprobiert an einem geworfenen Ball.', en: 'All of general relativity from one principle – least action, tried out on a thrown ball.' } },
+    history: { short: { de: 'Die Köpfe hinter der ART', en: 'The minds behind GR' }, teaser: { de: 'Poincaré, Minkowski, Grossmann, Hilbert und Noether: die Fundamente unter Einsteins Theorie.', en: 'Poincaré, Minkowski, Grossmann, Hilbert and Noether: the foundations beneath Einstein’s theory.' } },
+    qm: { short: { de: 'Quantenmechanik', en: 'Quantum mechanics' }, teaser: { de: 'Zustand statt Bahn, Wahrscheinlichkeit bei der Messung, Unschärfe und Quantisierung.', en: 'A state instead of a trajectory, probability upon measurement, uncertainty and quantisation.' } },
+    entropy: { short: { de: 'Entropie', en: 'Entropy' }, teaser: { de: 'Ein Wort, viele Bedeutungen – von Clausius bis Wald, mit einem Modell zum Abzählen von Mikrozuständen.', en: 'One word, many meanings – from Clausius to Wald, with a model for counting microstates.' } },
+    gap: { short: { de: 'Warum (noch) nicht vereint', en: 'Why not (yet) united' }, teaser: { de: 'Beide Theorien sind bestens bestätigt und passen trotzdem nicht zusammen. Wo genau es hakt.', en: 'Both theories are superbly confirmed and still do not fit together. Where exactly it snags.' } },
+  });
+  const meta = (s) => META[s.id] || { short: s.title, teaser: '' };
+  const secHref = (id) => '#view=theorie&amp;sec=' + id;
+  const badge = () => '<span class="th-badge">' + T('interaktiv', 'interactive') + '</span>';
+
+  // Unterpunkte der Grundlagen in der Seitenleiste (src/ui/core.js ruft das auf)
+  U.theoryNav = () => {
+    const cur = S.view === 'theorie' ? S.theorySec : undefined;
+    return '<a href="#view=theorie" class="' + (S.view === 'theorie' && !cur ? 'on' : '') + '">' + esc(TITLE()) + '</a>' +
+      SECTIONS.map((s, i) => '<a href="' + secHref(s.id) + '" class="sub' + (cur === s.id ? ' on' : '') + '"><span><span class="th-n">' + (i + 1) + '</span>' + esc(meta(s).short) + '</span>' +
+        (s.mount ? '<small class="th-ia" title="' + T('interaktiv', 'interactive') + '" aria-label="' + T('interaktiv', 'interactive') + '">◆</small>' : '') + '</a>').join('');
+  };
+
+  function overview(el) {
+    let h = '<header class="xhead">' + U.fieldBanner('found') + '<div><h1>' + esc(TITLE()) + '</h1><div class="sub">' + T('Die Ideen hinter den Experimenten – ohne Formelballast, aber ehrlich', 'The ideas behind the experiments – without excess formulas, but honest') + '</div></div></header>';
+    h += '<div class="th-cards">' + SECTIONS.map((s, i) => '<a class="th-card" href="' + secHref(s.id) + '"><span class="th-card-n">' + (i + 1) + '</span><div><h3>' + esc(s.title) + '</h3><p>' + esc(meta(s).teaser) + '</p>' + (s.mount ? badge() : '') + '</div></a>').join('') + '</div>';
     el.innerHTML = h;
-    const downs = SECTIONS.map((s) => (s.mount ? s.mount(el) : null)).filter(Boolean);
-    if (downs.length) U.teardown = () => downs.forEach((f) => f());
+  }
+
+  // Vertiefungen: eine Zwischenüberschrift mit class="th-deep" wird mit allem bis zur nächsten Überschrift aufklappbar
+  function foldDeep(root) {
+    root.querySelectorAll('h3.th-deep').forEach((h3) => {
+      const d = document.createElement('details');
+      d.className = 'th-more';
+      const sm = document.createElement('summary');
+      sm.innerHTML = '<span class="th-more-k">' + T('Vertiefung', 'In depth') + '</span> ' + h3.innerHTML;
+      sm.dataset.title = h3.textContent.trim();
+      d.appendChild(sm);
+      h3.replaceWith(d);
+      while (d.nextElementSibling && !/^H[23]$/.test(d.nextElementSibling.tagName) && !d.nextElementSibling.classList.contains('th-more')) d.appendChild(d.nextElementSibling);
+    });
+  }
+
+  function sectionPage(el, i) {
+    const s = SECTIONS[i], prev = SECTIONS[i - 1], next = SECTIONS[i + 1];
+    let h = '<header class="xhead">' + U.fieldBanner('found') + '<div><a class="th-back" href="#view=theorie">← ' + esc(TITLE()) + '</a><h1>' + (i + 1) + '. ' + esc(s.title) + '</h1><div class="sub">' + esc(meta(s).teaser) + (s.mount ? ' ' + badge() : '') + '</div></div></header>';
+    h += '<div class="th-page"><article class="prose th th-article" id="th-' + s.id + '">' + s.body() + '</article>' +
+      '<aside class="th-side"><nav class="th-stoc" aria-label="' + T('Auf dieser Seite', 'On this page') + '"><div class="th-stoc-h">' + T('Auf dieser Seite', 'On this page') + '</div><ol id="th-stoc"></ol></nav></aside></div>';
+    h += '<nav class="th-foot" aria-label="' + T('Weitere Abschnitte', 'More sections') + '">' +
+      (prev ? '<a class="th-prev" href="' + secHref(prev.id) + '"><small>← ' + T('Zurück', 'Back') + '</small>' + (i) + '. ' + esc(meta(prev).short) + '</a>' : '<a class="th-prev" href="#view=theorie"><small>← ' + T('Übersicht', 'Overview') + '</small>' + esc(TITLE()) + '</a>') +
+      (next ? '<a class="th-next" href="' + secHref(next.id) + '"><small>' + T('Weiter zu', 'Continue to') + ' →</small>' + (i + 2) + '. ' + esc(meta(next).short) + '</a>' : '<a class="th-next" href="#view=theorie"><small>' + T('Weiter zu', 'Continue to') + ' →</small>' + T('Übersicht', 'Overview') + '</a>') + '</nav>';
+    el.innerHTML = h;
+    const art = el.querySelector('.th-article');
+    foldDeep(art);
+    // Inhaltsverzeichnis aus den Zwischenüberschriften (auch den aufklappbaren)
+    const heads = [...art.querySelectorAll(':scope > h3, :scope > details.th-more > summary')];
+    heads.forEach((x, k) => { x.id = 'th-' + s.id + '-' + (k + 1); });
+    const toc = el.querySelector('#th-stoc');
+    toc.innerHTML = heads.map((x) => '<li><button type="button" data-jump="' + x.id + '">' + esc(x.dataset.title || x.textContent.trim()) + '</button></li>').join('');
+    if (!heads.length) el.querySelector('.th-side').hidden = true;
+    const downs = [];
+    if (s.mount) { const f = s.mount(el); if (f) downs.push(f); }
     el.addEventListener('click', (e) => {
       const b = e.target.closest('[data-jump]');
       if (!b) return;
-      const sec = document.getElementById('th-' + b.getAttribute('data-jump'));
-      if (sec && sec.scrollIntoView) sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      const t = document.getElementById(b.getAttribute('data-jump'));
+      if (!t) return;
+      if (t.tagName === 'SUMMARY') t.parentElement.open = true;
+      if (t.scrollIntoView) t.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
-    if (U.S.theorySec) {
-      const sec = document.getElementById('th-' + U.S.theorySec);
-      U.S.theorySec = null;
-      if (sec && sec.scrollIntoView) setTimeout(() => sec.scrollIntoView({ block: 'start' }), 0);
+    // Markierung im Inhaltsverzeichnis: die zuletzt oberhalb der Bildschirmmitte liegende Überschrift
+    if (typeof IntersectionObserver === 'function' && heads.length) {
+      const io = new IntersectionObserver(() => {
+        let cur = null;
+        heads.forEach((x) => { const r = x.getBoundingClientRect(); if (r.top < window.innerHeight * 0.4) cur = x.id; });
+        toc.querySelectorAll('button').forEach((b) => b.classList.toggle('on', b.getAttribute('data-jump') === cur));
+      }, { rootMargin: '0px 0px -55% 0px', threshold: [0, 1] });
+      heads.forEach((x) => io.observe(x));
+      downs.push(() => io.disconnect());
     }
+    if (downs.length) U.teardown = () => downs.forEach((f) => f());
   }
 
-  U.theory = { sections: SECTIONS };
-  Object.assign(U.views, I.localize({ theorie: { title: { de: 'Theorie kurz erklärt', en: 'Theory in brief' }, render } }));
+  function render(el) {
+    const i = SECTIONS.findIndex((s) => s.id === S.theorySec);
+    if (i < 0) { S.theorySec = null; overview(el); } else sectionPage(el, i);
+  }
+
+  U.theory = { sections: SECTIONS, meta };
+  // Seitentitel folgt dem Abschnitt
+  U.views.theorie = { get title() { const s = SECTIONS.find((x) => x.id === S.theorySec); return s ? meta(s).short + ' · ' + TITLE() : TITLE(); }, render };
 })(globalThis.PP = globalThis.PP || {});

@@ -2,6 +2,19 @@
 
 ## 2026-09-24
 
+**Themenfelder, Hawking-Temperatur, Diagramme, Grundlagen**
+
+- **Themenfelder sofort erkennbar:** Mechanik, Relativität, Thermodynamik, Famous Equations, Grundlagen und Werkzeuge haben ein Icon und eine eigene Farbe. Die Gruppenköpfe in der Seitenleiste sind groß, fett und in Versalien; jede Seite beginnt mit einem Banner des Themenfelds. Die Feldfarben sind keine Datenfarben (Orange bleibt das Hauptergebnis); Famous Equations behält Violett, ihre bisherige Kennfarbe. Icon und Name stehen immer dabei.
+- **Hawking-Temperatur als Schnittpunkt:** Über dem Labor zeigt ein Block die Formel mit farbigen Symbolen. Ein Klick auf ħ, c, G, k_B, M oder 8π öffnet eine Karte mit Theorie, Beitrag und Grenzfall (ħ → 0: T_H → 0, das Loch ist klassisch schwarz; c → ∞ und G → 0: kein Horizont). Knöpfe zeigen den Grenzfall live im Break-Modus; G → 0 und c → ∞ meldet die Engine als „Außerhalb des Modells“. Dazu die Kette κ = c⁴/(4GM) → T = ħκ/(2πck_B) mit 8π = 4 · 2π, der „Aha“-Kasten T_H = T_P · m_P/(8πM), ein Wörterbuch κ ↔ T, A ↔ S, M ↔ E (auch auf der Seite der BH-Entropie, gegenseitig verlinkt) und eine Epistemik-Zeile: semiklassisch, nicht beobachtet, Elektromagnetismus fehlt. Formuliert als Schnittpunkt, nicht als Vereinigung. Alle Zahlen kommen aus der Engine (neue Ausgaben κ und E sowie Hilfsgrößen, die nicht in der Ergebnisliste stehen).
+- **Diagramme:** Der Standardbereich lässt den gültigen Bereich dominieren (freier Fall bis kurz nach dem Aufprall, ideales Gas 1 … 12 000 K). Jede Schraffur nennt ihren Grund in Legende und Tooltip („nach dem Aufprall“, „nahe der Planck-Masse“ …) und gilt nur für die Größen, die von der verletzten Größe abhängen: Beim schiefen Wurf schraffiert „nach der Landung“ nicht mehr R und H über α, beim Pendel wird nur T₀ jenseits von ≈ 23° gestrichelt.
+- **Formelsatz:** ½ in h(t) = h₀ − ½ g t² erschien als „12“ über leerem Nenner; `\tfrac12` ist jetzt ein Bruch. Auch 45° und θ̈ werden gesetzt.
+- **Grundlagen:** Übersicht mit einer Karte je Abschnitt, jeder Abschnitt als eigene Seite (Direktlinks #view=theorie&sec=… bleiben gültig) und als Unterpunkt in der Seitenleiste. Text in Lesebreite, Widgets breit, Vertiefungen aufklappbar, sticky Inhaltsverzeichnis, „Weiter zu“ am Ende. Tensor- und Ehrenfest-Demo stehen direkt nach dem ersten Absatz. Die Tags „Charakter der Theorie“ sind eine Vergleichsleiste in den Abschnitten 3, 8 und 10.
+- **Formulierung:** Semiklassische Gravitation führt bei makroskopischen Überlagerungen zu Widersprüchen in Gedankenexperimenten – experimentell entschieden ist das nicht (vorher: „experimentell ausgeschlossen“).
+- **Lesbarkeit und Tabs:** Schrift im Bild mindestens 11,5 px, Fußnoten und Hinweise größer. Alle Experimente haben dieselben Tabs direkt unter dem Kopf und öffnen mit „Graph & Labor“.
+
+**Tests:** 80 → 90 (drei Wege zu T_H, Grenzfälle im Break-Modus, Verweise des Schnittpunkt-Blocks, Bild bei G = 0 und ħ = 0, Schraffur je Größe, Gründe für jede Modellgrenze, Standardbereiche, Formelsatz, Grundlagen-Direktlinks). `npm run check:ui` prüft jetzt 184 Seiten, darunter jeden Grundlagen-Abschnitt und den Labor-Tab jedes Experiments.
+
+
 **Bedienung**
 
 - Unter 1180 px Fensterbreite stehen die Regler direkt unter dem Bild, danach Ergebnis und Status, zuletzt der Graph. Vorher lagen sie unter dem Graphen. Auf dem Handy hochkant bleibt das Bild beim Scrollen durch die Regler oben stehen.

@@ -105,7 +105,8 @@
     arrow(ctx, x1, y1, x2, y2, color, 1.2, 7);
     ctx.restore();
   }
-  function font(ctx, col, size, mono) { ctx.font = size + 'px ' + (mono ? col.mono : col.sans); }
+  // Mindestgröße für Beschriftungen im Bild: 10 px und kleiner wird 11,5 px, 11 px wird 12 px
+  function font(ctx, col, size, mono) { const s = size <= 10 ? 11.5 : size <= 11 ? 12 : size; ctx.font = s + 'px ' + (mono ? col.mono : col.sans); }
   function label(ctx, s, x, y, col, opts = {}) {
     font(ctx, col, opts.size || 12, opts.mono);
     ctx.fillStyle = opts.color || col.ink2;

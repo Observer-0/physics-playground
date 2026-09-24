@@ -134,7 +134,7 @@
       for (const k in consts) {
         const ref = C[k] && C[k].value;
         if (ref && isFinite(consts[k]) && Math.abs(consts[k] / ref - 1) > 1e-9) {
-          issues.push({ cat: 'unreal', msg: C[k].name + ' (' + k + ')' + T(' ist verändert (Faktor ', ' has been changed (factor ') + E.fmt(consts[k] / ref, 3) + T('). Mathematisch möglich – so ist unser Universum aber nicht.', '). Mathematically possible – but that is not our universe.') });
+          issues.push({ cat: 'unreal', why: T('Konstante verändert', 'constant changed'), msg: C[k].name + ' (' + k + ')' + T(' ist verändert (Faktor ', ' has been changed (factor ') + E.fmt(consts[k] / ref, 3) + T('). Mathematisch möglich – so ist unser Universum aber nicht.', '). Mathematically possible – but that is not our universe.') });
         }
       }
       // Modified constants → physically unrealistic
@@ -143,11 +143,11 @@
           const ref = C[v.constant].value;
           const x = values[v.key];
           if (isFinite(x) && Math.abs(x / ref - 1) > 1e-9) {
-            issues.push({ cat: 'unreal', msg: v.label + T(' weicht vom ' + (C[v.constant].kind === 'measured' ? 'gemessenen' : 'festgelegten') + ' Wert ab (Faktor ', ' differs from the ' + (C[v.constant].kind === 'measured' ? 'measured' : 'defined') + ' value (factor ') + E.fmt(x / ref, 3) + T('). Mathematisch möglich – so ist unser Universum aber nicht.', '). Mathematically possible – but that is not our universe.') });
+            issues.push({ cat: 'unreal', why: T('Konstante verändert', 'constant changed'), msg: v.label + T(' weicht vom ' + (C[v.constant].kind === 'measured' ? 'gemessenen' : 'festgelegten') + ' Wert ab (Faktor ', ' differs from the ' + (C[v.constant].kind === 'measured' ? 'measured' : 'defined') + ' value (factor ') + E.fmt(x / ref, 3) + T('). Mathematisch möglich – so ist unser Universum aber nicht.', '). Mathematically possible – but that is not our universe.') });
           }
         }
         if (v.positive && values[v.key] <= 0) {
-          issues.push({ cat: 'unreal', msg: v.label + ' ≤ 0: ' + (v.negNote || T('für diese Größe physikalisch nicht sinnvoll.', 'not physically meaningful for this quantity.')) });
+          issues.push({ cat: 'unreal', why: v.label + ' ≤ 0', on: [v.key], msg: v.label + ' ≤ 0: ' + (v.negNote || T('für diese Größe physikalisch nicht sinnvoll.', 'not physically meaningful for this quantity.')) });
         }
       }
       if (exp.checks) {
@@ -157,6 +157,26 @@
       }
     }
     return { out, issues, form };
+  }
+
+  /* Welche Ausgaben betrifft eine Warnung? Ein Engine-Fehler (out) seine Ausgabe und alles, was davon
+     abhängt; ein Check mit `on` alle Ausgaben, die (auch über frühere Ausgaben) von diesen Symbolen abhängen;
+     alle anderen Warnungen betreffen alles. Beispiel: „nach der Landung“ (on: t) betrifft y(t), aber nicht R. */
+  function depsOf(form) {
+    if (form.c.deps) return form.c.deps;
+    const d = Object.create(null);
+    for (const o of form.c.outputs) {
+      const s = new Set();
+      E.symbolsIn(o.ast).forEach((x) => { s.add(x); if (d[x]) d[x].forEach((y) => s.add(y)); });
+      d[o.key] = s;
+    }
+    return (form.c.deps = d);
+  }
+  function affects(form, issue, key) {
+    const syms = issue.out ? [issue.out] : issue.on;
+    if (!syms) return true;
+    const d = depsOf(form)[key];
+    return syms.some((s) => s === key || (d && d.has(s)));
   }
 
   // Relative uncertainty contributed by measured constants (power-law sensitivity)
@@ -202,5 +222,5 @@
     return parts.length ? { rel: Math.sqrt(sum), parts } : { rel: 0, parts: [] };
   }
 
-  PP.model = { C, CONST_ENV, KIND_LABEL, registry, byId, define, compute, defaults, uncertainty, formOf };
+  PP.model = { C, CONST_ENV, KIND_LABEL, registry, byId, define, compute, defaults, uncertainty, formOf, affects };
 })(globalThis.PP = globalThis.PP || {});
