@@ -286,6 +286,9 @@ input[type=range]:focus-visible { outline: 1px dashed var(--accent); outline-off
 .math .mdbig { display: inline-block; transform: scaleY(1.9); padding: 0 .06em; }
 .math .mint { font-size: 1.5em; font-style: normal; }
 .math .mhat { position: relative; display: inline-block; }
+.math .mdot, .math .mddot { position: relative; display: inline-block; }
+.math .mdot::after, .math .mddot::after { position: absolute; left: 50%; top: -.42em; transform: translateX(-35%); font-style: normal; font-size: .9em; }
+.math .mdot::after { content: "˙"; } .math .mddot::after { content: "¨"; }
 .math .mhat::after { content: "^"; position: absolute; left: 50%; top: -.55em; transform: translateX(-40%); font-size: .8em; font-style: normal; }
 .math .msp { display: inline-block; }
 .mathd { display: block; text-align: center; font-size: 1.5em; padding: 6px 0; overflow-x: auto; overflow-y: hidden; }

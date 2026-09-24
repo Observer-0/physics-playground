@@ -42,11 +42,11 @@
       const rs = o('rs');
       if (v.r > 0 && isFinite(rs) && rs > 0) {
         const q = rs / v.r;
-        if (q >= 1) issues.push({ cat: 'model', msg: T('r liegt innerhalb des Schwarzschild-Radius der Gesamtmasse (r_s ≈ ' + fmt(rs, 3) + ' m). Das Newton-Bild verliert hier jede Bedeutung.', 'r lies inside the Schwarzschild radius of the total mass (r_s ≈ ' + fmt(rs, 3) + ' m). The Newtonian picture loses all meaning here.') });
-        else if (q > 0.01) issues.push({ cat: 'model', msg: T('r ist nur ' + fmt(1 / q, 3) + ' r_s: starkes Gravitationsfeld – hier braucht es die Allgemeine Relativitätstheorie.', 'r is only ' + fmt(1 / q, 3) + ' r_s: a strong gravitational field – this needs general relativity.') });
+        if (q >= 1) issues.push({ cat: 'model', why: T('innerhalb von r_s', 'inside r_s'), msg: T('r liegt innerhalb des Schwarzschild-Radius der Gesamtmasse (r_s ≈ ' + fmt(rs, 3) + ' m). Das Newton-Bild verliert hier jede Bedeutung.', 'r lies inside the Schwarzschild radius of the total mass (r_s ≈ ' + fmt(rs, 3) + ' m). The Newtonian picture loses all meaning here.') });
+        else if (q > 0.01) issues.push({ cat: 'model', why: T('starkes Feld: ART nötig', 'strong field: GR needed'), msg: T('r ist nur ' + fmt(1 / q, 3) + ' r_s: starkes Gravitationsfeld – hier braucht es die Allgemeine Relativitätstheorie.', 'r is only ' + fmt(1 / q, 3) + ' r_s: a strong gravitational field – this needs general relativity.') });
         else if (q > 1e-9) issues.push({ cat: 'info', msg: T('Schwachfeld-Parameter r_s/r ≈ ' + fmt(q, 2) + ': relativistische Korrekturen sind klein, aber je nach Präzision messbar (vgl. Periheldrehung des Merkur).', 'Weak-field parameter r_s/r ≈ ' + fmt(q, 2) + ': relativistic corrections are small but, depending on precision, measurable (cf. the perihelion precession of Mercury).') });
       }
-      if (v.r > 0 && v.r < 5e-5) issues.push({ cat: 'model', msg: T('Das 1/r²-Gesetz ist experimentell nur bis hinunter zu etwa 50 µm getestet (Torsionswaagen). Darunter ist das eine Extrapolation.', 'The 1/r² law has only been tested experimentally down to about 50 µm (torsion balances). Below that it is an extrapolation.') });
+      if (v.r > 0 && v.r < 5e-5) issues.push({ cat: 'model', why: T('unter 50 µm nicht getestet', 'untested below 50 µm'), msg: T('Das 1/r²-Gesetz ist experimentell nur bis hinunter zu etwa 50 µm getestet (Torsionswaagen). Darunter ist das eine Extrapolation.', 'The 1/r² law has only been tested experimentally down to about 50 µm (torsion balances). Below that it is an extrapolation.') });
       issues.push({ cat: 'assume', msg: T('Punktmassen oder kugelsymmetrische Körper; r ist der Abstand der Schwerpunkte.', 'Point masses or spherically symmetric bodies; r is the distance between the centres of mass.') });
     },
     presets: [
@@ -105,8 +105,8 @@
     checks({ v, o, issues, C }) {
       if (v.t < 0) issues.push({ cat: 'info', msg: T('Negative Zeit: Die Formel extrapoliert rückwärts. Mathematisch zulässig, sofern die Beschleunigung vorher schon konstant war.', 'Negative time: the formula extrapolates backwards. Mathematically fine, provided the acceleration was already constant before.') });
       const vel = Math.abs(o('v'));
-      if (vel > 0.1 * C.c) issues.push({ cat: 'model', msg: T('|v| > 0,1 c: nichtrelativistische Kinematik ist hier ungenau.', '|v| > 0.1 c: non-relativistic kinematics is inaccurate here.') });
-      if (vel > C.c) issues.push({ cat: 'unreal', msg: T('Schneller als Licht – für massive Körper ausgeschlossen. Konstante Beschleunigung kann nicht beliebig lange andauern.', 'Faster than light – impossible for massive bodies. Constant acceleration cannot go on indefinitely.') });
+      if (vel > 0.1 * C.c) issues.push({ cat: 'model', why: T('|v| > 0,1 c: relativistisch', '|v| > 0.1 c: relativistic'), msg: T('|v| > 0,1 c: nichtrelativistische Kinematik ist hier ungenau.', '|v| > 0.1 c: non-relativistic kinematics is inaccurate here.') });
+      if (vel > C.c) issues.push({ cat: 'unreal', why: T('schneller als Licht', 'faster than light'), msg: T('Schneller als Licht – für massive Körper ausgeschlossen. Konstante Beschleunigung kann nicht beliebig lange andauern.', 'Faster than light – impossible for massive bodies. Constant acceleration cannot go on indefinitely.') });
       issues.push({ cat: 'assume', msg: T('Die Beschleunigung ist über die ganze Zeit exakt konstant.', 'The acceleration is exactly constant the whole time.') });
     },
     presets: [
@@ -158,10 +158,10 @@
     ],
     symbols: { t_F: { dim: 'T' } },
     checks({ v, o, issues }) {
-      if (o('h') < 0) issues.push({ cat: 'model', msg: T('h < 0: Der Körper wäre schon bei t ≈ ' + PP.engine.fmt(o('tf'), 3) + ' s aufgeschlagen. Danach beschreibt die Formel nichts Reales mehr.', 'h < 0: the body would already have hit the ground at t ≈ ' + PP.engine.fmt(o('tf'), 3) + ' s. After that the formula no longer describes anything real.') });
-      if (v.h0 < 0) issues.push({ cat: 'unreal', msg: T('Negative Starthöhe: Der Körper läge unter dem Boden.', 'Negative initial height: the body would be below the ground.') });
-      if (o('v') > 30) issues.push({ cat: 'model', msg: T('In Luft wäre der Luftwiderstand bei über 30 m/s bereits erheblich. Das Modell gilt streng nur im Vakuum.', 'In air, drag would already be considerable above 30 m/s. Strictly, the model only holds in a vacuum.') });
-      if (v.h0 > 1e5) issues.push({ cat: 'model', msg: T('Über ~100 km Höhe nimmt g merklich ab; konstantes g ist dann eine schlechte Näherung.', 'Above ~100 km altitude g drops noticeably; a constant g is then a poor approximation.') });
+      if (o('h') < 0) issues.push({ cat: 'model', why: T('nach dem Aufprall', 'after impact'), on: ['t'], msg: T('h < 0: Der Körper wäre schon bei t ≈ ' + PP.engine.fmt(o('tf'), 3) + ' s aufgeschlagen. Danach beschreibt die Formel nichts Reales mehr.', 'h < 0: the body would already have hit the ground at t ≈ ' + PP.engine.fmt(o('tf'), 3) + ' s. After that the formula no longer describes anything real.') });
+      if (v.h0 < 0) issues.push({ cat: 'unreal', why: T('Start unter dem Boden', 'start below the ground'), msg: T('Negative Starthöhe: Der Körper läge unter dem Boden.', 'Negative initial height: the body would be below the ground.') });
+      if (o('v') > 30) issues.push({ cat: 'model', why: T('in Luft: Luftwiderstand (v > 30 m/s)', 'in air: drag (v > 30 m/s)'), on: ['t'], msg: T('In Luft wäre der Luftwiderstand bei über 30 m/s bereits erheblich. Das Modell gilt streng nur im Vakuum.', 'In air, drag would already be considerable above 30 m/s. Strictly, the model only holds in a vacuum.') });
+      if (v.h0 > 1e5) issues.push({ cat: 'model', why: T('über 100 km: g nicht konstant', 'above 100 km: g not constant'), msg: T('Über ~100 km Höhe nimmt g merklich ab; konstantes g ist dann eine schlechte Näherung.', 'Above ~100 km altitude g drops noticeably; a constant g is then a poor approximation.') });
       issues.push({ cat: 'assume', msg: T('Vakuum, konstantes g, Start aus der Ruhe.', 'Vacuum, constant g, starting from rest.') });
     },
     presets: [
@@ -171,7 +171,7 @@
       { name: { de: 'Jupiter (Wolkenobergrenze)', en: 'Jupiter (cloud tops)' }, note: { de: 'g ≈ 24,8 m/s²', en: 'g ≈ 24.8 m/s²' }, values: { h0: 100, g: 24.79, t: 1.5 } },
       { name: { de: 'Fallturm Bremen', en: 'Bremen Drop Tower' }, note: { de: 'Fallstrecke ≈ 110 m in einer evakuierten Röhre', en: 'drop height ≈ 110 m in an evacuated tube' }, values: { h0: 110, g: C.g_n.value, t: 3 } },
     ],
-    graph: { x: 't', y: 'h', also: ['v'] },
+    graph: { x: 't', y: 'h', also: ['v'], view: { to: 'tf', f: 1.1 } },
     viz: 'freefall', animateVar: 't', animateUntil: 'tf',
     explain: {
       intuition: {
@@ -216,7 +216,7 @@
       { label: { de: 'Periodendauer', en: 'Period' }, eq: 'T = 2*pi*sqrt(m/k)' },
     ],
     checks({ v, issues }) {
-      if (Math.abs(v.x) > 0.3) issues.push({ cat: 'model', msg: T('Große Auslenkung: Reale Federn verlassen irgendwann den linearen Bereich – dann gilt F = −kx nicht mehr.', 'Large displacement: real springs eventually leave the linear range – then F = −kx no longer holds.') });
+      if (Math.abs(v.x) > 0.3) issues.push({ cat: 'model', why: T('Feder nicht mehr linear', 'spring no longer linear'), msg: T('Große Auslenkung: Reale Federn verlassen irgendwann den linearen Bereich – dann gilt F = −kx nicht mehr.', 'Large displacement: real springs eventually leave the linear range – then F = −kx no longer holds.') });
       issues.push({ cat: 'assume', msg: T('Ideale, masselose Feder ohne Dämpfung.', 'Ideal, massless spring without damping.') });
     },
     presets: [
@@ -268,8 +268,8 @@
       { label: { de: 'Zentripetalkraft', en: 'Centripetal force' }, eq: 'F = m*v^2/r' },
     ],
     checks({ v, issues, C }) {
-      if (v.v > C.c) issues.push({ cat: 'unreal', msg: T('v > c: Kein massiver Körper erreicht Lichtgeschwindigkeit.', 'v > c: no massive body reaches the speed of light.') });
-      else if (v.v > 0.1 * C.c) issues.push({ cat: 'model', msg: T('v > 0,1 c: relativistische Korrekturen werden wichtig.', 'v > 0.1 c: relativistic corrections become important.') });
+      if (v.v > C.c) issues.push({ cat: 'unreal', why: 'v > c', msg: T('v > c: Kein massiver Körper erreicht Lichtgeschwindigkeit.', 'v > c: no massive body reaches the speed of light.') });
+      else if (v.v > 0.1 * C.c) issues.push({ cat: 'model', why: T('v > 0,1 c: relativistisch', 'v > 0.1 c: relativistic'), msg: T('v > 0,1 c: relativistische Korrekturen werden wichtig.', 'v > 0.1 c: relativistic corrections become important.') });
       issues.push({ cat: 'assume', msg: T('Konstanter Betrag der Geschwindigkeit, exakte Kreisbahn.', 'Constant speed, exactly circular path.') });
     },
     presets: [
@@ -325,9 +325,9 @@
     checks({ v, o, issues, fmt }) {
       const err = o('err');
       if (v.th < 0) issues.push({ cat: 'info', msg: T('Negativer Winkel heißt nur: zur anderen Seite ausgelenkt. T hängt von |θ₀| ab.', 'A negative angle just means a swing to the other side. T depends on |θ₀|.') });
-      if (isFinite(err) && err >= 1) issues.push({ cat: 'model', msg: T('Die Kleinwinkelnäherung sin θ ≈ θ liegt hier um ' + fmt(err, 2) + ' % daneben: T₀ ist zu kurz. Die exakte Periodendauer T bleibt gültig.', 'The small-angle approximation sin θ ≈ θ is off by ' + fmt(err, 2) + ' % here: T₀ is too short. The exact period T remains valid.') });
+      if (isFinite(err) && err >= 1) issues.push({ cat: 'model', why: T('Kleinwinkelnäherung ≥ 1 % daneben', 'small-angle approximation off by ≥ 1 %'), on: ['T0'], msg: T('Die Kleinwinkelnäherung sin θ ≈ θ liegt hier um ' + fmt(err, 2) + ' % daneben: T₀ ist zu kurz. Die exakte Periodendauer T bleibt gültig.', 'The small-angle approximation sin θ ≈ θ is off by ' + fmt(err, 2) + ' % here: T₀ is too short. The exact period T remains valid.') });
       else if (isFinite(err) && err >= 0.1) issues.push({ cat: 'info', msg: T('Die Kleinwinkelnäherung weicht um ' + fmt(err, 2) + ' % ab – für eine Pendeluhr schon viel.', 'The small-angle approximation is off by ' + fmt(err, 2) + ' % – already a lot for a pendulum clock.') });
-      if (Math.abs(v.th) > 90) issues.push({ cat: 'model', msg: T('Über 90° würde ein Faden anfangs schlaff: Das Modell gilt dann nur für eine starre Stange.', 'Beyond 90° a string would go slack at first: the model then only applies to a rigid rod.') });
+      if (Math.abs(v.th) > 90) issues.push({ cat: 'model', why: T('über 90°: Faden schlaff', 'beyond 90°: string goes slack'), msg: T('Über 90° würde ein Faden anfangs schlaff: Das Modell gilt dann nur für eine starre Stange.', 'Beyond 90° a string would go slack at first: the model then only applies to a rigid rod.') });
       issues.push({ cat: 'assume', msg: T('Punktmasse an masseloser, starrer Aufhängung; keine Reibung; konstantes g.', 'Point mass on a massless, rigid suspension; no friction; constant g.') });
     },
     presets: [
@@ -387,9 +387,9 @@
       { label: { de: 'Bahnkurve y(x)', en: 'Trajectory y(x)' }, eq: 'y = x*tan(al*pi/180) - g*x^2/(2*v0^2*cos(al*pi/180)^2)' },
     ],
     checks({ v, o, issues, fmt }) {
-      if (o('y') < 0 && v.t > 0) issues.push({ cat: 'model', msg: T('y < 0: Der Körper ist schon bei t ≈ ' + fmt(o('tf'), 3) + ' s gelandet. Danach beschreibt die Formel nichts Reales mehr.', 'y < 0: the body already landed at t ≈ ' + fmt(o('tf'), 3) + ' s. After that the formula no longer describes anything real.') });
-      if (v.v0 > 7900) issues.push({ cat: 'model', msg: T('Nahe der ersten kosmischen Geschwindigkeit (≈ 7,9 km/s) ist die Erde nicht mehr flach und g nicht konstant – die Bahn wird zur Ellipse.', 'Close to orbital speed (≈ 7.9 km/s) the Earth is no longer flat and g not constant – the path becomes an ellipse.') });
-      else if (v.v0 > 30) issues.push({ cat: 'model', msg: T('Bei über 30 m/s bremst in Luft der Luftwiderstand schon deutlich: Reale Weiten sind kürzer, und der beste Winkel liegt unter 45°.', 'Above 30 m/s, air resistance already slows things down noticeably in air: real ranges are shorter, and the best angle is below 45°.') });
+      if (o('y') < 0 && v.t > 0) issues.push({ cat: 'model', why: T('nach der Landung', 'after landing'), on: ['t'], msg: T('y < 0: Der Körper ist schon bei t ≈ ' + fmt(o('tf'), 3) + ' s gelandet. Danach beschreibt die Formel nichts Reales mehr.', 'y < 0: the body already landed at t ≈ ' + fmt(o('tf'), 3) + ' s. After that the formula no longer describes anything real.') });
+      if (v.v0 > 7900) issues.push({ cat: 'model', why: T('Erde nicht mehr flach', 'Earth no longer flat'), msg: T('Nahe der ersten kosmischen Geschwindigkeit (≈ 7,9 km/s) ist die Erde nicht mehr flach und g nicht konstant – die Bahn wird zur Ellipse.', 'Close to orbital speed (≈ 7.9 km/s) the Earth is no longer flat and g not constant – the path becomes an ellipse.') });
+      else if (v.v0 > 30) issues.push({ cat: 'model', why: T('in Luft: Luftwiderstand (v₀ > 30 m/s)', 'in air: drag (v₀ > 30 m/s)'), msg: T('Bei über 30 m/s bremst in Luft der Luftwiderstand schon deutlich: Reale Weiten sind kürzer, und der beste Winkel liegt unter 45°.', 'Above 30 m/s, air resistance already slows things down noticeably in air: real ranges are shorter, and the best angle is below 45°.') });
       issues.push({ cat: 'assume', msg: T('Kein Luftwiderstand, flacher Boden, konstantes g; Abwurf und Landung auf gleicher Höhe.', 'No air resistance, flat ground, constant g; launch and landing at the same height.') });
     },
     presets: [
@@ -452,7 +452,7 @@
     ],
     symbols: { v: { dim: 'L T^-1' }, E_k: { dim: 'M L^2 T^-2' } },
     checks({ v, issues }) {
-      if (v.beta >= 1) issues.push({ cat: 'math', msg: T('β ≥ 1: Für β = 1 wird γ unendlich, für β > 1 imaginär. Massive Körper können c nicht erreichen.', 'β ≥ 1: at β = 1, γ becomes infinite; for β > 1 it becomes imaginary. Massive bodies cannot reach c.') });
+      if (v.beta >= 1) issues.push({ cat: 'math', why: 'β ≥ 1', msg: T('β ≥ 1: Für β = 1 wird γ unendlich, für β > 1 imaginär. Massive Körper können c nicht erreichen.', 'β ≥ 1: at β = 1, γ becomes infinite; for β > 1 it becomes imaginary. Massive bodies cannot reach c.') });
       if (v.beta < 0) issues.push({ cat: 'info', msg: T('Negatives β bedeutet nur die Gegenrichtung; γ hängt von β² ab.', 'A negative β just means the opposite direction; γ depends on β².') });
       if (v.beta > 0 && v.beta < 1e-4) issues.push({ cat: 'info', msg: T('γ − 1 ≈ β²/2 ist winzig. E_kin wird deshalb über eine umgeformte Formel berechnet – die naive Differenz (γ−1)mc² würde hier durch Rundung ausgelöscht.', 'γ − 1 ≈ β²/2 is tiny. E_kin is therefore computed from a rearranged formula – the naive difference (γ−1)mc² would be wiped out by rounding here.') });
       issues.push({ cat: 'assume', msg: T('Inertialsysteme, flache Raumzeit (keine Gravitation).', 'Inertial frames, flat spacetime (no gravity).') });
@@ -518,10 +518,10 @@
     symbols: { E_k: { dim: 'M L^2 T^-2' } },
     checks({ v, o, issues, fmt }) {
       const d = o('d'), lam = o('lam');
-      if (isFinite(d) && isFinite(lam) && d < 10 * lam) issues.push({ cat: 'model', msg: T('Die Teilchen stehen so dicht (d ≈ ' + fmt(d, 2) + ' m), dass ihre Wellenlänge (λ ≈ ' + fmt(lam, 2) + ' m) vergleichbar wird. Dann braucht es Quantenstatistik statt des idealen Gases.', 'The particles are so close together (d ≈ ' + fmt(d, 2) + ' m) that their wavelength (λ ≈ ' + fmt(lam, 2) + ' m) becomes comparable. Then quantum statistics is needed instead of the ideal gas.') });
-      if (o('p') > 1e7) issues.push({ cat: 'model', msg: T('Über ≈ 100 bar weichen reale Gase deutlich ab: Die Teilchen brauchen Platz und ziehen sich an (van-der-Waals-Gleichung).', 'Above ≈ 100 bar real gases deviate noticeably: the particles take up space and attract each other (van der Waals equation).') });
-      if (v.T < 90) issues.push({ cat: 'model', msg: T('Unter ≈ 90 K sind Stickstoff und Sauerstoff bei Normaldruck flüssig. Das ideale Gas kennt keine Kondensation.', 'Below ≈ 90 K, nitrogen and oxygen are liquid at normal pressure. The ideal gas knows nothing about condensation.') });
-      if (v.T > 1e4) issues.push({ cat: 'model', msg: T('Über ≈ 10 000 K zerfallen Moleküle, und Atome werden ionisiert – aus dem Gas wird ein Plasma.', 'Above ≈ 10,000 K molecules break apart and atoms are ionised – the gas turns into a plasma.') });
+      if (isFinite(d) && isFinite(lam) && d < 10 * lam) issues.push({ cat: 'model', why: T('Quantenentartung', 'quantum degeneracy'), msg: T('Die Teilchen stehen so dicht (d ≈ ' + fmt(d, 2) + ' m), dass ihre Wellenlänge (λ ≈ ' + fmt(lam, 2) + ' m) vergleichbar wird. Dann braucht es Quantenstatistik statt des idealen Gases.', 'The particles are so close together (d ≈ ' + fmt(d, 2) + ' m) that their wavelength (λ ≈ ' + fmt(lam, 2) + ' m) becomes comparable. Then quantum statistics is needed instead of the ideal gas.') });
+      if (o('p') > 1e7) issues.push({ cat: 'model', why: T('über 100 bar: reales Gas', 'above 100 bar: real gas'), msg: T('Über ≈ 100 bar weichen reale Gase deutlich ab: Die Teilchen brauchen Platz und ziehen sich an (van-der-Waals-Gleichung).', 'Above ≈ 100 bar real gases deviate noticeably: the particles take up space and attract each other (van der Waals equation).') });
+      if (v.T < 90) issues.push({ cat: 'model', why: T('unter 90 K: Kondensation', 'below 90 K: condensation'), msg: T('Unter ≈ 90 K sind Stickstoff und Sauerstoff bei Normaldruck flüssig. Das ideale Gas kennt keine Kondensation.', 'Below ≈ 90 K, nitrogen and oxygen are liquid at normal pressure. The ideal gas knows nothing about condensation.') });
+      if (v.T > 1e4) issues.push({ cat: 'model', why: T('über 10 000 K: Plasma', 'above 10,000 K: plasma'), msg: T('Über ≈ 10 000 K zerfallen Moleküle, und Atome werden ionisiert – aus dem Gas wird ein Plasma.', 'Above ≈ 10,000 K molecules break apart and atoms are ionised – the gas turns into a plasma.') });
       if (v.N < 1000) issues.push({ cat: 'info', msg: T('Bei so wenigen Teilchen schwankt der Druck stark; p ist nur noch ein Mittelwert.', 'With this few particles the pressure fluctuates strongly; p is only an average.') });
       issues.push({ cat: 'assume', msg: T('Punktförmige Teilchen ohne Anziehung, nur elastische Stöße; thermisches Gleichgewicht.', 'Point-like particles without attraction, only elastic collisions; thermal equilibrium.') });
     },
@@ -531,7 +531,7 @@
       { name: { de: 'Heliumballon', en: 'Helium balloon' }, note: { de: '≈ 10 l bei 20 °C und 1 atm', en: '≈ 10 l at 20 °C and 1 atm' }, values: { N: 2.504e23, T: 293.15, V: 0.01, m: 6.6465e-27 } },
       { name: { de: 'Interstellares Gas', en: 'Interstellar gas' }, note: { de: '≈ 1 Wasserstoffatom pro cm³ bei ≈ 100 K', en: '≈ 1 hydrogen atom per cm³ at ≈ 100 K' }, values: { N: 1e6, T: 100, V: 1, m: 1.6735e-27 } },
     ],
-    graph: { x: 'T', y: 'p', xlog: false, ylog: false },
+    graph: { x: 'T', y: 'p', xlog: false, ylog: false, view: { range: [1, 12000] } },
     viz: 'gas',
     explain: {
       intuition: {
@@ -711,14 +711,14 @@
     checks({ v, o, issues, C, fmt }) {
       const Th = o('TH');
       if (isFinite(Th) && Th < C.T_cmb) issues.push({ cat: 'info', msg: T('T_H ≈ ' + fmt(Th, 3) + ' K liegt unter der Temperatur der Hintergrundstrahlung (≈ 2,7 K). Heute absorbiert so ein Loch mehr Strahlung, als es abgibt – es wächst netto.', 'T_H ≈ ' + fmt(Th, 3) + ' K is below the temperature of the cosmic microwave background (≈ 2.7 K). Today such a hole absorbs more radiation than it emits – it grows on balance.') });
-      if (v.M > 0 && v.M < 1e-6) issues.push({ cat: 'model', msg: T('Nahe der Planck-Masse (≈ 2,2 × 10⁻⁸ kg) versagt die semiklassische Rechnung – dafür bräuchte es eine Quantengravitation.', 'Near the Planck mass (≈ 2.2 × 10⁻⁸ kg) the semiclassical calculation breaks down – that would take a theory of quantum gravity.') });
+      if (v.M > 0 && v.M < 1e-6) issues.push({ cat: 'model', why: T('nahe der Planck-Masse', 'near the Planck mass'), msg: T('Nahe der Planck-Masse (≈ 2,2 × 10⁻⁸ kg) versagt die semiklassische Rechnung – dafür bräuchte es eine Quantengravitation.', 'Near the Planck mass (≈ 2.2 × 10⁻⁸ kg) the semiclassical calculation breaks down – that would take a theory of quantum gravity.') });
       if (v.M > 0 && v.M < 5e11) issues.push({ cat: 'info', msg: T('Für so kleine Massen wäre die abgeschätzte Lebensdauer kürzer als das Alter des Universums. Solche primordialen Schwarzen Löcher sind hypothetisch.', 'For masses this small, the estimated lifetime would be shorter than the age of the universe. Such primordial black holes are hypothetical.') });
       // Break-Modus: eine der vier Theorien „abschalten“
       const rs = o('rs');
-      if (!(C.G > 0)) issues.push({ cat: 'model', msg: T('G ≤ 0: Ohne Gravitation gibt es keinen Horizont (r_s = 0) und damit kein Schwarzes Loch. T_H hat hier keine Bedeutung.', 'G ≤ 0: without gravity there is no horizon (r_s = 0) and therefore no black hole. T_H has no meaning here.') });
-      else if (C.G < K0.G * (1 - 1e-9)) issues.push({ cat: 'model', msg: T('G ist kleiner als gemessen: r_s schrumpft mit G (hier ≈ ' + fmt(rs, 3) + ' m), T_H wächst wie 1/G. Für G → 0 verschwindet der Horizont – ohne Horizont gibt es kein Schwarzes Loch und keine Hawking-Strahlung. Dass die Formel dann eine immer höhere Temperatur liefert, heißt nur: Sie gilt dort nicht mehr.',
+      if (!(C.G > 0)) issues.push({ cat: 'model', why: T('kein Horizont (G ≤ 0)', 'no horizon (G ≤ 0)'), msg: T('G ≤ 0: Ohne Gravitation gibt es keinen Horizont (r_s = 0) und damit kein Schwarzes Loch. T_H hat hier keine Bedeutung.', 'G ≤ 0: without gravity there is no horizon (r_s = 0) and therefore no black hole. T_H has no meaning here.') });
+      else if (C.G < K0.G * (1 - 1e-9)) issues.push({ cat: 'model', why: T('Horizont schrumpft (G → 0)', 'horizon shrinks (G → 0)'), msg: T('G ist kleiner als gemessen: r_s schrumpft mit G (hier ≈ ' + fmt(rs, 3) + ' m), T_H wächst wie 1/G. Für G → 0 verschwindet der Horizont – ohne Horizont gibt es kein Schwarzes Loch und keine Hawking-Strahlung. Dass die Formel dann eine immer höhere Temperatur liefert, heißt nur: Sie gilt dort nicht mehr.',
         'G is smaller than measured: r_s shrinks with G (here ≈ ' + fmt(rs, 3) + ' m), and T_H grows like 1/G. As G → 0 the horizon disappears – without a horizon there is no black hole and no Hawking radiation. That the formula then returns an ever higher temperature only means that it no longer applies there.') });
-      if (C.c > K0.c * (1 + 1e-9)) issues.push({ cat: 'model', msg: T('c ist größer als gemessen: r_s ∝ 1/c² schrumpft (hier ≈ ' + fmt(rs, 3) + ' m). Im Grenzfall c → ∞ – Newtons Physik – gibt es keinen Ereignishorizont; den kennt erst die Relativitätstheorie.',
+      if (C.c > K0.c * (1 + 1e-9)) issues.push({ cat: 'model', why: T('Horizont schrumpft (c → ∞)', 'horizon shrinks (c → ∞)'), msg: T('c ist größer als gemessen: r_s ∝ 1/c² schrumpft (hier ≈ ' + fmt(rs, 3) + ' m). Im Grenzfall c → ∞ – Newtons Physik – gibt es keinen Ereignishorizont; den kennt erst die Relativitätstheorie.',
         'c is larger than measured: r_s ∝ 1/c² shrinks (here ≈ ' + fmt(rs, 3) + ' m). In the limit c → ∞ – Newton’s physics – there is no event horizon; only relativity knows about horizons.') });
       if (C.hbar < K0.hbar * (1 - 1e-9)) issues.push({ cat: 'info', msg: T('ħ ist kleiner als gemessen, und T_H ∝ ħ sinkt mit. Im Grenzfall ħ → 0 ist T_H = 0: Klassisch ist ein Schwarzes Loch vollkommen schwarz – Hawking-Strahlung ist ein reiner Quanteneffekt.',
         'ħ is smaller than measured, and T_H ∝ ħ drops with it. In the limit ħ → 0, T_H = 0: classically a black hole is perfectly black – Hawking radiation is a pure quantum effect.') });
@@ -805,7 +805,7 @@
     ],
     symbols: { S_BH: { dim: 'M L^2 T^-2 Θ^-1' }, S_kB: { dim: '' }, r_s: { dim: 'L' } },
     checks({ v, issues }) {
-      if (v.M > 0 && v.M < 1e-6) issues.push({ cat: 'model', msg: T('Nahe der Planck-Masse ist die Flächenformel nicht mehr verlässlich.', 'Near the Planck mass the area formula is no longer reliable.') });
+      if (v.M > 0 && v.M < 1e-6) issues.push({ cat: 'model', why: T('nahe der Planck-Masse', 'near the Planck mass'), msg: T('Nahe der Planck-Masse ist die Flächenformel nicht mehr verlässlich.', 'Near the Planck mass the area formula is no longer reliable.') });
       issues.push({ cat: 'assume', msg: T('Semiklassisches Ergebnis für Ereignishorizonte.', 'Semiclassical result for event horizons.') });
     },
     presets: [
@@ -867,7 +867,7 @@
       T_mn: { dim: 'M L^-1 T^-2', name: { de: 'Energie-Impuls-Tensor (Energiedichte, Druck)', en: 'Stress–energy tensor (energy density, pressure)' } },
     },
     checks({ issues }) {
-      issues.push({ cat: 'model', msg: T('Nur eine Größenordnung: Die tatsächliche Krümmung folgt erst aus einer vollständigen Lösung (Symmetrie, Druck, Randbedingungen).', 'Only an order of magnitude: the actual curvature follows only from a full solution (symmetry, pressure, boundary conditions).') });
+      issues.push({ cat: 'model', why: T('nur Größenordnung', 'order of magnitude only'), msg: T('Nur eine Größenordnung: Die tatsächliche Krümmung folgt erst aus einer vollständigen Lösung (Symmetrie, Druck, Randbedingungen).', 'Only an order of magnitude: the actual curvature follows only from a full solution (symmetry, pressure, boundary conditions).') });
       issues.push({ cat: 'assume', msg: T('Energiedichte ≈ ρc² (Staub, Druck vernachlässigt).', 'Energy density ≈ ρc² (dust, pressure neglected).') });
     },
     presets: [
@@ -955,7 +955,7 @@
     ],
     checks({ o, issues }) {
       const r = o('ratio');
-      if (isFinite(r) && r > 0.01) issues.push({ cat: 'model', msg: T('E_n ist mehr als 1 % der Ruheenergie mc²: Die nichtrelativistische Schrödinger-Gleichung reicht nicht mehr (Dirac-Gleichung, Quantenfeldtheorie).', 'E_n is more than 1 % of the rest energy mc²: the non-relativistic Schrödinger equation is no longer enough (Dirac equation, quantum field theory).') });
+      if (isFinite(r) && r > 0.01) issues.push({ cat: 'model', why: T('relativistisch: E_n > 1 % mc²', 'relativistic: E_n > 1 % mc²'), msg: T('E_n ist mehr als 1 % der Ruheenergie mc²: Die nichtrelativistische Schrödinger-Gleichung reicht nicht mehr (Dirac-Gleichung, Quantenfeldtheorie).', 'E_n is more than 1 % of the rest energy mc²: the non-relativistic Schrödinger equation is no longer enough (Dirac equation, quantum field theory).') });
       issues.push({ cat: 'assume', msg: T('Unendlich hohe Wände (idealer Potentialtopf), ein einzelnes Teilchen ohne Spin.', 'Infinitely high walls (ideal potential well), a single particle without spin.') });
     },
     presets: [

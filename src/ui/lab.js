@@ -788,7 +788,7 @@
         return '<button class="chip' + (on ? ' on' : '') + '" data-gextra="' + o.key + '" aria-pressed="' + on + '"><i style="background:' + col + '"></i>' + esc(o.sym) + '</button>';
       }).join('') + (S.cmp ? '<span class="chip" style="cursor:default">' + T('durchgezogen = A · gestrichelt = B', 'solid = A · dashed = B') + '</span>' : '') + '</div>';
     h += specs.map((s, i) => '<div class="plotwrap' + (s.small ? ' small' : '') + '"><canvas data-plot="' + i + '" role="img" aria-label="' + T('Graph ', 'Graph of ') + esc(s.ys.join(', ')) + T(' über ', ' vs. ') + esc(g.x) + '"></canvas><div class="tip" hidden></div></div>').join('');
-    h += '<div class="ghint">' + T('Mausrad: Zoom · Ziehen: verschieben · Doppelklick: zurücksetzen · Weitere Größen oben zuschalten', 'Mouse wheel: zoom · Drag: pan · Double-click: reset · Add more quantities above') + (specs.length > 1 ? T(' (andere Einheit → eigener Graph)', ' (different unit → separate graph)') : '') + '</div>';
+    h += '<div class="ghint">' + T('Mausrad: Zoom · Ziehen: verschieben · Doppelklick: zurücksetzen · Weitere Größen oben zuschalten · Schraffur: Grund im Tooltip', 'Mouse wheel: zoom · Drag: pan · Double-click: reset · Add more quantities above · Hatching: reason in the tooltip') + (specs.length > 1 ? T(' (andere Einheit → eigener Graph)', ' (different unit → separate graph)') : '') + '</div>';
     p.innerHTML = h;
     S.plots = $$('canvas[data-plot]', p).map((c) => new PP.Plot(c, c.nextElementSibling));
     S.plots.forEach((pl, i) => {
@@ -798,14 +798,17 @@
   }
   function plotColors() { const c = PP.colors(); return [c.accent, c.cyan, c.violet, c.green, c.red]; }
   /* Modellgrenzen entlang der x-Achse: Wo meldet die Engine (mit allen Prüfungen) eine Warnung?
-     Kategorien, die im ganzen Bereich gelten (z. B. „nur eine Größenordnung“), werden nicht schraffiert. */
+     Jede Warnung wird nur bei den Größen schraffiert, die sie betrifft: ein Engine-Fehler (out) bei der
+     betroffenen Ausgabe und allem, was davon abhängt; ein Check mit `on` bei den Größen, die von diesen
+     Symbolen abhängen – „nach der Landung“ (on: t) betrifft R und H nicht, denn sie hängen nicht von t ab.
+     Beschriftet wird mit dem Grund (why). Gründe, die im ganzen Bereich gelten, werden nicht schraffiert. */
   const ZONE_CATS = ['math', 'unreal', 'model'];
-  let zoneMemo = { k: null, z: [] };
-  function modelZones(g, dom, xlog) {
+  let zoneMemo = { k: null, pts: [] };
+  function zonePoints(g, dom, xlog) {
     const exp = S.exp, vals = S.vals[S.edit], consts = S.consts[S.edit];
     const rest = Object.assign({}, vals); delete rest[g.x];
     const k = [exp.id, S.form, g.x, xlog, dom.join(), JSON.stringify(rest), JSON.stringify(consts), PP.i18n.lang].join('|');
-    if (zoneMemo.k === k) return zoneMemo.z;
+    if (zoneMemo.k === k) return zoneMemo.pts;
     const N = 120, a = xlog ? Math.log10(dom[0]) : dom[0], b = xlog ? Math.log10(dom[1]) : dom[1];
     const xv = exp.vars[g.x];
     const pts = [];
@@ -814,20 +817,61 @@
       let x = xlog ? Math.pow(10, t) : t;
       if (xv.integer) x = Math.round(x);
       const v = Object.assign({}, vals, { [g.x]: x });
-      const cats = new Set(M.compute(exp, S.form, v, { consts }).issues.map((j) => j.cat).filter((c) => ZONE_CATS.includes(c)));
-      pts.push([t, cats]);
+      const list = M.compute(exp, S.form, v, { consts }).issues.filter((j) => ZONE_CATS.includes(j.cat))
+        .map((j) => ({ cat: j.cat, why: j.why || CAT[j.cat], out: j.out, on: j.on }));
+      pts.push([t, list]);
     }
-    const always = ZONE_CATS.filter((c) => pts.every((p) => p[1].has(c)));
+    zoneMemo = { k, pts };
+    return pts;
+  }
+  function zonesFor(pts, outs) {
+    const f = form(), col = PP.colors();
+    const half = pts.length > 1 ? (pts[1][0] - pts[0][0]) / 2 : 0;
+    const per = new Map();   // Grund → { cat, why, syms, ts }
+    pts.forEach(([t, list]) => list.forEach((i) => {
+      const hit = outs.filter((o) => M.affects(f, i, o.key));
+      if (!hit.length) return;
+      const key = i.cat + '|' + i.why;
+      let z = per.get(key);
+      if (!z) { z = { cat: i.cat, why: i.why, syms: hit.length < outs.length ? hit.map((o) => o.sym) : null, ts: [] }; per.set(key, z); }
+      if (z.ts[z.ts.length - 1] !== t) z.ts.push(t);
+    }));
     const zones = [];
-    const half = (b - a) / N / 2;
-    pts.forEach(([t, cats]) => {
-      const cat = ZONE_CATS.find((c) => cats.has(c) && !always.includes(c));
-      const last = zones[zones.length - 1];
-      if (cat && last && last.cat === cat && Math.abs(last.b - (t - half)) < half * 1.5) last.b = t + half;
-      else if (cat) zones.push({ a: t - half, b: t + half, cat, label: CAT[cat], color: cat === 'model' ? PP.colors().accent : PP.colors().red });
-    });
-    zoneMemo = { k, z: zones };
+    let pat = 0;
+    for (const z of per.values()) {
+      if (z.ts.length === pts.length) continue;   // gilt überall – keine Grenze im Bild
+      // Betrifft der Grund nur einen Teil der Kurven, werden genau diese dort gestrichelt statt der ganze Hintergrund schraffiert
+      const part = !!z.syms, keys = part ? outs.filter((o) => z.syms.includes(o.sym)).map((o) => o.key) : null;
+      const label = (part ? z.syms.join(', ') + ': ' : '') + z.why;
+      const legend = part ? z.syms.join(', ') + T(' gestrichelt: ', ' dashed: ') + z.why : T('schraffiert: ', 'hatched: ') + z.why;
+      const p = pat++, start = zones.length;
+      z.ts.forEach((t) => {
+        const last = zones.length > start ? zones[zones.length - 1] : null;
+        if (last && Math.abs(last.b - (t - half)) < half * 1.5) last.b = t + half;
+        else zones.push({ a: t - half, b: t + half, cat: z.cat, catLabel: CAT[z.cat], label, legend, part, keys, pat: p, color: z.cat === 'model' ? col.accent : col.red });
+      });
+    }
     return zones;
+  }
+  // Standardbereich der x-Achse (graph.view), damit der gültige Bereich das Bild bestimmt:
+  // { to: Ausgabe, f } → bis f × Engine-Wert (z. B. kurz nach dem Aufprall), { range: [a, b] } → fest
+  function defaultView(g, dom, sets) {
+    const gv = S.exp.graph && S.exp.graph.view;
+    if (!gv || g.x !== S.exp.graph.x) return null;
+    let v = null;
+    if (gv.range) v = gv.range.slice();
+    else if (gv.to) {
+      const ends = sets.map((s) => S.res[s] && S.res[s].out[gv.to]).filter((r) => r && r.ok).map((r) => E.toDouble(r) * (gv.f || 1)).filter((x) => x > 0 && isFinite(x));
+      if (ends.length) v = [dom[0], Math.max(...ends)];
+    }
+    if (!v) return null;
+    for (const s of sets) {   // der aktuelle Wert bleibt immer sichtbar
+      const x = S.vals[s][g.x];
+      if (isFinite(x) && x > v[1]) v[1] = x * 1.05;
+      if (isFinite(x) && x < v[0]) v[0] = x;
+    }
+    v = [Math.max(dom[0], v[0]), Math.min(dom[1], v[1])];
+    return v[1] > v[0] ? v : null;
   }
   function onGraphSelect(t) {
     const g = S.graph;
@@ -854,7 +898,8 @@
       if (xlog) { if (x > 0) { dom[0] = Math.min(dom[0], x / 3); dom[1] = Math.max(dom[1], x * 3); } }
       else if (x < dom[0] || x > dom[1]) { dom = [Math.min(dom[0], x), Math.max(dom[1], x)]; const pad = (dom[1] - dom[0]) * 0.05; dom[0] -= pad; dom[1] += pad; }
     }
-    const zones = modelZones(g, dom, xlog);
+    const pts = zonePoints(g, dom, xlog);
+    const view0 = defaultView(g, dom, sets);
     const pal = plotColors();
     const colorOf = {};
     colorOf[g.y] = pal[0];
@@ -869,7 +914,7 @@
       for (const o of outs) for (const set of sets) {
         const vals = S.vals[set], consts = S.consts[set];
         series.push({
-          label: o.sym + (S.cmp ? ' ' + set : ''), color: colorOf[o.key], dash: set === 'B' ? [7, 5] : [], integer: !!xv.integer,
+          key: o.key, label: o.sym + (S.cmp ? ' ' + set : ''), color: colorOf[o.key], dash: set === 'B' ? [7, 5] : [], integer: !!xv.integer,
           fn: (x) => { const v = Object.assign({}, vals); v[g.x] = x; const r = M.compute(exp, S.form, v, { skipChecks: true, consts }).out[o.key]; return U.num(r); },
         });
       }
@@ -880,11 +925,11 @@
       pl.set({
         key: [exp.id, S.form, g.x, spec.ys.join('+'), xlog, spec.ylog, S.cmp].join('|'),
         sampleKey: skey,
-        xdom: dom, xlog, ylog: spec.ylog, series,
+        xdom: dom, view0, xlog, ylog: spec.ylog, series,
         samples: xv.integer ? 200 : 320,
         refs: ((exp.graph && exp.graph.refs) || []).filter((r) => r.y === y0).map((r) => ({ value: r.value, label: r.label, color: PP.colors().cyan })),
         marker: { x: S.vals[S.edit][g.x], y: U.num(cur) },
-        zones,
+        zones: zonesFor(pts, outs),
         xlabel: xv.label + (xunit ? ' [' + xunit + ']' : ''), xsym: xv.label, xunit,
         ylabel: outs.map((o) => o.sym).join(', ') + (yunit ? ' [' + yunit + ']' : ''), yunit,
       });

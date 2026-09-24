@@ -91,6 +91,12 @@
     'Jeder Test hat einen englischen Namen': 'Every test has an English name',
     'Keine deutschen Reste in den englischen Beschriftungen der Visualisierungen': 'No German left in the English labels of the visualisations',
     'Hawking-Temperatur': 'Hawking temperature',
+    'Graph': 'Graph',
+    'Schraffur je Größe: „nach der Landung“ betrifft y(t) und x(t), aber nicht R und H': 'Hatching per quantity: “after landing” affects y(t) and x(t), but not R and H',
+    'Schraffur je Größe: Die Kleinwinkelnäherung betrifft T₀, nicht die exakte Periodendauer T': 'Hatching per quantity: the small-angle approximation affects T₀, not the exact period T',
+    'Jede Modellgrenze aus einem Check hat einen kurzen Grund, auf Englisch ohne deutsche Reste': 'Every model limit from a check has a short reason, in English without German',
+    'Standardbereich: verweist auf vorhandene Ausgaben und liegt im Regler-Bereich; freier Fall endet kurz nach dem Aufprall': 'Default range: refers to existing outputs and lies within the slider range; free fall ends shortly after impact',
+    'Formelsatz: tfrac12 ist der Bruch ½, frac{12}{3} bleibt zweistellig, circ und ddot werden gesetzt': 'Typesetting: tfrac12 is the fraction ½, frac{12}{3} keeps two digits, circ and ddot are typeset',
     'Drei Wege, ein Wert: ħc³/(8πGMk_B) = ħκ/(2πck_B) = T_P·m_P/(8πM), κ = c⁴/(4GM)': 'Three routes, one value: ħc³/(8πGMk_B) = ħκ/(2πck_B) = T_P·m_P/(8πM), κ = c⁴/(4GM)',
     'Grenzfälle im Break-Modus: G → 0 „außerhalb des Modells“, G = 0 undefiniert, ħ = 0 ergibt T_H = 0, k_B·T_H bleibt bei k_B ÷ 1000': 'Limits in Break mode: G → 0 “outside the model”, G = 0 undefined, ħ = 0 gives T_H = 0, k_B·T_H is unchanged for k_B ÷ 1000',
     'Schnittpunkt-Block: Symbole, Kette, Aha-Kasten und Wörterbuch verweisen nur auf vorhandene Engine-Größen': 'Crossroads block: symbols, chain, aha box and dictionary only refer to existing engine quantities',
@@ -630,6 +636,61 @@
       const bad = draw('hawking', {}, { consts }).find((x) => /NaN|undefined|Infinity/.test(x));
       ok(!bad, JSON.stringify(consts) + ': „' + bad + '“');
     }
+  });
+
+  /* --- Graph: Schraffur je Größe, Gründe, Standardbereich --- */
+  const issue = (r, re) => r.issues.find((i) => re.test(i.msg));
+  test('Graph', 'Schraffur je Größe: „nach der Landung“ betrifft y(t) und x(t), aber nicht R und H', () => {
+    const exp = M.byId.projectile, f = exp.forms[0];
+    const r = run('projectile', { al: 10, t: 1 });
+    const i = issue(r, /gelandet/);
+    ok(i && i.why === 'nach der Landung', 'Warnung mit Grund fehlt');
+    for (const k of ['R', 'H', 'tf', 'vx']) ok(!M.affects(f, i, k), k + ' sollte nicht betroffen sein');
+    for (const k of ['x', 'y', 'vy']) ok(M.affects(f, i, k), k + ' sollte betroffen sein');
+    const m = run('projectile', { v0: 100 });
+    ok(M.affects(f, issue(m, /Luftwiderstand/), 'R'), 'Luftwiderstand betrifft alle Größen');
+  });
+  test('Graph', 'Schraffur je Größe: Die Kleinwinkelnäherung betrifft T₀, nicht die exakte Periodendauer T', () => {
+    const f = M.byId.pendulum.forms[0], i = issue(run('pendulum', { th: 60 }), /Kleinwinkelnäherung sin θ/);
+    ok(i, 'Warnung fehlt');
+    ok(M.affects(f, i, 'T0') && M.affects(f, i, 'q') && !M.affects(f, i, 'T') && !M.affects(f, i, 'vmax'), 'falsche Zuordnung');
+    const g0 = M.compute(M.byId.hawking, 'main', M.defaults(M.byId.hawking), { consts: { G: 0 } });
+    const dz = g0.issues.find((j) => j.cat === 'math' && j.out === 'TH');
+    ok(dz && M.affects(M.byId.hawking.forms[0], dz, 'TH') && !M.affects(M.byId.hawking.forms[0], dz, 'rs'), 'Engine-Fehler: nur T_H und davon abhängige Größen');
+  });
+  test('Graph', 'Jede Modellgrenze aus einem Check hat einen kurzen Grund, auf Englisch ohne deutsche Reste', () => {
+    const bad = [];
+    const german = /[äöüÄÖÜß]|\b(und|der|die|das|nicht|mit|unter|nach|Grenze)\b/;
+    for (const exp of M.registry) {
+      const cases = [{}].concat((exp.presets || []).map((p) => p.values), [{ t: 60 }, { al: 5, t: 1 }, { th: 120 }, { T: 20 }, { T: 5e4 }, { h0: 2e5 }, { r: 1e-6 }, { M: 1e-7 }, { v0: 9000 }, { x: 0.4 }]);
+      for (const c of cases) for (const f of exp.forms) {
+        const v = Object.assign(M.defaults(exp), c);
+        for (const lang of ['de', 'en']) I.with(lang, () => M.compute(exp, f.id, v).issues).forEach((i) => {
+          if (!['math', 'unreal', 'model'].includes(i.cat) || i.out) return;
+          if (!i.why) bad.push(exp.id + ': ohne Grund – ' + i.msg.slice(0, 50));
+          else if (lang === 'en' && german.test(i.why)) bad.push(exp.id + ': ' + i.why);
+        });
+      }
+    }
+    ok(!bad.length, [...new Set(bad)].slice(0, 4).join(' | '));
+  });
+  test('Graph', 'Standardbereich: verweist auf vorhandene Ausgaben und liegt im Regler-Bereich; freier Fall endet kurz nach dem Aufprall', () => {
+    for (const exp of M.registry) {
+      const gv = exp.graph && exp.graph.view;
+      if (!gv) continue;
+      const xv = exp.vars[exp.graph.x];
+      if (gv.to) ok(exp.forms[0].c.outputs.some((o) => o.key === gv.to), exp.id + ': ' + gv.to);
+      if (gv.range) ok(gv.range[0] >= xv.min && gv.range[1] <= xv.max && gv.range[0] < gv.range[1], exp.id + ': ' + gv.range);
+    }
+    const tf = val(run('free-fall'), 'tf'), gv = M.byId['free-fall'].graph.view;
+    ok(tf * gv.f < M.byId['free-fall'].vars.t.max / 2, 'Standardbereich des freien Falls ist kaum kürzer als der Regler-Bereich');
+  });
+  test('Formatierung', 'Formelsatz: tfrac12 ist der Bruch ½, frac{12}{3} bleibt zweistellig, circ und ddot werden gesetzt', () => {
+    if (!PP.tex) return;
+    const r = PP.tex.render, R = String.raw;
+    ok(/<span class="mnu"><span class="mn">1<\/span><\/span><span class="mde"><span class="mn">2<\/span><\/span>/.test(r(R`h_0 - \tfrac12\, g t^2`)), '½ falsch gesetzt');
+    ok(/<span class="mnu"><span class="mn">12<\/span><\/span>/.test(r(R`\frac{12}{3}`)), '12/3 falsch gesetzt');
+    ok(!/circ|ddot/.test(r(R`\ddot\theta = 45^{\circ}`).replace(/<[^>]+>/g, '')), 'Befehlsname im Text');
   });
 
   test('Sprache', 'Engine-Meldungen und Dimensionsnamen gibt es auf Deutsch und Englisch', () => {
