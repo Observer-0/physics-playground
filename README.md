@@ -15,8 +15,10 @@ npm test        # Tests (59; die 6 UI-Tests laufen vollständig nur im Browser u
 npm run build   # bündelt alles nach dist/index.html
 ```
 
-Nach Änderungen in `src/` immer `npm run build` ausführen und `dist/index.html` mit committen –
-die gebündelte Datei ist die auslieferbare App.
+Beim Entwickeln `src/index.html` direkt im Browser öffnen: Sie lädt die Quelldateien einzeln,
+Änderungen sind nach einem Neuladen sichtbar – ohne Build. Die Ladereihenfolge steht nur dort;
+`npm run build` liest sie aus und bündelt die Seite zu `dist/index.html`. Vor dem Committen
+bauen und `dist/index.html` mit committen – die gebündelte Datei ist die auslieferbare App.
 
 ## Inhalt
 
@@ -38,13 +40,13 @@ Dimensionsanalyse, Zustand in der URL, lokales Speichern, helles und dunkles The
 Alle Experimente – auch die berühmten Gleichungen – sind **reine Daten**. Eine gemeinsame
 Pipeline verarbeitet sie:
 
-```
+```text
 Formel (Text) → AST → Variablen → Einheiten → Dimensionen → Auswertung → Visualisierung → Erklärung
 ```
 
 ### Projektstruktur
 
-```
+```text
 physics-playground/
 ├── src/
 │   ├── core/          Rechenkern: Parser, Dimensionen, Konstanten, Modell
@@ -52,14 +54,15 @@ physics-playground/
 │   ├── render/        Formelsatz, Graph, Visualisierungen (Canvas)
 │   ├── ui/            Oberfläche: Zustand, Labor, Seiten, Grundlagen
 │   │   └── sections/  einzelne Grundlagen-Abschnitte mit Widgets
-│   └── styles.css
+│   ├── styles.css
+│   └── index.html     Entwicklungsversion, lädt die Dateien einzeln
 ├── tests/             Testfälle (laufen in Node und im Browser) + Node-Runner
-├── scripts/build.js   bündelt src/ zu einer einzigen HTML-Datei
+├── scripts/build.js   bündelt src/index.html zu einer einzigen HTML-Datei
 └── dist/index.html    gebaute App (eingecheckt)
 ```
 
 Alle Dateien erweitern den globalen Namensraum `PP`; die Ladereihenfolge steht in
-`scripts/build.js`.
+`src/index.html`.
 
 | Datei | Aufgabe |
 |---|---|

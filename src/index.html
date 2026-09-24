@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="de" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Physics Playground</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🪐</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=STIX+Two+Text:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="root"><noscript>Der Physics Playground braucht JavaScript.</noscript></div>
+<!-- Entwicklungsversion: lädt die Quelldateien einzeln. scripts/build.js bündelt diese Seite
+     zu dist/index.html. Die Reihenfolge zählt: jede Datei erweitert den globalen Namensraum PP,
+     ui/sections/* hängen sich in ui/theory.js ein. -->
+<script src="core/engine.js"></script>
+<script src="core/model.js"></script>
+<script src="data/experiments.js"></script>
+<script src="../tests/tests.js"></script>
+<script src="render/tex.js"></script>
+<script src="render/plot.js"></script>
+<script src="render/viz.js"></script>
+<script src="ui/core.js"></script>
+<script src="ui/lab.js"></script>
+<script src="ui/dims.js"></script>
+<script src="ui/pages.js"></script>
+<script src="ui/theory.js"></script>
+<script src="ui/sections/tensor.js"></script>
+<script src="ui/sections/action.js"></script>
+<script src="ui/sections/entropy.js"></script>
+<script>PP.ui.boot(document.getElementById('root'));</script>
+</body>
+</html>
