@@ -14,8 +14,10 @@
   },
   "scripts": {
     "test": "node tests/run.js",
+    "lint": "eslint .",
     "build": "node scripts/build.js",
-    "check:ui": "node scripts/check-ui.js"
+    "check:ui": "node scripts/check-ui.js",
+    "check": "npm run lint && npm test && npm run build && npm run check:ui"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.5",

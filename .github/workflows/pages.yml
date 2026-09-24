@@ -23,6 +23,13 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 22
+          cache: npm
+
+      - name: Entwicklungswerkzeuge installieren (nur ESLint)
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
 
       - name: Tests
         run: npm test
@@ -30,11 +37,10 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Eingecheckte dist/index.html aktuell?
-        run: |
-          if ! git diff --quiet -- dist/index.html; then
-            echo "::warning file=dist/index.html::dist/index.html ist veraltet – lokal 'npm run build' ausführen und committen. Veröffentlicht wird trotzdem der frische Build."
-          fi
+      # Lädt jede Seite in beiden Sprachen in Headless-Chrome (auf dem Runner vorinstalliert)
+      # und führt dort auch die UI-Tests aus, die Node überspringt
+      - name: Browsertest
+        run: npm run check:ui
 
       - name: Pages-Artefakt hochladen
         if: github.event_name != 'pull_request'

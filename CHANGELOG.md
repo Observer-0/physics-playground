@@ -2,6 +2,32 @@
 
 ## 2026-09-24
 
+**Bedienung**
+
+- Unter 1180 px Fensterbreite stehen die Regler direkt unter dem Bild, danach Ergebnis und Status, zuletzt der Graph. Vorher lagen sie unter dem Graphen. Auf dem Handy hochkant bleibt das Bild beim Scrollen durch die Regler oben stehen.
+- Bei den berühmten Gleichungen öffnet zuerst „Graph & Labor“; die Formel darüber ist dort kompakt.
+- Graphen schraffieren Bereiche, in denen die Engine „außerhalb des Modells“ oder „undefiniert“ meldet, z. B. beim freien Fall nach dem Aufschlag oder beim Pendel jenseits von ≈ 23°. Warnungen, die im ganzen Bereich gelten, werden nicht schraffiert. γ(β) startet mit logarithmischer y-Achse.
+- Vergleich A/B: Der andere Satz erscheint blass im Bild, mit demselben Bezug wie Satz A.
+- Die Einstellungen der Visualisierung (Planck-Größe, Überlagerung) stehen im geteilten Link.
+- Screenreader: Das Bild bekommt eine Textbeschreibung mit seinen Beschriftungen und Werten.
+
+**Neu**
+
+- **„Probier mal“**: 34 kleine Aufgaben in allen Experimenten, die die App selbst prüft, z. B. „Finde die Masse, bei der T_H so warm ist wie die Hintergrundstrahlung“. Gelöste Aufgaben merkt sich der Browser.
+- **Tab „Quellen“** in jedem Experiment: Originalarbeiten, Messungen und Referenzwerte, von Newton, Cavendish und Einstein bis GW150914 und CODATA 2022. Jede DOI wurde über Crossref geprüft; Originaltitel sind in ihrer Sprache gekennzeichnet.
+- **Drei Experimente**: *Fadenpendel* (Kleinwinkelnäherung gegen exakte Lösung, zwei Pendel nebeneinander), *Schiefer Wurf* (Bahn aus der Engine, Geschwindigkeit in Komponenten, Komplementwinkel mit gleicher Weite) und *Ideales Gas* (pV = N k_B T mit Faktorzeile, Grenzen bei Kondensation, hohem Druck, Plasma und Quantenentartung).
+- **Erweiterung der Engine**: die Funktion `ellipk`, das vollständige elliptische Integral 1. Art, berechnet über das arithmetisch-geometrische Mittel (NIST DLMF 19.8.5). Begründung: Die exakte Periodendauer des Fadenpendels lässt sich ohne K nicht ausdrücken, eine Reihe wäre wieder eine Näherung. Bestehende Funktionen und Parser-Regeln sind unverändert; `ellipk` verlangt ein dimensionsloses Argument und meldet k = 1 (Divergenz) und |k| > 1 als mathematisch undefiniert.
+- Planck-Skala „Temperatur“: Das Quark-Gluon-Plasma steht jetzt beim veröffentlichten ALICE-Wert (304 MeV ≈ 3,5 × 10¹² K) statt beim vorläufigen Wert von 2012.
+
+**Entwicklung**
+
+- `npm run lint` (ESLint). Er hat einen echten Fehler in einem neuen Test gefunden: Statt der Wortgrenze `\b` stand ein Steuerzeichen im regulären Ausdruck, der Test erkannte deshalb nur Umlaute. Im validierten Rechenkern bleibt ein harmloses, überflüssiges try/catch bewusst stehen; die Regel ist nur dort abgeschaltet.
+- `npm run check:ui`: lädt jede Seite in beiden Sprachen in Headless-Chrome/-Edge (146 Seiten) und prüft Aufbau, Fehlermeldungen, „NaN“, `<html lang>` und deutsche Reste im Englischen. Auf der Seite „Tests“ laufen dabei auch die UI-Tests, die Node überspringt. Keine zusätzlichen Abhängigkeiten.
+- Die CI führt Lint, Tests, Build und Browsertest aus und veröffentlicht erst danach.
+- `dist/index.html` wird nicht mehr eingecheckt, die CI baut die Datei. Lokal öffnet man `src/index.html` oder baut mit `npm run build`.
+
+**Tests:** 72 → 80. Neu sind `ellipk` (Referenzwerte, Divergenz, Dimension), Referenzwerte der drei neuen Experimente, die Lösbarkeit aller Aufgaben (jede mit Beispiellösung im Regler-Bereich, keine schon zu Beginn gelöst) und die Vollständigkeit der Quellen. Die bestehenden Tests sind unverändert.
+
 **Planck-Einheiten: alle Größen, dazu Boltzmann und k_B**
 
 - Die Visualisierung zeigt jetzt nicht nur die Planck-Länge. Ein Umschalter wechselt zwischen **Länge, Zeit, Masse, Temperatur und Energie**. Jede Skala hat Vergleichswerte, markiert den experimentell erreichten Bereich und nennt die Lücke bis zum Planck-Wert, z. B. „≈ 25 Größenordnungen ohne direkte Messung“ bei der Zeit. Der Planck-Wert kommt aus der Engine und wandert im Break-Modus mit den Konstanten.

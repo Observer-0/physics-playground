@@ -690,7 +690,8 @@
     });
     if (S.cmp && S.res.B) {
       const other = S.edit === 'A' ? 'B' : 'A';
-      const gs = PP.vizState({ exp: S.exp, form: S.form, vals: S.vals[other], consts: S.consts[other], res: S.res[other], t: S.clock, opts: S.vizOpts, col: PP.colors() });
+      // gleicher Bezug wie Satz A, damit Pfeile und Faktoren von B vergleichbar skaliert sind
+      const gs = PP.vizState({ exp: S.exp, form: S.form, vals: S.vals[other], consts: S.consts[other], res: S.res[other], base: st.base, baseLabel: st.baseLabel, t: S.clock, opts: S.vizOpts, col: PP.colors() });
       try { fn(ghost(ctx), W, H, gs); } catch (_) { /* der Geist darf fehlen */ }
       ctx.globalAlpha = 1; ctx.setLineDash([]);
     }

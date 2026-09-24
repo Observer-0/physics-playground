@@ -435,9 +435,10 @@
     const wide = W >= 540;
     const L = W * 0.56, x0 = W * 0.36;
     const rowY = [H * 0.13, H * 0.28];
-    label(ctx, tr('Stab in Ruhe: L₀', 'Rod at rest: L₀'), 16, rowY[0] + 5, col, { size: 12 });
+    const tight = W < 440;
+    label(ctx, tight ? tr('Ruhe: L₀', 'rest: L₀') : tr('Stab in Ruhe: L₀', 'Rod at rest: L₀'), 16, rowY[0] + 5, col, { size: 12 });
     ctx.fillStyle = col.ink2; ctx.fillRect(x0, rowY[0] - 7, L, 14);
-    label(ctx, tr('gemessen im Labor: L = L₀/γ', 'measured in the lab: L = L₀/γ'), 16, rowY[1] + 5, col, { size: 12 });
+    label(ctx, tight ? tr('Labor: L₀/γ', 'lab: L₀/γ') : tr('gemessen im Labor: L = L₀/γ', 'measured in the lab: L = L₀/γ'), 16, rowY[1] + 5, col, { size: 12 });
     const qL = ratio(S.num('L'), mk(v.L0));
     const Lc = qL ? L * rd(qL) : L / g;
     const drift = ((t * 60) % (L - Math.max(Lc, 2) + 1));
