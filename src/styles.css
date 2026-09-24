@@ -10,6 +10,9 @@
   --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
   --font-math: "STIX Two Text", "STIX Two Math", "Cambria Math", "Times New Roman", serif;
   --r: 6px;
+  /* Breiten: Seitenrahmen; Grundlagen-Seiten mit Lesebreite (ca. 66 Zeichen), breiten Elementen, Widgets und Inhaltsverzeichnis */
+  --page-max: 1760px;
+  --th-m: 37rem; --th-w: 60rem; --th-tw: 75rem; --th-toc: 210px; --th-gap: 36px;
   /* Themenfelder – bewusst keine Datenfarbe (Orange = Hauptergebnis, Rot = Warnung, Cyan = Bezug, Grün = in Ordnung).
      Famous Equations behält Violett, die bisherige Kennfarbe der berühmten Gleichungen. */
   --f-mech: #79a8ff; --f-mech-soft: rgba(121, 168, 255, 0.13);
@@ -93,6 +96,8 @@ a { color: var(--cyan); }
 .brand .lang span, .lang span { display: block; padding: 4px 6px; border-radius: 4px; color: var(--ink3); font-size: 11px; }
 .brand .lang span.on, .lang span.on { background: var(--accent-soft); color: var(--accent); }
 main { min-width: 0; padding: 22px 28px 60px; }
+/* Auf sehr breiten Bildschirmen steht der Inhalt mittig, statt sich weiter zu dehnen */
+#view, .brk-banner { max-width: var(--page-max); margin-inline: auto; }
 .brk-banner { border: 1px solid var(--red); background: var(--red-soft); color: var(--ink); border-radius: var(--r); padding: 8px 12px; margin-bottom: 16px; font-size: 13px; }
 .brk-banner b { color: var(--red); }
 
@@ -525,20 +530,19 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
 .th-scroll { overflow-x: auto; }
 .th-h3 { font-size: 16px; font-weight: 600; margin: 28px 0 8px; color: var(--ink); scroll-margin-top: 16px; }
 /* Übersicht: eine Karte je Abschnitt */
-.th-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 12px; max-width: 1180px; }
+.th-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 12px; }
 .th-card { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 4px 12px; padding: 14px 16px; border: 1px solid var(--line); border-left: 3px solid var(--f-found); border-radius: var(--r); background: var(--panel); color: var(--ink); text-decoration: none; }
 .th-card:hover, .th-card:focus-visible { background: var(--panel2); border-color: var(--line2); border-left-color: var(--f-found); outline: none; }
 .th-card-n { font-family: var(--font-mono); font-size: 20px; color: var(--f-found); line-height: 1.2; }
 .th-card h3 { margin: 0 0 4px; font-size: 15.5px; font-weight: 600; line-height: 1.3; }
 .th-card p { margin: 0 0 6px; font-size: 13.5px; color: var(--ink2); }
 .th-badge { display: inline-block; font-size: 12px; line-height: 1.5; padding: 0 8px; border-radius: 999px; border: 1px solid var(--cyan); color: var(--cyan); vertical-align: 1px; }
-/* Einzelseite: Lesebreite für Text, Widgets und Tabellen breit, Inhaltsverzeichnis rechts */
+/* Einzelseite: Text in Lesebreite auf einer gemeinsamen Mittelachse, Tabellen und Kästen breiter, Widgets am breitesten,
+   Inhaltsverzeichnis rechts. Der Titel fluchtet mit der Textspalte. */
 .th-back { font-size: 13px; text-decoration: none; }
-.th-page { display: grid; grid-template-columns: minmax(0, 1fr) 210px; gap: 36px; max-width: 1180px; align-items: start; }
+.th-page { display: grid; grid-template-columns: minmax(0, 1fr) var(--th-toc); gap: var(--th-gap); align-items: start; }
+.th-head > .fband + div { margin-left: max(0px, (100% - var(--th-toc) - var(--th-gap) - var(--th-m)) / 2); }
 .th-article { max-width: none; font-size: 15px; line-height: 1.6; }
-.th-article > * { max-width: 66ch; }
-.th-article > .tw, .th-article > .th-wide, .th-article > .th-scroll, .th-article > .th-chain, .th-article > .th-more { max-width: none; }
-.th-article > .th-eq, .th-article > .th-quote { max-width: 60ch; }
 .th-article .th-lead { font-size: 15.5px; color: var(--ink); }
 .th-article .tw { margin: 16px 0 22px; }
 .th-side { position: sticky; top: 16px; }
@@ -550,13 +554,13 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
 .th-stoc button.on { font-weight: 600; }
 /* Vertiefungen zum Aufklappen */
 .th-more { border: 1px solid var(--line); border-radius: var(--r); background: var(--panel); margin: 22px 0; padding: 0 16px; }
-.th-more > summary { cursor: pointer; padding: 12px 0; font-size: 15px; font-weight: 600; color: var(--ink); list-style-position: outside; scroll-margin-top: 16px; }
+.th-more > summary { max-width: var(--th-m); margin: 0 auto; cursor: pointer; padding: 12px 0; font-size: 15px; font-weight: 600; color: var(--ink); list-style-position: outside; scroll-margin-top: 16px; }
 .th-more[open] > summary { border-bottom: 1px solid var(--line); margin-bottom: 10px; }
-.th-more > *:not(summary) { max-width: 66ch; }
+.th-more > *:not(summary) { max-width: var(--th-m); margin-left: auto; margin-right: auto; }
 .th-more > .th-scroll, .th-more > .th-chain, .th-more > .th-tl { max-width: none; }
 .th-more-k { font-size: 11.5px; font-weight: 500; text-transform: uppercase; letter-spacing: .06em; color: var(--ink3); border: 1px solid var(--line2); border-radius: 3px; padding: 0 5px; margin-right: 6px; vertical-align: 2px; }
 /* „Weiter zu“ am Ende eines Abschnitts */
-.th-foot { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; max-width: 1180px; margin: 36px 0 0; padding-top: 16px; border-top: 1px solid var(--line); }
+.th-foot { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 36px calc(var(--th-toc) + var(--th-gap)) 0 0; padding-top: 16px; border-top: 1px solid var(--line); }
 .th-foot a { display: block; padding: 10px 14px; border: 1px solid var(--line); border-radius: var(--r); background: var(--panel); color: var(--ink); text-decoration: none; font-size: 14.5px; }
 .th-foot a:hover { border-color: var(--f-found); }
 .th-foot small { display: block; font-size: 12.5px; color: var(--ink3); }
@@ -575,8 +579,9 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
 .nav .th-n { display: inline-block; min-width: 1.6em; font-family: var(--font-mono); font-size: 11px; color: var(--ink3); }
 .nav .th-ia { color: var(--cyan); font-size: 9px; }
 @media (max-width: 1100px) {
+  :root { --th-toc: 0px; --th-gap: 0px; }
   .th-page { grid-template-columns: minmax(0, 1fr); gap: 12px; }
-  .th-side { position: static; order: -1; }
+  .th-side { position: static; order: -1; width: 100%; max-width: var(--th-m); margin-inline: auto; }
   .th-stoc { border-left: 0; padding: 0; max-height: none; }
   .th-stoc ol { display: flex; flex-wrap: wrap; gap: 6px; }
   .th-stoc button { border: 1px solid var(--line2); border-radius: 999px; padding: 2px 10px; font-size: 12.5px; }
@@ -609,7 +614,7 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
 .tw-sym { font-size: 12px; color: var(--ink2); }
 .tw-sym.big { font-size: 16px; color: var(--ink); }
 .tw-val { font-size: 13.5px; }
-.tw-info { font-size: 13.5px; color: var(--ink2); border-left: 2px solid var(--accent); padding: 4px 0 4px 12px; min-height: 80px; }
+.tw-info { max-width: 70ch; font-size: 13.5px; color: var(--ink2); border-left: 2px solid var(--accent); padding: 4px 0 4px 12px; min-height: 80px; }
 .tw-info b { color: var(--ink); font-weight: 500; }
 .tw-info-h { font-size: 17px; color: var(--ink); margin-bottom: 6px; }
 .tw-count { font-size: 12.5px; margin: 10px 0 0 !important; }
@@ -638,3 +643,24 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
 @media (max-width: 560px) { .th-tl li { grid-template-columns: 1fr; gap: 2px; } }
 
 .tw-sl span.ta-l { min-width: 72px; }
+
+/* ---- Breite: Stufen der Grundlagen-Seite, Über-Seite, Hall of Fame ---- */
+.th-page > .th-article > * { max-width: var(--th-m); margin-left: auto; margin-right: auto; }
+.th-page > .th-article > :is(.th-wide, .th-scroll, .th-chain, .th-more) { max-width: var(--th-w); }
+.th-page > .th-article > .tw { max-width: var(--th-tw); }
+/* Über: eine Lesespalte in der Mitte, Titel darüber */
+#view > .prose { margin-inline: auto; }
+#view > .xhead:has(+ .prose) > .fband + div { flex: 0 1 760px; margin-inline: auto; }
+@media (min-width: 1500px) {
+  /* Hall of Fame: Formel und Beschreibung je eine Hälfte, die Formel mittig darin */
+  .wall a { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 36px; }
+  .wall .f { text-align: center; }
+}
+@media (min-width: 1600px) {
+  /* Etwas größere Schrift auf breiten Bildschirmen; die Lesebreite wächst mit, bleibt also bei ca. 66 Zeichen */
+  :root { --th-m: 39.5rem; --th-toc: 240px; --th-gap: 48px; }
+  .th-article { font-size: 16px; }
+  .th-article .th-lead { font-size: 16.5px; }
+  .th-h3 { font-size: 17px; }
+  .th-more > summary { font-size: 16px; }
+}
