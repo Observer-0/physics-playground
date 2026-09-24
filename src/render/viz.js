@@ -489,6 +489,143 @@
     note(ctx, tr('Gemessene, nicht gesehene Längen (Terrell-Penrose)', 'Measured, not seen, lengths (Terrell–Penrose)'), W, H - 1, col);
   };
 
+  /* ---------- Fadenpendel: Näherung und exakte Lösung nebeneinander ----------
+     Beide Pendel laufen im selben Zeitmaßstab; ihre Periodendauern kommen aus der Engine.
+     Gezeichnet wird die Bewegung als Kosinus – bei großen Amplituden ist die echte Form flacher. */
+  V.pendulum = (ctx, W, H, S) => {
+    const { v, col, t } = S;
+    grid(ctx, W, H, col);
+    const T = S.o('T'), T0 = S.o('T0');
+    if (!(T > 0) || !isFinite(T) || !(T0 > 0) || !isFinite(T0)) return invalid(ctx, W, H, col, tr('T ist hier nicht definiert (θ₀ = 180° oder ungültige Werte)', 'T is not defined here (θ₀ = 180° or invalid values)'));
+    const narrow = W < 520;
+    const th0 = (Math.abs(v.th) * Math.PI) / 180;
+    const k = clamp(T, 1.5, 4) / T;
+    const Lp = Math.min(H * 0.3, W * (narrow ? 0.2 : 0.17));
+    const py = Math.max(H * 0.44, 44 + Lp);
+    [[W * 0.3, T0, col.cyan, tr('Näherung', 'approximation'), 'T₀ = ' + S.fo('T0') + ' s'], [W * 0.7, T, col.accent, tr('exakt', 'exact'), 'T = ' + S.fo('T') + ' s']].forEach(([px, per, c, name, val]) => {
+      const ang = th0 * Math.cos((2 * Math.PI * t) / (per * k));
+      ctx.fillStyle = col.ink3; ctx.fillRect(px - 22, py - 4, 44, 4);
+      ctx.strokeStyle = col.ink3; ctx.setLineDash([3, 4]); ctx.lineWidth = 1;
+      if (th0 > 0) { ctx.beginPath(); ctx.arc(px, py, Lp, Math.PI / 2 - th0, Math.PI / 2 + th0); ctx.stroke(); }
+      ctx.setLineDash([]);
+      const bx = px + Lp * Math.sin(ang), by = py + Lp * Math.cos(ang);
+      ctx.strokeStyle = col.ink2; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(bx, by); ctx.stroke();
+      ctx.fillStyle = c; ctx.beginPath(); ctx.arc(bx, by, 9, 0, 7); ctx.fill();
+      label(ctx, name, px, H - 30, col, { align: 'center', size: 12, color: c });
+      label(ctx, val, px, H - 14, col, { align: 'center', size: 12, mono: true, color: col.ink });
+    });
+    // Wie schnell laufen die beiden auseinander? Aus den Engine-Werten T und T₀
+    const d = T - T0;
+    const lag = d > T * 1e-9 ? tr('Nach ≈ ' + E.fmt((0.5 * T0) / d, 2) + ' Schwingungen schwingen beide gegenläufig.', 'After ≈ ' + E.fmt((0.5 * T0) / d, 2) + ' swings the two move in opposite directions.') : tr('Beide Periodendauern sind gleich.', 'Both periods are equal.');
+    segs(ctx, [['θ₀ = ' + E.fmt(v.th, 3) + '°   ', col.ink], [tr('Näherung zu kurz um ', 'approximation too short by ') + S.fo('err') + ' %', S.o('err') >= 1 ? col.red : col.ink2]], 16, 20, col, { mono: true, size: narrow ? 11 : 12 });
+    label(ctx, lag, 16, 37, col, { size: 11, color: col.ink2 });
+    if (!narrow) note(ctx, tr('Bewegung als Kosinus gezeichnet · Periodendauern aus der Engine', 'Motion drawn as a cosine · periods from the engine'), W, H - 44, col);
+  };
+
+  /* ---------- Schiefer Wurf: Bahn, Geschwindigkeit in Komponenten, Komplementwinkel ---------- */
+  V.projectile = (ctx, W, H, S) => {
+    const { v, col } = S;
+    grid(ctx, W, H, col);
+    const R = S.o('R'), Hm = S.o('H'), tf = S.o('tf');
+    if (!(tf > 0) || !isFinite(R) || !isFinite(Hm)) return invalid(ctx, W, H, col, v.al <= 0 ? tr('Bei α = 0° landet der Körper sofort', 'At α = 0° the body lands immediately') : tr('Keine Flugbahn darstellbar', 'No trajectory to display'));
+    const narrow = W < 520;
+    const comp = v.al > 0 && v.al < 90 && Math.abs(v.al - 45) > 0.05 ? S.at({ al: 90 - v.al }) : null;
+    const Rm = Math.max(R, comp ? comp.o('R') : 0, 1e-12), Hmx = Math.max(Hm, comp ? comp.o('H') : 0, 1e-12);
+    const x0 = 30, y0 = H - 34;
+    const sc = Math.min((W - x0 - 40) / Rm, (y0 - 62) / Hmx);
+    const X = (x) => x0 + x * sc, Y = (y) => y0 - y * sc;
+    ctx.fillStyle = col.panel2; ctx.fillRect(0, y0, W, H - y0);
+    ctx.strokeStyle = col.ink3; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(0, y0); ctx.lineTo(W, y0); ctx.stroke();
+    // Bahnen aus der Engine: x(t), y(t)
+    const path = (st, tEnd, over, c, dash, w) => {
+      ctx.strokeStyle = c; ctx.lineWidth = w; ctx.setLineDash(dash); ctx.beginPath();
+      for (let i = 0; i <= 60; i++) { const r = S.at(Object.assign({}, over, { t: (tEnd * i) / 60 })); const px = X(r.o('x')), py = Y(Math.max(0, r.o('y'))); i ? ctx.lineTo(px, py) : ctx.moveTo(px, py); }
+      ctx.stroke(); ctx.setLineDash([]);
+    };
+    if (comp) { path(S, comp.o('tf'), { al: 90 - v.al }, col.ink3, [4, 5], 1.2); }
+    path(S, tf, {}, col.accent, [], 2);
+    // Scheitel und Weite
+    ctx.strokeStyle = col.ink3; ctx.setLineDash([2, 4]); ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(X(R / 2), Y(Hm)); ctx.lineTo(X(R / 2), y0); ctx.stroke(); ctx.setLineDash([]);
+    label(ctx, 'H = ' + S.fo('H') + ' m', X(R / 2) + 6, Y(Hm) - 6, col, { size: 11, mono: true, color: col.ink2 });
+    ctx.fillStyle = col.accent; ctx.beginPath(); ctx.arc(X(R), y0, 3.5, 0, 7); ctx.fill();
+    label(ctx, 'R = ' + S.fo('R') + ' m', X(R), y0 + 16, col, { align: X(R) > W - 90 ? 'right' : 'center', size: 11, mono: true, color: col.accent });
+    if (comp) label(ctx, tr('gestrichelt: ' + E.fmt(90 - v.al, 3) + '° – gleiche Weite', 'dashed: ' + E.fmt(90 - v.al, 3) + '° – same range'), W - 10, 52, col, { align: 'right', size: 11, color: col.ink3 });
+    // Positionen in gleichen Zeitabständen
+    for (let i = 0; i <= 8; i++) {
+      const tt = (tf * i) / 8;
+      if (tt > v.t) break;
+      const r = S.at({ t: tt });
+      ctx.fillStyle = col.cyan; ctx.globalAlpha = 0.3; ctx.beginPath(); ctx.arc(X(r.o('x')), Y(r.o('y')), 4, 0, 7); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    // Körper und Geschwindigkeit in Komponenten
+    const landed = S.o('y') < 0;
+    const bx = landed ? X(R) : X(S.o('x')), by = landed ? y0 : Y(S.o('y'));
+    if (!landed) {
+      const L = 70 / Math.max(v.v0, 1e-12);
+      arrow(ctx, bx, by, bx + S.o('vx') * L, by, col.cyan, 2);
+      arrow(ctx, bx, by, bx, by - S.o('vy') * L, col.violet, 2);
+      arrow(ctx, bx, by, bx + S.o('vx') * L, by - S.o('vy') * L, col.accent, 2.5);
+    }
+    ctx.fillStyle = landed ? col.red : col.ink; ctx.beginPath(); ctx.arc(bx, by, 7, 0, 7); ctx.fill();
+    segs(ctx, [['t = ' + E.fmt(v.t, 3) + ' s   ', col.ink], [landed ? tr('gelandet', 'landed') : 'x = ' + S.fo('x') + ' m   y = ' + S.fo('y') + ' m', landed ? col.red : col.ink2]], 16, 20, col, { mono: true, size: narrow ? 11 : 12 });
+    segs(ctx, [['v_x = ' + S.fo('vx') + ' m/s', col.cyan], [tr(' (konstant)   ', ' (constant)   '), col.ink3], ['v_y = ' + S.fo('vy') + ' m/s', col.violet]], 16, 37, col, { mono: true, size: 11 });
+    if (!narrow) note(ctx, tr('x und y im gleichen Maßstab', 'x and y on the same scale'), W, 20, col);
+  };
+
+  /* ---------- Ideales Gas: Kasten mit Teilchen, Druck als Produkt von Faktoren ----------
+     Schematisch: Punktzahl ∝ N, Tempo ∝ v_rms, Kastenkante ∝ ∛V – jeweils gegenüber dem Bezug. */
+  const GAS = (() => { const r = rng(11); return Array.from({ length: 140 }, () => [r(), r(), r() * Math.PI * 2, 0.6 + r() * 0.8]); })();
+  const bounce = (x) => { const m = ((x % 2) + 2) % 2; return m > 1 ? 2 - m : m; };
+  V.gas = (ctx, W, H, S) => {
+    const { v, col, t } = S;
+    grid(ctx, W, H, col);
+    const pn = S.num('p');
+    if (!pn || !isFinite(S.o('p'))) return invalid(ctx, W, H, col, tr('p ist hier nicht definiert', 'p is not defined here'));
+    const narrow = W < 520;
+    const B = S.base, B0 = B ? S.at(B) : null;
+    const rel = (k) => (B0 ? rd(ratio(S.num(k), B0.num(k))) : 1);
+    const qN = B ? v.N / B.N : 1, qV = B ? v.V / B.V : 1, qv = rel('vrms');
+    // Faktorzeile p/p₀ = N/N₀ · T/T₀ · V₀/V – jeder Faktor aus der Engine
+    const p0 = B0 ? B0.num('p') : null, q = ratio(pn, p0);
+    const top = 20;
+    label(ctx, 'p = ' + S.fo('p') + ' Pa', 16, top, col, { mono: true, size: 13, color: col.accent });
+    if (q) {
+      const part = (k) => ratio(S.at(Object.assign({}, B, { [k]: v[k] })).num('p'), p0);
+      const terms = [['p / p₀', q], ['N/N₀', part('N')], ['T/T₀', part('T')], ['V₀/V', part('V')]];
+      const sz = narrow ? 11 : 12, eq = narrow ? ' = ' : '  =  ', sp = narrow ? ' · ' : '  ·  ';
+      font(ctx, col, sz, true);
+      let x = 16;
+      terms.forEach(([s, f], i) => {
+        const w = textW(ctx, s);
+        label(ctx, s, x, top + 20, col, { mono: true, size: sz, color: col.ink2 });
+        label(ctx, fx(f), x + w / 2, top + 36, col, { mono: true, size: sz, align: 'center', color: fxColor(f, col) });
+        const g = i === 0 ? eq : sp;
+        if (i < terms.length - 1) { label(ctx, g, x + w, top + 20, col, { mono: true, size: sz, color: col.ink3 }); x += w + textW(ctx, g); }
+      });
+    }
+    // Kasten
+    const side0 = Math.min(H - 110, (narrow ? W * 0.5 : W * 0.34));
+    const side = side0 * clamp(Math.cbrt(qV), 0.5, 1.25);
+    const bx = 16 + (side0 * 1.25 - side) / 2, by = top + 50 + (side0 * 1.25 - side) / 2 * 0.3;
+    ctx.strokeStyle = col.ink2; ctx.lineWidth = 2; ctx.strokeRect(bx, by, side, side);
+    const n = Math.round(clamp(40 * qN, 4, 140));
+    const speed = 0.35 * clamp(qv, 0.2, 4);
+    ctx.fillStyle = col.cyan;
+    for (let i = 0; i < n; i++) {
+      const [x0, y0, a, s] = GAS[i];
+      const px = bounce(x0 + Math.cos(a) * s * speed * t), py = bounce(y0 + Math.sin(a) * s * speed * t);
+      ctx.beginPath(); ctx.arc(bx + 4 + px * (side - 8), by + 4 + py * (side - 8), 2.6, 0, 7); ctx.fill();
+    }
+    // Werte
+    const tx = narrow ? bx + side0 * 1.25 + 12 : W * 0.5, ty = top + 70;
+    const rows = [['T = ', E.fmt(v.T, 4) + ' K', col.ink], ['k_B T = ', S.fo('kT') + ' J', col.violet], ['v_rms = ', S.fo('vrms') + ' m/s', col.cyan], ['n = ', S.fo('n') + ' mol', col.ink2]];
+    rows.forEach(([k, val, c], i) => segs(ctx, [[k, col.ink2], [val, c]], tx, ty + i * 18, col, { mono: true, size: narrow ? 11 : 12 }));
+    if (B0 && !narrow) label(ctx, tr('₀ = Bezug: ', '₀ = reference: ') + S.baseLabel, tx, ty + 4 * 18 + 4, col, { size: 11, color: col.ink3 });
+    note(ctx, tr('Schematisch: Punkte ∝ N, Tempo ∝ v_rms, Kasten ∝ ∛V', 'Schematic: dots ∝ N, speed ∝ v_rms, box ∝ ∛V'), W, H, col);
+  };
+
   const STARS = (() => { const r = rng(7); return Array.from({ length: 90 }, () => [r(), r(), r()]); })();
   function stars(ctx, W, H, col) {
     ctx.fillStyle = col.ink3;
@@ -743,7 +880,7 @@
      Der Planck-Wert kommt aus der Engine (im Break-Modus wandert er mit den Konstanten).
      Vergleichswerte: Konstanten aus dem Register oder gerundete Literaturwerte:
      247 zs – Grundmann et al., Science 370, 339 (2020); 38 pK – Deppner et al., PRL 127, 100401 (2021);
-     Quark-Gluon-Plasma ≈ 5,5 × 10¹² K – ALICE (2012); 3,2 × 10²⁰ eV – Fly's Eye (1991); LHC Run 3: 13,6 TeV;
+     Quark-Gluon-Plasma ≈ 3,5 × 10¹² K (304 MeV) – ALICE, Physics Letters B 754 (2016); 3,2 × 10²⁰ eV – Fly's Eye (1991); LHC Run 3: 13,6 TeV;
      Alter des Universums 13,8 Mrd. Jahre – Planck 2018. */
   const lg10 = Math.log10;
   function planckScale(S, q) {
@@ -773,8 +910,8 @@
         head2: 'k_B = ' + E.fmt(kB, 7) + ' J/K  ·  1 K ↔ ' + E.fmt(kB / ev, 4) + ' eV',
         marks: [[lg10(3.8e-11), tr('kältestes Labor ≈ 38 pK', 'coldest lab ≈ 38 pK')], [S.at({ M: C.M_sun.value }, 'hawking').lg('TH'), tr('Hawking-Temperatur, 1 M☉', 'Hawking temperature, 1 M☉'), true],
           [lg10(C.T_cmb.value), tr('Hintergrundstrahlung 2,7 K', 'cosmic background 2.7 K')], [lg10(293), tr('Raumtemperatur', 'room temperature'), true],
-          [lg10(1.57e7), tr('Sonnenkern', 'solar core')], [lg10(5.5e12), tr('Quark-Gluon-Plasma (LHC)', 'quark–gluon plasma (LHC)')]],
-        reach: [lg10(3.8e-11), lg10(5.5e12)], reachLabel: tr('im Labor erreicht', 'reached in the lab'),
+          [lg10(1.57e7), tr('Sonnenkern', 'solar core')], [lg10(3.5e12), tr('Quark-Gluon-Plasma (LHC)', 'quark–gluon plasma (LHC)')]],
+        reach: [lg10(3.8e-11), lg10(3.5e12)], reachLabel: tr('im Labor erreicht', 'reached in the lab'),
         gap: (n) => tr('≈ ' + n + ' Größenordnungen darüber', '≈ ' + n + ' orders of magnitude above'),
         second: { shift: lg10(kB / ev), label: tr('k_B T in eV', 'k_B T in eV') },
       };

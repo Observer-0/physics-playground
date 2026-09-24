@@ -5,7 +5,6 @@
 (function (PP) {
   'use strict';
   const E = PP.engine, M = PP.model, U = PP.ui, I = PP.i18n, T = I.T;
-  const S = U.S;
   const { $, esc } = U;
 
   function head(crumb, title, sub) {

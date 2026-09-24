@@ -9,7 +9,7 @@
   // Die Prüfungen selbst laufen immer auf Deutsch (siehe runAll), weil sie Meldungstexte vergleichen.
   const EN = {
     'Gravitation': 'Gravity', 'Numerik': 'Numerics', 'Einheiten': 'Units', 'Dimensionsanalyse': 'Dimensional analysis', 'Referenzwerte': 'Reference values',
-    'Parser': 'Parser', 'Formatierung': 'Formatting', 'Sprache': 'Language', 'UI (im Browser)': 'UI (in the browser)', 'Visualisierung': 'Visualisation',
+    'Parser': 'Parser', 'Formatierung': 'Formatting', 'Sprache': 'Language', 'UI (im Browser)': 'UI (in the browser)', 'Visualisierung': 'Visualisation', 'Aufgaben': 'Tasks',
     'G=6.67430e-11, m₁=m₂=r=1 → F ≈ 6.67430e-11 N': 'G=6.67430e-11, m₁=m₂=r=1 → F ≈ 6.67430e-11 N',
     'Abstand ×2 → Kraft /4': 'Distance ×2 → force /4',
     'Erde–Apfel liefert ≈ 0,98 N': 'Earth–apple gives ≈ 0.98 N',
@@ -77,6 +77,14 @@
     'Schrödinger: Ein nicht ganzzahliges n wird nicht als Welle gezeichnet': 'Schrödinger: a non-integer n is not drawn as a wave',
     'Planck-Einheiten: Jede Skala zeigt den Wert aus der Engine (l_P, t_P, m_P, T_P, E_P)': 'Planck units: every scale shows the value from the engine (l_P, t_P, m_P, T_P, E_P)',
     'Planck-Temperatur: k_B im Bild ist E_P / T_P = 1,380649 × 10⁻²³ J/K, mit zweiter Achse in eV': 'Planck temperature: k_B in the picture is E_P / T_P = 1.380649 × 10⁻²³ J/K, with a second axis in eV',
+    'Elliptisches Integral: K(0) = π/2, K(1/√2) ≈ 1,8540746773, K(0,5) ≈ 1,6857503548': 'Elliptic integral: K(0) = π/2, K(1/√2) ≈ 1.8540746773, K(0.5) ≈ 1.6857503548',
+    'Elliptisches Integral: k = 1 divergiert, |k| > 1 ist nicht reell – beides als math-Issue': 'Elliptic integral: k = 1 diverges, |k| > 1 is not real – both reported as math issues',
+    'ellipk(Länge) wird abgelehnt': 'ellipk(length) is rejected',
+    'Fadenpendel: T/T₀ bei 90° ≈ 1,1803406': 'Pendulum: T/T₀ at 90° ≈ 1.1803406',
+    'Ideales Gas: 1 mol bei 273,15 K in 22,414 l → 101,325 kPa': 'Ideal gas: 1 mol at 273.15 K in 22.414 l → 101.325 kPa',
+    'Schiefer Wurf: 30° und 60° fliegen gleich weit, 45° am weitesten': 'Projectile: 30° and 60° fly equally far, 45° furthest',
+    'Quellen: jedes Experiment hat Quellen, DOIs sind gültig geformt, englische Notizen ohne deutsche Reste': 'Sources: every experiment has sources, DOIs are well-formed, English notes contain no German',
+    'Jede „Probier mal“-Aufgabe ist mit den Reglern lösbar und am Anfang noch offen': 'Every “Try this” task can be solved with the sliders and is still open at the start',
     'Engine-Meldungen und Dimensionsnamen gibt es auf Deutsch und Englisch': 'Engine messages and dimension names exist in German and English',
     'Umschalten wirkt auch auf die kompilierten Kopien der Experimente': 'Switching also affects the compiled copies of the experiments',
     'Keine deutschen Reste in den englischen Texten der Experimente und Konstanten': 'No German left in the English texts of the experiments and constants',
@@ -416,6 +424,80 @@
     for (const [a, b] of [[1, 0], [0, 1], [1.3, -0.7], [-2, 2]]) close(A.dS(a, b), A.action(a, b) - S0n, 1e-4, 'ΔS(' + a + ', ' + b + ')');
   });
 
+  /* --- Erweiterung der Engine: vollständiges elliptisches Integral K(k) --- */
+  test('Numerik', 'Elliptisches Integral: K(0) = π/2, K(1/√2) ≈ 1,8540746773, K(0,5) ≈ 1,6857503548', () => {
+    const K = (k) => E.toDouble(E.evaluate(E.parse('ellipk(k)'), { k }));
+    close(K(0), Math.PI / 2, 1e-15, 'K(0)');
+    close(K(Math.SQRT1_2), 1.8540746773013719, 1e-14, 'K(1/√2)');
+    close(K(0.5), 1.685750354812596, 1e-14, 'K(0,5)');
+    close(K(-0.5), K(0.5), 1e-15, 'K(−k) = K(k)');
+  });
+  test('Numerik', 'Elliptisches Integral: k = 1 divergiert, |k| > 1 ist nicht reell – beides als math-Issue', () => {
+    for (const k of [1, 1.2, -1]) {
+      const x = E.evaluate(E.parse('ellipk(k)'), { k });
+      ok(!x.ok && x.issues[0].cat === 'math', 'k = ' + k);
+    }
+  });
+  test('Dimensionsanalyse', 'ellipk(Länge) wird abgelehnt', () => {
+    ok(!E.dimAnalyze(E.parse('ellipk(x)'), { x: D('L') }).ok && E.dimAnalyze(E.parse('ellipk(x)'), { x: D('') }).ok);
+  });
+  test('Referenzwerte', 'Fadenpendel: T/T₀ bei 90° ≈ 1,1803406', () => {
+    close(val(run('pendulum', { th: 90 }), 'q'), 1.1803405990160962, 1e-12);
+    close(val(run('pendulum', { L: 1, g: 9.80665, th: 0 }), 'T'), 2 * Math.PI * Math.sqrt(1 / 9.80665), 1e-14, 'θ₀ = 0');
+  });
+  test('Referenzwerte', 'Ideales Gas: 1 mol bei 273,15 K in 22,414 l → 101,325 kPa', () => {
+    close(val(run('ideal-gas', { N: M.C.N_A.value, T: 273.15, V: 0.022414 }), 'p'), 101325, 2e-5);
+  });
+  test('Referenzwerte', 'Schiefer Wurf: 30° und 60° fliegen gleich weit, 45° am weitesten', () => {
+    const R = (al) => val(run('projectile', { v0: 20, al, g: 9.80665 }), 'R');
+    close(R(30), R(60), 1e-12, '30° ↔ 60°');
+    ok(R(45) > R(44) && R(45) > R(46), '45° maximal');
+    close(R(45), 400 / 9.80665, 1e-12, 'R(45°) = v₀²/g');
+  });
+
+  /* --- Aufgaben: jede lösbar, keine schon am Anfang gelöst --- */
+  test('Aufgaben', 'Jede „Probier mal“-Aufgabe ist mit den Reglern lösbar und am Anfang noch offen', () => {
+    const bad = [];
+    const state = (exp, form, vals, base, consts, opts) => {
+      const v = Object.assign(M.defaults(exp), vals || {}), b = Object.assign(M.defaults(exp), base || {});
+      const r = M.compute(exp, form, v, { consts: consts || {} }), rb = M.compute(exp, form, b, { skipChecks: true });
+      const num = (x) => (x && x.ok ? E.toDouble(x) : NaN);
+      return { v, b, o: (k) => num(r.out[k]), ob: (k) => num(rb.out[k]), C: Object.assign({}, M.CONST_ENV, consts || {}), C0: M.CONST_ENV, cats: new Set(r.issues.map((i) => i.cat)), form, opts: opts || {} };
+    };
+    let n = 0;
+    for (const exp of M.registry) (exp.tasks || []).forEach((t, i) => {
+      n++;
+      const d = t.demo || {}, form = d.form || exp.forms[0].id, name = exp.id + ' #' + (i + 1);
+      if (!t.done(state(exp, form, d.vals, d.base, d.consts, d.opts))) bad.push(name + ': Beispiellösung erfüllt die Aufgabe nicht');
+      if (t.done(state(exp, exp.forms[0].id, {}, {}, {}, {}))) bad.push(name + ': schon bei den Ausgangswerten erfüllt');
+      for (const k in d.vals || {}) {
+        const dv = exp.vars[k];
+        if (!dv || dv.constant) continue;
+        if (!(d.vals[k] >= dv.min && d.vals[k] <= dv.max)) bad.push(name + ': ' + k + ' = ' + d.vals[k] + ' liegt außerhalb des Regler-Bereichs');
+      }
+    });
+    ok(n >= 30, 'nur ' + n + ' Aufgaben');
+    ok(!bad.length, bad.join(' | '));
+  });
+
+  test('Aufgaben', 'Quellen: jedes Experiment hat Quellen, DOIs sind gültig geformt, englische Notizen ohne deutsche Reste', () => {
+    if (!PP.sources) return;
+    const bad = [];
+    for (const exp of M.registry) {
+      const list = PP.sources.byId[exp.id];
+      if (!list || !list.length) { bad.push(exp.id + ': keine Quellen'); continue; }
+      list.forEach((s) => {
+        if (!s.who || !s.title || !s.where || !(s.year > 1600 && s.year < 2100)) bad.push(exp.id + ': unvollständig – ' + s.title);
+        if (s.doi && !/^10\.\d{4,9}\/\S+$/.test(s.doi)) bad.push(exp.id + ': DOI ' + s.doi);
+        if (s.url && !/^https:\/\//.test(s.url)) bad.push(exp.id + ': URL ' + s.url);
+        if (!PP.sources.KIND[s.kind]) bad.push(exp.id + ': Art ' + s.kind);
+        const en = I.with('en', () => s.note).replace(/Schrödinger|Göttingen/g, '');
+        if (/[„äöüÄÖÜß]/.test(en) || /\b(und|der|die|das|nicht|mit)\b/.test(en)) bad.push(exp.id + ': ' + en);
+      });
+    }
+    ok(!bad.length, bad.slice(0, 3).join(' | '));
+  });
+
   /* --- Visualisierung: zeichnet nur, was die Engine liefert --- */
   // Zeichenkontext, der nur die geschriebenen Texte aufzeichnet
   function recCtx() {
@@ -532,7 +614,7 @@
   });
   test('Sprache', 'Keine deutschen Reste in den englischen Beschriftungen der Visualisierungen', () => {
     if (!PP.viz) return;
-    const german = /[„äöüÄÖÜß]|(und|der|die|das|nicht|mit|ist|bei|oder|Abstand|Bezug|Zeit|Kraft|Anzeige|Punkte)/;
+    const german = /[„äöüÄÖÜß]|\b(und|der|die|das|nicht|mit|ist|bei|oder|Abstand|Bezug|Zeit|Kraft|Anzeige|Punkte)\b/;
     const bad = [];
     I.with('en', () => {
       for (const exp of M.registry) {

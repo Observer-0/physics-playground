@@ -14,7 +14,7 @@
     info: { de: 'Hinweis', en: 'Note' }, assume: { de: 'Modellannahme', en: 'Model assumption' },
   });
   const CAT_ORDER = ['math', 'numeric', 'unreal', 'model', 'info', 'assume'];
-  const ANIM = new Set(['spring', 'circular', 'wavefunction', 'relativity', 'blackhole', 'horizon', 'spacetime']);
+  const ANIM = new Set(['spring', 'circular', 'wavefunction', 'relativity', 'blackhole', 'horizon', 'spacetime', 'pendulum', 'gas']);
   const VIZ_CATS = ['math', 'numeric', 'unreal', 'model'];
   const form = () => M.formOf(S.exp, S.form);
 
@@ -110,7 +110,7 @@
     const prim = f.c.outputs.find((o) => o.primary) || f.c.outputs[0];
     const di = E.dimInfo(prim.dimv);
     const m = exp.meta || {};
-    return '<section class="hero">' +
+    return '<section class="hero' + (S.tab === 'lab' ? ' compact' : '') + '">' +
       '<div class="big">' + U.tex(exp.tex) + '</div>' +
       '<div class="dimline"><span>' + T('Dimension von ', 'Dimension of ') + U.tex(prim.tex) + '</span>' + U.tex(E.dimTex(prim.dimv)) + '<span>' + esc(di.name || '') + (U.unit(prim.dimv) ? ' · ' + esc(U.unit(prim.dimv)) : '') + '</span></div>' +
       '<div class="meta-row">' +
@@ -123,6 +123,10 @@
   function vizSeg(c) {
     const cur = S.vizOpts[c.key] || c.options[0].v;
     return '<div class="seg vseg" role="group" aria-label="' + esc(c.label) + '">' + c.options.map((o) => '<button data-vs="' + c.key + '" data-val="' + o.v + '" aria-pressed="' + (o.v === cur) + '" class="' + (o.v === cur ? 'on' : '') + '">' + esc(o.label) + '</button>').join('') + '</div>';
+  }
+  function vizTitle() {
+    if (!S.cmp) return T('Visualisierung', 'Visualisation');
+    return T('Visualisierung · Satz ' + S.edit + ' (blass: ' + (S.edit === 'A' ? 'B' : 'A') + ')', 'Visualisation · set ' + S.edit + ' (faint: ' + (S.edit === 'A' ? 'B' : 'A') + ')');
   }
   function labHTML(exp) {
     const f = form();
@@ -137,24 +141,26 @@
     const presets = (exp.presets || []).filter((p) => !p.form || p.form === S.form);
     return '<div class="lab" id="lab">' +
       '<div class="stage">' +
-      '<section class="panel"><div class="ph"><h3>' + T('Visualisierung', 'Visualisation') + (S.cmp ? T(' · Satz ', ' · Set ') + S.edit : '') + '</h3><span class="vbadges" id="vbadges"></span>' + vc + '</div><div class="vizwrap"><canvas id="vizc" role="img" aria-label="' + T('Visualisierung von ', 'Visualisation of ') + esc(exp.title) + '"></canvas></div></section>' +
-      (showGraph ? '<section class="panel" id="gpanel"></section>' : '') +
+      '<section class="panel vizpanel"><div class="ph"><h3>' + vizTitle() + '</h3><span class="vbadges" id="vbadges"></span>' + vc + '</div><div class="vizwrap"><canvas id="vizc" role="img" aria-label="' + T('Visualisierung von ', 'Visualisation of ') + esc(exp.title) + '" aria-describedby="vizdesc"></canvas><p id="vizdesc" class="sr-only"></p></div></section>' +
+      (exp.tasks && exp.tasks.length ? '<section class="panel taskpanel" id="tasks"></section>' : '') +
+      (showGraph ? '<section class="panel gpanel" id="gpanel"></section>' : '') +
       '</div>' +
       '<div class="controls">' +
-      '<section class="panel"><div class="ph"><h3>' + T('Parameter', 'Parameters') + '</h3>' + ab + '</div>' +
+      '<section class="panel prmpanel"><div class="ph"><h3>' + T('Parameter', 'Parameters') + '</h3>' + ab + '</div>' +
       '<div class="pb">' + (forms ? '<div style="margin-bottom:10px">' + forms + '</div>' : '') +
       (presets.length ? '<div class="presets">' + presets.map((p) => '<button class="chip" data-preset="' + exp.presets.indexOf(p) + '">' + esc(p.name) + '</button>').join('') + '</div><div class="pnote" id="pnote"></div>' : '') +
       '<div id="prms"></div><div id="cprms"></div></div></section>' +
-      '<section class="panel"><div class="ph"><h3>' + T('Ergebnis', 'Result') + '</h3></div><div class="pb" id="res" aria-live="polite"></div></section>' +
-      '<section class="panel"><div class="ph"><h3>' + T('Physikalischer Status', 'Physical status') + '</h3></div><div class="pb" id="stat"></div></section>' +
+      '<section class="panel respanel"><div class="ph"><h3>' + T('Ergebnis', 'Result') + '</h3></div><div class="pb" id="res" aria-live="polite"></div></section>' +
+      '<section class="panel statpanel"><div class="ph"><h3>' + T('Physikalischer Status', 'Physical status') + '</h3></div><div class="pb" id="stat"></div></section>' +
       '</div></div>';
   }
 
   function render(el) {
     const exp = S.exp;
     const tabs = exp.hall
-      ? [['formula', T('Formel', 'Formula')], ['dims', T('Dimensionen', 'Dimensions')], ['physics', T('Physik', 'Physics')], ['lab', T('Graph & Labor', 'Graph & lab')]]
+      ? [['lab', T('Graph & Labor', 'Graph & lab')], ['formula', T('Formel', 'Formula')], ['dims', T('Dimensionen', 'Dimensions')], ['physics', T('Physik', 'Physics')]]
       : [['formula', T('Formel & Variablen', 'Formula & variables')], ['dims', T('Dimensionsanalyse', 'Dimensional analysis')], ['physics', T('Physik & Grenzen', 'Physics & limits')]];
+    if (PP.sources && PP.sources.byId[exp.id]) tabs.push(['sources', T('Quellen', 'Sources')]);
     if (!tabs.some((t) => t[0] === S.tab)) S.tab = tabs[0][0];
     let h = '<div class="' + (exp.hall ? 'hallx' : '') + '">' + headerHTML(exp);
     if (exp.hall) h += heroHTML(exp);
@@ -176,8 +182,19 @@
     if (S.tab === 'formula') c.innerHTML = U.docs.formula();
     else if (S.tab === 'physics') c.innerHTML = U.docs.physics();
     else if (S.tab === 'dims') { c.innerHTML = U.dims.page(); U.dims.bind(c); }
+    else if (S.tab === 'sources') c.innerHTML = sourcesHTML();
   }
 
+  // Quellen: Originalarbeiten, Messungen, Referenzwerte – DOIs verlinkt
+  function sourcesHTML() {
+    const list = (PP.sources && PP.sources.byId[S.exp.id]) || [];
+    const link = (href, text) => ' <a href="' + esc(href) + '" target="_blank" rel="noopener">' + esc(text) + '</a>';
+    return '<p class="muted srcintro">' + T('Originalarbeiten, Messungen und Referenzwerte zu diesem Experiment. DOI-Links führen zur Seite des Verlags.', 'Original papers, measurements and reference values for this experiment. DOI links lead to the publisher’s page.') + '</p>' +
+      '<ol class="srcs">' + list.map((s) => '<li><span class="tag src-' + s.kind + '">' + esc(PP.sources.KIND[s.kind]) + '</span><div>' +
+        '<b>' + esc(s.who) + '</b> (' + s.year + '): <span' + (s.lang ? ' lang="' + s.lang + '"' : '') + '><i>' + esc(s.title) + '</i>. ' + esc(s.where) + '.</span>' +
+        (s.doi ? link('https://doi.org/' + s.doi, 'doi:' + s.doi) : '') + (s.url ? link(s.url, s.url.replace(/^https?:\/\//, '')) : '') +
+        '<div class="faint">' + esc(s.note) + '</div></div></li>').join('') + '</ol>';
+  }
   function bindPage(el) {
     el.addEventListener('click', (e) => {
       const t = e.target.closest('button');
@@ -185,6 +202,7 @@
       if (t.dataset.tab) {
         S.tab = t.dataset.tab;
         $$('.tabs button', el).forEach((b) => { b.classList.toggle('on', b === t); b.setAttribute('aria-selected', b === t); });
+        const hero = $('.hero', el); if (hero) hero.classList.toggle('compact', S.tab === 'lab');
         renderTab(); U.writeHash(); return;
       }
       const a = t.dataset.a;
@@ -461,7 +479,7 @@
   function onLabChange(e) {
     const t = e.target;
     if (t.classList.contains('num')) commitNum(t);
-    else if (t.dataset.vo) { S.vizOpts[t.dataset.vo] = t.checked; drawViz(); }
+    else if (t.dataset.vo) { S.vizOpts[t.dataset.vo] = t.checked; drawViz(true); renderTasks(); U.writeHash(); }
     else if (t.dataset.g) onGraphSelect(t);
   }
   function onLabKey(e) {
@@ -492,7 +510,7 @@
     } else if (b.dataset.vs) {
       S.vizOpts[b.dataset.vs] = b.dataset.val;
       $$('[data-vs="' + b.dataset.vs + '"]').forEach((x) => { x.classList.toggle('on', x === b); x.setAttribute('aria-pressed', String(x === b)); });
-      drawViz();
+      drawViz(true); renderTasks(); U.writeHash();
     } else if (b.dataset.v) {
       if (b.dataset.v === 'pause') {
         S.paused = !S.paused;
@@ -538,7 +556,7 @@
       S.edit = b.dataset.edit;
       S.playing = false;
       $$('[data-edit]').forEach((x) => x.classList.toggle('on', x === b));
-      const h = $('#lab .ph h3'); if (h) h.textContent = T('Visualisierung · Satz ', 'Visualisation · Set ') + S.edit;
+      const h = $('#lab .ph h3'); if (h) h.textContent = vizTitle();
       renderParams(); update();
     } else if (b.dataset.gx) {
       S.graph.xlog = b.dataset.gx === 'log'; renderGraphPanel(); updatePlots(); U.writeHash();
@@ -651,10 +669,16 @@
     if (ctx) ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     return { ctx, W, H };
   }
-  function drawViz() {
+  // describe: Beschriftungen und Werte des Bildes als Text für Screenreader mitschreiben (nicht bei jedem Animationsbild)
+  function drawViz(describe) {
     const c = $('#vizc');
     if (!c || !S.res.A) return;
-    const { ctx, W, H } = sizeCanvas(c);
+    const sized = sizeCanvas(c), W = sized.W, H = sized.H;
+    const texts = [];
+    const ctx = describe && sized.ctx ? new Proxy(sized.ctx, {
+      get(t, k) { if (k === 'fillText') return (s, ...a) => { texts.push(String(s)); t.fillText(s, ...a); }; const v = t[k]; return typeof v === 'function' ? v.bind(t) : v; },
+      set(t, k, v) { t[k] = v; return true; },
+    }) : sized.ctx;
     if (!ctx) return;
     ctx.clearRect(0, 0, W, H);
     const fn = PP.viz[S.exp.viz];
@@ -664,12 +688,67 @@
       base: S.base && S.base.form === S.form ? S.base.vals : null, baseLabel: baseLabel(),
       t: S.clock, opts: S.vizOpts, col: PP.colors(),
     });
+    if (S.cmp && S.res.B) {
+      const other = S.edit === 'A' ? 'B' : 'A';
+      const gs = PP.vizState({ exp: S.exp, form: S.form, vals: S.vals[other], consts: S.consts[other], res: S.res[other], t: S.clock, opts: S.vizOpts, col: PP.colors() });
+      try { fn(ghost(ctx), W, H, gs); } catch (_) { /* der Geist darf fehlen */ }
+      ctx.globalAlpha = 1; ctx.setLineDash([]);
+    }
     try { fn(ctx, W, H, st); }
     catch (err) {
       const col = PP.colors();
       ctx.fillStyle = col.red; ctx.font = '13px ' + col.sans; ctx.textAlign = 'center';
       ctx.fillText(T('Für diese Werte gibt es keine sinnvolle Darstellung.', 'There is no meaningful picture for these values.'), W / 2, H / 2);
     }
+    if (describe) {
+      const d = $('#vizdesc');
+      // reine Achsenbeschriftungen (Zahlen, Zehnerpotenzen, Einheiten) auslassen
+      const tick = /^([−-]?[\d.,]+|10[⁻⁰¹²³⁴⁵⁶⁷⁸⁹]*|[a-zA-Z]{1,3}|n=\d+)$/;
+      const s = [...new Set(texts.map((x) => x.trim()).filter((x) => x && !tick.test(x)))].join(' · ');
+      if (d && d.textContent !== s) d.textContent = s;
+    }
+  }
+
+  // Zeichenkontext für den blassen Vergleichssatz: alles mit 30 % Deckkraft, keine Texte
+  function ghost(ctx) {
+    ctx.globalAlpha = 0.3;
+    return new Proxy(ctx, {
+      get(t, k) { if (k === 'fillText' || k === 'strokeText') return () => {}; const v = t[k]; return typeof v === 'function' ? v.bind(t) : v; },
+      set(t, k, v) { t[k] = k === 'globalAlpha' ? v * 0.3 : v; return true; },
+    });
+  }
+
+  /* ---------- Probier mal ---------- */
+  const solved = new Set(U.store.get('pp.tasks', []));
+  function taskStates() {
+    const exp = S.exp, res = S.res[S.edit] || S.res.A;
+    const val = (r) => (r && r.ok ? E.toDouble(r) : NaN);
+    const hasBase = S.base && S.base.form === S.form && S.baseRes;
+    const x = {
+      v: S.vals[S.edit], o: (k) => val(res.out[k]), ob: (k) => (hasBase ? val(S.baseRes.out[k]) : NaN), b: hasBase ? S.base.vals : null,
+      C: Object.assign({}, M.CONST_ENV, S.consts[S.edit]), C0: M.CONST_ENV, cats: new Set(res.issues.map((i) => i.cat)), form: S.form, opts: S.vizOpts,
+    };
+    return (exp.tasks || []).map((t, i) => { let now = false; try { now = !!t.done(x); } catch (_) { now = false; } return { t, now, key: exp.id + ':' + i }; });
+  }
+  function renderTasks() {
+    const box = $('#tasks');
+    if (!box) return;
+    const st = taskStates();
+    st.forEach((s) => {
+      if (!s.now || solved.has(s.key)) return;
+      solved.add(s.key);
+      U.store.set('pp.tasks', [...solved]);
+      if (box.dataset.k) U.toast(T('Gelöst: ', 'Solved: ') + s.t.q);
+    });
+    const key = st.map((s) => (s.now ? 2 : solved.has(s.key) ? 1 : 0)).join('') + PP.i18n.lang;
+    if (box.dataset.k === key) return;
+    box.dataset.k = key;
+    const open = $$('details', box).map((d) => d.open);
+    const n = st.filter((s) => solved.has(s.key)).length;
+    box.innerHTML = '<div class="ph"><h3>' + T('Probier mal', 'Try this') + '</h3><span class="faint" style="font-size:12px">' + n + ' / ' + st.length + T(' gelöst', ' solved') + '</span></div>' +
+      '<ol class="tasks">' + st.map((s, i) => '<li class="' + (s.now ? 'now' : solved.has(s.key) ? 'done' : '') + '"><span class="tk" aria-hidden="true">' + (s.now || solved.has(s.key) ? '✓' : '') + '</span><div><span>' + esc(s.t.q) + '</span>' +
+        (s.now ? ' <b class="ok">' + T('Erfüllt', 'Done') + '</b>' : solved.has(s.key) ? ' <span class="faint">' + T('(schon gelöst)', '(solved before)') + '</span>' : '') +
+        (s.t.hint ? '<details' + (open[i] ? ' open' : '') + '><summary>' + T('Tipp', 'Hint') + '</summary>' + esc(s.t.hint) + '</details>' : '') + '</div></li>').join('') + '</ol>';
   }
 
   /* ---------- graph ---------- */
@@ -713,6 +792,38 @@
     if (ro) $$('canvas', p).forEach((c) => ro.observe(c));
   }
   function plotColors() { const c = PP.colors(); return [c.accent, c.cyan, c.violet, c.green, c.red]; }
+  /* Modellgrenzen entlang der x-Achse: Wo meldet die Engine (mit allen Prüfungen) eine Warnung?
+     Kategorien, die im ganzen Bereich gelten (z. B. „nur eine Größenordnung“), werden nicht schraffiert. */
+  const ZONE_CATS = ['math', 'unreal', 'model'];
+  let zoneMemo = { k: null, z: [] };
+  function modelZones(g, dom, xlog) {
+    const exp = S.exp, vals = S.vals[S.edit], consts = S.consts[S.edit];
+    const rest = Object.assign({}, vals); delete rest[g.x];
+    const k = [exp.id, S.form, g.x, xlog, dom.join(), JSON.stringify(rest), JSON.stringify(consts), PP.i18n.lang].join('|');
+    if (zoneMemo.k === k) return zoneMemo.z;
+    const N = 120, a = xlog ? Math.log10(dom[0]) : dom[0], b = xlog ? Math.log10(dom[1]) : dom[1];
+    const xv = exp.vars[g.x];
+    const pts = [];
+    for (let i = 0; i <= N; i++) {
+      const t = a + ((b - a) * i) / N;
+      let x = xlog ? Math.pow(10, t) : t;
+      if (xv.integer) x = Math.round(x);
+      const v = Object.assign({}, vals, { [g.x]: x });
+      const cats = new Set(M.compute(exp, S.form, v, { consts }).issues.map((j) => j.cat).filter((c) => ZONE_CATS.includes(c)));
+      pts.push([t, cats]);
+    }
+    const always = ZONE_CATS.filter((c) => pts.every((p) => p[1].has(c)));
+    const zones = [];
+    const half = (b - a) / N / 2;
+    pts.forEach(([t, cats]) => {
+      const cat = ZONE_CATS.find((c) => cats.has(c) && !always.includes(c));
+      const last = zones[zones.length - 1];
+      if (cat && last && last.cat === cat && Math.abs(last.b - (t - half)) < half * 1.5) last.b = t + half;
+      else if (cat) zones.push({ a: t - half, b: t + half, cat, label: CAT[cat], color: cat === 'model' ? PP.colors().accent : PP.colors().red });
+    });
+    zoneMemo = { k, z: zones };
+    return zones;
+  }
   function onGraphSelect(t) {
     const g = S.graph;
     if (t.dataset.g === 'x') {
@@ -738,6 +849,7 @@
       if (xlog) { if (x > 0) { dom[0] = Math.min(dom[0], x / 3); dom[1] = Math.max(dom[1], x * 3); } }
       else if (x < dom[0] || x > dom[1]) { dom = [Math.min(dom[0], x), Math.max(dom[1], x)]; const pad = (dom[1] - dom[0]) * 0.05; dom[0] -= pad; dom[1] += pad; }
     }
+    const zones = modelZones(g, dom, xlog);
     const pal = plotColors();
     const colorOf = {};
     colorOf[g.y] = pal[0];
@@ -767,6 +879,7 @@
         samples: xv.integer ? 200 : 320,
         refs: ((exp.graph && exp.graph.refs) || []).filter((r) => r.y === y0).map((r) => ({ value: r.value, label: r.label, color: PP.colors().cyan })),
         marker: { x: S.vals[S.edit][g.x], y: U.num(cur) },
+        zones,
         xlabel: xv.label + (xunit ? ' [' + xunit + ']' : ''), xsym: xv.label, xunit,
         ylabel: outs.map((o) => o.sym).join(', ') + (yunit ? ' [' + yunit + ']' : ''), yunit,
       });
@@ -781,8 +894,9 @@
     renderResults();
     renderStatus();
     renderVizBadges();
+    renderTasks();
     if (pauseShown === null) syncVizButtons();
-    drawViz();
+    drawViz(true);
     updatePlots();
     U.writeHash();
   }

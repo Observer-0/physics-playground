@@ -7,7 +7,7 @@
   'use strict';
   const E = PP.engine, M = PP.model, U = PP.ui, I = PP.i18n, T = I.T;
   const S = U.S;
-  const { $, $$, esc } = U;
+  const { $, esc } = U;
 
   const EP_LABEL = I.localize({
     math: { de: 'Mathematische Aussage', en: 'Mathematical statement' }, model: { de: 'Physikalisches Modell', en: 'Physical model' },

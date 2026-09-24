@@ -159,7 +159,8 @@
     S.edit = 'A';
     S.graph = U.defaultGraph(exp, S.form);
     if (opts.g && S.graph) Object.assign(S.graph, opts.g);
-    S.tab = opts.tab || 'formula';
+    // Bei den berühmten Gleichungen öffnet das Labor zuerst
+    S.tab = opts.tab || (exp.hall ? 'lab' : 'formula');
     S.preset = null; S.playing = false;
     if (changed) { S.vizOpts = {}; S.nightmare = false; }
   };
@@ -179,8 +180,11 @@
       const a = encVals(S.vals.A); if (a) q.set('a', a);
       const ca = encVals(S.consts.A); if (ca) q.set('ca', ca);
       if (S.cmp) { q.set('cmp', '1'); q.set('b', encVals(S.vals.B)); const cb = encVals(S.consts.B); if (cb) q.set('cb', cb); }
-      if (S.tab !== 'formula') q.set('tab', S.tab);
+      if (S.tab !== (S.exp.hall ? 'lab' : 'formula')) q.set('tab', S.tab);
       if (S.graph) q.set('g', [S.graph.x, S.graph.y, S.graph.xlog ? 1 : 0, S.graph.ylog ? 1 : 0, S.graph.extra.join('+')].join(','));
+      // Einstellungen der Visualisierung (z. B. Planck-Größe, Überlagerung)
+      const vo = Object.keys(S.vizOpts).filter((k) => S.vizOpts[k] !== false && S.vizOpts[k] != null).map((k) => k + ':' + (S.vizOpts[k] === true ? '1' : S.vizOpts[k])).join(';');
+      if (vo) q.set('vo', vo);
     } else {
       q.set('view', S.view);
       if (S.view === 'custom') {
@@ -205,6 +209,13 @@
       }
       U.loadExp(q.get('exp'), { form: q.get('f'), a: decVals(q.get('a')), b: q.get('b') ? decVals(q.get('b')) : null, ca: decVals(q.get('ca')), cb: q.get('cb') ? decVals(q.get('cb')) : null, cmp: q.get('cmp') === '1', tab: q.get('tab'), g });
       const exp = S.exp, form = M.formOf(exp, S.form);
+      // Nur bekannte Bedienelemente und erlaubte Werte übernehmen
+      (q.get('vo') || '').split(';').forEach((p) => {
+        const i = p.indexOf(':'), k = p.slice(0, i), x = p.slice(i + 1);
+        const c = (exp.vizControls || []).find((cc) => cc.key === k);
+        if (!c) return;
+        if (c.options) { if (c.options.some((o) => o.v === x)) S.vizOpts[k] = x; } else S.vizOpts[k] = x === '1';
+      });
       if (S.graph && (!form.c.vars.some((v) => v.key === S.graph.x) || !form.c.outputs.some((o) => o.key === S.graph.y))) S.graph = U.defaultGraph(exp, S.form);
       return true;
     }

@@ -301,6 +301,129 @@
     },
   });
 
+  define({
+    id: 'pendulum', group: MECH, title: { de: 'Fadenpendel: Näherung und exakte Lösung', en: 'Simple pendulum: approximation and exact solution' }, short: { de: 'Fadenpendel', en: 'Pendulum' },
+    tex: 'T = 4\\sqrt{\\frac{L}{g}}\\;K\\left(\\sin\\frac{\\theta_0}{2}\\right)',
+    vars: {
+      L: { label: 'L', tex: 'L', name: { de: 'Fadenlänge', en: 'Length of the string' }, dim: 'L', default: 1, min: 0.01, max: 100, scale: 'log', positive: true },
+      g: { label: 'g', tex: 'g', name: { de: 'Fallbeschleunigung', en: 'Gravitational acceleration' }, dim: 'L T^-2', default: C.g_n.value, min: 0.1, max: 30, scale: 'lin', positive: true },
+      th: { label: 'θ₀', tex: '\\theta_0', name: { de: 'Amplitude (Startwinkel in Grad)', en: 'Amplitude (starting angle in degrees)' }, dim: '', default: 10, min: 0, max: 179, scale: 'lin' },
+    },
+    outputs: [
+      { key: 'T', sym: 'T', tex: 'T', name: { de: 'Periodendauer (exakt)', en: 'Period (exact)' }, expr: '4*sqrt(L/g)*ellipk(sin(th*pi/360))', dim: 'T', primary: true },
+      { key: 'T0', sym: 'T₀', tex: 'T_0', name: { de: 'Periodendauer (Kleinwinkelnäherung)', en: 'Period (small-angle approximation)' }, expr: '2*pi*sqrt(L/g)', dim: 'T' },
+      { key: 'q', sym: 'T/T₀', tex: 'T/T_0', name: { de: 'Verhältnis exakt zu Näherung', en: 'Ratio of exact to approximate' }, expr: 'T/T0', dim: '', digits: 8 },
+      { key: 'err', sym: { de: 'Fehler / %', en: 'error / %' }, tex: '\\Delta T/T', name: { de: 'Fehler der Näherung in Prozent', en: 'Error of the approximation in per cent' }, expr: '(T - T0)/T*100', dim: '' },
+      { key: 'vmax', sym: 'v_max', tex: 'v_{\\max}', name: { de: 'Geschwindigkeit am tiefsten Punkt', en: 'Speed at the lowest point' }, expr: 'sqrt(2*g*L*(1 - cos(th*pi/180)))', dim: 'L T^-1' },
+    ],
+    equations: [
+      { label: { de: 'Kleinwinkelnäherung', en: 'Small-angle approximation' }, eq: 'T0 = 2*pi*sqrt(L/g)' },
+      { label: { de: 'Exakte Periodendauer', en: 'Exact period' }, eq: 'T = 4*sqrt(L/g)*ellipk(sin(th*pi/360))' },
+      { label: { de: 'Energieerhaltung', en: 'Conservation of energy' }, eq: 'v_max = sqrt(2*g*L*(1 - cos(th*pi/180)))' },
+    ],
+    symbols: { v_max: { dim: 'L T^-1' } },
+    checks({ v, o, issues, fmt }) {
+      const err = o('err');
+      if (v.th < 0) issues.push({ cat: 'info', msg: T('Negativer Winkel heißt nur: zur anderen Seite ausgelenkt. T hängt von |θ₀| ab.', 'A negative angle just means a swing to the other side. T depends on |θ₀|.') });
+      if (isFinite(err) && err >= 1) issues.push({ cat: 'model', msg: T('Die Kleinwinkelnäherung sin θ ≈ θ liegt hier um ' + fmt(err, 2) + ' % daneben: T₀ ist zu kurz. Die exakte Periodendauer T bleibt gültig.', 'The small-angle approximation sin θ ≈ θ is off by ' + fmt(err, 2) + ' % here: T₀ is too short. The exact period T remains valid.') });
+      else if (isFinite(err) && err >= 0.1) issues.push({ cat: 'info', msg: T('Die Kleinwinkelnäherung weicht um ' + fmt(err, 2) + ' % ab – für eine Pendeluhr schon viel.', 'The small-angle approximation is off by ' + fmt(err, 2) + ' % – already a lot for a pendulum clock.') });
+      if (Math.abs(v.th) > 90) issues.push({ cat: 'model', msg: T('Über 90° würde ein Faden anfangs schlaff: Das Modell gilt dann nur für eine starre Stange.', 'Beyond 90° a string would go slack at first: the model then only applies to a rigid rod.') });
+      issues.push({ cat: 'assume', msg: T('Punktmasse an masseloser, starrer Aufhängung; keine Reibung; konstantes g.', 'Point mass on a massless, rigid suspension; no friction; constant g.') });
+    },
+    presets: [
+      { name: { de: 'Kleine Auslenkung (5°)', en: 'Small swing (5°)' }, values: { L: 1, g: C.g_n.value, th: 5 } },
+      { name: { de: 'Große Auslenkung (60°)', en: 'Large swing (60°)' }, values: { L: 1, g: C.g_n.value, th: 60 } },
+      { name: { de: 'Waagerecht losgelassen (90°)', en: 'Released horizontally (90°)' }, values: { L: 1, g: C.g_n.value, th: 90 } },
+      { name: { de: 'Fast Überschlag (170°)', en: 'Almost upside down (170°)' }, note: { de: 'nur mit starrer Stange möglich', en: 'only possible with a rigid rod' }, values: { L: 1, g: C.g_n.value, th: 170 } },
+      { name: { de: 'Sekundenpendel', en: 'Seconds pendulum' }, note: { de: 'L ≈ 0,994 m: Jede Halbschwingung dauert 1 s', en: 'L ≈ 0.994 m: each half-swing takes 1 s' }, values: { L: 0.9936, g: C.g_n.value, th: 3 } },
+    ],
+    graph: { x: 'th', y: 'T', also: ['T0'] },
+    viz: 'pendulum',
+    explain: {
+      intuition: {
+        de: 'Bei kleinen Ausschlägen schwingt ein Pendel in festem Takt, egal wie weit man es auslenkt. Das stimmt aber nur näherungsweise: Je größer die Amplitude, desto länger dauert eine Schwingung. Bei 90° sind es schon 18 % mehr.',
+        en: 'For small swings, a pendulum keeps a fixed rhythm no matter how far you pull it out. But that is only approximately true: the larger the amplitude, the longer a swing takes. At 90° it is already 18 % more.',
+      },
+      math: [
+        { t: { de: 'Bewegungsgleichung', en: 'Equation of motion' }, tex: '\\ddot\\theta = -\\frac{g}{L}\\sin\\theta' },
+        { t: { de: 'Kleinwinkelnäherung sin θ ≈ θ', en: 'Small-angle approximation sin θ ≈ θ' }, tex: 'T_0 = 2\\pi\\sqrt{L/g}' },
+        { t: { de: 'Exakt, mit dem vollständigen elliptischen Integral K', en: 'Exact, with the complete elliptic integral K' }, tex: 'T = 4\\sqrt{\\frac{L}{g}}\\;K\\left(\\sin\\frac{\\theta_0}{2}\\right)' },
+        { t: { de: 'K über das arithmetisch-geometrische Mittel', en: 'K via the arithmetic–geometric mean' }, tex: 'K(k) = \\frac{\\pi}{2\\,\\mathrm{AGM}\\left(1, \\sqrt{1-k^2}\\right)}' },
+        { t: { de: 'Für kleine Winkel', en: 'For small angles' }, tex: 'T \\approx T_0\\left(1 + \\frac{\\theta_0^2}{16}\\right)' },
+      ],
+      physics: {
+        de: 'Das Fadenpendel zeigt im Kleinen, was eine Modellgrenze ist. Die Näherung sin θ ≈ θ macht die Gleichung linear und die Periodendauer unabhängig von der Amplitude – Galilei hat das beobachtet, Huygens hat damit Pendeluhren gebaut. Bei 5° ist der Fehler kleiner als 0,05 %, bei rund 23° erreicht er 1 %. Die exakte Periodendauer braucht das vollständige elliptische Integral K, das die App über das arithmetisch-geometrische Mittel berechnet. Für θ₀ → 180° wächst T über alle Grenzen: Ein Pendel, das genau oben balanciert, kommt nie wieder herunter.',
+        en: 'The simple pendulum shows on a small scale what a model limit is. The approximation sin θ ≈ θ makes the equation linear and the period independent of the amplitude – Galileo observed this, and Huygens built pendulum clocks on it. At 5° the error is below 0.05 %, at about 23° it reaches 1 %. The exact period needs the complete elliptic integral K, which the app computes via the arithmetic–geometric mean. As θ₀ → 180°, T grows without limit: a pendulum balanced exactly at the top never comes down again.',
+      },
+      epistemics: [
+        { type: 'math', text: { de: 'Die exakte Periodendauer folgt ohne Näherung aus der Bewegungsgleichung; K wird numerisch auf Maschinengenauigkeit berechnet.', en: 'The exact period follows from the equation of motion without approximation; K is computed numerically to machine precision.' } },
+        { type: 'approx', text: { de: 'T₀ = 2π√(L/g) ist die Kleinwinkelnäherung (sin θ ≈ θ).', en: 'T₀ = 2π√(L/g) is the small-angle approximation (sin θ ≈ θ).' } },
+        { type: 'model', text: { de: 'Mathematisches Pendel: Punktmasse, masselose starre Aufhängung, keine Reibung, konstantes g.', en: 'Mathematical pendulum: point mass, massless rigid suspension, no friction, constant g.' } },
+      ],
+    },
+  });
+
+  define({
+    id: 'projectile', group: MECH, title: { de: 'Schiefer Wurf', en: 'Projectile motion' }, short: { de: 'Schiefer Wurf', en: 'Projectile' },
+    tex: 'R = \\frac{v_0^2\\,\\sin 2\\alpha}{g}',
+    vars: {
+      v0: { label: 'v₀', tex: 'v_0', name: { de: 'Abwurfgeschwindigkeit', en: 'Launch speed' }, dim: 'L T^-1', default: 20, min: 0.1, max: 1000, scale: 'log', positive: true },
+      al: { label: 'α', tex: '\\alpha', name: { de: 'Abwurfwinkel in Grad', en: 'Launch angle in degrees' }, dim: '', default: 30, min: 0, max: 90, scale: 'lin' },
+      g: { label: 'g', tex: 'g', name: { de: 'Fallbeschleunigung', en: 'Gravitational acceleration' }, dim: 'L T^-2', default: C.g_n.value, min: 0.1, max: 30, scale: 'lin', positive: true },
+      t: { label: 't', tex: 't', name: { de: 'Zeit', en: 'Time' }, dim: 'T', default: 1, min: 0, max: 60, scale: 'lin', time: true },
+    },
+    outputs: [
+      { key: 'R', sym: 'R', tex: 'R', name: { de: 'Wurfweite', en: 'Range' }, expr: 'v0^2*sin(2*al*pi/180)/g', dim: 'L', primary: true },
+      { key: 'H', sym: 'H', tex: 'H', name: { de: 'Scheitelhöhe', en: 'Maximum height' }, expr: 'v0^2*sin(al*pi/180)^2/(2*g)', dim: 'L' },
+      { key: 'tf', sym: { de: 't_Flug', en: 't_flight' }, tex: { de: 't_{\\mathrm{Flug}}', en: 't_{\\mathrm{flight}}' }, name: { de: 'Flugdauer', en: 'Time of flight' }, expr: '2*v0*sin(al*pi/180)/g', dim: 'T' },
+      { key: 'x', sym: 'x', tex: 'x', name: { de: 'Ort waagerecht zur Zeit t', en: 'Horizontal position at time t' }, expr: 'v0*cos(al*pi/180)*t', dim: 'L' },
+      { key: 'y', sym: 'y', tex: 'y', name: { de: 'Höhe zur Zeit t', en: 'Height at time t' }, expr: 'v0*sin(al*pi/180)*t - 0.5*g*t^2', dim: 'L' },
+      { key: 'vx', sym: 'v_x', tex: 'v_x', name: { de: 'Geschwindigkeit waagerecht (konstant)', en: 'Horizontal velocity (constant)' }, expr: 'v0*cos(al*pi/180)', dim: 'L T^-1' },
+      { key: 'vy', sym: 'v_y', tex: 'v_y', name: { de: 'Geschwindigkeit senkrecht zur Zeit t', en: 'Vertical velocity at time t' }, expr: 'v0*sin(al*pi/180) - g*t', dim: 'L T^-1' },
+    ],
+    equations: [
+      { label: { de: 'Wurfweite', en: 'Range' }, eq: 'R = v0^2*sin(2*al*pi/180)/g' },
+      { label: { de: 'Scheitelhöhe', en: 'Maximum height' }, eq: 'H = v0^2*sin(al*pi/180)^2/(2*g)' },
+      { label: { de: 'Bahnkurve y(x)', en: 'Trajectory y(x)' }, eq: 'y = x*tan(al*pi/180) - g*x^2/(2*v0^2*cos(al*pi/180)^2)' },
+    ],
+    checks({ v, o, issues, fmt }) {
+      if (o('y') < 0 && v.t > 0) issues.push({ cat: 'model', msg: T('y < 0: Der Körper ist schon bei t ≈ ' + fmt(o('tf'), 3) + ' s gelandet. Danach beschreibt die Formel nichts Reales mehr.', 'y < 0: the body already landed at t ≈ ' + fmt(o('tf'), 3) + ' s. After that the formula no longer describes anything real.') });
+      if (v.v0 > 7900) issues.push({ cat: 'model', msg: T('Nahe der ersten kosmischen Geschwindigkeit (≈ 7,9 km/s) ist die Erde nicht mehr flach und g nicht konstant – die Bahn wird zur Ellipse.', 'Close to orbital speed (≈ 7.9 km/s) the Earth is no longer flat and g not constant – the path becomes an ellipse.') });
+      else if (v.v0 > 30) issues.push({ cat: 'model', msg: T('Bei über 30 m/s bremst in Luft der Luftwiderstand schon deutlich: Reale Weiten sind kürzer, und der beste Winkel liegt unter 45°.', 'Above 30 m/s, air resistance already slows things down noticeably in air: real ranges are shorter, and the best angle is below 45°.') });
+      issues.push({ cat: 'assume', msg: T('Kein Luftwiderstand, flacher Boden, konstantes g; Abwurf und Landung auf gleicher Höhe.', 'No air resistance, flat ground, constant g; launch and landing at the same height.') });
+    },
+    presets: [
+      { name: { de: 'Wurf unter 45°', en: 'Throw at 45°' }, values: { v0: 20, al: 45, g: C.g_n.value, t: 1 } },
+      { name: { de: 'Flach: 15°', en: 'Flat: 15°' }, note: { de: 'fliegt genauso weit wie 75°', en: 'flies exactly as far as 75°' }, values: { v0: 20, al: 15, g: C.g_n.value, t: 0.5 } },
+      { name: { de: 'Steil: 75°', en: 'Steep: 75°' }, note: { de: 'fliegt genauso weit wie 15°', en: 'flies exactly as far as 15°' }, values: { v0: 20, al: 75, g: C.g_n.value, t: 2 } },
+      { name: { de: 'Kugelstoß (≈ 14 m/s)', en: 'Shot put (≈ 14 m/s)' }, note: { de: 'Abwurfhöhe von gut 2 m hier nicht berücksichtigt', en: 'release height of about 2 m not included here' }, values: { v0: 14, al: 40, g: C.g_n.value, t: 1 } },
+      { name: { de: 'Auf dem Mond', en: 'On the Moon' }, note: { de: 'g ≈ 1,62 m/s²', en: 'g ≈ 1.62 m/s²' }, values: { v0: 20, al: 45, g: 1.62, t: 5 } },
+    ],
+    graph: { x: 'al', y: 'R', also: ['H'] },
+    viz: 'projectile', animateVar: 't', animateUntil: 'tf',
+    explain: {
+      intuition: {
+        de: 'Ein schräg geworfener Körper bewegt sich waagerecht mit konstanter Geschwindigkeit und fällt gleichzeitig frei. Zusammen ergibt das eine Parabel. Ohne Luftwiderstand fliegt er unter 45° am weitesten, und 30° reicht genauso weit wie 60°.',
+        en: 'A body thrown at an angle moves horizontally at constant speed while falling freely at the same time. Together this gives a parabola. Without air resistance it flies furthest at 45°, and 30° reaches exactly as far as 60°.',
+      },
+      math: [
+        { t: { de: 'Bahn in zwei unabhängigen Richtungen', en: 'Motion in two independent directions' }, tex: 'x = v_0\\cos\\alpha\\;t,\\qquad y = v_0\\sin\\alpha\\;t - \\tfrac12 g t^2' },
+        { t: { de: 'Wurfweite', en: 'Range' }, tex: 'R = \\frac{v_0^2\\,\\sin 2\\alpha}{g}' },
+        { t: { de: 'Scheitelhöhe', en: 'Maximum height' }, tex: 'H = \\frac{v_0^2\\,\\sin^2\\alpha}{2g}' },
+        { t: { de: 'Größte Weite, weil sin 2α höchstens 1 ist', en: 'Greatest range, because sin 2α is at most 1' }, tex: '\\sin 2\\alpha = 1 \\;\\Rightarrow\\; \\alpha = 45^{\\circ}' },
+      ],
+      physics: {
+        de: 'Galilei zeigte 1638 in den „Discorsi“, dass sich die Bewegung in zwei unabhängige Teile zerlegen lässt. Das Modell gilt im Vakuum über flachem Boden bei konstantem g. In Luft verkürzt der Luftwiderstand die Weite schon bei Ballgeschwindigkeiten deutlich, und der günstigste Winkel liegt dann unter 45°. Bei sehr großen Weiten ist die Erde nicht mehr flach – dann wird aus der Parabel das Stück einer Ellipse, einer Kepler-Bahn.',
+        en: 'In 1638, in his “Discorsi”, Galileo showed that the motion can be split into two independent parts. The model holds in a vacuum over flat ground with constant g. In air, drag shortens the range noticeably even at ball speeds, and the best angle is then below 45°. Over very large distances the Earth is no longer flat – then the parabola becomes part of an ellipse, a Kepler orbit.',
+      },
+      epistemics: [
+        { type: 'math', text: { de: 'Die Zerlegung in waagerechte und senkrechte Bewegung ist exakt, solange die Kraft nur senkrecht wirkt.', en: 'Splitting into horizontal and vertical motion is exact as long as the force acts only vertically.' } },
+        { type: 'model', text: { de: 'Massenpunkt im homogenen Schwerefeld, ohne Luftwiderstand.', en: 'Point mass in a uniform gravitational field, without air resistance.' } },
+        { type: 'approx', text: { de: 'Flacher Boden und konstantes g gelten nur für Weiten und Höhen ≪ Erdradius.', en: 'Flat ground and constant g only hold for ranges and heights ≪ the Earth’s radius.' } },
+      ],
+    },
+  });
+
   /* ======================= SPEZIELLE RELATIVITÄT ======================= */
 
   define({
@@ -340,7 +463,7 @@
       { name: { de: 'LHC-Proton (6,8 TeV)', en: 'LHC proton (6.8 TeV)' }, note: { de: 'γ ≈ 7247 aus E / (m_p c²)', en: 'γ ≈ 7247 from E / (m_p c²)' }, values: { beta: 1 - 1 / (2 * 7247.4 ** 2), tau: 1, L0: 1, m: C.m_p.value } },
       { name: { de: 'GPS-Satellit (nur SRT-Anteil)', en: 'GPS satellite (special-relativity part only)' }, note: { de: 'v ≈ 3,9 km/s. Der gravitative ART-Effekt ist größer und entgegengesetzt – hier nicht enthalten', en: 'v ≈ 3.9 km/s. The gravitational effect from general relativity is larger and opposite – not included here' }, values: { beta: 3900 / C.c.value, tau: 86400, L0: 1, m: 1 } },
     ],
-    graph: { x: 'beta', y: 'gamma' },
+    graph: { x: 'beta', y: 'gamma', ylog: true },
     viz: 'relativity',
     explain: {
       intuition: {
@@ -362,6 +485,73 @@
         { type: 'measured', text: { de: 'Zeitdilatation ist experimentell hochpräzise bestätigt (Myonen-Speicherring, Ionen-Uhren).', en: 'Time dilation is confirmed experimentally to high precision (muon storage rings, ion clocks).' } },
         { type: 'math', text: { de: 'γ ist für |β| < 1 reell und ≥ 1; bei β → 1 divergiert es.', en: 'γ is real and ≥ 1 for |β| < 1; it diverges as β → 1.' } },
         { type: 'assume', text: { de: 'Unbeschleunigte Bezugssysteme, keine Gravitation.', en: 'Non-accelerated reference frames, no gravity.' } },
+      ],
+    },
+  });
+
+  /* ========================= THERMODYNAMIK ========================= */
+
+  const NA = C.N_A.value;
+  define({
+    id: 'ideal-gas', group: { de: 'Thermodynamik', en: 'Thermodynamics' }, title: { de: 'Ideales Gas', en: 'Ideal gas' }, short: { de: 'Ideales Gas', en: 'Ideal gas' },
+    tex: 'p\\,V = N\\,k_{\\mathrm{B}}\\,T',
+    vars: {
+      N: { label: 'N', tex: 'N', name: { de: 'Teilchenzahl', en: 'Number of particles' }, dim: '', default: NA, min: 1, max: 1e30, scale: 'log', positive: true },
+      T: { label: 'T', tex: 'T', name: { de: 'Temperatur', en: 'Temperature' }, dim: 'Θ', default: 273.15, min: 1, max: 1e5, scale: 'log', positive: true },
+      V: { label: 'V', tex: 'V', name: { de: 'Volumen', en: 'Volume' }, dim: 'L^3', default: 0.022414, min: 1e-9, max: 1e6, scale: 'log', positive: true },
+      m: { label: 'm', tex: 'm', name: { de: 'Masse eines Teilchens', en: 'Mass of one particle' }, dim: 'M', default: 4.6518e-26, min: 1e-27, max: 1e-24, scale: 'log', positive: true },
+    },
+    outputs: [
+      { key: 'p', sym: 'p', tex: 'p', name: { de: 'Druck', en: 'Pressure' }, expr: 'N*k_B*T/V', dim: 'M L^-1 T^-2', primary: true },
+      { key: 'n', sym: 'n', tex: 'n', name: { de: 'Stoffmenge', en: 'Amount of substance' }, expr: 'N/N_A', dim: 'N' },
+      { key: 'kT', sym: 'k_B T', tex: 'k_{\\mathrm{B}}T', name: { de: 'Thermische Energie pro Teilchen', en: 'Thermal energy per particle' }, expr: 'k_B*T', dim: 'M L^2 T^-2', alt: { unit: 'eV', div: 'eV' } },
+      { key: 'Ek', sym: 'E_kin', tex: 'E_{\\mathrm{kin}}', name: { de: 'Mittlere Bewegungsenergie pro Teilchen (3/2 k_B T)', en: 'Mean kinetic energy per particle (3/2 k_B T)' }, expr: '1.5*k_B*T', dim: 'M L^2 T^-2', alt: { unit: 'eV', div: 'eV' } },
+      { key: 'vrms', sym: 'v_rms', tex: 'v_{\\mathrm{rms}}', name: { de: 'Typische Teilchengeschwindigkeit', en: 'Typical particle speed' }, expr: 'sqrt(3*k_B*T/m)', dim: 'L T^-1' },
+      { key: 'd', sym: 'd', tex: 'd', name: { de: 'Mittlerer Teilchenabstand', en: 'Mean distance between particles' }, expr: '(V/N)^(1/3)', dim: 'L' },
+      { key: 'lam', sym: 'λ_th', tex: '\\lambda_{\\mathrm{th}}', name: { de: 'Thermische de-Broglie-Wellenlänge', en: 'Thermal de Broglie wavelength' }, expr: 'h/sqrt(2*pi*m*k_B*T)', dim: 'L' },
+    ],
+    equations: [
+      { label: { de: 'Zustandsgleichung', en: 'Equation of state' }, eq: 'p*V = N*k_B*T' },
+      { label: { de: 'Mit der Stoffmenge: R = N_A k_B', en: 'With the amount of substance: R = N_A k_B' }, eq: 'p*V = n*N_A*k_B*T' },
+      { label: { de: 'Mittlere Bewegungsenergie', en: 'Mean kinetic energy' }, eq: 'E_k = 3/2*k_B*T' },
+    ],
+    symbols: { E_k: { dim: 'M L^2 T^-2' } },
+    checks({ v, o, issues, fmt }) {
+      const d = o('d'), lam = o('lam');
+      if (isFinite(d) && isFinite(lam) && d < 10 * lam) issues.push({ cat: 'model', msg: T('Die Teilchen stehen so dicht (d ≈ ' + fmt(d, 2) + ' m), dass ihre Wellenlänge (λ ≈ ' + fmt(lam, 2) + ' m) vergleichbar wird. Dann braucht es Quantenstatistik statt des idealen Gases.', 'The particles are so close together (d ≈ ' + fmt(d, 2) + ' m) that their wavelength (λ ≈ ' + fmt(lam, 2) + ' m) becomes comparable. Then quantum statistics is needed instead of the ideal gas.') });
+      if (o('p') > 1e7) issues.push({ cat: 'model', msg: T('Über ≈ 100 bar weichen reale Gase deutlich ab: Die Teilchen brauchen Platz und ziehen sich an (van-der-Waals-Gleichung).', 'Above ≈ 100 bar real gases deviate noticeably: the particles take up space and attract each other (van der Waals equation).') });
+      if (v.T < 90) issues.push({ cat: 'model', msg: T('Unter ≈ 90 K sind Stickstoff und Sauerstoff bei Normaldruck flüssig. Das ideale Gas kennt keine Kondensation.', 'Below ≈ 90 K, nitrogen and oxygen are liquid at normal pressure. The ideal gas knows nothing about condensation.') });
+      if (v.T > 1e4) issues.push({ cat: 'model', msg: T('Über ≈ 10 000 K zerfallen Moleküle, und Atome werden ionisiert – aus dem Gas wird ein Plasma.', 'Above ≈ 10,000 K molecules break apart and atoms are ionised – the gas turns into a plasma.') });
+      if (v.N < 1000) issues.push({ cat: 'info', msg: T('Bei so wenigen Teilchen schwankt der Druck stark; p ist nur noch ein Mittelwert.', 'With this few particles the pressure fluctuates strongly; p is only an average.') });
+      issues.push({ cat: 'assume', msg: T('Punktförmige Teilchen ohne Anziehung, nur elastische Stöße; thermisches Gleichgewicht.', 'Point-like particles without attraction, only elastic collisions; thermal equilibrium.') });
+    },
+    presets: [
+      { name: { de: '1 mol bei 0 °C in 22,4 l', en: '1 mol at 0 °C in 22.4 l' }, note: { de: 'molares Normvolumen: ergibt 1 atm = 101 325 Pa', en: 'molar volume at standard conditions: gives 1 atm = 101,325 Pa' }, values: { N: NA, T: 273.15, V: 0.022414, m: 4.6518e-26 } },
+      { name: { de: 'Luft im Zimmer', en: 'Air in a room' }, note: { de: '≈ 50 m³ bei 20 °C und 1 atm; mittlere Molekülmasse der Luft', en: '≈ 50 m³ at 20 °C and 1 atm; mean molecular mass of air' }, values: { N: 1.2518e27, T: 293.15, V: 50, m: 4.810e-26 } },
+      { name: { de: 'Heliumballon', en: 'Helium balloon' }, note: { de: '≈ 10 l bei 20 °C und 1 atm', en: '≈ 10 l at 20 °C and 1 atm' }, values: { N: 2.504e23, T: 293.15, V: 0.01, m: 6.6465e-27 } },
+      { name: { de: 'Interstellares Gas', en: 'Interstellar gas' }, note: { de: '≈ 1 Wasserstoffatom pro cm³ bei ≈ 100 K', en: '≈ 1 hydrogen atom per cm³ at ≈ 100 K' }, values: { N: 1e6, T: 100, V: 1, m: 1.6735e-27 } },
+    ],
+    graph: { x: 'T', y: 'p', xlog: false, ylog: false },
+    viz: 'gas',
+    explain: {
+      intuition: {
+        de: 'Ein Gas besteht aus sehr vielen Teilchen, die umherfliegen und gegen die Wände stoßen. Mehr Teilchen, schnellere (wärmere) Teilchen oder weniger Platz – jedes davon erhöht den Druck.',
+        en: 'A gas consists of a huge number of particles flying around and hitting the walls. More particles, faster (warmer) particles or less room – each of these raises the pressure.',
+      },
+      math: [
+        { t: { de: 'Zustandsgleichung', en: 'Equation of state' }, tex: 'pV = N k_{\\mathrm{B}} T = n R T' },
+        { t: { de: 'Gaskonstante', en: 'Gas constant' }, tex: 'R = N_{\\mathrm{A}}\\,k_{\\mathrm{B}}' },
+        { t: { de: 'Mittlere Bewegungsenergie pro Teilchen', en: 'Mean kinetic energy per particle' }, tex: 'E_{\\mathrm{kin}} = \\tfrac32\\,k_{\\mathrm{B}} T' },
+        { t: { de: 'Typische Geschwindigkeit', en: 'Typical speed' }, tex: 'v_{\\mathrm{rms}} = \\sqrt{3 k_{\\mathrm{B}} T / m}' },
+      ],
+      physics: {
+        de: 'Die Gleichung fasst die Gesetze von Boyle-Mariotte (p ∝ 1/V), Gay-Lussac (p ∝ T) und Avogadro (V ∝ N) zusammen; Clapeyron schrieb sie 1834 zuerst in dieser Form auf. Mikroskopisch erklärt sie die kinetische Gastheorie von Clausius, Maxwell und Boltzmann: Temperatur ist mittlere Bewegungsenergie, Druck der Impuls, den die Stöße auf die Wände übertragen. k_B verbindet beide Ebenen – pro Teilchen k_B T, pro Mol R T. Reale Gase weichen bei hohem Druck und tiefer Temperatur ab, weil ihre Teilchen Platz brauchen und einander anziehen.',
+        en: 'The equation combines the laws of Boyle and Mariotte (p ∝ 1/V), Gay-Lussac (p ∝ T) and Avogadro (V ∝ N); Clapeyron first wrote it in this form in 1834. At the microscopic level it is explained by the kinetic theory of gases of Clausius, Maxwell and Boltzmann: temperature is mean kinetic energy, pressure is the momentum the collisions transfer to the walls. k_B connects the two levels – per particle k_B T, per mole R T. Real gases deviate at high pressure and low temperature because their particles take up space and attract each other.',
+      },
+      epistemics: [
+        { type: 'model', text: { de: 'Ideales Gas: punktförmige Teilchen ohne Wechselwirkung außer elastischen Stößen.', en: 'Ideal gas: point-like particles with no interaction apart from elastic collisions.' } },
+        { type: 'measured', text: { de: 'Luft unter Normalbedingungen weicht um weniger als 0,1 % vom idealen Gas ab.', en: 'Air at standard conditions deviates from the ideal gas by less than 0.1 %.' } },
+        { type: 'math', text: { de: 'R = N_A k_B ist seit 2019 exakt, weil N_A und k_B festgelegt sind.', en: 'R = N_A k_B has been exact since 2019, because N_A and k_B are fixed.' } },
       ],
     },
   });

@@ -384,6 +384,16 @@
     sin: trig('sin', Math.sin),
     cos: trig('cos', Math.cos),
     tan: trig('tan', Math.tan),
+    // Vollständiges elliptisches Integral 1. Art, K(k) mit Modul k (nicht Parameter m = k²).
+    // Über das arithmetisch-geometrische Mittel: K(k) = π / (2·AGM(1, √(1 − k²))), NIST DLMF 19.8.5
+    ellipk: { dim: 'less', f: (a, n) => {
+      const k = Math.abs(finiteArg(a, 'ellipk', n));
+      if (k === 1) throw mathError(T('K(k) divergiert für k = 1 (logarithmische Singularität)', 'K(k) diverges at k = 1 (logarithmic singularity)'), n);
+      if (k > 1) throw mathError(T('K(k) ist für |k| > 1 nicht reell', 'K(k) is not real for |k| > 1'), n);
+      let x = 1, y = Math.sqrt((1 - k) * (1 + k));
+      for (let i = 0; i < 60 && Math.abs(x - y) > 1e-15 * x; i++) [x, y] = [(x + y) / 2, Math.sqrt(x * y)];
+      return mk(Math.PI / (x + y));
+    } },
   });
 
   function evalNode(n, env) {

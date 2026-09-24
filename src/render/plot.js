@@ -60,7 +60,7 @@
       c.addEventListener('pointerdown', (e) => {
         if (!this.cfg) return;
         this.drag = { x: e.clientX, v: this.curView() };
-        try { c.setPointerCapture(e.pointerId); } catch (_) {}
+        try { c.setPointerCapture(e.pointerId); } catch (_) { /* ohne Pointer-Capture geht Ziehen trotzdem */ }
       });
       c.addEventListener('pointermove', (e) => {
         const r = c.getBoundingClientRect();
@@ -185,6 +185,16 @@
 
       ctx.save();
       ctx.beginPath(); ctx.rect(pl, pt, pw, ph); ctx.clip();
+      // Modellgrenzen: schraffierte Bereiche, in denen die Engine eine Warnung meldet
+      const zones = (cfg.zones || []).filter((z) => z.b > x0 && z.a < x1);
+      zones.forEach((z) => {
+        const za = Math.max(pl, X(z.a)), zb = Math.min(pl + pw, X(z.b));
+        ctx.fillStyle = z.color; ctx.globalAlpha = 0.07; ctx.fillRect(za, pt, zb - za, ph);
+        ctx.globalAlpha = 0.28; ctx.strokeStyle = z.color; ctx.lineWidth = 1;
+        ctx.beginPath();
+        for (let x = za - ph; x < zb; x += 9) { ctx.moveTo(Math.max(x, za), pt + ph - Math.max(0, za - x)); ctx.lineTo(Math.min(x + ph, zb), pt + ph - Math.min(ph, zb - x)); }
+        ctx.stroke(); ctx.globalAlpha = 1;
+      });
       // refs
       refs.forEach((r) => {
         ctx.strokeStyle = r.color || col.ink3; ctx.setLineDash([6, 4]); ctx.lineWidth = 1;
@@ -210,6 +220,12 @@
         ctx.beginPath(); ctx.arc(X(marker.x), Y(marker.y), 5, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
       }
       ctx.restore();
+      // Legende der schraffierten Bereiche
+      const zl = [...new Map(zones.map((z) => [z.label, z])).values()];
+      if (zl.length) {
+        ctx.font = '11px ' + col.sans; ctx.textAlign = 'right'; ctx.textBaseline = 'top';
+        zl.forEach((z, i) => { ctx.fillStyle = z.color; ctx.fillText(tr('schraffiert: ', 'hatched: ') + z.label, pl + pw - 6, pt + 6 + i * 15); });
+      }
       if (empty) {
         ctx.fillStyle = col.ink2; ctx.font = '13px ' + col.sans; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         ctx.fillText(cfg.ylog ? tr('Keine positiven Werte – auf lineare y-Achse umschalten', 'No positive values – switch to a linear y axis') : tr('Keine darstellbaren Werte in diesem Bereich', 'No values that can be shown in this range'), pl + pw / 2, pt + ph / 2);

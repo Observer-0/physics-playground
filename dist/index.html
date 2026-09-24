@@ -337,6 +337,11 @@ input[type=range]:focus-visible { outline: 1px dashed var(--accent); outline-off
 .hero .big .math { font-size: 1em; }
 .hero .dimline { position: relative; margin-top: 16px; display: inline-flex; gap: 10px; align-items: center; flex-wrap: wrap; justify-content: center; font-size: 13px; color: var(--ink2); }
 .hero .dimline .math { font-size: 20px; color: var(--cyan); }
+/* Im Labor-Tab genügt eine kleine Formel */
+.hero.compact { padding: 14px 16px 12px; }
+.hero.compact .big { font-size: clamp(20px, 2.6vw, 30px); padding: 2px 0; }
+.hero.compact .dimline { margin-top: 4px; }
+.hero.compact .meta-row { display: none; }
 .meta-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 14px; position: relative; }
 .meta-row span { font-size: 12px; color: var(--ink2); border: 1px solid var(--line2); border-radius: 3px; padding: 2px 8px; background: var(--panel); }
 .meta-row span b { font-weight: 500; color: var(--ink3); margin-right: 5px; }
@@ -371,10 +376,38 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
 .const td .math { font-size: 16px; }
 .savedlist td { vertical-align: middle; }
 
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+
+/* „Probier mal“ */
+.tasks { list-style: none; margin: 0; padding: 10px 12px 12px; display: grid; gap: 9px; }
+.tasks li { display: grid; grid-template-columns: 18px minmax(0, 1fr); gap: 9px; font-size: 13.5px; line-height: 1.45; }
+.tasks .tk { width: 16px; height: 16px; margin-top: 2px; border: 1px solid var(--line2); border-radius: 50%; font-size: 10.5px; line-height: 14px; text-align: center; color: var(--green); }
+.tasks li.done .tk, .tasks li.now .tk { border-color: var(--green); }
+.tasks .ok { color: var(--green); font-weight: 500; font-size: 12.5px; }
+.tasks details { font-size: 12.5px; color: var(--ink2); margin-top: 3px; }
+.tasks summary { cursor: pointer; color: var(--ink3); width: max-content; }
+
+/* Quellen */
+.srcintro { font-size: 13.5px; max-width: 760px; margin: 0 0 14px; }
+.srcs { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; max-width: 900px; }
+.srcs li { display: grid; grid-template-columns: 118px minmax(0, 1fr); gap: 12px; font-size: 13.5px; line-height: 1.5; }
+.srcs li .tag { justify-self: start; align-self: start; }
+.srcs a { word-break: break-all; }
+.srcs .faint { font-size: 12.5px; margin-top: 2px; }
+.tag.src-orig { color: var(--accent); } .tag.src-meas { color: var(--green); } .tag.src-ref, .tag.src-book { color: var(--cyan); } .tag.src-trans { color: var(--violet); }
+@media (max-width: 560px) { .srcs li { grid-template-columns: 1fr; gap: 4px; } }
+
 /* ---------- responsive ---------- */
 @media (max-width: 1180px) {
-  .lab { grid-template-columns: minmax(0, 1fr); }
-  .controls { position: static; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+  /* Eine Spalte: Bild, direkt darunter die Regler, dann Ergebnis und Status, zuletzt der Graph */
+  .lab { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+  .stage, .controls { display: contents; }
+  .vizpanel { grid-column: 1 / -1; order: 1; }
+  .prmpanel { order: 2; }
+  .respanel { order: 3; }
+  .statpanel { order: 4; }
+  .taskpanel { grid-column: 1 / -1; order: 5; }
+  .gpanel { grid-column: 1 / -1; order: 6; }
 }
 @media (max-width: 820px) {
   .app { grid-template-columns: 1fr; }
@@ -388,8 +421,16 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
   .plotwrap { height: 250px; }
   .xhead .acts { margin-left: 0; }
   .xhead .acts .pop { left: 0; right: auto; }
+  .xhead .acts .btn { padding: 4px 9px; font-size: 12.5px; }
+  .hero { padding: 22px 12px 18px; }
   .balance { grid-template-columns: 1fr; }
   .stat { grid-template-columns: 1fr; }
+}
+
+/* Handy hochkant: Das Bild bleibt beim Scrollen durch die Regler oben stehen */
+@media (max-width: 820px) and (min-height: 600px) {
+  .vizpanel { position: sticky; top: 50px; z-index: 6; box-shadow: 0 10px 18px -12px rgba(0, 0, 0, .55); }
+  .vizpanel .vizwrap { height: 220px; }
 }
 
 /* ---- Grundlagen / Theorie ---- */
@@ -921,6 +962,16 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
     sin: trig('sin', Math.sin),
     cos: trig('cos', Math.cos),
     tan: trig('tan', Math.tan),
+    // Vollständiges elliptisches Integral 1. Art, K(k) mit Modul k (nicht Parameter m = k²).
+    // Über das arithmetisch-geometrische Mittel: K(k) = π / (2·AGM(1, √(1 − k²))), NIST DLMF 19.8.5
+    ellipk: { dim: 'less', f: (a, n) => {
+      const k = Math.abs(finiteArg(a, 'ellipk', n));
+      if (k === 1) throw mathError(T('K(k) divergiert für k = 1 (logarithmische Singularität)', 'K(k) diverges at k = 1 (logarithmic singularity)'), n);
+      if (k > 1) throw mathError(T('K(k) ist für |k| > 1 nicht reell', 'K(k) is not real for |k| > 1'), n);
+      let x = 1, y = Math.sqrt((1 - k) * (1 + k));
+      for (let i = 0; i < 60 && Math.abs(x - y) > 1e-15 * x; i++) [x, y] = [(x + y) / 2, Math.sqrt(x * y)];
+      return mk(Math.PI / (x + y));
+    } },
   });
 
   function evalNode(n, env) {
@@ -1701,6 +1752,129 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
     },
   });
 
+  define({
+    id: 'pendulum', group: MECH, title: { de: 'Fadenpendel: Näherung und exakte Lösung', en: 'Simple pendulum: approximation and exact solution' }, short: { de: 'Fadenpendel', en: 'Pendulum' },
+    tex: 'T = 4\\sqrt{\\frac{L}{g}}\\;K\\left(\\sin\\frac{\\theta_0}{2}\\right)',
+    vars: {
+      L: { label: 'L', tex: 'L', name: { de: 'Fadenlänge', en: 'Length of the string' }, dim: 'L', default: 1, min: 0.01, max: 100, scale: 'log', positive: true },
+      g: { label: 'g', tex: 'g', name: { de: 'Fallbeschleunigung', en: 'Gravitational acceleration' }, dim: 'L T^-2', default: C.g_n.value, min: 0.1, max: 30, scale: 'lin', positive: true },
+      th: { label: 'θ₀', tex: '\\theta_0', name: { de: 'Amplitude (Startwinkel in Grad)', en: 'Amplitude (starting angle in degrees)' }, dim: '', default: 10, min: 0, max: 179, scale: 'lin' },
+    },
+    outputs: [
+      { key: 'T', sym: 'T', tex: 'T', name: { de: 'Periodendauer (exakt)', en: 'Period (exact)' }, expr: '4*sqrt(L/g)*ellipk(sin(th*pi/360))', dim: 'T', primary: true },
+      { key: 'T0', sym: 'T₀', tex: 'T_0', name: { de: 'Periodendauer (Kleinwinkelnäherung)', en: 'Period (small-angle approximation)' }, expr: '2*pi*sqrt(L/g)', dim: 'T' },
+      { key: 'q', sym: 'T/T₀', tex: 'T/T_0', name: { de: 'Verhältnis exakt zu Näherung', en: 'Ratio of exact to approximate' }, expr: 'T/T0', dim: '', digits: 8 },
+      { key: 'err', sym: { de: 'Fehler / %', en: 'error / %' }, tex: '\\Delta T/T', name: { de: 'Fehler der Näherung in Prozent', en: 'Error of the approximation in per cent' }, expr: '(T - T0)/T*100', dim: '' },
+      { key: 'vmax', sym: 'v_max', tex: 'v_{\\max}', name: { de: 'Geschwindigkeit am tiefsten Punkt', en: 'Speed at the lowest point' }, expr: 'sqrt(2*g*L*(1 - cos(th*pi/180)))', dim: 'L T^-1' },
+    ],
+    equations: [
+      { label: { de: 'Kleinwinkelnäherung', en: 'Small-angle approximation' }, eq: 'T0 = 2*pi*sqrt(L/g)' },
+      { label: { de: 'Exakte Periodendauer', en: 'Exact period' }, eq: 'T = 4*sqrt(L/g)*ellipk(sin(th*pi/360))' },
+      { label: { de: 'Energieerhaltung', en: 'Conservation of energy' }, eq: 'v_max = sqrt(2*g*L*(1 - cos(th*pi/180)))' },
+    ],
+    symbols: { v_max: { dim: 'L T^-1' } },
+    checks({ v, o, issues, fmt }) {
+      const err = o('err');
+      if (v.th < 0) issues.push({ cat: 'info', msg: T('Negativer Winkel heißt nur: zur anderen Seite ausgelenkt. T hängt von |θ₀| ab.', 'A negative angle just means a swing to the other side. T depends on |θ₀|.') });
+      if (isFinite(err) && err >= 1) issues.push({ cat: 'model', msg: T('Die Kleinwinkelnäherung sin θ ≈ θ liegt hier um ' + fmt(err, 2) + ' % daneben: T₀ ist zu kurz. Die exakte Periodendauer T bleibt gültig.', 'The small-angle approximation sin θ ≈ θ is off by ' + fmt(err, 2) + ' % here: T₀ is too short. The exact period T remains valid.') });
+      else if (isFinite(err) && err >= 0.1) issues.push({ cat: 'info', msg: T('Die Kleinwinkelnäherung weicht um ' + fmt(err, 2) + ' % ab – für eine Pendeluhr schon viel.', 'The small-angle approximation is off by ' + fmt(err, 2) + ' % – already a lot for a pendulum clock.') });
+      if (Math.abs(v.th) > 90) issues.push({ cat: 'model', msg: T('Über 90° würde ein Faden anfangs schlaff: Das Modell gilt dann nur für eine starre Stange.', 'Beyond 90° a string would go slack at first: the model then only applies to a rigid rod.') });
+      issues.push({ cat: 'assume', msg: T('Punktmasse an masseloser, starrer Aufhängung; keine Reibung; konstantes g.', 'Point mass on a massless, rigid suspension; no friction; constant g.') });
+    },
+    presets: [
+      { name: { de: 'Kleine Auslenkung (5°)', en: 'Small swing (5°)' }, values: { L: 1, g: C.g_n.value, th: 5 } },
+      { name: { de: 'Große Auslenkung (60°)', en: 'Large swing (60°)' }, values: { L: 1, g: C.g_n.value, th: 60 } },
+      { name: { de: 'Waagerecht losgelassen (90°)', en: 'Released horizontally (90°)' }, values: { L: 1, g: C.g_n.value, th: 90 } },
+      { name: { de: 'Fast Überschlag (170°)', en: 'Almost upside down (170°)' }, note: { de: 'nur mit starrer Stange möglich', en: 'only possible with a rigid rod' }, values: { L: 1, g: C.g_n.value, th: 170 } },
+      { name: { de: 'Sekundenpendel', en: 'Seconds pendulum' }, note: { de: 'L ≈ 0,994 m: Jede Halbschwingung dauert 1 s', en: 'L ≈ 0.994 m: each half-swing takes 1 s' }, values: { L: 0.9936, g: C.g_n.value, th: 3 } },
+    ],
+    graph: { x: 'th', y: 'T', also: ['T0'] },
+    viz: 'pendulum',
+    explain: {
+      intuition: {
+        de: 'Bei kleinen Ausschlägen schwingt ein Pendel in festem Takt, egal wie weit man es auslenkt. Das stimmt aber nur näherungsweise: Je größer die Amplitude, desto länger dauert eine Schwingung. Bei 90° sind es schon 18 % mehr.',
+        en: 'For small swings, a pendulum keeps a fixed rhythm no matter how far you pull it out. But that is only approximately true: the larger the amplitude, the longer a swing takes. At 90° it is already 18 % more.',
+      },
+      math: [
+        { t: { de: 'Bewegungsgleichung', en: 'Equation of motion' }, tex: '\\ddot\\theta = -\\frac{g}{L}\\sin\\theta' },
+        { t: { de: 'Kleinwinkelnäherung sin θ ≈ θ', en: 'Small-angle approximation sin θ ≈ θ' }, tex: 'T_0 = 2\\pi\\sqrt{L/g}' },
+        { t: { de: 'Exakt, mit dem vollständigen elliptischen Integral K', en: 'Exact, with the complete elliptic integral K' }, tex: 'T = 4\\sqrt{\\frac{L}{g}}\\;K\\left(\\sin\\frac{\\theta_0}{2}\\right)' },
+        { t: { de: 'K über das arithmetisch-geometrische Mittel', en: 'K via the arithmetic–geometric mean' }, tex: 'K(k) = \\frac{\\pi}{2\\,\\mathrm{AGM}\\left(1, \\sqrt{1-k^2}\\right)}' },
+        { t: { de: 'Für kleine Winkel', en: 'For small angles' }, tex: 'T \\approx T_0\\left(1 + \\frac{\\theta_0^2}{16}\\right)' },
+      ],
+      physics: {
+        de: 'Das Fadenpendel zeigt im Kleinen, was eine Modellgrenze ist. Die Näherung sin θ ≈ θ macht die Gleichung linear und die Periodendauer unabhängig von der Amplitude – Galilei hat das beobachtet, Huygens hat damit Pendeluhren gebaut. Bei 5° ist der Fehler kleiner als 0,05 %, bei rund 23° erreicht er 1 %. Die exakte Periodendauer braucht das vollständige elliptische Integral K, das die App über das arithmetisch-geometrische Mittel berechnet. Für θ₀ → 180° wächst T über alle Grenzen: Ein Pendel, das genau oben balanciert, kommt nie wieder herunter.',
+        en: 'The simple pendulum shows on a small scale what a model limit is. The approximation sin θ ≈ θ makes the equation linear and the period independent of the amplitude – Galileo observed this, and Huygens built pendulum clocks on it. At 5° the error is below 0.05 %, at about 23° it reaches 1 %. The exact period needs the complete elliptic integral K, which the app computes via the arithmetic–geometric mean. As θ₀ → 180°, T grows without limit: a pendulum balanced exactly at the top never comes down again.',
+      },
+      epistemics: [
+        { type: 'math', text: { de: 'Die exakte Periodendauer folgt ohne Näherung aus der Bewegungsgleichung; K wird numerisch auf Maschinengenauigkeit berechnet.', en: 'The exact period follows from the equation of motion without approximation; K is computed numerically to machine precision.' } },
+        { type: 'approx', text: { de: 'T₀ = 2π√(L/g) ist die Kleinwinkelnäherung (sin θ ≈ θ).', en: 'T₀ = 2π√(L/g) is the small-angle approximation (sin θ ≈ θ).' } },
+        { type: 'model', text: { de: 'Mathematisches Pendel: Punktmasse, masselose starre Aufhängung, keine Reibung, konstantes g.', en: 'Mathematical pendulum: point mass, massless rigid suspension, no friction, constant g.' } },
+      ],
+    },
+  });
+
+  define({
+    id: 'projectile', group: MECH, title: { de: 'Schiefer Wurf', en: 'Projectile motion' }, short: { de: 'Schiefer Wurf', en: 'Projectile' },
+    tex: 'R = \\frac{v_0^2\\,\\sin 2\\alpha}{g}',
+    vars: {
+      v0: { label: 'v₀', tex: 'v_0', name: { de: 'Abwurfgeschwindigkeit', en: 'Launch speed' }, dim: 'L T^-1', default: 20, min: 0.1, max: 1000, scale: 'log', positive: true },
+      al: { label: 'α', tex: '\\alpha', name: { de: 'Abwurfwinkel in Grad', en: 'Launch angle in degrees' }, dim: '', default: 30, min: 0, max: 90, scale: 'lin' },
+      g: { label: 'g', tex: 'g', name: { de: 'Fallbeschleunigung', en: 'Gravitational acceleration' }, dim: 'L T^-2', default: C.g_n.value, min: 0.1, max: 30, scale: 'lin', positive: true },
+      t: { label: 't', tex: 't', name: { de: 'Zeit', en: 'Time' }, dim: 'T', default: 1, min: 0, max: 60, scale: 'lin', time: true },
+    },
+    outputs: [
+      { key: 'R', sym: 'R', tex: 'R', name: { de: 'Wurfweite', en: 'Range' }, expr: 'v0^2*sin(2*al*pi/180)/g', dim: 'L', primary: true },
+      { key: 'H', sym: 'H', tex: 'H', name: { de: 'Scheitelhöhe', en: 'Maximum height' }, expr: 'v0^2*sin(al*pi/180)^2/(2*g)', dim: 'L' },
+      { key: 'tf', sym: { de: 't_Flug', en: 't_flight' }, tex: { de: 't_{\\mathrm{Flug}}', en: 't_{\\mathrm{flight}}' }, name: { de: 'Flugdauer', en: 'Time of flight' }, expr: '2*v0*sin(al*pi/180)/g', dim: 'T' },
+      { key: 'x', sym: 'x', tex: 'x', name: { de: 'Ort waagerecht zur Zeit t', en: 'Horizontal position at time t' }, expr: 'v0*cos(al*pi/180)*t', dim: 'L' },
+      { key: 'y', sym: 'y', tex: 'y', name: { de: 'Höhe zur Zeit t', en: 'Height at time t' }, expr: 'v0*sin(al*pi/180)*t - 0.5*g*t^2', dim: 'L' },
+      { key: 'vx', sym: 'v_x', tex: 'v_x', name: { de: 'Geschwindigkeit waagerecht (konstant)', en: 'Horizontal velocity (constant)' }, expr: 'v0*cos(al*pi/180)', dim: 'L T^-1' },
+      { key: 'vy', sym: 'v_y', tex: 'v_y', name: { de: 'Geschwindigkeit senkrecht zur Zeit t', en: 'Vertical velocity at time t' }, expr: 'v0*sin(al*pi/180) - g*t', dim: 'L T^-1' },
+    ],
+    equations: [
+      { label: { de: 'Wurfweite', en: 'Range' }, eq: 'R = v0^2*sin(2*al*pi/180)/g' },
+      { label: { de: 'Scheitelhöhe', en: 'Maximum height' }, eq: 'H = v0^2*sin(al*pi/180)^2/(2*g)' },
+      { label: { de: 'Bahnkurve y(x)', en: 'Trajectory y(x)' }, eq: 'y = x*tan(al*pi/180) - g*x^2/(2*v0^2*cos(al*pi/180)^2)' },
+    ],
+    checks({ v, o, issues, fmt }) {
+      if (o('y') < 0 && v.t > 0) issues.push({ cat: 'model', msg: T('y < 0: Der Körper ist schon bei t ≈ ' + fmt(o('tf'), 3) + ' s gelandet. Danach beschreibt die Formel nichts Reales mehr.', 'y < 0: the body already landed at t ≈ ' + fmt(o('tf'), 3) + ' s. After that the formula no longer describes anything real.') });
+      if (v.v0 > 7900) issues.push({ cat: 'model', msg: T('Nahe der ersten kosmischen Geschwindigkeit (≈ 7,9 km/s) ist die Erde nicht mehr flach und g nicht konstant – die Bahn wird zur Ellipse.', 'Close to orbital speed (≈ 7.9 km/s) the Earth is no longer flat and g not constant – the path becomes an ellipse.') });
+      else if (v.v0 > 30) issues.push({ cat: 'model', msg: T('Bei über 30 m/s bremst in Luft der Luftwiderstand schon deutlich: Reale Weiten sind kürzer, und der beste Winkel liegt unter 45°.', 'Above 30 m/s, air resistance already slows things down noticeably in air: real ranges are shorter, and the best angle is below 45°.') });
+      issues.push({ cat: 'assume', msg: T('Kein Luftwiderstand, flacher Boden, konstantes g; Abwurf und Landung auf gleicher Höhe.', 'No air resistance, flat ground, constant g; launch and landing at the same height.') });
+    },
+    presets: [
+      { name: { de: 'Wurf unter 45°', en: 'Throw at 45°' }, values: { v0: 20, al: 45, g: C.g_n.value, t: 1 } },
+      { name: { de: 'Flach: 15°', en: 'Flat: 15°' }, note: { de: 'fliegt genauso weit wie 75°', en: 'flies exactly as far as 75°' }, values: { v0: 20, al: 15, g: C.g_n.value, t: 0.5 } },
+      { name: { de: 'Steil: 75°', en: 'Steep: 75°' }, note: { de: 'fliegt genauso weit wie 15°', en: 'flies exactly as far as 15°' }, values: { v0: 20, al: 75, g: C.g_n.value, t: 2 } },
+      { name: { de: 'Kugelstoß (≈ 14 m/s)', en: 'Shot put (≈ 14 m/s)' }, note: { de: 'Abwurfhöhe von gut 2 m hier nicht berücksichtigt', en: 'release height of about 2 m not included here' }, values: { v0: 14, al: 40, g: C.g_n.value, t: 1 } },
+      { name: { de: 'Auf dem Mond', en: 'On the Moon' }, note: { de: 'g ≈ 1,62 m/s²', en: 'g ≈ 1.62 m/s²' }, values: { v0: 20, al: 45, g: 1.62, t: 5 } },
+    ],
+    graph: { x: 'al', y: 'R', also: ['H'] },
+    viz: 'projectile', animateVar: 't', animateUntil: 'tf',
+    explain: {
+      intuition: {
+        de: 'Ein schräg geworfener Körper bewegt sich waagerecht mit konstanter Geschwindigkeit und fällt gleichzeitig frei. Zusammen ergibt das eine Parabel. Ohne Luftwiderstand fliegt er unter 45° am weitesten, und 30° reicht genauso weit wie 60°.',
+        en: 'A body thrown at an angle moves horizontally at constant speed while falling freely at the same time. Together this gives a parabola. Without air resistance it flies furthest at 45°, and 30° reaches exactly as far as 60°.',
+      },
+      math: [
+        { t: { de: 'Bahn in zwei unabhängigen Richtungen', en: 'Motion in two independent directions' }, tex: 'x = v_0\\cos\\alpha\\;t,\\qquad y = v_0\\sin\\alpha\\;t - \\tfrac12 g t^2' },
+        { t: { de: 'Wurfweite', en: 'Range' }, tex: 'R = \\frac{v_0^2\\,\\sin 2\\alpha}{g}' },
+        { t: { de: 'Scheitelhöhe', en: 'Maximum height' }, tex: 'H = \\frac{v_0^2\\,\\sin^2\\alpha}{2g}' },
+        { t: { de: 'Größte Weite, weil sin 2α höchstens 1 ist', en: 'Greatest range, because sin 2α is at most 1' }, tex: '\\sin 2\\alpha = 1 \\;\\Rightarrow\\; \\alpha = 45^{\\circ}' },
+      ],
+      physics: {
+        de: 'Galilei zeigte 1638 in den „Discorsi“, dass sich die Bewegung in zwei unabhängige Teile zerlegen lässt. Das Modell gilt im Vakuum über flachem Boden bei konstantem g. In Luft verkürzt der Luftwiderstand die Weite schon bei Ballgeschwindigkeiten deutlich, und der günstigste Winkel liegt dann unter 45°. Bei sehr großen Weiten ist die Erde nicht mehr flach – dann wird aus der Parabel das Stück einer Ellipse, einer Kepler-Bahn.',
+        en: 'In 1638, in his “Discorsi”, Galileo showed that the motion can be split into two independent parts. The model holds in a vacuum over flat ground with constant g. In air, drag shortens the range noticeably even at ball speeds, and the best angle is then below 45°. Over very large distances the Earth is no longer flat – then the parabola becomes part of an ellipse, a Kepler orbit.',
+      },
+      epistemics: [
+        { type: 'math', text: { de: 'Die Zerlegung in waagerechte und senkrechte Bewegung ist exakt, solange die Kraft nur senkrecht wirkt.', en: 'Splitting into horizontal and vertical motion is exact as long as the force acts only vertically.' } },
+        { type: 'model', text: { de: 'Massenpunkt im homogenen Schwerefeld, ohne Luftwiderstand.', en: 'Point mass in a uniform gravitational field, without air resistance.' } },
+        { type: 'approx', text: { de: 'Flacher Boden und konstantes g gelten nur für Weiten und Höhen ≪ Erdradius.', en: 'Flat ground and constant g only hold for ranges and heights ≪ the Earth’s radius.' } },
+      ],
+    },
+  });
+
   /* ======================= SPEZIELLE RELATIVITÄT ======================= */
 
   define({
@@ -1740,7 +1914,7 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
       { name: { de: 'LHC-Proton (6,8 TeV)', en: 'LHC proton (6.8 TeV)' }, note: { de: 'γ ≈ 7247 aus E / (m_p c²)', en: 'γ ≈ 7247 from E / (m_p c²)' }, values: { beta: 1 - 1 / (2 * 7247.4 ** 2), tau: 1, L0: 1, m: C.m_p.value } },
       { name: { de: 'GPS-Satellit (nur SRT-Anteil)', en: 'GPS satellite (special-relativity part only)' }, note: { de: 'v ≈ 3,9 km/s. Der gravitative ART-Effekt ist größer und entgegengesetzt – hier nicht enthalten', en: 'v ≈ 3.9 km/s. The gravitational effect from general relativity is larger and opposite – not included here' }, values: { beta: 3900 / C.c.value, tau: 86400, L0: 1, m: 1 } },
     ],
-    graph: { x: 'beta', y: 'gamma' },
+    graph: { x: 'beta', y: 'gamma', ylog: true },
     viz: 'relativity',
     explain: {
       intuition: {
@@ -1762,6 +1936,73 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
         { type: 'measured', text: { de: 'Zeitdilatation ist experimentell hochpräzise bestätigt (Myonen-Speicherring, Ionen-Uhren).', en: 'Time dilation is confirmed experimentally to high precision (muon storage rings, ion clocks).' } },
         { type: 'math', text: { de: 'γ ist für |β| < 1 reell und ≥ 1; bei β → 1 divergiert es.', en: 'γ is real and ≥ 1 for |β| < 1; it diverges as β → 1.' } },
         { type: 'assume', text: { de: 'Unbeschleunigte Bezugssysteme, keine Gravitation.', en: 'Non-accelerated reference frames, no gravity.' } },
+      ],
+    },
+  });
+
+  /* ========================= THERMODYNAMIK ========================= */
+
+  const NA = C.N_A.value;
+  define({
+    id: 'ideal-gas', group: { de: 'Thermodynamik', en: 'Thermodynamics' }, title: { de: 'Ideales Gas', en: 'Ideal gas' }, short: { de: 'Ideales Gas', en: 'Ideal gas' },
+    tex: 'p\\,V = N\\,k_{\\mathrm{B}}\\,T',
+    vars: {
+      N: { label: 'N', tex: 'N', name: { de: 'Teilchenzahl', en: 'Number of particles' }, dim: '', default: NA, min: 1, max: 1e30, scale: 'log', positive: true },
+      T: { label: 'T', tex: 'T', name: { de: 'Temperatur', en: 'Temperature' }, dim: 'Θ', default: 273.15, min: 1, max: 1e5, scale: 'log', positive: true },
+      V: { label: 'V', tex: 'V', name: { de: 'Volumen', en: 'Volume' }, dim: 'L^3', default: 0.022414, min: 1e-9, max: 1e6, scale: 'log', positive: true },
+      m: { label: 'm', tex: 'm', name: { de: 'Masse eines Teilchens', en: 'Mass of one particle' }, dim: 'M', default: 4.6518e-26, min: 1e-27, max: 1e-24, scale: 'log', positive: true },
+    },
+    outputs: [
+      { key: 'p', sym: 'p', tex: 'p', name: { de: 'Druck', en: 'Pressure' }, expr: 'N*k_B*T/V', dim: 'M L^-1 T^-2', primary: true },
+      { key: 'n', sym: 'n', tex: 'n', name: { de: 'Stoffmenge', en: 'Amount of substance' }, expr: 'N/N_A', dim: 'N' },
+      { key: 'kT', sym: 'k_B T', tex: 'k_{\\mathrm{B}}T', name: { de: 'Thermische Energie pro Teilchen', en: 'Thermal energy per particle' }, expr: 'k_B*T', dim: 'M L^2 T^-2', alt: { unit: 'eV', div: 'eV' } },
+      { key: 'Ek', sym: 'E_kin', tex: 'E_{\\mathrm{kin}}', name: { de: 'Mittlere Bewegungsenergie pro Teilchen (3/2 k_B T)', en: 'Mean kinetic energy per particle (3/2 k_B T)' }, expr: '1.5*k_B*T', dim: 'M L^2 T^-2', alt: { unit: 'eV', div: 'eV' } },
+      { key: 'vrms', sym: 'v_rms', tex: 'v_{\\mathrm{rms}}', name: { de: 'Typische Teilchengeschwindigkeit', en: 'Typical particle speed' }, expr: 'sqrt(3*k_B*T/m)', dim: 'L T^-1' },
+      { key: 'd', sym: 'd', tex: 'd', name: { de: 'Mittlerer Teilchenabstand', en: 'Mean distance between particles' }, expr: '(V/N)^(1/3)', dim: 'L' },
+      { key: 'lam', sym: 'λ_th', tex: '\\lambda_{\\mathrm{th}}', name: { de: 'Thermische de-Broglie-Wellenlänge', en: 'Thermal de Broglie wavelength' }, expr: 'h/sqrt(2*pi*m*k_B*T)', dim: 'L' },
+    ],
+    equations: [
+      { label: { de: 'Zustandsgleichung', en: 'Equation of state' }, eq: 'p*V = N*k_B*T' },
+      { label: { de: 'Mit der Stoffmenge: R = N_A k_B', en: 'With the amount of substance: R = N_A k_B' }, eq: 'p*V = n*N_A*k_B*T' },
+      { label: { de: 'Mittlere Bewegungsenergie', en: 'Mean kinetic energy' }, eq: 'E_k = 3/2*k_B*T' },
+    ],
+    symbols: { E_k: { dim: 'M L^2 T^-2' } },
+    checks({ v, o, issues, fmt }) {
+      const d = o('d'), lam = o('lam');
+      if (isFinite(d) && isFinite(lam) && d < 10 * lam) issues.push({ cat: 'model', msg: T('Die Teilchen stehen so dicht (d ≈ ' + fmt(d, 2) + ' m), dass ihre Wellenlänge (λ ≈ ' + fmt(lam, 2) + ' m) vergleichbar wird. Dann braucht es Quantenstatistik statt des idealen Gases.', 'The particles are so close together (d ≈ ' + fmt(d, 2) + ' m) that their wavelength (λ ≈ ' + fmt(lam, 2) + ' m) becomes comparable. Then quantum statistics is needed instead of the ideal gas.') });
+      if (o('p') > 1e7) issues.push({ cat: 'model', msg: T('Über ≈ 100 bar weichen reale Gase deutlich ab: Die Teilchen brauchen Platz und ziehen sich an (van-der-Waals-Gleichung).', 'Above ≈ 100 bar real gases deviate noticeably: the particles take up space and attract each other (van der Waals equation).') });
+      if (v.T < 90) issues.push({ cat: 'model', msg: T('Unter ≈ 90 K sind Stickstoff und Sauerstoff bei Normaldruck flüssig. Das ideale Gas kennt keine Kondensation.', 'Below ≈ 90 K, nitrogen and oxygen are liquid at normal pressure. The ideal gas knows nothing about condensation.') });
+      if (v.T > 1e4) issues.push({ cat: 'model', msg: T('Über ≈ 10 000 K zerfallen Moleküle, und Atome werden ionisiert – aus dem Gas wird ein Plasma.', 'Above ≈ 10,000 K molecules break apart and atoms are ionised – the gas turns into a plasma.') });
+      if (v.N < 1000) issues.push({ cat: 'info', msg: T('Bei so wenigen Teilchen schwankt der Druck stark; p ist nur noch ein Mittelwert.', 'With this few particles the pressure fluctuates strongly; p is only an average.') });
+      issues.push({ cat: 'assume', msg: T('Punktförmige Teilchen ohne Anziehung, nur elastische Stöße; thermisches Gleichgewicht.', 'Point-like particles without attraction, only elastic collisions; thermal equilibrium.') });
+    },
+    presets: [
+      { name: { de: '1 mol bei 0 °C in 22,4 l', en: '1 mol at 0 °C in 22.4 l' }, note: { de: 'molares Normvolumen: ergibt 1 atm = 101 325 Pa', en: 'molar volume at standard conditions: gives 1 atm = 101,325 Pa' }, values: { N: NA, T: 273.15, V: 0.022414, m: 4.6518e-26 } },
+      { name: { de: 'Luft im Zimmer', en: 'Air in a room' }, note: { de: '≈ 50 m³ bei 20 °C und 1 atm; mittlere Molekülmasse der Luft', en: '≈ 50 m³ at 20 °C and 1 atm; mean molecular mass of air' }, values: { N: 1.2518e27, T: 293.15, V: 50, m: 4.810e-26 } },
+      { name: { de: 'Heliumballon', en: 'Helium balloon' }, note: { de: '≈ 10 l bei 20 °C und 1 atm', en: '≈ 10 l at 20 °C and 1 atm' }, values: { N: 2.504e23, T: 293.15, V: 0.01, m: 6.6465e-27 } },
+      { name: { de: 'Interstellares Gas', en: 'Interstellar gas' }, note: { de: '≈ 1 Wasserstoffatom pro cm³ bei ≈ 100 K', en: '≈ 1 hydrogen atom per cm³ at ≈ 100 K' }, values: { N: 1e6, T: 100, V: 1, m: 1.6735e-27 } },
+    ],
+    graph: { x: 'T', y: 'p', xlog: false, ylog: false },
+    viz: 'gas',
+    explain: {
+      intuition: {
+        de: 'Ein Gas besteht aus sehr vielen Teilchen, die umherfliegen und gegen die Wände stoßen. Mehr Teilchen, schnellere (wärmere) Teilchen oder weniger Platz – jedes davon erhöht den Druck.',
+        en: 'A gas consists of a huge number of particles flying around and hitting the walls. More particles, faster (warmer) particles or less room – each of these raises the pressure.',
+      },
+      math: [
+        { t: { de: 'Zustandsgleichung', en: 'Equation of state' }, tex: 'pV = N k_{\\mathrm{B}} T = n R T' },
+        { t: { de: 'Gaskonstante', en: 'Gas constant' }, tex: 'R = N_{\\mathrm{A}}\\,k_{\\mathrm{B}}' },
+        { t: { de: 'Mittlere Bewegungsenergie pro Teilchen', en: 'Mean kinetic energy per particle' }, tex: 'E_{\\mathrm{kin}} = \\tfrac32\\,k_{\\mathrm{B}} T' },
+        { t: { de: 'Typische Geschwindigkeit', en: 'Typical speed' }, tex: 'v_{\\mathrm{rms}} = \\sqrt{3 k_{\\mathrm{B}} T / m}' },
+      ],
+      physics: {
+        de: 'Die Gleichung fasst die Gesetze von Boyle-Mariotte (p ∝ 1/V), Gay-Lussac (p ∝ T) und Avogadro (V ∝ N) zusammen; Clapeyron schrieb sie 1834 zuerst in dieser Form auf. Mikroskopisch erklärt sie die kinetische Gastheorie von Clausius, Maxwell und Boltzmann: Temperatur ist mittlere Bewegungsenergie, Druck der Impuls, den die Stöße auf die Wände übertragen. k_B verbindet beide Ebenen – pro Teilchen k_B T, pro Mol R T. Reale Gase weichen bei hohem Druck und tiefer Temperatur ab, weil ihre Teilchen Platz brauchen und einander anziehen.',
+        en: 'The equation combines the laws of Boyle and Mariotte (p ∝ 1/V), Gay-Lussac (p ∝ T) and Avogadro (V ∝ N); Clapeyron first wrote it in this form in 1834. At the microscopic level it is explained by the kinetic theory of gases of Clausius, Maxwell and Boltzmann: temperature is mean kinetic energy, pressure is the momentum the collisions transfer to the walls. k_B connects the two levels – per particle k_B T, per mole R T. Real gases deviate at high pressure and low temperature because their particles take up space and attract each other.',
+      },
+      epistemics: [
+        { type: 'model', text: { de: 'Ideales Gas: punktförmige Teilchen ohne Wechselwirkung außer elastischen Stößen.', en: 'Ideal gas: point-like particles with no interaction apart from elastic collisions.' } },
+        { type: 'measured', text: { de: 'Luft unter Normalbedingungen weicht um weniger als 0,1 % vom idealen Gas ab.', en: 'Air at standard conditions deviates from the ideal gas by less than 0.1 %.' } },
+        { type: 'math', text: { de: 'R = N_A k_B ist seit 2019 exakt, weil N_A und k_B festgelegt sind.', en: 'R = N_A k_B has been exact since 2019, because N_A and k_B are fixed.' } },
       ],
     },
   });
@@ -2149,6 +2390,310 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
   PP.hallOrder = ['hawking', 'bh-entropy', 'efe', 'schroedinger', 'planck'];
 })(globalThis.PP = globalThis.PP || {});
 
+/* ---- src/data/tasks.js ---- */
+/* =====================================================================
+   Physics Playground — „Probier mal“: kleine Aufgaben je Experiment
+   done(x) prüft den aktuellen Zustand mit denselben Zahlen wie die Anzeige:
+     x.v        Eingabewerte           x.o(key)   Ergebnis der Engine
+     x.ob(key)  Ergebnis beim Bezug (Preset bzw. Ausgangswert)
+     x.b        Eingabewerte des Bezugs  x.C / x.C0  Konstanten (ggf. verstellt) / Originalwerte
+     x.cats     Warnkategorien der Engine  x.form, x.opts (Einstellungen der Visualisierung)
+   demo: ein Zustand, der die Aufgabe löst. Die Tests rechnen ihn nach, damit jede
+   Aufgabe mit den regulären Reglern lösbar bleibt.
+   ===================================================================== */
+(function (PP) {
+  'use strict';
+  const I = PP.i18n, M = PP.model, C = M.C;
+  const near = (a, b, rel) => isFinite(a) && isFinite(b) && b !== 0 && Math.abs(a / b - 1) <= rel;
+  const dex = (a, b, d) => a > 0 && b > 0 && Math.abs(Math.log10(a / b)) <= d;
+  const same = (a, b) => Math.abs(a - b) <= 1e-9 * Math.max(1, Math.abs(b));
+  const MS = C.M_sun.value;
+
+  const TASKS = {
+    'newton-gravity': [
+      { q: { de: 'Mach die Kraft 100-mal so groß – nur mit dem Abstand.', en: 'Make the force 100 times larger – using only the distance.' },
+        hint: { de: 'F ∝ 1/r²: Welcher Faktor im Abstand ergibt im Quadrat 100?', en: 'F ∝ 1/r²: which factor in the distance gives 100 when squared?' },
+        done: (x) => x.b && same(x.v.m1, x.b.m1) && same(x.v.m2, x.b.m2) && dex(x.o('F') / x.ob('F'), 100, 0.01),
+        demo: { base: { m1: 1, m2: 1, r: 1 }, vals: { m1: 1, m2: 1, r: 0.1 } } },
+      { q: { de: 'Finde einen Zustand, in dem Newtons Gesetz laut Engine nicht mehr gilt.', en: 'Find a state in which, according to the engine, Newton’s law no longer holds.' },
+        hint: { de: 'Sehr kleine Abstände – oder zwei Schwarze Löcher kurz vor der Verschmelzung.', en: 'Very small distances – or two black holes just before merging.' },
+        done: (x) => x.cats.has('model'),
+        demo: { vals: { r: 1e-5 } } },
+      { q: { de: 'Erde und Apfel: Welche Apfelmasse ergibt an der Erdoberfläche genau 1 N?', en: 'Earth and apple: which apple mass gives exactly 1 N at the Earth’s surface?' },
+        hint: { de: 'Preset „Erde – Apfel“ wählen, dann nur m₂ ändern. F ist proportional zu m₂.', en: 'Choose the preset “Earth – apple”, then change only m₂. F is proportional to m₂.' },
+        done: (x) => near(x.v.m1, C.M_earth.value, 1e-3) && near(x.v.r, C.R_earth.value, 1e-3) && near(x.o('F'), 1, 0.01),
+        demo: { vals: { m1: C.M_earth.value, m2: 0.1018, r: C.R_earth.value } } },
+    ],
+    kinematics: [
+      { q: { de: 'Ein Auto fährt mit v₀ = 20 m/s. Mit welcher Beschleunigung steht es nach genau 4 s?', en: 'A car travels at v₀ = 20 m/s. With what acceleration does it come to rest after exactly 4 s?' },
+        hint: { de: 'v = v₀ + a·t soll 0 werden.', en: 'v = v₀ + a·t should become 0.' },
+        done: (x) => near(x.v.v0, 20, 0.02) && near(x.v.t, 4, 0.02) && Math.abs(x.o('v')) < 0.1,
+        demo: { vals: { v0: 20, a: -5, t: 4 } } },
+      { q: { de: 'Lass den Körper mit positiver Anfangsgeschwindigkeit zum Start zurückkehren (Δs = 0 nach t > 0).', en: 'Starting with a positive initial velocity, make the body return to where it started (Δs = 0 after t > 0).' },
+        hint: { de: 'a muss gegen v₀ wirken. Δs = v₀t + ½at² ist null für t = −2v₀/a.', en: 'a has to act against v₀. Δs = v₀t + ½at² is zero for t = −2v₀/a.' },
+        done: (x) => x.v.v0 > 0 && x.v.t > 0.5 && Math.abs(x.o('ds')) < 0.5,
+        demo: { vals: { s0: 0, v0: 10, a: -5, t: 4 } } },
+    ],
+    'free-fall': [
+      { q: { de: 'Aus welcher Höhe dauert der Fall auf der Erde genau 3 s?', en: 'From what height does a fall on Earth take exactly 3 s?' },
+        hint: { de: 't_Fall = √(2h₀/g). Tipp: Die Zahl lässt sich auch direkt eintippen.', en: 't_fall = √(2h₀/g). Tip: you can also type the number in directly.' },
+        done: (x) => near(x.v.g, C.g_n.value, 1e-3) && near(x.o('tf'), 3, 0.005),
+        demo: { vals: { h0: 44.13, g: C.g_n.value } } },
+      { q: { de: 'Stell g so ein, dass ein Körper aus 100 m mit genau 20 m/s aufschlägt.', en: 'Set g so that a body dropped from 100 m hits the ground at exactly 20 m/s.' },
+        hint: { de: 'v_Aufprall = √(2gh₀), also g = v²/(2h₀).', en: 'v_impact = √(2gh₀), so g = v²/(2h₀).' },
+        done: (x) => near(x.v.h0, 100, 1e-3) && near(x.o('vi'), 20, 0.0075),
+        demo: { vals: { h0: 100, g: 2 } } },
+    ],
+    spring: [
+      { q: { de: 'Verdopple die Periodendauer – nur mit der Masse.', en: 'Double the period – using only the mass.' },
+        hint: { de: 'T ∝ √m: Um welchen Faktor muss m wachsen?', en: 'T ∝ √m: by what factor does m have to grow?' },
+        done: (x) => x.b && same(x.v.k, x.b.k) && near(x.o('T') / x.ob('T'), 2, 0.02),
+        demo: { base: { k: 50, m: 1, x: 0.1 }, vals: { k: 50, m: 4, x: 0.1 } } },
+      { q: { de: 'Ändere nur die Auslenkung x. Was passiert mit der Periodendauer?', en: 'Change only the displacement x. What happens to the period?' },
+        hint: { de: 'Achte auf T im Ergebnis – und auf F und E.', en: 'Watch T in the result – and F and E.' },
+        done: (x) => x.b && same(x.v.k, x.b.k) && same(x.v.m, x.b.m) && Math.abs(x.v.x - x.b.x) > 0.05 && near(x.o('T'), x.ob('T'), 1e-9),
+        demo: { base: { k: 50, m: 1, x: 0.1 }, vals: { k: 50, m: 1, x: 0.3 } } },
+    ],
+    circular: [
+      { q: { de: 'Erzeuge auf einer Bahn mit r = 5 m genau 1 g Zentripetalbeschleunigung.', en: 'Produce exactly 1 g of centripetal acceleration on a path with r = 5 m.' },
+        hint: { de: 'a = v²/r = g_n, also v = √(g_n r).', en: 'a = v²/r = g_n, so v = √(g_n r).' },
+        done: (x) => near(x.v.r, 5, 1e-3) && near(x.o('ag'), 1, 0.02),
+        demo: { vals: { v: 7, r: 5, m: 1 } } },
+      { q: { de: 'Verdopple die Geschwindigkeit bei gleichem Radius. Um welchen Faktor wächst a?', en: 'Double the speed at the same radius. By what factor does a grow?' },
+        hint: { de: 'Die Faktoren stehen im Bild neben den Werten.', en: 'The factors are shown in the picture next to the values.' },
+        done: (x) => x.b && same(x.v.r, x.b.r) && near(x.v.v / x.b.v, 2, 0.02),
+        demo: { base: { v: 10, r: 5, m: 1 }, vals: { v: 20, r: 5, m: 1 } } },
+    ],
+    pendulum: [
+      { q: { de: 'Ab welcher Amplitude liegt die Kleinwinkelnäherung um 1 % daneben?', en: 'From what amplitude is the small-angle approximation off by 1 %?' },
+        hint: { de: 'Den Winkel langsam erhöhen und auf den Fehler achten – oder im Graphen, wo die Schraffur beginnt.', en: 'Increase the angle slowly and watch the error – or look where the hatching starts in the graph.' },
+        done: (x) => x.o('err') >= 1 && x.o('err') < 1.3,
+        demo: { vals: { th: 24 } } },
+      { q: { de: 'Lass das Pendel waagerecht los (90°). Um wie viel Prozent dauert eine Schwingung länger als die Näherung sagt?', en: 'Release the pendulum horizontally (90°). By what percentage does one swing take longer than the approximation says?' },
+        hint: { de: 'Schau auf T/T₀ im Ergebnis.', en: 'Look at T/T₀ in the result.' },
+        done: (x) => near(x.v.th, 90, 0.005),
+        demo: { vals: { th: 90 } } },
+      { q: { de: 'Bau ein Sekundenpendel: Bei kleiner Amplitude (≤ 5°) soll T genau 2 s dauern.', en: 'Build a seconds pendulum: at a small amplitude (≤ 5°), T should be exactly 2 s.' },
+        hint: { de: 'T₀ = 2π√(L/g), also L = g·(T/2π)².', en: 'T₀ = 2π√(L/g), so L = g·(T/2π)².' },
+        done: (x) => Math.abs(x.v.th) <= 5 && near(x.v.g, C.g_n.value, 1e-3) && near(x.o('T'), 2, 0.002),
+        demo: { vals: { L: 0.9935, th: 3, g: C.g_n.value } } },
+    ],
+    projectile: [
+      { q: { de: 'Finde den Winkel mit der größten Weite.', en: 'Find the angle with the greatest range.' },
+        hint: { de: 'Der Graph zeigt R über α.', en: 'The graph shows R against α.' },
+        done: (x) => Math.abs(x.v.al - 45) < 0.3,
+        demo: { vals: { al: 45 } } },
+      { q: { de: 'Finde einen zweiten Winkel, der genauso weit fliegt wie 30°.', en: 'Find a second angle that flies exactly as far as 30°.' },
+        hint: { de: 'sin 2α hat für α und 90° − α denselben Wert.', en: 'sin 2α has the same value for α and 90° − α.' },
+        done: (x) => Math.abs(x.v.al - 60) < 0.3,
+        demo: { vals: { al: 60 } } },
+      { q: { de: 'Wie hoch fliegt ein Ball, den man mit 20 m/s senkrecht nach oben wirft?', en: 'How high does a ball go if you throw it straight up at 20 m/s?' },
+        hint: { de: 'Senkrecht heißt α = 90°. Die Scheitelhöhe steht als H im Ergebnis.', en: 'Straight up means α = 90°. The maximum height is H in the result.' },
+        done: (x) => near(x.v.al, 90, 1e-3) && near(x.v.v0, 20, 0.01) && near(x.v.g, C.g_n.value, 1e-3),
+        demo: { vals: { v0: 20, al: 90, g: C.g_n.value } } },
+    ],
+    'ideal-gas': [
+      { q: { de: 'Verdopple die Temperatur bei gleichem Volumen. Was passiert mit dem Druck?', en: 'Double the temperature at constant volume. What happens to the pressure?' },
+        hint: { de: 'Die Faktorzeile im Bild zeigt, welcher Faktor wie viel beiträgt.', en: 'The factor line in the picture shows how much each factor contributes.' },
+        done: (x) => x.b && same(x.v.V, x.b.V) && same(x.v.N, x.b.N) && near(x.v.T / x.b.T, 2, 0.02),
+        demo: { base: {}, vals: { T: 546.3 } } },
+      { q: { de: 'Halbiere das Volumen bei gleicher Temperatur (Boyle-Mariotte).', en: 'Halve the volume at constant temperature (Boyle–Mariotte).' },
+        hint: { de: 'p ∝ 1/V.', en: 'p ∝ 1/V.' },
+        done: (x) => x.b && same(x.v.T, x.b.T) && same(x.v.N, x.b.N) && near(x.v.V / x.b.V, 0.5, 0.02),
+        demo: { base: {}, vals: { V: 0.011207 } } },
+      { q: { de: 'Bei welcher Temperatur ist die thermische Energie k_B T genau 1 eV?', en: 'At what temperature is the thermal energy k_B T exactly 1 eV?' },
+        hint: { de: '1 K entspricht 8,617 × 10⁻⁵ eV.', en: '1 K corresponds to 8.617 × 10⁻⁵ eV.' },
+        done: (x) => near(x.o('kT') / C.eV.value, 1, 0.01),
+        demo: { vals: { T: 11604.5 } } },
+      { q: { de: 'Kühle das Gas so weit ab, bis die Engine meldet, dass das Modell nicht mehr gilt.', en: 'Cool the gas until the engine reports that the model no longer applies.' },
+        hint: { de: 'Achte auf den Physikalischen Status.', en: 'Watch the physical status.' },
+        done: (x) => x.cats.has('model') && x.v.T < 273.15,
+        demo: { vals: { T: 80 } } },
+    ],
+    'special-rel': [
+      { q: { de: 'Bei welcher Geschwindigkeit geht eine bewegte Uhr nur halb so schnell (γ = 2)?', en: 'At what speed does a moving clock run at only half the rate (γ = 2)?' },
+        hint: { de: 'γ = 1/√(1 − β²) = 2 ergibt β = √3/2.', en: 'γ = 1/√(1 − β²) = 2 gives β = √3/2.' },
+        done: (x) => near(x.o('gamma'), 2, 0.005),
+        demo: { vals: { beta: 0.866 } } },
+      { q: { de: 'Gib β = 1 ein. Was sagt die Engine – und was zeigt das Bild?', en: 'Enter β = 1. What does the engine say – and what does the picture show?' },
+        hint: { de: 'Die Zahl lässt sich direkt ins Eingabefeld tippen.', en: 'You can type the number straight into the input field.' },
+        done: (x) => x.cats.has('math'),
+        demo: { vals: { beta: 1 } } },
+    ],
+    hawking: [
+      { q: { de: 'Finde die Masse, bei der T_H so warm ist wie die kosmische Hintergrundstrahlung (2,7 K).', en: 'Find the mass at which T_H is as warm as the cosmic microwave background (2.7 K).' },
+        hint: { de: 'T_H ∝ 1/M. Eine Sonnenmasse ergibt etwa 6 × 10⁻⁸ K – um welchen Faktor muss M kleiner werden?', en: 'T_H ∝ 1/M. One solar mass gives about 6 × 10⁻⁸ K – by what factor does M have to shrink?' },
+        done: (x) => dex(x.o('TH'), C.T_cmb.value, 0.02),
+        demo: { vals: { M: 4.5e22 } } },
+      { q: { de: 'Welches Loch würde nach grober Abschätzung genau im Alter des Universums (≈ 1,38 × 10¹⁰ Jahre) verdampfen?', en: 'Which hole would, by the rough estimate, evaporate in exactly the age of the universe (≈ 1.38 × 10¹⁰ years)?' },
+        hint: { de: 't_evap ∝ M³ – kleine Änderungen von M wirken dreifach.', en: 't_evap ∝ M³ – small changes in M count three times over.' },
+        done: (x) => dex(x.o('tevy'), 1.38e10, 0.05),
+        demo: { vals: { M: 1.73e11 } } },
+    ],
+    'bh-entropy': [
+      { q: { de: 'Verdopple die Masse. Um welchen Faktor wächst die Entropie?', en: 'Double the mass. By what factor does the entropy grow?' },
+        hint: { de: 'S ∝ A ∝ r_s² ∝ M².', en: 'S ∝ A ∝ r_s² ∝ M².' },
+        done: (x) => x.form === 'mass' && x.b && near(x.v.M / x.b.M, 2, 0.02),
+        demo: { form: 'mass', base: { M: MS }, vals: { M: 2 * MS } } },
+      { q: { de: 'Welche Masse hat ein Schwarzes Loch, dessen Horizont so groß ist wie ein Fußballfeld (≈ 7140 m²)?', en: 'What is the mass of a black hole whose horizon is as large as a football pitch (≈ 7140 m²)?' },
+        hint: { de: 'A = 4π r_s² und r_s = 2GM/c². Ergebnis: einige Jupitermassen.', en: 'A = 4π r_s² and r_s = 2GM/c². Result: a few Jupiter masses.' },
+        done: (x) => x.form === 'mass' && dex(x.o('A'), 7140, 0.02),
+        demo: { form: 'mass', vals: { M: 1.605e28 } } },
+    ],
+    efe: [
+      { q: { de: 'Bei welcher Energiedichte ist die Krümmungsskala ℓ genau so groß wie die Erdbahn (1 au)?', en: 'At what energy density is the curvature scale ℓ exactly as large as the Earth’s orbit (1 au)?' },
+        hint: { de: 'Wasser liegt bei ℓ ≈ 1,5 au. ℓ ∝ 1/√u.', en: 'Water gives ℓ ≈ 1.5 au. ℓ ∝ 1/√u.' },
+        done: (x) => dex(x.o('Lc'), C.au.value, 0.02),
+        demo: { vals: { u: 2.15e20 } } },
+      { q: { de: 'Wann krümmt Materie den Raum so schwach wie die kosmologische Konstante (K/Λ = 1)?', en: 'When does matter curve space as weakly as the cosmological constant does (K/Λ = 1)?' },
+        hint: { de: 'K = κu. Gesucht ist u = Λ/κ – weit unter der Dichte von interstellarem Gas.', en: 'K = κu. You are looking for u = Λ/κ – far below the density of interstellar gas.' },
+        done: (x) => dex(x.o('KL'), 1, 0.05),
+        demo: { vals: { u: 5.3e-10 } } },
+    ],
+    schroedinger: [
+      { q: { de: 'Wie breit muss der Kasten sein, damit ein Elektron im Grundzustand genau 1 eV hat?', en: 'How wide must the box be for an electron in the ground state to have exactly 1 eV?' },
+        hint: { de: 'E₁ ∝ 1/L². Bei 1 nm sind es 0,376 eV.', en: 'E₁ ∝ 1/L². At 1 nm it is 0.376 eV.' },
+        done: (x) => near(x.v.m, C.m_e.value, 1e-3) && x.v.n === 1 && near(x.o('E') / C.eV.value, 1, 0.02),
+        demo: { vals: { m: C.m_e.value, L: 6.132e-10, n: 1 } } },
+      { q: { de: 'Schalte die Überlagerung ein: Warum bewegt sich |ψ|² jetzt?', en: 'Switch on the superposition: why does |ψ|² move now?' },
+        hint: { de: 'Zwei Energien, zwei Phasengeschwindigkeiten – sie laufen gegeneinander.', en: 'Two energies, two phase speeds – they drift against each other.' },
+        done: (x) => !!x.opts.superpos,
+        demo: { opts: { superpos: true } } },
+      { q: { de: 'Mach den Kasten so eng, dass die nichtrelativistische Rechnung laut Engine nicht mehr reicht.', en: 'Make the box so narrow that, according to the engine, the non-relativistic calculation is no longer enough.' },
+        hint: { de: 'Es kommt auf E_n/(mc²) an – ab 1 % meldet die Engine eine Modellgrenze.', en: 'What matters is E_n/(mc²) – from 1 % on, the engine reports a model limit.' },
+        done: (x) => x.cats.has('model'),
+        demo: { vals: { L: 1e-12 } } },
+    ],
+    planck: [
+      { q: { de: 'Schalte „Break the Physics“ ein und verdopple G. Um welchen Faktor wächst l_P?', en: 'Switch on “Break the Physics” and double G. By what factor does l_P grow?' },
+        hint: { de: 'l_P ∝ √G.', en: 'l_P ∝ √G.' },
+        done: (x) => near(x.C.G / x.C0.G, 2, 0.01),
+        demo: { consts: { G: 2 * C.G.value } } },
+      { q: { de: 'Wechsle in der Visualisierung auf „Temperatur“: Wie viele Größenordnungen fehlen vom heißesten Labor bis T_P?', en: 'Switch the visualisation to “Temperature”: how many orders of magnitude are missing from the hottest lab to T_P?' },
+        hint: { de: 'Die rote Beschriftung über der Skala sagt es.', en: 'The red label above the scale tells you.' },
+        done: (x) => x.opts.q === 'T',
+        demo: { opts: { q: 'T' } } },
+    ],
+  };
+  for (const id in TASKS) if (M.byId[id]) M.byId[id].tasks = I.localize(TASKS[id]);
+  PP.tasks = { ids: Object.keys(TASKS) };
+})(globalThis.PP = globalThis.PP || {});
+
+/* ---- src/data/sources.js ---- */
+/* =====================================================================
+   Physics Playground — Quellen je Experiment (Tab „Quellen“)
+   Originalarbeiten, Messungen und Referenzwerte. Jede DOI wurde über Crossref
+   geprüft (Titel, Autoren, Jahr); ältere Werke ohne DOI stehen mit Erscheinungsort.
+   kind: orig (Originalarbeit) · meas (Messung/Beobachtung) · ref (Referenzwert)
+         trans (Übersetzung) · book (Nachschlagewerk)
+   ===================================================================== */
+(function (PP) {
+  'use strict';
+  const I = PP.i18n, M = PP.model;
+  const src = (who, year, title, where, kind, note, link) => Object.assign({ who, year, title, where, kind, note }, link || {});
+
+  const CODATA = src('P. J. Mohr, D. B. Newell, B. N. Taylor, E. Tiesinga', 2025, 'CODATA recommended values of the fundamental physical constants: 2022', 'Reviews of Modern Physics 97, 025002', 'ref',
+    { de: 'Werte der Naturkonstanten in dieser App (CODATA 2022)', en: 'Values of the constants of nature used in this app (CODATA 2022)' }, { doi: '10.1103/RevModPhys.97.025002' });
+  const SI = src('BIPM', 2019, 'The International System of Units (SI), 9th edition', 'Bureau International des Poids et Mesures', 'ref',
+    { de: 'Seit 2019 sind h, e, k_B und N_A exakt festgelegt', en: 'Since 2019, h, e, k_B and N_A have been fixed exactly' }, { url: 'https://www.bipm.org/en/publications/si-brochure' });
+  const GALILEI = src('G. Galilei', 1638, 'Discorsi e dimostrazioni matematiche intorno a due nuove scienze', 'Leiden: Elzevir', 'orig',
+    { de: 'Gleichmäßig beschleunigte Bewegung (s ∝ t²), freier Fall, Wurfparabel, Pendel', en: 'Uniformly accelerated motion (s ∝ t²), free fall, the projectile parabola, the pendulum' }, { lang: 'it' });
+  const HUYGENS = src('C. Huygens', 1673, 'Horologium Oscillatorium', 'Paris: F. Muguet', 'orig',
+    { de: 'Pendeluhr und Zykloidenpendel; im Anhang die Sätze zur Zentrifugalkraft (a = v²/r)', en: 'The pendulum clock and cycloidal pendulum; the appendix contains the theorems on centrifugal force (a = v²/r)' }, { lang: 'la' });
+  const BOLTZ = src('L. Boltzmann', 1877, 'Über die Beziehung zwischen dem zweiten Hauptsatze der mechanischen Wärmetheorie und der Wahrscheinlichkeitsrechnung …', 'Sitzungsberichte der Kaiserlichen Akademie der Wissenschaften Wien 76, 373–435', 'orig',
+    { de: 'Entropie als Zahl der Mikrozustände – der Kern von S = k_B ln Ω', en: 'Entropy as the number of microstates – the core of S = k_B ln Ω' }, { lang: 'de' });
+  const BOLTZ_EN = src('K. Sharp, F. Matschinsky', 2015, 'Translation of Ludwig Boltzmann’s paper “On the relationship between the second fundamental theorem of the mechanical theory of heat and probability calculations …”', 'Entropy 17, 1971–2009', 'trans',
+    { de: 'Englische Übersetzung von Boltzmanns Arbeit von 1877', en: 'English translation of Boltzmann’s 1877 paper' }, { doi: '10.3390/e17041971' });
+  const GW150914 = src('B. P. Abbott et al. (LIGO, Virgo)', 2016, 'Observation of gravitational waves from a binary black hole merger', 'Physical Review Letters 116, 061102', 'meas',
+    { de: 'Erste direkt gemessene Gravitationswelle; zwei Schwarze Löcher mit ≈ 36 und ≈ 29 Sonnenmassen', en: 'First directly measured gravitational wave; two black holes of ≈ 36 and ≈ 29 solar masses' }, { doi: '10.1103/PhysRevLett.116.061102' });
+  const EHT = src('Event Horizon Telescope Collaboration (K. Akiyama et al.)', 2019, 'First M87 Event Horizon Telescope results. I. The shadow of the supermassive black hole', 'The Astrophysical Journal Letters 875, L1', 'meas',
+    { de: 'Erstes Bild eines Schwarzen Lochs; Masse von M87* ≈ 6,5 × 10⁹ Sonnenmassen', en: 'First image of a black hole; mass of M87* ≈ 6.5 × 10⁹ solar masses' }, { doi: '10.3847/2041-8213/ab0ec7' });
+  const HAWK75 = src('S. W. Hawking', 1975, 'Particle creation by black holes', 'Communications in Mathematical Physics 43, 199–220', 'orig',
+    { de: 'Ausführliche Herleitung der Hawking-Strahlung und ihrer Temperatur', en: 'Full derivation of Hawking radiation and its temperature' }, { doi: '10.1007/BF02345020' });
+
+  const SOURCES = {
+    'newton-gravity': [
+      src('I. Newton', 1687, 'Philosophiæ Naturalis Principia Mathematica', 'London: Royal Society', 'orig', { de: 'Das Gravitationsgesetz F ∝ m₁m₂/r²', en: 'The law of gravitation F ∝ m₁m₂/r²' }, { lang: 'la' }),
+      src('H. Cavendish', 1798, 'Experiments to determine the density of the Earth', 'Philosophical Transactions of the Royal Society of London 88, 469–526', 'meas',
+        { de: 'Erste Messung der Anziehung zwischen Labormassen – daraus folgt G', en: 'First measurement of the attraction between laboratory masses – G follows from it' }, { doi: '10.1098/rstl.1798.0022' }),
+      src('D. J. Kapner et al.', 2007, 'Tests of the gravitational inverse-square law below the dark-energy length scale', 'Physical Review Letters 98, 021101', 'meas',
+        { de: 'Das 1/r²-Gesetz gilt nachweislich bis hinunter zu etwa 56 µm', en: 'The 1/r² law has been shown to hold down to about 56 µm' }, { doi: '10.1103/PhysRevLett.98.021101' }),
+      GW150914,
+      src('A. Prša et al.', 2016, 'Nominal values for selected solar and planetary quantities: IAU 2015 Resolution B3', 'The Astronomical Journal 152, 41', 'ref',
+        { de: 'Nominalwerte GM☉ und GM⊕ für Sonnen- und Erdmasse', en: 'Nominal values GM☉ and GM⊕ for the masses of the Sun and the Earth' }, { doi: '10.3847/0004-6256/152/2/41' }),
+      CODATA,
+    ],
+    kinematics: [GALILEI],
+    'free-fall': [
+      GALILEI,
+      src('P. Touboul et al. (MICROSCOPE)', 2022, 'MICROSCOPE mission: final results of the test of the equivalence principle', 'Physical Review Letters 129, 121102', 'meas',
+        { de: 'Träge und schwere Masse gleich auf etwa 10⁻¹⁵ – deshalb fällt alles gleich schnell', en: 'Inertial and gravitational mass equal to about 10⁻¹⁵ – which is why everything falls equally fast' }, { doi: '10.1103/PhysRevLett.129.121102' }),
+    ],
+    spring: [src('R. Hooke', 1678, 'Lectures de Potentia Restitutiva, or of Spring', 'London: John Martyn', 'orig', { de: '„Ut tensio, sic vis“ – die Kraft wächst proportional zur Dehnung', en: '“Ut tensio, sic vis” – the force grows in proportion to the extension' })],
+    circular: [HUYGENS],
+    pendulum: [
+      GALILEI, HUYGENS,
+      src('F. W. J. Olver et al.', 2010, 'NIST Digital Library of Mathematical Functions, §19.8', 'National Institute of Standards and Technology', 'book',
+        { de: 'Elliptisches Integral K über das arithmetisch-geometrische Mittel (Formel 19.8.5) – so rechnet die App', en: 'The elliptic integral K via the arithmetic–geometric mean (formula 19.8.5) – this is how the app computes it' }, { url: 'https://dlmf.nist.gov/19.8' }),
+    ],
+    projectile: [GALILEI],
+    'special-rel': [
+      src('A. Einstein', 1905, 'Zur Elektrodynamik bewegter Körper', 'Annalen der Physik 322, 891–921', 'orig', { de: 'Spezielle Relativitätstheorie: Zeitdilatation, Längenkontraktion', en: 'Special relativity: time dilation, length contraction' }, { doi: '10.1002/andp.19053221004', lang: 'de' }),
+      src('A. Einstein', 1905, 'Ist die Trägheit eines Körpers von seinem Energieinhalt abhängig?', 'Annalen der Physik 323, 639–641', 'orig', { de: 'E = mc²', en: 'E = mc²' }, { doi: '10.1002/andp.19053231314', lang: 'de' }),
+      src('B. Rossi, D. B. Hall', 1941, 'Variation of the rate of decay of mesotrons with momentum', 'Physical Review 59, 223–228', 'meas', { de: 'Zeitdilatation an Myonen der Höhenstrahlung', en: 'Time dilation of cosmic-ray muons' }, { doi: '10.1103/PhysRev.59.223' }),
+      src('J. C. Hafele, R. E. Keating', 1972, 'Around-the-world atomic clocks: predicted relativistic time gains', 'Science 177, 166–168', 'meas', { de: 'Atomuhren im Flugzeug: Zeitdilatation mit makroskopischen Uhren', en: 'Atomic clocks on aircraft: time dilation with macroscopic clocks' }, { doi: '10.1126/science.177.4044.166' }),
+      CODATA,
+    ],
+    'ideal-gas': [
+      src('É. Clapeyron', 1834, 'Mémoire sur la puissance motrice de la chaleur', 'Journal de l’École Polytechnique 14, 153–190', 'orig', { de: 'Erste Form der Zustandsgleichung des idealen Gases', en: 'First form of the ideal gas equation of state' }, { lang: 'fr' }),
+      BOLTZ, BOLTZ_EN, CODATA, SI,
+    ],
+    hawking: [
+      src('S. W. Hawking', 1974, 'Black hole explosions?', 'Nature 248, 30–31', 'orig', { de: 'Erste Vorhersage, dass Schwarze Löcher thermisch strahlen', en: 'First prediction that black holes radiate thermally' }, { doi: '10.1038/248030a0' }),
+      HAWK75,
+      src('J. Steinhauer', 2016, 'Observation of quantum Hawking radiation and its entanglement in an analogue black hole', 'Nature Physics 12, 959–965', 'meas',
+        { de: 'Analogexperiment im Bose-Einstein-Kondensat – keine Messung an einem echten Schwarzen Loch', en: 'Analogue experiment in a Bose–Einstein condensate – not a measurement on a real black hole' }, { doi: '10.1038/nphys3863' }),
+      src('GRAVITY Collaboration (R. Abuter et al.)', 2022, 'Mass distribution in the Galactic Center based on interferometric astrometry of multiple stellar orbits', 'Astronomy & Astrophysics 657, L12', 'meas',
+        { de: 'Masse von Sagittarius A* ≈ 4,3 × 10⁶ Sonnenmassen', en: 'Mass of Sagittarius A* ≈ 4.3 × 10⁶ solar masses' }, { doi: '10.1051/0004-6361/202142465' }),
+      EHT,
+      src('D. J. Fixsen', 2009, 'The temperature of the cosmic microwave background', 'The Astrophysical Journal 707, 916–920', 'meas', { de: 'T_CMB = 2,7255 K', en: 'T_CMB = 2.7255 K' }, { doi: '10.1088/0004-637X/707/2/916' }),
+    ],
+    'bh-entropy': [
+      src('J. D. Bekenstein', 1973, 'Black holes and entropy', 'Physical Review D 7, 2333–2346', 'orig', { de: 'Entropie eines Schwarzen Lochs proportional zur Horizontfläche', en: 'Entropy of a black hole proportional to the horizon area' }, { doi: '10.1103/PhysRevD.7.2333' }),
+      src('J. M. Bardeen, B. Carter, S. W. Hawking', 1973, 'The four laws of black hole mechanics', 'Communications in Mathematical Physics 31, 161–170', 'orig', { de: 'Die Gesetze der Schwarzloch-Mechanik – formal wie die Thermodynamik', en: 'The laws of black hole mechanics – formally like thermodynamics' }, { doi: '10.1007/BF01645742' }),
+      Object.assign({}, HAWK75, { note: { de: 'Legt den Faktor 1/4 in S = k_B A/(4 l_P²) fest', en: 'Fixes the factor 1/4 in S = k_B A/(4 l_P²)' } }),
+    ],
+    efe: [
+      src('A. Einstein', 1915, 'Die Feldgleichungen der Gravitation', 'Sitzungsberichte der Königlich Preußischen Akademie der Wissenschaften (Berlin), 844–847', 'orig', { de: 'Die Feldgleichungen in ihrer endgültigen Form', en: 'The field equations in their final form' }, { lang: 'de' }),
+      src('A. Einstein', 1916, 'Die Grundlage der allgemeinen Relativitätstheorie', 'Annalen der Physik 354, 769–822', 'orig', { de: 'Zusammenfassende Darstellung der Allgemeinen Relativitätstheorie', en: 'Comprehensive presentation of general relativity' }, { doi: '10.1002/andp.19163540702', lang: 'de' }),
+      GW150914, EHT,
+      src('Planck Collaboration (N. Aghanim et al.)', 2020, 'Planck 2018 results. VI. Cosmological parameters', 'Astronomy & Astrophysics 641, A6', 'meas', { de: 'Λ, H₀ ≈ 67 km/s/Mpc und kritische Dichte (ΛCDM)', en: 'Λ, H₀ ≈ 67 km/s/Mpc and the critical density (ΛCDM)' }, { doi: '10.1051/0004-6361/201833910' }),
+    ],
+    schroedinger: [
+      src('E. Schrödinger', 1926, 'Quantisierung als Eigenwertproblem (Erste Mitteilung)', 'Annalen der Physik 384, 361–376', 'orig', { de: 'Stationäre Wellengleichung und Energieniveaus', en: 'Stationary wave equation and energy levels' }, { doi: '10.1002/andp.19263840404', lang: 'de' }),
+      src('E. Schrödinger', 1926, 'Quantisierung als Eigenwertproblem (Vierte Mitteilung)', 'Annalen der Physik 386, 109–139', 'orig', { de: 'Die zeitabhängige Schrödinger-Gleichung', en: 'The time-dependent Schrödinger equation' }, { doi: '10.1002/andp.19263861802', lang: 'de' }),
+      CODATA,
+    ],
+    planck: [
+      src('M. Planck', 1900, 'Ueber irreversible Strahlungsvorgänge', 'Annalen der Physik 306, 69–122', 'orig', { de: 'Natürliche Maßeinheiten aus Naturkonstanten (zuerst 1899 in den Berliner Sitzungsberichten)', en: 'Natural units built from constants of nature (first published 1899 in the Berlin Sitzungsberichte)' }, { doi: '10.1002/andp.19003060105', lang: 'de' }),
+      src('M. Planck', 1901, 'Ueber das Gesetz der Energieverteilung im Normalspectrum', 'Annalen der Physik 309, 553–563', 'orig', { de: 'Strahlungsgesetz; hier führt Planck h und k ein', en: 'The radiation law; this is where Planck introduces h and k' }, { doi: '10.1002/andp.19013090310', lang: 'de' }),
+      BOLTZ, BOLTZ_EN, CODATA, SI,
+      src('S. Grundmann et al.', 2020, 'Zeptosecond birth time delay in molecular photoionization', 'Science 370, 339–341', 'meas', { de: 'Kürzeste gemessene Zeitspanne: ≈ 247 zs (Skala „Zeit“)', en: 'Shortest time span measured: ≈ 247 zs (“Time” scale)' }, { doi: '10.1126/science.abb9318' }),
+      src('C. Deppner et al.', 2021, 'Collective-mode enhanced matter-wave optics', 'Physical Review Letters 127, 100401', 'meas', { de: 'Kälteste Laborwolke: ≈ 38 pK (Skala „Temperatur“)', en: 'Coldest lab cloud: ≈ 38 pK (“Temperature” scale)' }, { doi: '10.1103/PhysRevLett.127.100401' }),
+      src('ALICE Collaboration (J. Adam et al.)', 2016, 'Direct photon production in Pb–Pb collisions at √s_NN = 2.76 TeV', 'Physics Letters B 754, 235–248', 'meas', { de: 'Quark-Gluon-Plasma mit T ≈ 304 MeV/k_B ≈ 3,5 × 10¹² K (Skala „Temperatur“)', en: 'Quark–gluon plasma at T ≈ 304 MeV/k_B ≈ 3.5 × 10¹² K (“Temperature” scale)' }, { doi: '10.1016/j.physletb.2016.01.020' }),
+      src('D. J. Bird et al.', 1995, 'Detection of a cosmic ray with measured energy well beyond the expected spectral cutoff due to cosmic microwave radiation', 'The Astrophysical Journal 441, 144', 'meas', { de: 'Energiereichstes gemessenes Teilchen: ≈ 3,2 × 10²⁰ eV (Skala „Energie“)', en: 'Most energetic particle measured: ≈ 3.2 × 10²⁰ eV (“Energy” scale)' }, { doi: '10.1086/175344' }),
+    ],
+  };
+  const KIND = I.localize({
+    orig: { de: 'Originalarbeit', en: 'Original paper' }, meas: { de: 'Messung', en: 'Measurement' }, ref: { de: 'Referenzwert', en: 'Reference value' },
+    trans: { de: 'Übersetzung', en: 'Translation' }, book: { de: 'Nachschlagewerk', en: 'Reference work' },
+  });
+  // Eigenes Verzeichnis statt am Experiment: Die Originaltitel bleiben in ihrer Sprache
+  const byId = Object.create(null);
+  for (const id in SOURCES) if (M.byId[id]) byId[id] = I.localize(SOURCES[id].map((s) => Object.assign({}, s)));
+  PP.sources = { KIND, byId };
+})(globalThis.PP = globalThis.PP || {});
+
 /* ---- tests/tests.js ---- */
 /* =====================================================================
    Physics Playground — Test suite (runs in Node and in the browser)
@@ -2161,7 +2706,7 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
   // Die Prüfungen selbst laufen immer auf Deutsch (siehe runAll), weil sie Meldungstexte vergleichen.
   const EN = {
     'Gravitation': 'Gravity', 'Numerik': 'Numerics', 'Einheiten': 'Units', 'Dimensionsanalyse': 'Dimensional analysis', 'Referenzwerte': 'Reference values',
-    'Parser': 'Parser', 'Formatierung': 'Formatting', 'Sprache': 'Language', 'UI (im Browser)': 'UI (in the browser)', 'Visualisierung': 'Visualisation',
+    'Parser': 'Parser', 'Formatierung': 'Formatting', 'Sprache': 'Language', 'UI (im Browser)': 'UI (in the browser)', 'Visualisierung': 'Visualisation', 'Aufgaben': 'Tasks',
     'G=6.67430e-11, m₁=m₂=r=1 → F ≈ 6.67430e-11 N': 'G=6.67430e-11, m₁=m₂=r=1 → F ≈ 6.67430e-11 N',
     'Abstand ×2 → Kraft /4': 'Distance ×2 → force /4',
     'Erde–Apfel liefert ≈ 0,98 N': 'Earth–apple gives ≈ 0.98 N',
@@ -2229,6 +2774,14 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
     'Schrödinger: Ein nicht ganzzahliges n wird nicht als Welle gezeichnet': 'Schrödinger: a non-integer n is not drawn as a wave',
     'Planck-Einheiten: Jede Skala zeigt den Wert aus der Engine (l_P, t_P, m_P, T_P, E_P)': 'Planck units: every scale shows the value from the engine (l_P, t_P, m_P, T_P, E_P)',
     'Planck-Temperatur: k_B im Bild ist E_P / T_P = 1,380649 × 10⁻²³ J/K, mit zweiter Achse in eV': 'Planck temperature: k_B in the picture is E_P / T_P = 1.380649 × 10⁻²³ J/K, with a second axis in eV',
+    'Elliptisches Integral: K(0) = π/2, K(1/√2) ≈ 1,8540746773, K(0,5) ≈ 1,6857503548': 'Elliptic integral: K(0) = π/2, K(1/√2) ≈ 1.8540746773, K(0.5) ≈ 1.6857503548',
+    'Elliptisches Integral: k = 1 divergiert, |k| > 1 ist nicht reell – beides als math-Issue': 'Elliptic integral: k = 1 diverges, |k| > 1 is not real – both reported as math issues',
+    'ellipk(Länge) wird abgelehnt': 'ellipk(length) is rejected',
+    'Fadenpendel: T/T₀ bei 90° ≈ 1,1803406': 'Pendulum: T/T₀ at 90° ≈ 1.1803406',
+    'Ideales Gas: 1 mol bei 273,15 K in 22,414 l → 101,325 kPa': 'Ideal gas: 1 mol at 273.15 K in 22.414 l → 101.325 kPa',
+    'Schiefer Wurf: 30° und 60° fliegen gleich weit, 45° am weitesten': 'Projectile: 30° and 60° fly equally far, 45° furthest',
+    'Quellen: jedes Experiment hat Quellen, DOIs sind gültig geformt, englische Notizen ohne deutsche Reste': 'Sources: every experiment has sources, DOIs are well-formed, English notes contain no German',
+    'Jede „Probier mal“-Aufgabe ist mit den Reglern lösbar und am Anfang noch offen': 'Every “Try this” task can be solved with the sliders and is still open at the start',
     'Engine-Meldungen und Dimensionsnamen gibt es auf Deutsch und Englisch': 'Engine messages and dimension names exist in German and English',
     'Umschalten wirkt auch auf die kompilierten Kopien der Experimente': 'Switching also affects the compiled copies of the experiments',
     'Keine deutschen Reste in den englischen Texten der Experimente und Konstanten': 'No German left in the English texts of the experiments and constants',
@@ -2566,6 +3119,80 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
     const A = PP.ui.actionDemo, S0n = A.action(0, 0);
     close(A.S0, S0n, 1e-4, 'S₀'); // Toleranz = Fehler der Mittelpunktsregel mit 400 Schritten (≈ 6 × 10⁻⁵)
     for (const [a, b] of [[1, 0], [0, 1], [1.3, -0.7], [-2, 2]]) close(A.dS(a, b), A.action(a, b) - S0n, 1e-4, 'ΔS(' + a + ', ' + b + ')');
+  });
+
+  /* --- Erweiterung der Engine: vollständiges elliptisches Integral K(k) --- */
+  test('Numerik', 'Elliptisches Integral: K(0) = π/2, K(1/√2) ≈ 1,8540746773, K(0,5) ≈ 1,6857503548', () => {
+    const K = (k) => E.toDouble(E.evaluate(E.parse('ellipk(k)'), { k }));
+    close(K(0), Math.PI / 2, 1e-15, 'K(0)');
+    close(K(Math.SQRT1_2), 1.8540746773013719, 1e-14, 'K(1/√2)');
+    close(K(0.5), 1.685750354812596, 1e-14, 'K(0,5)');
+    close(K(-0.5), K(0.5), 1e-15, 'K(−k) = K(k)');
+  });
+  test('Numerik', 'Elliptisches Integral: k = 1 divergiert, |k| > 1 ist nicht reell – beides als math-Issue', () => {
+    for (const k of [1, 1.2, -1]) {
+      const x = E.evaluate(E.parse('ellipk(k)'), { k });
+      ok(!x.ok && x.issues[0].cat === 'math', 'k = ' + k);
+    }
+  });
+  test('Dimensionsanalyse', 'ellipk(Länge) wird abgelehnt', () => {
+    ok(!E.dimAnalyze(E.parse('ellipk(x)'), { x: D('L') }).ok && E.dimAnalyze(E.parse('ellipk(x)'), { x: D('') }).ok);
+  });
+  test('Referenzwerte', 'Fadenpendel: T/T₀ bei 90° ≈ 1,1803406', () => {
+    close(val(run('pendulum', { th: 90 }), 'q'), 1.1803405990160962, 1e-12);
+    close(val(run('pendulum', { L: 1, g: 9.80665, th: 0 }), 'T'), 2 * Math.PI * Math.sqrt(1 / 9.80665), 1e-14, 'θ₀ = 0');
+  });
+  test('Referenzwerte', 'Ideales Gas: 1 mol bei 273,15 K in 22,414 l → 101,325 kPa', () => {
+    close(val(run('ideal-gas', { N: M.C.N_A.value, T: 273.15, V: 0.022414 }), 'p'), 101325, 2e-5);
+  });
+  test('Referenzwerte', 'Schiefer Wurf: 30° und 60° fliegen gleich weit, 45° am weitesten', () => {
+    const R = (al) => val(run('projectile', { v0: 20, al, g: 9.80665 }), 'R');
+    close(R(30), R(60), 1e-12, '30° ↔ 60°');
+    ok(R(45) > R(44) && R(45) > R(46), '45° maximal');
+    close(R(45), 400 / 9.80665, 1e-12, 'R(45°) = v₀²/g');
+  });
+
+  /* --- Aufgaben: jede lösbar, keine schon am Anfang gelöst --- */
+  test('Aufgaben', 'Jede „Probier mal“-Aufgabe ist mit den Reglern lösbar und am Anfang noch offen', () => {
+    const bad = [];
+    const state = (exp, form, vals, base, consts, opts) => {
+      const v = Object.assign(M.defaults(exp), vals || {}), b = Object.assign(M.defaults(exp), base || {});
+      const r = M.compute(exp, form, v, { consts: consts || {} }), rb = M.compute(exp, form, b, { skipChecks: true });
+      const num = (x) => (x && x.ok ? E.toDouble(x) : NaN);
+      return { v, b, o: (k) => num(r.out[k]), ob: (k) => num(rb.out[k]), C: Object.assign({}, M.CONST_ENV, consts || {}), C0: M.CONST_ENV, cats: new Set(r.issues.map((i) => i.cat)), form, opts: opts || {} };
+    };
+    let n = 0;
+    for (const exp of M.registry) (exp.tasks || []).forEach((t, i) => {
+      n++;
+      const d = t.demo || {}, form = d.form || exp.forms[0].id, name = exp.id + ' #' + (i + 1);
+      if (!t.done(state(exp, form, d.vals, d.base, d.consts, d.opts))) bad.push(name + ': Beispiellösung erfüllt die Aufgabe nicht');
+      if (t.done(state(exp, exp.forms[0].id, {}, {}, {}, {}))) bad.push(name + ': schon bei den Ausgangswerten erfüllt');
+      for (const k in d.vals || {}) {
+        const dv = exp.vars[k];
+        if (!dv || dv.constant) continue;
+        if (!(d.vals[k] >= dv.min && d.vals[k] <= dv.max)) bad.push(name + ': ' + k + ' = ' + d.vals[k] + ' liegt außerhalb des Regler-Bereichs');
+      }
+    });
+    ok(n >= 30, 'nur ' + n + ' Aufgaben');
+    ok(!bad.length, bad.join(' | '));
+  });
+
+  test('Aufgaben', 'Quellen: jedes Experiment hat Quellen, DOIs sind gültig geformt, englische Notizen ohne deutsche Reste', () => {
+    if (!PP.sources) return;
+    const bad = [];
+    for (const exp of M.registry) {
+      const list = PP.sources.byId[exp.id];
+      if (!list || !list.length) { bad.push(exp.id + ': keine Quellen'); continue; }
+      list.forEach((s) => {
+        if (!s.who || !s.title || !s.where || !(s.year > 1600 && s.year < 2100)) bad.push(exp.id + ': unvollständig – ' + s.title);
+        if (s.doi && !/^10\.\d{4,9}\/\S+$/.test(s.doi)) bad.push(exp.id + ': DOI ' + s.doi);
+        if (s.url && !/^https:\/\//.test(s.url)) bad.push(exp.id + ': URL ' + s.url);
+        if (!PP.sources.KIND[s.kind]) bad.push(exp.id + ': Art ' + s.kind);
+        const en = I.with('en', () => s.note).replace(/Schrödinger|Göttingen/g, '');
+        if (/[„äöüÄÖÜß]/.test(en) || /\b(und|der|die|das|nicht|mit)\b/.test(en)) bad.push(exp.id + ': ' + en);
+      });
+    }
+    ok(!bad.length, bad.slice(0, 3).join(' | '));
   });
 
   /* --- Visualisierung: zeichnet nur, was die Engine liefert --- */
@@ -3079,6 +3706,16 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
 
       ctx.save();
       ctx.beginPath(); ctx.rect(pl, pt, pw, ph); ctx.clip();
+      // Modellgrenzen: schraffierte Bereiche, in denen die Engine eine Warnung meldet
+      const zones = (cfg.zones || []).filter((z) => z.b > x0 && z.a < x1);
+      zones.forEach((z) => {
+        const za = Math.max(pl, X(z.a)), zb = Math.min(pl + pw, X(z.b));
+        ctx.fillStyle = z.color; ctx.globalAlpha = 0.07; ctx.fillRect(za, pt, zb - za, ph);
+        ctx.globalAlpha = 0.28; ctx.strokeStyle = z.color; ctx.lineWidth = 1;
+        ctx.beginPath();
+        for (let x = za - ph; x < zb; x += 9) { ctx.moveTo(Math.max(x, za), pt + ph - Math.max(0, za - x)); ctx.lineTo(Math.min(x + ph, zb), pt + ph - Math.min(ph, zb - x)); }
+        ctx.stroke(); ctx.globalAlpha = 1;
+      });
       // refs
       refs.forEach((r) => {
         ctx.strokeStyle = r.color || col.ink3; ctx.setLineDash([6, 4]); ctx.lineWidth = 1;
@@ -3104,6 +3741,12 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
         ctx.beginPath(); ctx.arc(X(marker.x), Y(marker.y), 5, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
       }
       ctx.restore();
+      // Legende der schraffierten Bereiche
+      const zl = [...new Map(zones.map((z) => [z.label, z])).values()];
+      if (zl.length) {
+        ctx.font = '11px ' + col.sans; ctx.textAlign = 'right'; ctx.textBaseline = 'top';
+        zl.forEach((z, i) => { ctx.fillStyle = z.color; ctx.fillText(tr('schraffiert: ', 'hatched: ') + z.label, pl + pw - 6, pt + 6 + i * 15); });
+      }
       if (empty) {
         ctx.fillStyle = col.ink2; ctx.font = '13px ' + col.sans; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         ctx.fillText(cfg.ylog ? tr('Keine positiven Werte – auf lineare y-Achse umschalten', 'No positive values – switch to a linear y axis') : tr('Keine darstellbaren Werte in diesem Bereich', 'No values that can be shown in this range'), pl + pw / 2, pt + ph / 2);
@@ -3630,6 +4273,143 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
     note(ctx, tr('Gemessene, nicht gesehene Längen (Terrell-Penrose)', 'Measured, not seen, lengths (Terrell–Penrose)'), W, H - 1, col);
   };
 
+  /* ---------- Fadenpendel: Näherung und exakte Lösung nebeneinander ----------
+     Beide Pendel laufen im selben Zeitmaßstab; ihre Periodendauern kommen aus der Engine.
+     Gezeichnet wird die Bewegung als Kosinus – bei großen Amplituden ist die echte Form flacher. */
+  V.pendulum = (ctx, W, H, S) => {
+    const { v, col, t } = S;
+    grid(ctx, W, H, col);
+    const T = S.o('T'), T0 = S.o('T0');
+    if (!(T > 0) || !isFinite(T) || !(T0 > 0) || !isFinite(T0)) return invalid(ctx, W, H, col, tr('T ist hier nicht definiert (θ₀ = 180° oder ungültige Werte)', 'T is not defined here (θ₀ = 180° or invalid values)'));
+    const narrow = W < 520;
+    const th0 = (Math.abs(v.th) * Math.PI) / 180;
+    const k = clamp(T, 1.5, 4) / T;
+    const Lp = Math.min(H * 0.3, W * (narrow ? 0.2 : 0.17));
+    const py = Math.max(H * 0.44, 44 + Lp);
+    [[W * 0.3, T0, col.cyan, tr('Näherung', 'approximation'), 'T₀ = ' + S.fo('T0') + ' s'], [W * 0.7, T, col.accent, tr('exakt', 'exact'), 'T = ' + S.fo('T') + ' s']].forEach(([px, per, c, name, val]) => {
+      const ang = th0 * Math.cos((2 * Math.PI * t) / (per * k));
+      ctx.fillStyle = col.ink3; ctx.fillRect(px - 22, py - 4, 44, 4);
+      ctx.strokeStyle = col.ink3; ctx.setLineDash([3, 4]); ctx.lineWidth = 1;
+      if (th0 > 0) { ctx.beginPath(); ctx.arc(px, py, Lp, Math.PI / 2 - th0, Math.PI / 2 + th0); ctx.stroke(); }
+      ctx.setLineDash([]);
+      const bx = px + Lp * Math.sin(ang), by = py + Lp * Math.cos(ang);
+      ctx.strokeStyle = col.ink2; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(bx, by); ctx.stroke();
+      ctx.fillStyle = c; ctx.beginPath(); ctx.arc(bx, by, 9, 0, 7); ctx.fill();
+      label(ctx, name, px, H - 30, col, { align: 'center', size: 12, color: c });
+      label(ctx, val, px, H - 14, col, { align: 'center', size: 12, mono: true, color: col.ink });
+    });
+    // Wie schnell laufen die beiden auseinander? Aus den Engine-Werten T und T₀
+    const d = T - T0;
+    const lag = d > T * 1e-9 ? tr('Nach ≈ ' + E.fmt((0.5 * T0) / d, 2) + ' Schwingungen schwingen beide gegenläufig.', 'After ≈ ' + E.fmt((0.5 * T0) / d, 2) + ' swings the two move in opposite directions.') : tr('Beide Periodendauern sind gleich.', 'Both periods are equal.');
+    segs(ctx, [['θ₀ = ' + E.fmt(v.th, 3) + '°   ', col.ink], [tr('Näherung zu kurz um ', 'approximation too short by ') + S.fo('err') + ' %', S.o('err') >= 1 ? col.red : col.ink2]], 16, 20, col, { mono: true, size: narrow ? 11 : 12 });
+    label(ctx, lag, 16, 37, col, { size: 11, color: col.ink2 });
+    if (!narrow) note(ctx, tr('Bewegung als Kosinus gezeichnet · Periodendauern aus der Engine', 'Motion drawn as a cosine · periods from the engine'), W, H - 44, col);
+  };
+
+  /* ---------- Schiefer Wurf: Bahn, Geschwindigkeit in Komponenten, Komplementwinkel ---------- */
+  V.projectile = (ctx, W, H, S) => {
+    const { v, col } = S;
+    grid(ctx, W, H, col);
+    const R = S.o('R'), Hm = S.o('H'), tf = S.o('tf');
+    if (!(tf > 0) || !isFinite(R) || !isFinite(Hm)) return invalid(ctx, W, H, col, v.al <= 0 ? tr('Bei α = 0° landet der Körper sofort', 'At α = 0° the body lands immediately') : tr('Keine Flugbahn darstellbar', 'No trajectory to display'));
+    const narrow = W < 520;
+    const comp = v.al > 0 && v.al < 90 && Math.abs(v.al - 45) > 0.05 ? S.at({ al: 90 - v.al }) : null;
+    const Rm = Math.max(R, comp ? comp.o('R') : 0, 1e-12), Hmx = Math.max(Hm, comp ? comp.o('H') : 0, 1e-12);
+    const x0 = 30, y0 = H - 34;
+    const sc = Math.min((W - x0 - 40) / Rm, (y0 - 62) / Hmx);
+    const X = (x) => x0 + x * sc, Y = (y) => y0 - y * sc;
+    ctx.fillStyle = col.panel2; ctx.fillRect(0, y0, W, H - y0);
+    ctx.strokeStyle = col.ink3; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(0, y0); ctx.lineTo(W, y0); ctx.stroke();
+    // Bahnen aus der Engine: x(t), y(t)
+    const path = (st, tEnd, over, c, dash, w) => {
+      ctx.strokeStyle = c; ctx.lineWidth = w; ctx.setLineDash(dash); ctx.beginPath();
+      for (let i = 0; i <= 60; i++) { const r = S.at(Object.assign({}, over, { t: (tEnd * i) / 60 })); const px = X(r.o('x')), py = Y(Math.max(0, r.o('y'))); i ? ctx.lineTo(px, py) : ctx.moveTo(px, py); }
+      ctx.stroke(); ctx.setLineDash([]);
+    };
+    if (comp) { path(S, comp.o('tf'), { al: 90 - v.al }, col.ink3, [4, 5], 1.2); }
+    path(S, tf, {}, col.accent, [], 2);
+    // Scheitel und Weite
+    ctx.strokeStyle = col.ink3; ctx.setLineDash([2, 4]); ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(X(R / 2), Y(Hm)); ctx.lineTo(X(R / 2), y0); ctx.stroke(); ctx.setLineDash([]);
+    label(ctx, 'H = ' + S.fo('H') + ' m', X(R / 2) + 6, Y(Hm) - 6, col, { size: 11, mono: true, color: col.ink2 });
+    ctx.fillStyle = col.accent; ctx.beginPath(); ctx.arc(X(R), y0, 3.5, 0, 7); ctx.fill();
+    label(ctx, 'R = ' + S.fo('R') + ' m', X(R), y0 + 16, col, { align: X(R) > W - 90 ? 'right' : 'center', size: 11, mono: true, color: col.accent });
+    if (comp) label(ctx, tr('gestrichelt: ' + E.fmt(90 - v.al, 3) + '° – gleiche Weite', 'dashed: ' + E.fmt(90 - v.al, 3) + '° – same range'), W - 10, 52, col, { align: 'right', size: 11, color: col.ink3 });
+    // Positionen in gleichen Zeitabständen
+    for (let i = 0; i <= 8; i++) {
+      const tt = (tf * i) / 8;
+      if (tt > v.t) break;
+      const r = S.at({ t: tt });
+      ctx.fillStyle = col.cyan; ctx.globalAlpha = 0.3; ctx.beginPath(); ctx.arc(X(r.o('x')), Y(r.o('y')), 4, 0, 7); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    // Körper und Geschwindigkeit in Komponenten
+    const landed = S.o('y') < 0;
+    const bx = landed ? X(R) : X(S.o('x')), by = landed ? y0 : Y(S.o('y'));
+    if (!landed) {
+      const L = 70 / Math.max(v.v0, 1e-12);
+      arrow(ctx, bx, by, bx + S.o('vx') * L, by, col.cyan, 2);
+      arrow(ctx, bx, by, bx, by - S.o('vy') * L, col.violet, 2);
+      arrow(ctx, bx, by, bx + S.o('vx') * L, by - S.o('vy') * L, col.accent, 2.5);
+    }
+    ctx.fillStyle = landed ? col.red : col.ink; ctx.beginPath(); ctx.arc(bx, by, 7, 0, 7); ctx.fill();
+    segs(ctx, [['t = ' + E.fmt(v.t, 3) + ' s   ', col.ink], [landed ? tr('gelandet', 'landed') : 'x = ' + S.fo('x') + ' m   y = ' + S.fo('y') + ' m', landed ? col.red : col.ink2]], 16, 20, col, { mono: true, size: narrow ? 11 : 12 });
+    segs(ctx, [['v_x = ' + S.fo('vx') + ' m/s', col.cyan], [tr(' (konstant)   ', ' (constant)   '), col.ink3], ['v_y = ' + S.fo('vy') + ' m/s', col.violet]], 16, 37, col, { mono: true, size: 11 });
+    if (!narrow) note(ctx, tr('x und y im gleichen Maßstab', 'x and y on the same scale'), W, 20, col);
+  };
+
+  /* ---------- Ideales Gas: Kasten mit Teilchen, Druck als Produkt von Faktoren ----------
+     Schematisch: Punktzahl ∝ N, Tempo ∝ v_rms, Kastenkante ∝ ∛V – jeweils gegenüber dem Bezug. */
+  const GAS = (() => { const r = rng(11); return Array.from({ length: 140 }, () => [r(), r(), r() * Math.PI * 2, 0.6 + r() * 0.8]); })();
+  const bounce = (x) => { const m = ((x % 2) + 2) % 2; return m > 1 ? 2 - m : m; };
+  V.gas = (ctx, W, H, S) => {
+    const { v, col, t } = S;
+    grid(ctx, W, H, col);
+    const pn = S.num('p');
+    if (!pn || !isFinite(S.o('p'))) return invalid(ctx, W, H, col, tr('p ist hier nicht definiert', 'p is not defined here'));
+    const narrow = W < 520;
+    const B = S.base, B0 = B ? S.at(B) : null;
+    const rel = (k) => (B0 ? rd(ratio(S.num(k), B0.num(k))) : 1);
+    const qN = B ? v.N / B.N : 1, qV = B ? v.V / B.V : 1, qv = rel('vrms');
+    // Faktorzeile p/p₀ = N/N₀ · T/T₀ · V₀/V – jeder Faktor aus der Engine
+    const p0 = B0 ? B0.num('p') : null, q = ratio(pn, p0);
+    const top = 20;
+    label(ctx, 'p = ' + S.fo('p') + ' Pa', 16, top, col, { mono: true, size: 13, color: col.accent });
+    if (q) {
+      const part = (k) => ratio(S.at(Object.assign({}, B, { [k]: v[k] })).num('p'), p0);
+      const terms = [['p / p₀', q], ['N/N₀', part('N')], ['T/T₀', part('T')], ['V₀/V', part('V')]];
+      const sz = narrow ? 11 : 12, eq = narrow ? ' = ' : '  =  ', sp = narrow ? ' · ' : '  ·  ';
+      font(ctx, col, sz, true);
+      let x = 16;
+      terms.forEach(([s, f], i) => {
+        const w = textW(ctx, s);
+        label(ctx, s, x, top + 20, col, { mono: true, size: sz, color: col.ink2 });
+        label(ctx, fx(f), x + w / 2, top + 36, col, { mono: true, size: sz, align: 'center', color: fxColor(f, col) });
+        const g = i === 0 ? eq : sp;
+        if (i < terms.length - 1) { label(ctx, g, x + w, top + 20, col, { mono: true, size: sz, color: col.ink3 }); x += w + textW(ctx, g); }
+      });
+    }
+    // Kasten
+    const side0 = Math.min(H - 110, (narrow ? W * 0.5 : W * 0.34));
+    const side = side0 * clamp(Math.cbrt(qV), 0.5, 1.25);
+    const bx = 16 + (side0 * 1.25 - side) / 2, by = top + 50 + (side0 * 1.25 - side) / 2 * 0.3;
+    ctx.strokeStyle = col.ink2; ctx.lineWidth = 2; ctx.strokeRect(bx, by, side, side);
+    const n = Math.round(clamp(40 * qN, 4, 140));
+    const speed = 0.35 * clamp(qv, 0.2, 4);
+    ctx.fillStyle = col.cyan;
+    for (let i = 0; i < n; i++) {
+      const [x0, y0, a, s] = GAS[i];
+      const px = bounce(x0 + Math.cos(a) * s * speed * t), py = bounce(y0 + Math.sin(a) * s * speed * t);
+      ctx.beginPath(); ctx.arc(bx + 4 + px * (side - 8), by + 4 + py * (side - 8), 2.6, 0, 7); ctx.fill();
+    }
+    // Werte
+    const tx = narrow ? bx + side0 * 1.25 + 12 : W * 0.5, ty = top + 70;
+    const rows = [['T = ', E.fmt(v.T, 4) + ' K', col.ink], ['k_B T = ', S.fo('kT') + ' J', col.violet], ['v_rms = ', S.fo('vrms') + ' m/s', col.cyan], ['n = ', S.fo('n') + ' mol', col.ink2]];
+    rows.forEach(([k, val, c], i) => segs(ctx, [[k, col.ink2], [val, c]], tx, ty + i * 18, col, { mono: true, size: narrow ? 11 : 12 }));
+    if (B0 && !narrow) label(ctx, tr('₀ = Bezug: ', '₀ = reference: ') + S.baseLabel, tx, ty + 4 * 18 + 4, col, { size: 11, color: col.ink3 });
+    note(ctx, tr('Schematisch: Punkte ∝ N, Tempo ∝ v_rms, Kasten ∝ ∛V', 'Schematic: dots ∝ N, speed ∝ v_rms, box ∝ ∛V'), W, H, col);
+  };
+
   const STARS = (() => { const r = rng(7); return Array.from({ length: 90 }, () => [r(), r(), r()]); })();
   function stars(ctx, W, H, col) {
     ctx.fillStyle = col.ink3;
@@ -3884,7 +4664,7 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
      Der Planck-Wert kommt aus der Engine (im Break-Modus wandert er mit den Konstanten).
      Vergleichswerte: Konstanten aus dem Register oder gerundete Literaturwerte:
      247 zs – Grundmann et al., Science 370, 339 (2020); 38 pK – Deppner et al., PRL 127, 100401 (2021);
-     Quark-Gluon-Plasma ≈ 5,5 × 10¹² K – ALICE (2012); 3,2 × 10²⁰ eV – Fly's Eye (1991); LHC Run 3: 13,6 TeV;
+     Quark-Gluon-Plasma ≈ 3,5 × 10¹² K (304 MeV) – ALICE, Physics Letters B 754 (2016); 3,2 × 10²⁰ eV – Fly's Eye (1991); LHC Run 3: 13,6 TeV;
      Alter des Universums 13,8 Mrd. Jahre – Planck 2018. */
   const lg10 = Math.log10;
   function planckScale(S, q) {
@@ -3914,8 +4694,8 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
         head2: 'k_B = ' + E.fmt(kB, 7) + ' J/K  ·  1 K ↔ ' + E.fmt(kB / ev, 4) + ' eV',
         marks: [[lg10(3.8e-11), tr('kältestes Labor ≈ 38 pK', 'coldest lab ≈ 38 pK')], [S.at({ M: C.M_sun.value }, 'hawking').lg('TH'), tr('Hawking-Temperatur, 1 M☉', 'Hawking temperature, 1 M☉'), true],
           [lg10(C.T_cmb.value), tr('Hintergrundstrahlung 2,7 K', 'cosmic background 2.7 K')], [lg10(293), tr('Raumtemperatur', 'room temperature'), true],
-          [lg10(1.57e7), tr('Sonnenkern', 'solar core')], [lg10(5.5e12), tr('Quark-Gluon-Plasma (LHC)', 'quark–gluon plasma (LHC)')]],
-        reach: [lg10(3.8e-11), lg10(5.5e12)], reachLabel: tr('im Labor erreicht', 'reached in the lab'),
+          [lg10(1.57e7), tr('Sonnenkern', 'solar core')], [lg10(3.5e12), tr('Quark-Gluon-Plasma (LHC)', 'quark–gluon plasma (LHC)')]],
+        reach: [lg10(3.8e-11), lg10(3.5e12)], reachLabel: tr('im Labor erreicht', 'reached in the lab'),
         gap: (n) => tr('≈ ' + n + ' Größenordnungen darüber', '≈ ' + n + ' orders of magnitude above'),
         second: { shift: lg10(kB / ev), label: tr('k_B T in eV', 'k_B T in eV') },
       };
@@ -4185,7 +4965,8 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
     S.edit = 'A';
     S.graph = U.defaultGraph(exp, S.form);
     if (opts.g && S.graph) Object.assign(S.graph, opts.g);
-    S.tab = opts.tab || 'formula';
+    // Bei den berühmten Gleichungen öffnet das Labor zuerst
+    S.tab = opts.tab || (exp.hall ? 'lab' : 'formula');
     S.preset = null; S.playing = false;
     if (changed) { S.vizOpts = {}; S.nightmare = false; }
   };
@@ -4205,8 +4986,11 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
       const a = encVals(S.vals.A); if (a) q.set('a', a);
       const ca = encVals(S.consts.A); if (ca) q.set('ca', ca);
       if (S.cmp) { q.set('cmp', '1'); q.set('b', encVals(S.vals.B)); const cb = encVals(S.consts.B); if (cb) q.set('cb', cb); }
-      if (S.tab !== 'formula') q.set('tab', S.tab);
+      if (S.tab !== (S.exp.hall ? 'lab' : 'formula')) q.set('tab', S.tab);
       if (S.graph) q.set('g', [S.graph.x, S.graph.y, S.graph.xlog ? 1 : 0, S.graph.ylog ? 1 : 0, S.graph.extra.join('+')].join(','));
+      // Einstellungen der Visualisierung (z. B. Planck-Größe, Überlagerung)
+      const vo = Object.keys(S.vizOpts).filter((k) => S.vizOpts[k] !== false && S.vizOpts[k] != null).map((k) => k + ':' + (S.vizOpts[k] === true ? '1' : S.vizOpts[k])).join(';');
+      if (vo) q.set('vo', vo);
     } else {
       q.set('view', S.view);
       if (S.view === 'custom') {
@@ -4231,6 +5015,13 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
       }
       U.loadExp(q.get('exp'), { form: q.get('f'), a: decVals(q.get('a')), b: q.get('b') ? decVals(q.get('b')) : null, ca: decVals(q.get('ca')), cb: q.get('cb') ? decVals(q.get('cb')) : null, cmp: q.get('cmp') === '1', tab: q.get('tab'), g });
       const exp = S.exp, form = M.formOf(exp, S.form);
+      // Nur bekannte Bedienelemente und erlaubte Werte übernehmen
+      (q.get('vo') || '').split(';').forEach((p) => {
+        const i = p.indexOf(':'), k = p.slice(0, i), x = p.slice(i + 1);
+        const c = (exp.vizControls || []).find((cc) => cc.key === k);
+        if (!c) return;
+        if (c.options) { if (c.options.some((o) => o.v === x)) S.vizOpts[k] = x; } else S.vizOpts[k] = x === '1';
+      });
       if (S.graph && (!form.c.vars.some((v) => v.key === S.graph.x) || !form.c.outputs.some((o) => o.key === S.graph.y))) S.graph = U.defaultGraph(exp, S.form);
       return true;
     }
@@ -4431,7 +5222,7 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
     info: { de: 'Hinweis', en: 'Note' }, assume: { de: 'Modellannahme', en: 'Model assumption' },
   });
   const CAT_ORDER = ['math', 'numeric', 'unreal', 'model', 'info', 'assume'];
-  const ANIM = new Set(['spring', 'circular', 'wavefunction', 'relativity', 'blackhole', 'horizon', 'spacetime']);
+  const ANIM = new Set(['spring', 'circular', 'wavefunction', 'relativity', 'blackhole', 'horizon', 'spacetime', 'pendulum', 'gas']);
   const VIZ_CATS = ['math', 'numeric', 'unreal', 'model'];
   const form = () => M.formOf(S.exp, S.form);
 
@@ -4527,7 +5318,7 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
     const prim = f.c.outputs.find((o) => o.primary) || f.c.outputs[0];
     const di = E.dimInfo(prim.dimv);
     const m = exp.meta || {};
-    return '<section class="hero">' +
+    return '<section class="hero' + (S.tab === 'lab' ? ' compact' : '') + '">' +
       '<div class="big">' + U.tex(exp.tex) + '</div>' +
       '<div class="dimline"><span>' + T('Dimension von ', 'Dimension of ') + U.tex(prim.tex) + '</span>' + U.tex(E.dimTex(prim.dimv)) + '<span>' + esc(di.name || '') + (U.unit(prim.dimv) ? ' · ' + esc(U.unit(prim.dimv)) : '') + '</span></div>' +
       '<div class="meta-row">' +
@@ -4540,6 +5331,10 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
   function vizSeg(c) {
     const cur = S.vizOpts[c.key] || c.options[0].v;
     return '<div class="seg vseg" role="group" aria-label="' + esc(c.label) + '">' + c.options.map((o) => '<button data-vs="' + c.key + '" data-val="' + o.v + '" aria-pressed="' + (o.v === cur) + '" class="' + (o.v === cur ? 'on' : '') + '">' + esc(o.label) + '</button>').join('') + '</div>';
+  }
+  function vizTitle() {
+    if (!S.cmp) return T('Visualisierung', 'Visualisation');
+    return T('Visualisierung · Satz ' + S.edit + ' (blass: ' + (S.edit === 'A' ? 'B' : 'A') + ')', 'Visualisation · set ' + S.edit + ' (faint: ' + (S.edit === 'A' ? 'B' : 'A') + ')');
   }
   function labHTML(exp) {
     const f = form();
@@ -4554,24 +5349,26 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
     const presets = (exp.presets || []).filter((p) => !p.form || p.form === S.form);
     return '<div class="lab" id="lab">' +
       '<div class="stage">' +
-      '<section class="panel"><div class="ph"><h3>' + T('Visualisierung', 'Visualisation') + (S.cmp ? T(' · Satz ', ' · Set ') + S.edit : '') + '</h3><span class="vbadges" id="vbadges"></span>' + vc + '</div><div class="vizwrap"><canvas id="vizc" role="img" aria-label="' + T('Visualisierung von ', 'Visualisation of ') + esc(exp.title) + '"></canvas></div></section>' +
-      (showGraph ? '<section class="panel" id="gpanel"></section>' : '') +
+      '<section class="panel vizpanel"><div class="ph"><h3>' + vizTitle() + '</h3><span class="vbadges" id="vbadges"></span>' + vc + '</div><div class="vizwrap"><canvas id="vizc" role="img" aria-label="' + T('Visualisierung von ', 'Visualisation of ') + esc(exp.title) + '" aria-describedby="vizdesc"></canvas><p id="vizdesc" class="sr-only"></p></div></section>' +
+      (exp.tasks && exp.tasks.length ? '<section class="panel taskpanel" id="tasks"></section>' : '') +
+      (showGraph ? '<section class="panel gpanel" id="gpanel"></section>' : '') +
       '</div>' +
       '<div class="controls">' +
-      '<section class="panel"><div class="ph"><h3>' + T('Parameter', 'Parameters') + '</h3>' + ab + '</div>' +
+      '<section class="panel prmpanel"><div class="ph"><h3>' + T('Parameter', 'Parameters') + '</h3>' + ab + '</div>' +
       '<div class="pb">' + (forms ? '<div style="margin-bottom:10px">' + forms + '</div>' : '') +
       (presets.length ? '<div class="presets">' + presets.map((p) => '<button class="chip" data-preset="' + exp.presets.indexOf(p) + '">' + esc(p.name) + '</button>').join('') + '</div><div class="pnote" id="pnote"></div>' : '') +
       '<div id="prms"></div><div id="cprms"></div></div></section>' +
-      '<section class="panel"><div class="ph"><h3>' + T('Ergebnis', 'Result') + '</h3></div><div class="pb" id="res" aria-live="polite"></div></section>' +
-      '<section class="panel"><div class="ph"><h3>' + T('Physikalischer Status', 'Physical status') + '</h3></div><div class="pb" id="stat"></div></section>' +
+      '<section class="panel respanel"><div class="ph"><h3>' + T('Ergebnis', 'Result') + '</h3></div><div class="pb" id="res" aria-live="polite"></div></section>' +
+      '<section class="panel statpanel"><div class="ph"><h3>' + T('Physikalischer Status', 'Physical status') + '</h3></div><div class="pb" id="stat"></div></section>' +
       '</div></div>';
   }
 
   function render(el) {
     const exp = S.exp;
     const tabs = exp.hall
-      ? [['formula', T('Formel', 'Formula')], ['dims', T('Dimensionen', 'Dimensions')], ['physics', T('Physik', 'Physics')], ['lab', T('Graph & Labor', 'Graph & lab')]]
+      ? [['lab', T('Graph & Labor', 'Graph & lab')], ['formula', T('Formel', 'Formula')], ['dims', T('Dimensionen', 'Dimensions')], ['physics', T('Physik', 'Physics')]]
       : [['formula', T('Formel & Variablen', 'Formula & variables')], ['dims', T('Dimensionsanalyse', 'Dimensional analysis')], ['physics', T('Physik & Grenzen', 'Physics & limits')]];
+    if (PP.sources && PP.sources.byId[exp.id]) tabs.push(['sources', T('Quellen', 'Sources')]);
     if (!tabs.some((t) => t[0] === S.tab)) S.tab = tabs[0][0];
     let h = '<div class="' + (exp.hall ? 'hallx' : '') + '">' + headerHTML(exp);
     if (exp.hall) h += heroHTML(exp);
@@ -4593,8 +5390,19 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
     if (S.tab === 'formula') c.innerHTML = U.docs.formula();
     else if (S.tab === 'physics') c.innerHTML = U.docs.physics();
     else if (S.tab === 'dims') { c.innerHTML = U.dims.page(); U.dims.bind(c); }
+    else if (S.tab === 'sources') c.innerHTML = sourcesHTML();
   }
 
+  // Quellen: Originalarbeiten, Messungen, Referenzwerte – DOIs verlinkt
+  function sourcesHTML() {
+    const list = (PP.sources && PP.sources.byId[S.exp.id]) || [];
+    const link = (href, text) => ' <a href="' + esc(href) + '" target="_blank" rel="noopener">' + esc(text) + '</a>';
+    return '<p class="muted srcintro">' + T('Originalarbeiten, Messungen und Referenzwerte zu diesem Experiment. DOI-Links führen zur Seite des Verlags.', 'Original papers, measurements and reference values for this experiment. DOI links lead to the publisher’s page.') + '</p>' +
+      '<ol class="srcs">' + list.map((s) => '<li><span class="tag src-' + s.kind + '">' + esc(PP.sources.KIND[s.kind]) + '</span><div>' +
+        '<b>' + esc(s.who) + '</b> (' + s.year + '): <span' + (s.lang ? ' lang="' + s.lang + '"' : '') + '><i>' + esc(s.title) + '</i>. ' + esc(s.where) + '.</span>' +
+        (s.doi ? link('https://doi.org/' + s.doi, 'doi:' + s.doi) : '') + (s.url ? link(s.url, s.url.replace(/^https?:\/\//, '')) : '') +
+        '<div class="faint">' + esc(s.note) + '</div></div></li>').join('') + '</ol>';
+  }
   function bindPage(el) {
     el.addEventListener('click', (e) => {
       const t = e.target.closest('button');
@@ -4602,6 +5410,7 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
       if (t.dataset.tab) {
         S.tab = t.dataset.tab;
         $$('.tabs button', el).forEach((b) => { b.classList.toggle('on', b === t); b.setAttribute('aria-selected', b === t); });
+        const hero = $('.hero', el); if (hero) hero.classList.toggle('compact', S.tab === 'lab');
         renderTab(); U.writeHash(); return;
       }
       const a = t.dataset.a;
@@ -4878,7 +5687,7 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
   function onLabChange(e) {
     const t = e.target;
     if (t.classList.contains('num')) commitNum(t);
-    else if (t.dataset.vo) { S.vizOpts[t.dataset.vo] = t.checked; drawViz(); }
+    else if (t.dataset.vo) { S.vizOpts[t.dataset.vo] = t.checked; drawViz(true); renderTasks(); U.writeHash(); }
     else if (t.dataset.g) onGraphSelect(t);
   }
   function onLabKey(e) {
@@ -4909,7 +5718,7 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
     } else if (b.dataset.vs) {
       S.vizOpts[b.dataset.vs] = b.dataset.val;
       $$('[data-vs="' + b.dataset.vs + '"]').forEach((x) => { x.classList.toggle('on', x === b); x.setAttribute('aria-pressed', String(x === b)); });
-      drawViz();
+      drawViz(true); renderTasks(); U.writeHash();
     } else if (b.dataset.v) {
       if (b.dataset.v === 'pause') {
         S.paused = !S.paused;
@@ -4955,7 +5764,7 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
       S.edit = b.dataset.edit;
       S.playing = false;
       $$('[data-edit]').forEach((x) => x.classList.toggle('on', x === b));
-      const h = $('#lab .ph h3'); if (h) h.textContent = T('Visualisierung · Satz ', 'Visualisation · Set ') + S.edit;
+      const h = $('#lab .ph h3'); if (h) h.textContent = vizTitle();
       renderParams(); update();
     } else if (b.dataset.gx) {
       S.graph.xlog = b.dataset.gx === 'log'; renderGraphPanel(); updatePlots(); U.writeHash();
@@ -5068,10 +5877,16 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
     if (ctx) ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     return { ctx, W, H };
   }
-  function drawViz() {
+  // describe: Beschriftungen und Werte des Bildes als Text für Screenreader mitschreiben (nicht bei jedem Animationsbild)
+  function drawViz(describe) {
     const c = $('#vizc');
     if (!c || !S.res.A) return;
-    const { ctx, W, H } = sizeCanvas(c);
+    const sized = sizeCanvas(c), W = sized.W, H = sized.H;
+    const texts = [];
+    const ctx = describe && sized.ctx ? new Proxy(sized.ctx, {
+      get(t, k) { if (k === 'fillText') return (s, ...a) => { texts.push(String(s)); t.fillText(s, ...a); }; const v = t[k]; return typeof v === 'function' ? v.bind(t) : v; },
+      set(t, k, v) { t[k] = v; return true; },
+    }) : sized.ctx;
     if (!ctx) return;
     ctx.clearRect(0, 0, W, H);
     const fn = PP.viz[S.exp.viz];
@@ -5081,12 +5896,67 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
       base: S.base && S.base.form === S.form ? S.base.vals : null, baseLabel: baseLabel(),
       t: S.clock, opts: S.vizOpts, col: PP.colors(),
     });
+    if (S.cmp && S.res.B) {
+      const other = S.edit === 'A' ? 'B' : 'A';
+      const gs = PP.vizState({ exp: S.exp, form: S.form, vals: S.vals[other], consts: S.consts[other], res: S.res[other], t: S.clock, opts: S.vizOpts, col: PP.colors() });
+      try { fn(ghost(ctx), W, H, gs); } catch (_) { /* der Geist darf fehlen */ }
+      ctx.globalAlpha = 1; ctx.setLineDash([]);
+    }
     try { fn(ctx, W, H, st); }
     catch (err) {
       const col = PP.colors();
       ctx.fillStyle = col.red; ctx.font = '13px ' + col.sans; ctx.textAlign = 'center';
       ctx.fillText(T('Für diese Werte gibt es keine sinnvolle Darstellung.', 'There is no meaningful picture for these values.'), W / 2, H / 2);
     }
+    if (describe) {
+      const d = $('#vizdesc');
+      // reine Achsenbeschriftungen (Zahlen, Zehnerpotenzen, Einheiten) auslassen
+      const tick = /^([−-]?[\d.,]+|10[⁻⁰¹²³⁴⁵⁶⁷⁸⁹]*|[a-zA-Z]{1,3}|n=\d+)$/;
+      const s = [...new Set(texts.map((x) => x.trim()).filter((x) => x && !tick.test(x)))].join(' · ');
+      if (d && d.textContent !== s) d.textContent = s;
+    }
+  }
+
+  // Zeichenkontext für den blassen Vergleichssatz: alles mit 30 % Deckkraft, keine Texte
+  function ghost(ctx) {
+    ctx.globalAlpha = 0.3;
+    return new Proxy(ctx, {
+      get(t, k) { if (k === 'fillText' || k === 'strokeText') return () => {}; const v = t[k]; return typeof v === 'function' ? v.bind(t) : v; },
+      set(t, k, v) { t[k] = k === 'globalAlpha' ? v * 0.3 : v; return true; },
+    });
+  }
+
+  /* ---------- Probier mal ---------- */
+  const solved = new Set(U.store.get('pp.tasks', []));
+  function taskStates() {
+    const exp = S.exp, res = S.res[S.edit] || S.res.A;
+    const val = (r) => (r && r.ok ? E.toDouble(r) : NaN);
+    const hasBase = S.base && S.base.form === S.form && S.baseRes;
+    const x = {
+      v: S.vals[S.edit], o: (k) => val(res.out[k]), ob: (k) => (hasBase ? val(S.baseRes.out[k]) : NaN), b: hasBase ? S.base.vals : null,
+      C: Object.assign({}, M.CONST_ENV, S.consts[S.edit]), C0: M.CONST_ENV, cats: new Set(res.issues.map((i) => i.cat)), form: S.form, opts: S.vizOpts,
+    };
+    return (exp.tasks || []).map((t, i) => { let now = false; try { now = !!t.done(x); } catch (_) { now = false; } return { t, now, key: exp.id + ':' + i }; });
+  }
+  function renderTasks() {
+    const box = $('#tasks');
+    if (!box) return;
+    const st = taskStates();
+    st.forEach((s) => {
+      if (!s.now || solved.has(s.key)) return;
+      solved.add(s.key);
+      U.store.set('pp.tasks', [...solved]);
+      if (box.dataset.k) U.toast(T('Gelöst: ', 'Solved: ') + s.t.q);
+    });
+    const key = st.map((s) => (s.now ? 2 : solved.has(s.key) ? 1 : 0)).join('') + PP.i18n.lang;
+    if (box.dataset.k === key) return;
+    box.dataset.k = key;
+    const open = $$('details', box).map((d) => d.open);
+    const n = st.filter((s) => solved.has(s.key)).length;
+    box.innerHTML = '<div class="ph"><h3>' + T('Probier mal', 'Try this') + '</h3><span class="faint" style="font-size:12px">' + n + ' / ' + st.length + T(' gelöst', ' solved') + '</span></div>' +
+      '<ol class="tasks">' + st.map((s, i) => '<li class="' + (s.now ? 'now' : solved.has(s.key) ? 'done' : '') + '"><span class="tk" aria-hidden="true">' + (s.now || solved.has(s.key) ? '✓' : '') + '</span><div><span>' + esc(s.t.q) + '</span>' +
+        (s.now ? ' <b class="ok">' + T('Erfüllt', 'Done') + '</b>' : solved.has(s.key) ? ' <span class="faint">' + T('(schon gelöst)', '(solved before)') + '</span>' : '') +
+        (s.t.hint ? '<details' + (open[i] ? ' open' : '') + '><summary>' + T('Tipp', 'Hint') + '</summary>' + esc(s.t.hint) + '</details>' : '') + '</div></li>').join('') + '</ol>';
   }
 
   /* ---------- graph ---------- */
@@ -5130,6 +6000,38 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
     if (ro) $$('canvas', p).forEach((c) => ro.observe(c));
   }
   function plotColors() { const c = PP.colors(); return [c.accent, c.cyan, c.violet, c.green, c.red]; }
+  /* Modellgrenzen entlang der x-Achse: Wo meldet die Engine (mit allen Prüfungen) eine Warnung?
+     Kategorien, die im ganzen Bereich gelten (z. B. „nur eine Größenordnung“), werden nicht schraffiert. */
+  const ZONE_CATS = ['math', 'unreal', 'model'];
+  let zoneMemo = { k: null, z: [] };
+  function modelZones(g, dom, xlog) {
+    const exp = S.exp, vals = S.vals[S.edit], consts = S.consts[S.edit];
+    const rest = Object.assign({}, vals); delete rest[g.x];
+    const k = [exp.id, S.form, g.x, xlog, dom.join(), JSON.stringify(rest), JSON.stringify(consts), PP.i18n.lang].join('|');
+    if (zoneMemo.k === k) return zoneMemo.z;
+    const N = 120, a = xlog ? Math.log10(dom[0]) : dom[0], b = xlog ? Math.log10(dom[1]) : dom[1];
+    const xv = exp.vars[g.x];
+    const pts = [];
+    for (let i = 0; i <= N; i++) {
+      const t = a + ((b - a) * i) / N;
+      let x = xlog ? Math.pow(10, t) : t;
+      if (xv.integer) x = Math.round(x);
+      const v = Object.assign({}, vals, { [g.x]: x });
+      const cats = new Set(M.compute(exp, S.form, v, { consts }).issues.map((j) => j.cat).filter((c) => ZONE_CATS.includes(c)));
+      pts.push([t, cats]);
+    }
+    const always = ZONE_CATS.filter((c) => pts.every((p) => p[1].has(c)));
+    const zones = [];
+    const half = (b - a) / N / 2;
+    pts.forEach(([t, cats]) => {
+      const cat = ZONE_CATS.find((c) => cats.has(c) && !always.includes(c));
+      const last = zones[zones.length - 1];
+      if (cat && last && last.cat === cat && Math.abs(last.b - (t - half)) < half * 1.5) last.b = t + half;
+      else if (cat) zones.push({ a: t - half, b: t + half, cat, label: CAT[cat], color: cat === 'model' ? PP.colors().accent : PP.colors().red });
+    });
+    zoneMemo = { k, z: zones };
+    return zones;
+  }
   function onGraphSelect(t) {
     const g = S.graph;
     if (t.dataset.g === 'x') {
@@ -5155,6 +6057,7 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
       if (xlog) { if (x > 0) { dom[0] = Math.min(dom[0], x / 3); dom[1] = Math.max(dom[1], x * 3); } }
       else if (x < dom[0] || x > dom[1]) { dom = [Math.min(dom[0], x), Math.max(dom[1], x)]; const pad = (dom[1] - dom[0]) * 0.05; dom[0] -= pad; dom[1] += pad; }
     }
+    const zones = modelZones(g, dom, xlog);
     const pal = plotColors();
     const colorOf = {};
     colorOf[g.y] = pal[0];
@@ -5184,6 +6087,7 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
         samples: xv.integer ? 200 : 320,
         refs: ((exp.graph && exp.graph.refs) || []).filter((r) => r.y === y0).map((r) => ({ value: r.value, label: r.label, color: PP.colors().cyan })),
         marker: { x: S.vals[S.edit][g.x], y: U.num(cur) },
+        zones,
         xlabel: xv.label + (xunit ? ' [' + xunit + ']' : ''), xsym: xv.label, xunit,
         ylabel: outs.map((o) => o.sym).join(', ') + (yunit ? ' [' + yunit + ']' : ''), yunit,
       });
@@ -5198,8 +6102,9 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
     renderResults();
     renderStatus();
     renderVizBadges();
+    renderTasks();
     if (pauseShown === null) syncVizButtons();
-    drawViz();
+    drawViz(true);
     updatePlots();
     U.writeHash();
   }
