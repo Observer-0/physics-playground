@@ -3,9 +3,79 @@
    ===================================================================== */
 (function (PP) {
   'use strict';
-  const E = PP.engine, M = PP.model;
+  const E = PP.engine, M = PP.model, I = PP.i18n;
   const T = [];
-  const test = (group, name, fn) => T.push({ group, name, fn });
+  // Gruppen und Namen werden auf Deutsch geschrieben; die englische Fassung steht in EN.
+  // Die Prüfungen selbst laufen immer auf Deutsch (siehe runAll), weil sie Meldungstexte vergleichen.
+  const EN = {
+    'Gravitation': 'Gravity', 'Numerik': 'Numerics', 'Einheiten': 'Units', 'Dimensionsanalyse': 'Dimensional analysis', 'Referenzwerte': 'Reference values',
+    'Parser': 'Parser', 'Formatierung': 'Formatting', 'Sprache': 'Language', 'UI (im Browser)': 'UI (in the browser)',
+    'G=6.67430e-11, m₁=m₂=r=1 → F ≈ 6.67430e-11 N': 'G=6.67430e-11, m₁=m₂=r=1 → F ≈ 6.67430e-11 N',
+    'Abstand ×2 → Kraft /4': 'Distance ×2 → force /4',
+    'Erde–Apfel liefert ≈ 0,98 N': 'Earth–apple gives ≈ 0.98 N',
+    'Division durch 0 (r = 0) → kein Absturz, Kategorie „math“': 'Division by 0 (r = 0) → no crash, category “math”',
+    'Veränderte Konstante G wird als „unrealistisch“ erkannt': 'A changed constant G is flagged as “unrealistic”',
+    'Schwarze Löcher bei 350 km → „außerhalb des Modells“': 'Black holes at 350 km → “outside the model”',
+    'NaN-Eingabe → sauber gemeldet, kein NaN-Ergebnis als Zahl': 'NaN input → reported cleanly, no NaN result shown as a number',
+    'Unsicherheit aus G ≈ 2,2 × 10⁻⁵ relativ': 'Uncertainty from G ≈ 2.2 × 10⁻⁵ relative',
+    'Overflow: m₁ = m₂ = 10³⁰⁰ kg, r = 10⁻³⁰⁰ m → log-Auswertung': 'Overflow: m₁ = m₂ = 10³⁰⁰ kg, r = 10⁻³⁰⁰ m → log evaluation',
+    'Underflow: 10⁻³⁰⁰ · 10⁻³⁰⁰ bleibt als 10⁻⁶⁰⁰ erhalten': 'Underflow: 10⁻³⁰⁰ · 10⁻³⁰⁰ is kept as 10⁻⁶⁰⁰',
+    'Log-Addition großer Zahlen: 10³⁰⁸·10 + 10³⁰⁸·10': 'Log addition of large numbers: 10³⁰⁸·10 + 10³⁰⁸·10',
+    'Wurzel aus negativer Zahl → math-Issue statt NaN': 'Square root of a negative number → math issue instead of NaN',
+    'β = 1 → γ undefiniert, β = 1,2 → imaginär, beides ohne Absturz': 'β = 1 → γ undefined, β = 1.2 → imaginary, neither crashes',
+    'E_kin bei β = 10⁻⁹ stabil (naiv wäre 0)': 'E_kin stable at β = 10⁻⁹ (naively it would be 0)',
+    'LHC-Proton: γ ≈ 7247': 'LHC proton: γ ≈ 7247',
+    '[G] = m³ kg⁻¹ s⁻²': '[G] = m³ kg⁻¹ s⁻²',
+    '[G][m][m]/[r]² = N': '[G][m][m]/[r]² = N',
+    'Unicode-Eingabe: ħc³/(8πGMk_B) wird geparst': 'Unicode input: ħc³/(8πGMk_B) is parsed',
+    'Hawking-Temperatur hat die Dimension Θ': 'The Hawking temperature has dimension Θ',
+    'S_BH hat die Dimension einer Entropie, S/k_B ist dimensionslos': 'S_BH has the dimension of an entropy, S/k_B is dimensionless',
+    'Feldgleichungen: beide Seiten L⁻²': 'Field equations: both sides L⁻²',
+    'Schrödinger: alle Terme Energie × [ψ], [ψ] = L⁻¹ᐟ²': 'Schrödinger: all terms energy × [ψ], [ψ] = L⁻¹ᐟ²',
+    'Planck-Einheiten: L, T, M, Θ': 'Planck units: L, T, M, Θ',
+    'Alle Ausgabeformeln aller Experimente sind dimensionskonsistent': 'Every output formula of every experiment is dimensionally consistent',
+    'X = G M / c mit [X] = L ist inkonsistent (rechts L² T⁻¹)': 'X = G M / c with [X] = L is inconsistent (right-hand side L² T⁻¹)',
+    'Summe inkompatibler Dimensionen wird lokalisiert': 'A sum of incompatible dimensions is located',
+    'E = ½mc² ist konsistent – obwohl physikalisch falsch für die Ruheenergie': 'E = ½mc² is consistent – although physically wrong for the rest energy',
+    'Exponent mit Dimension wird abgelehnt': 'An exponent with a dimension is rejected',
+    'exp(Länge) wird abgelehnt': 'exp(length) is rejected',
+    'Planck-Länge ≈ 1,61626 × 10⁻³⁵ m (CODATA: 1,616255(18))': 'Planck length ≈ 1.61626 × 10⁻³⁵ m (CODATA: 1.616255(18))',
+    'Planck-Masse ≈ 2,176434 × 10⁻⁸ kg': 'Planck mass ≈ 2.176434 × 10⁻⁸ kg',
+    'Planck-Temperatur ≈ 1,416784 × 10³² K': 'Planck temperature ≈ 1.416784 × 10³² K',
+    'Hawking-Temperatur einer Sonnenmasse ≈ 6,17 × 10⁻⁸ K': 'Hawking temperature of one solar mass ≈ 6.17 × 10⁻⁸ K',
+    'S/k_B einer Sonnenmasse ≈ 1,05 × 10⁷⁷': 'S/k_B of one solar mass ≈ 1.05 × 10⁷⁷',
+    'Schwarzschild-Radius der Sonne ≈ 2953 m': 'Schwarzschild radius of the Sun ≈ 2953 m',
+    'Beide Entropie-Formen stimmen überein': 'Both forms of the entropy agree',
+    'Einstein-Kopplung 8πG/c⁴ ≈ 2,077 × 10⁻⁴³': 'Einstein coupling 8πG/c⁴ ≈ 2.077 × 10⁻⁴³',
+    'Elektron im 1-nm-Kasten: E₁ ≈ 0,376 eV': 'Electron in a 1 nm box: E₁ ≈ 0.376 eV',
+    'Freier Fall 100 m: t ≈ 4,52 s': 'Free fall 100 m: t ≈ 4.52 s',
+    'Feder k=50, m=1: T = 2π/√50': 'Spring k=50, m=1: T = 2π/√50',
+    'Kinematik: s = 0 + 5·3 + ½·2·9 = 24 m': 'Kinematics: s = 0 + 5·3 + ½·2·9 = 24 m',
+    'ISS: a ≈ 8,6 m/s²': 'ISS: a ≈ 8.6 m/s²',
+    'Punkt vor Strich, rechtsassoziative Potenz, unäres Minus': 'Operator precedence, right-associative powers, unary minus',
+    'Syntaxfehler liefert Position': 'A syntax error reports its position',
+    'Rationale Exponenten: sqrt(L) → L¹ᐟ²': 'Rational exponents: sqrt(L) → L¹ᐟ²',
+    'Funktionen verlangen genau ein Argument: sqrt(4, 5) ist ein Syntaxfehler': 'Functions take exactly one argument: sqrt(4, 5) is a syntax error',
+    'Namen wie constructor/toString sind unbekannt, __proto__ wird abgelehnt': 'Names like constructor/toString are unknown, __proto__ is rejected',
+    '„ħc / G M“ wird als mehrdeutig gemeldet, „1/2 m v²“ und „a/(b c)“ nicht': '“ħc / G M” is flagged as ambiguous, “1/2 m v²” and “a/(b c)” are not',
+    'Positionszuordnung nach normalize: ħ und ³ zeigen auf die Originalzeichen': 'Position mapping after normalize: ħ and ³ point to the original characters',
+    '0⁰ → eigene Meldung, keine „Division durch 0“': '0⁰ → its own message, not “division by 0”',
+    'exp(10⁴⁰⁰) und cos(10⁴⁰⁰) → math-Issue statt „NaN × 10^Infinity“': 'exp(10⁴⁰⁰) and cos(10⁴⁰⁰) → math issue instead of “NaN × 10^Infinity”',
+    'Dimensionsangabe mit Nenner 0 (L^1/0) wird abgelehnt': 'A dimension with denominator 0 (L^1/0) is rejected',
+    '6.6743e-11 → „6.6743 × 10⁻¹¹“': '6.6743e-11 → “6.6743 × 10⁻¹¹”',
+    'Eigene Gleichung: Hawking-Formel mit π und ħ ist konsistent, X = GM/c nicht': 'Own equation: the Hawking formula with π and ħ is consistent, X = GM/c is not',
+    'E = m g h: h zuerst Planck-Konstante mit Hinweis, als Höhe konsistent': 'E = m g h: h is first the Planck constant with a hint, consistent as a height',
+    'Eigene Gleichung: „constructor“ und „toString“ lassen die Ansicht nicht abstürzen': 'Own equation: “constructor” and “toString” do not crash the view',
+    'Eigene Gleichung: Klammer-Vorschlag bei „ħ c / G M“ behält ħ und ³ bei': 'Own equation: the bracket suggestion for “ħ c / G M” keeps ħ and ³',
+    'URL mit #exp=constructor oder #view=toString wird ignoriert': 'A URL with #exp=constructor or #view=toString is ignored',
+    'Wirkungs-Demo: geschlossene Form ΔS = mπ²/(4T)·(ε₁² + 4ε₂²) stimmt mit der Integration überein': 'Action demo: the closed form ΔS = mπ²/(4T)·(ε₁² + 4ε₂²) agrees with the integration',
+    'Engine-Meldungen und Dimensionsnamen gibt es auf Deutsch und Englisch': 'Engine messages and dimension names exist in German and English',
+    'Umschalten wirkt auch auf die kompilierten Kopien der Experimente': 'Switching also affects the compiled copies of the experiments',
+    'Keine deutschen Reste in den englischen Texten der Experimente und Konstanten': 'No German left in the English texts of the experiments and constants',
+    'Jeder Test hat einen englischen Namen': 'Every test has an English name',
+  };
+  const pair = (de) => (Object.prototype.hasOwnProperty.call(EN, de) ? { de, en: EN[de] } : de);
+  const test = (group, name, fn) => T.push(I.localize({ group: pair(group), name: pair(name), fn }));
 
   function close(a, b, rel = 1e-9, msg = '') {
     if (!(Math.abs(a - b) <= rel * Math.abs(b))) throw new Error(`${msg} erwartet ≈ ${b}, erhalten ${a}`);
@@ -337,13 +407,50 @@
     for (const [a, b] of [[1, 0], [0, 1], [1.3, -0.7], [-2, 2]]) close(A.dS(a, b), A.action(a, b) - S0n, 1e-4, 'ΔS(' + a + ', ' + b + ')');
   });
 
+  /* --- Sprache --- */
+  test('Sprache', 'Engine-Meldungen und Dimensionsnamen gibt es auf Deutsch und Englisch', () => {
+    const msg = () => E.evaluate(E.parse('1/0'), {}).issues[0].msg;
+    ok(/Division durch 0/.test(I.with('de', msg)), I.with('de', msg));
+    ok(/Division by 0/.test(I.with('en', msg)), I.with('en', msg));
+    const force = () => E.dimInfo(D('M L T^-2')).name;
+    ok(I.with('de', force) === 'Kraft' && I.with('en', force) === 'force', 'Dimensionsname');
+    ok(I.with('en', () => E.BASE_NAMES[1]) === 'length', 'Basisgröße');
+  });
+  test('Sprache', 'Umschalten wirkt auch auf die kompilierten Kopien der Experimente', () => {
+    const f = M.byId['newton-gravity'].forms[0];
+    ok(I.with('de', () => f.c.outputs[0].name) === 'Gravitationskraft (Betrag)', 'de');
+    ok(I.with('en', () => f.c.outputs[0].name) === 'Gravitational force (magnitude)', 'en');
+    ok(I.with('en', () => f.c.equations[0].label) === 'Newton’s law of gravitation', 'Gleichung');
+    ok(I.with('en', () => M.byId.hawking.forms[0].c.autoEq[0].label) === 'Hawking temperature', 'autoEq');
+  });
+  test('Sprache', 'Keine deutschen Reste in den englischen Texten der Experimente und Konstanten', () => {
+    // „ und Umlaute verraten deutsche Texte; Eigennamen dürfen sie behalten
+    const german = /[„äöüÄÖÜß]/, names = /Schrödinger|Eötvös|Göttingen/g;
+    const skip = new Set(['ast', 'lhs', 'rhs', 'symDims', 'dimv', 'values', 'checks']);
+    const bad = [], seen = new WeakSet();
+    const walk = (o, path) => {
+      if (!o || typeof o !== 'object' || seen.has(o)) return;
+      seen.add(o);
+      for (const k of Object.keys(o)) {
+        if (skip.has(k)) continue;
+        const v = o[k];
+        if (typeof v === 'string') { if (german.test(v.replace(names, ''))) bad.push(path + '.' + k + ': ' + v.slice(0, 60)); }
+        else walk(v, path + '.' + k);
+      }
+    };
+    I.with('en', () => { M.registry.forEach((e) => walk(e, e.id)); walk(M.C, 'C'); walk(M.KIND_LABEL, 'KIND_LABEL'); });
+    ok(!bad.length, bad.slice(0, 3).join(' | '));
+  });
+  test('Sprache', 'Jeder Test hat einen englischen Namen', () => {
+    const has = (k) => Object.prototype.hasOwnProperty.call(EN, k);
+    const missing = T.map((t) => I.with('de', () => [t.group, t.name])).filter(([g, n]) => !has(g) || !has(n)).map(([, n]) => n);
+    ok(!missing.length, missing.join(' | '));
+  });
+
+  // Die Prüfungen laufen auf Deutsch (sie vergleichen deutsche Meldungen); Namen erscheinen in der aktiven Sprache
   function runAll() {
-    const results = [];
-    for (const t of T) {
-      try { t.fn(); results.push({ group: t.group, name: t.name, pass: true }); }
-      catch (e) { results.push({ group: t.group, name: t.name, pass: false, err: e.message }); }
-    }
-    return results;
+    const errs = I.with('de', () => T.map((t) => { try { t.fn(); return null; } catch (e) { return e.message; } }));
+    return T.map((t, i) => ({ group: t.group, name: t.name, pass: errs[i] === null, err: errs[i] || undefined }));
   }
   PP.tests = { list: T, runAll };
 })(globalThis.PP = globalThis.PP || {});

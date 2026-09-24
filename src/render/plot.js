@@ -5,7 +5,7 @@
    ===================================================================== */
 (function (PP) {
   'use strict';
-  const E = PP.engine;
+  const E = PP.engine, tr = PP.i18n.T;
 
   function niceStep(span, target) {
     const raw = span / Math.max(1, target);
@@ -212,7 +212,7 @@
       ctx.restore();
       if (empty) {
         ctx.fillStyle = col.ink2; ctx.font = '13px ' + col.sans; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillText(cfg.ylog ? 'Keine positiven Werte – auf lineare y-Achse umschalten' : 'Keine darstellbaren Werte in diesem Bereich', pl + pw / 2, pt + ph / 2);
+        ctx.fillText(cfg.ylog ? tr('Keine positiven Werte – auf lineare y-Achse umschalten', 'No positive values – switch to a linear y axis') : tr('Keine darstellbaren Werte in diesem Bereich', 'No values that can be shown in this range'), pl + pw / 2, pt + ph / 2);
       }
 
       // hover

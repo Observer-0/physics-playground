@@ -4,6 +4,11 @@ Interaktive Physik-Experimentierumgebung nach dem Prinzip **„Was passiert, wen
 Regler bewegen → Zahlen, Graph und Visualisierung reagieren sofort. Die App sagt dabei ehrlich,
 wann ein Ergebnis nur noch Mathematik ist.
 
+Die App ist zweisprachig: Der Knopf **DE / EN** oben in der Seitenleiste (auf dem Handy in der
+Kopfzeile) schaltet alle Texte zwischen Deutsch und Englisch um. Die Wahl wird im Browser
+gespeichert; ohne gespeicherte Wahl richtet sich die Sprache nach der Browsersprache. Ein Link
+kann die Sprache mitgeben, z. B. `#exp=hawking&lang=en`.
+
 ## Starten
 
 Online: **https://observer-0.github.io/physics-playground/**
@@ -16,7 +21,7 @@ veröffentlicht `dist/` auf GitHub Pages (`.github/workflows/pages.yml`).
 Entwicklung (Node ≥ 18):
 
 ```bash
-npm test        # Tests (59; die 6 UI-Tests laufen vollständig nur im Browser unter „Tests“)
+npm test        # Tests (63; die 6 UI-Tests laufen vollständig nur im Browser unter „Tests“)
 npm run build   # bündelt alles nach dist/index.html
 ```
 
@@ -71,6 +76,7 @@ Alle Dateien erweitern den globalen Namensraum `PP`; die Ladereihenfolge steht i
 
 | Datei | Aufgabe |
 |---|---|
+| `src/core/i18n.js` | Sprache: `T('Deutsch', 'English')` für Texte im Code; `localize(obj)` macht aus jedem Paar `{ de, en }` in Daten ein Feld, das der aktiven Sprache folgt; Umschalten, Speichern, `with(lang, fn)` für Tests |
 | `src/core/engine.js` | Lexer/Parser (Unicode, implizite Multiplikation), Dimensionen als rationale Exponentenvektoren über 7 SI-Basisgrößen, Auswertung in `{Vorzeichen, log₁₀}`-Darstellung (Werte jenseits 10^±308), Fehlerlokalisierung per Zeichenposition, TeX-Ausgabe, Formatierung |
 | `src/core/model.js` | Konstanten-Registry mit Art (exakt / gemessen / Konvention / astronomisch / modellabhängig) und Quelle; Experiment-Modell; `compute()` wirft nie und liefert Warnkategorien; Fehlerfortpflanzung aus gemessenen Konstanten |
 | `src/data/experiments.js` | Experiment-Definitionen: Variablen, Formeln, Gleichungen, Checks, Presets, Graph-Defaults, Erklärungen in drei Ebenen, epistemische Einordnung |
@@ -89,18 +95,22 @@ Alle Dateien erweitern den globalen Namensraum `PP`; die Ladereihenfolge steht i
 
 ### Neues Experiment hinzufügen
 
-Ein weiterer `define({ … })`-Block in `src/data/experiments.js`:
+Ein weiterer `define({ … })`-Block in `src/data/experiments.js`. Jeder Text steht als Paar
+`{ de, en }` direkt neben den Daten; was in beiden Sprachen gleich ist, bleibt ein einfacher String:
 
 ```js
 define({
-  id: 'mein-exp', group: 'Mechanik', title: 'Titel', short: 'Kurz', tex: 'E = m c^2',
-  vars:    { m: { label: 'm', tex: 'm', name: 'Masse', dim: 'M', default: 1, min: 1e-3, max: 1e3, scale: 'log', positive: true } },
-  outputs: [{ key: 'E', sym: 'E', tex: 'E', name: 'Energie', expr: 'm*c^2', dim: 'M L^2 T^-2', primary: true }],
-  equations: [{ label: 'Ruheenergie', eq: 'E = m*c^2' }],
+  id: 'mein-exp', group: MECH, title: { de: 'Ruheenergie', en: 'Rest energy' }, short: { de: 'Ruheenergie', en: 'Rest energy' }, tex: 'E = m c^2',
+  vars:    { m: { label: 'm', tex: 'm', name: { de: 'Masse', en: 'Mass' }, dim: 'M', default: 1, min: 1e-3, max: 1e3, scale: 'log', positive: true } },
+  outputs: [{ key: 'E', sym: 'E', tex: 'E', name: { de: 'Energie', en: 'Energy' }, expr: 'm*c^2', dim: 'M L^2 T^-2', primary: true }],
+  equations: [{ label: { de: 'Ruheenergie', en: 'Rest energy' }, eq: 'E = m*c^2' }],
   presets: [], graph: { x: 'm', y: 'E' }, viz: null,
-  explain: { intuition: '…', math: [], physics: '…', epistemics: [] },
+  explain: { intuition: { de: '…', en: '…' }, math: [], physics: { de: '…', en: '…' }, epistemics: [] },
 });
 ```
+
+Meldungen in `checks()` schreibt man als `T('…', '…')`. Der Test „Keine deutschen Reste in den
+englischen Texten der Experimente und Konstanten“ meldet vergessene Übersetzungen.
 
 Dimensionsanalyse, Graph, Vergleich, URL-State und die automatische Dimensionsprüfung in den Tests
 funktionieren dann ohne weiteren Code. Für eine eigene Visualisierung eine Funktion

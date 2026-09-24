@@ -3,8 +3,9 @@
    ===================================================================== */
 (function (PP) {
   'use strict';
-  const E = PP.engine, M = PP.model;
+  const E = PP.engine, M = PP.model, I = PP.i18n, T = I.T;
   const U = (PP.ui = PP.ui || {});
+  U.T = T;
 
   /* ---------- helpers ---------- */
   U.$ = (s, r = document) => r.querySelector(s);
@@ -194,6 +195,8 @@
   U.applyState = (str) => {
     const q = new URLSearchParams(String(str || '').replace(/^.*?#/, '').replace(/^\?/, ''));
     if (q.has('brk')) S.brk = q.get('brk') === '1';
+    // #…&lang=en: Sprache für diese Sitzung, ohne die gespeicherte Wahl zu ändern
+    if (I.LANGS.includes(q.get('lang'))) I.set(q.get('lang'), { silent: true });
     if (q.get('exp') && E.has(M.byId, q.get('exp'))) {
       let g = null;
       if (q.get('g')) {
@@ -231,7 +234,9 @@
   function onHash() {
     if (location.hash === lastHash) return;
     lastHash = location.hash;
+    const lang = I.lang;
     if (!U.applyState(location.hash)) U.loadExp('newton-gravity');
+    if (I.lang !== lang) { document.documentElement.lang = I.lang; U.renderShell(U.$('#root') || document.body); }
     U.render(true);
   }
 
@@ -261,30 +266,34 @@
       h += groups[g].map((e) => '<a href="#exp=' + e.id + '" class="' + (cur === e.id ? 'on' : '') + '">' + U.esc(e.short) + '</a>').join('');
     }
     h += '<h6>Famous Equations</h6>';
-    h += '<a href="#view=hall" class="hall ' + (S.view === 'hall' ? 'on' : '') + '">Übersicht &amp; Vergleich</a>';
+    h += '<a href="#view=hall" class="hall ' + (S.view === 'hall' ? 'on' : '') + '">' + T('Übersicht &amp; Vergleich', 'Overview &amp; comparison') + '</a>';
     h += PP.hallOrder.map((id) => { const e = M.byId[id]; return '<a href="#exp=' + id + '" class="hall ' + (cur === id ? 'on' : '') + '">' + U.esc(e.short) + '</a>'; }).join('');
-    h += '<a href="#view=custom" class="hall ' + (S.view === 'custom' ? 'on' : '') + '">Eigene Gleichung prüfen</a>';
-    h += '<h6>Grundlagen</h6>';
-    h += '<a href="#view=theorie" class="' + (S.view === 'theorie' ? 'on' : '') + '">Theorie kurz erklärt</a>';
-    h += '<h6>Werkzeuge</h6>';
+    h += '<a href="#view=custom" class="hall ' + (S.view === 'custom' ? 'on' : '') + '">' + T('Eigene Gleichung prüfen', 'Check your own equation') + '</a>';
+    h += '<h6>' + T('Grundlagen', 'Foundations') + '</h6>';
+    h += '<a href="#view=theorie" class="' + (S.view === 'theorie' ? 'on' : '') + '">' + T('Theorie kurz erklärt', 'Theory in brief') + '</a>';
+    h += '<h6>' + T('Werkzeuge', 'Tools') + '</h6>';
     const n = U.saved.list().length;
-    [['constants', 'Konstanten', M.registry.length ? Object.keys(M.C).length : ''], ['saved', 'Gespeichert', n || ''], ['tests', 'Tests', PP.tests ? PP.tests.list.length : ''], ['about', 'Über', '']].forEach(([v, t, c]) => {
+    [['constants', T('Konstanten', 'Constants'), M.registry.length ? Object.keys(M.C).length : ''], ['saved', T('Gespeichert', 'Saved'), n || ''], ['tests', 'Tests', PP.tests ? PP.tests.list.length : ''], ['about', T('Über', 'About'), '']].forEach(([v, t, c]) => {
       h += '<a href="#view=' + v + '" class="' + (S.view === v ? 'on' : '') + '">' + t + (c !== '' ? '<small>' + c + '</small>' : '') + '</a>';
     });
     return h;
   }
 
+  // Ein Knopf, zwei Sprachen: die aktive ist hervorgehoben, ein Klick wechselt
+  const langButton = () => '<button class="lang" data-act="lang" lang="' + (I.lang === 'en' ? 'de' : 'en') + '" title="' + T('Switch to English', 'Auf Deutsch umschalten') + '" aria-label="' + T('Sprache: Deutsch. Switch to English', 'Language: English. Auf Deutsch umschalten') + '">' +
+    I.LANGS.map((l) => '<span class="' + (l === I.lang ? 'on' : '') + '">' + l.toUpperCase() + '</span>').join('') + '</button>';
+
   U.renderShell = (root) => {
     root.innerHTML =
       '<div class="app" id="app">' +
-      '<div class="topbar"><button class="btn icon" data-act="nav" aria-label="Navigation öffnen">≡</button><b>Physics Playground</b></div>' +
+      '<div class="topbar"><button class="btn icon" data-act="nav" aria-label="' + T('Navigation öffnen', 'Open navigation') + '">≡</button><b>Physics Playground</b>' + langButton() + '</div>' +
       '<aside class="side" aria-label="Navigation">' +
-      '<div class="brand">' + LOGO + '<div><b>Physics Playground</b><span>Was passiert, wenn ich das ändere?</span></div></div>' +
+      '<div class="brand">' + LOGO + '<div><b>Physics Playground</b><span>' + T('Was passiert, wenn ich das ändere?', 'What happens if I change this?') + '</span>' + langButton() + '</div></div>' +
       '<nav class="nav" id="nav"></nav>' +
       '<div class="side-foot">' +
-      '<label class="switch"><input type="checkbox" id="brk"' + (S.brk ? ' checked' : '') + '><span>Break the Physics<small>Konstanten und Grenzen freigeben</small></span></label>' +
-      '<label class="switch plain"><input type="checkbox" id="anim"' + (S.paused ? '' : ' checked') + '><span>Animationen</span></label>' +
-      '<label class="switch plain"><input type="checkbox" id="theme"' + (document.documentElement.getAttribute('data-theme') === 'light' ? ' checked' : '') + '><span>Helles Labor</span></label>' +
+      '<label class="switch"><input type="checkbox" id="brk"' + (S.brk ? ' checked' : '') + '><span>Break the Physics<small>' + T('Konstanten und Grenzen freigeben', 'Unlock constants and limits') + '</small></span></label>' +
+      '<label class="switch plain"><input type="checkbox" id="anim"' + (S.paused ? '' : ' checked') + '><span>' + T('Animationen', 'Animations') + '</span></label>' +
+      '<label class="switch plain"><input type="checkbox" id="theme"' + (document.documentElement.getAttribute('data-theme') === 'light' ? ' checked' : '') + '><span>' + T('Helles Labor', 'Light lab') + '</span></label>' +
       '</div></aside>' +
       '<main id="main" tabindex="-1"></main></div>';
     U.$('#brk').addEventListener('change', (e) => U.setBreak(e.target.checked));
@@ -295,12 +304,28 @@
       U.resetColors();
       if (U.redrawAll) U.redrawAll();
     });
+  };
+  function bindRoot(root) {
     root.addEventListener('click', (e) => {
       const a = e.target.closest('[data-act="nav"]');
       if (a) U.$('#app').classList.toggle('nav-open');
+      else if (e.target.closest('[data-act="lang"]')) { langFrom = e.target.closest('.topbar') ? '.topbar' : '.side'; I.set(I.lang === 'en' ? 'de' : 'en'); }
       else if (e.target.closest('.nav a')) U.$('#app').classList.remove('nav-open');
     });
-  };
+  }
+  // Sprachwechsel: Shell und aktuelle Ansicht neu aufbauen, Zustand (Werte, Tab, Scrollposition) bleibt
+  let langFrom = null;
+  function onLang(root) {
+    document.documentElement.lang = I.lang;
+    const y = typeof window.scrollY === 'number' ? window.scrollY : 0;
+    if (U.teardown) { U.teardown(); U.teardown = null; }
+    U.renderShell(root);
+    U.render(false);
+    try { window.scrollTo(0, y); } catch (_) { /* jsdom */ }
+    const b = langFrom && U.$(langFrom + ' [data-act="lang"]');
+    if (b) b.focus();
+    langFrom = null;
+  }
 
   U.setBreak = (on) => {
     S.brk = on;
@@ -323,7 +348,7 @@
         }
         if (Object.keys(S.consts[set]).length) { S.consts[set] = {}; changed = true; }
       }
-      if (changed) U.toast('Werte in den regulären Bereich zurückgesetzt');
+      if (changed) U.toast(T('Werte in den regulären Bereich zurückgesetzt', 'Values reset to the regular range'));
     }
     U.render(false);
   };
@@ -334,14 +359,15 @@
     U.$('#nav').innerHTML = navHTML();
     if (U.teardown) { U.teardown(); U.teardown = null; }
     let h = '';
-    if (S.brk) h += '<div class="brk-banner"><b>Break-the-Physics-Modus.</b> Konstanten und Bereichsgrenzen sind freigegeben. Die App rechnet weiter und sagt dir, ob ein Ergebnis mathematisch undefiniert, numerisch heikel, physikalisch unrealistisch oder außerhalb des Modells ist.</div>';
+    if (S.brk) h += '<div class="brk-banner">' + T('<b>Break-the-Physics-Modus.</b> Konstanten und Bereichsgrenzen sind freigegeben. Die App rechnet weiter und sagt dir, ob ein Ergebnis mathematisch undefiniert, numerisch heikel, physikalisch unrealistisch oder außerhalb des Modells ist.',
+      '<b>Break-the-Physics mode.</b> Constants and range limits are unlocked. The app keeps calculating and tells you whether a result is mathematically undefined, numerically delicate, physically unrealistic or outside the model.') + '</div>';
     const v = S.view === 'exp' ? U.views.exp : U.views[S.view];
     main.innerHTML = h + '<div id="view"></div>';
     try {
       v.render(U.$('#view'));
       document.title = (S.view === 'exp' ? S.exp.title : v.title) + ' · Physics Playground';
     } catch (err) {
-      U.$('#view').innerHTML = '<div class="callout warn"><b>Diese Ansicht konnte nicht aufgebaut werden.</b> ' + U.esc(err.message) + '</div>';
+      U.$('#view').innerHTML = '<div class="callout warn"><b>' + T('Diese Ansicht konnte nicht aufgebaut werden.', 'This view could not be built.') + '</b> ' + U.esc(err.message) + '</div>';
       if (typeof console !== 'undefined') console.error(err);
     }
     if (routeChanged) { try { window.scrollTo(0, 0); } catch (_) { /* jsdom */ } }
@@ -352,7 +378,10 @@
     const th = U.store.get('pp.theme', null);
     if (th) document.documentElement.setAttribute('data-theme', th);
     if (!U.applyState(location.hash)) U.loadExp('newton-gravity');
+    document.documentElement.lang = I.lang;
     U.renderShell(root);
+    bindRoot(root);
+    I.onChange(() => onLang(root));
     U.render(true);
     window.addEventListener('hashchange', onHash);
     lastHash = location.hash;

@@ -9,6 +9,7 @@
   // Nur eigene Einträge zählen. Sonst wären Namen wie „constructor“ oder „toString“
   // in jedem Objekt „bekannt“ und würden als Konstante, Funktion oder Dimension gelesen.
   const has = (o, k) => o != null && Object.prototype.hasOwnProperty.call(o, k);
+  const I = PP.i18n, T = I.T;
 
   /* ---------- Rational numbers (for exponents like L^-1/2) ---------- */
   function gcd(a, b) { a = Math.abs(a); b = Math.abs(b); while (b) { [a, b] = [b, a % b]; } return a || 1; }
@@ -35,7 +36,8 @@
   /* ---------- Dimensions: exponents of 7 SI base quantities ---------- */
   const BASES = ['M', 'L', 'T', 'Θ', 'I', 'N', 'J'];
   const SI_BASE = ['kg', 'm', 's', 'K', 'A', 'mol', 'cd'];
-  const BASE_NAMES = ['Masse', 'Länge', 'Zeit', 'Temperatur', 'Stromstärke', 'Stoffmenge', 'Lichtstärke'];
+  const BASE_NAMES = I.localize([{ de: 'Masse', en: 'mass' }, { de: 'Länge', en: 'length' }, { de: 'Zeit', en: 'time' }, { de: 'Temperatur', en: 'temperature' },
+    { de: 'Stromstärke', en: 'electric current' }, { de: 'Stoffmenge', en: 'amount of substance' }, { de: 'Lichtstärke', en: 'luminous intensity' }]);
 
   const dimless = () => BASES.map(() => Rz);
   function dimParse(str) {
@@ -46,12 +48,12 @@
     while ((m = re.exec(str))) {
       const key = m[1] === 'Th' ? 'Θ' : m[1];
       const i = BASES.indexOf(key);
-      if (m[3] && parseInt(m[3], 10) === 0) throw new Error('Ungültige Dimensionsangabe: Nenner 0 im Exponenten von ' + key);
+      if (m[3] && parseInt(m[3], 10) === 0) throw new Error(T('Ungültige Dimensionsangabe: Nenner 0 im Exponenten von ', 'Invalid dimension: zero denominator in the exponent of ') + key);
       const e = R(m[2] ? parseInt(m[2], 10) : 1, m[3] ? parseInt(m[3], 10) : 1);
       d[i] = radd(d[i], e);
       consumed += m[0];
     }
-    if (consumed.replace(/\s/g, '') !== str.replace(/\s/g, '')) throw new Error('Ungültige Dimensionsangabe: ' + str);
+    if (consumed.replace(/\s/g, '') !== str.replace(/\s/g, '')) throw new Error(T('Ungültige Dimensionsangabe: ', 'Invalid dimension: ') + str);
     return d;
   }
   const dimMul = (a, b) => a.map((x, i) => radd(x, b[i]));
@@ -92,32 +94,32 @@
   }
 
   // Named derived units and quantity names (lookup by dimension)
-  const NAMED = [
-    ['M L T^-2', 'N', 'Kraft'],
-    ['M L^2 T^-2', 'J', 'Energie'],
-    ['M L^2 T^-3', 'W', 'Leistung'],
-    ['M L^-1 T^-2', 'Pa = J/m³', 'Druck / Energiedichte'],
-    ['M L^2 T^-2 Θ^-1', 'J/K', 'Entropie'],
-    ['M L^2 T^-1', 'J s', 'Wirkung / Drehimpuls'],
-    ['L T^-1', 'm/s', 'Geschwindigkeit'],
-    ['L T^-2', 'm/s²', 'Beschleunigung'],
-    ['T^-1', 's⁻¹', 'Frequenz / Rate'],
-    ['L^2', 'm²', 'Fläche'],
-    ['L^3', 'm³', 'Volumen'],
-    ['L^-2', 'm⁻²', 'Krümmung'],
-    ['M L T^-1', 'kg m/s', 'Impuls'],
-    ['M T^-2', 'N/m', 'Federkonstante'],
-    ['I T', 'C', 'Ladung'],
-    ['L^3 M^-1 T^-2', 'm³ kg⁻¹ s⁻²', 'Gravitationskopplung'],
-    ['M^-1 L^-1 T^2', 's² kg⁻¹ m⁻¹', 'Einstein-Kopplung'],
-    ['M L T^-2 I^-2', 'N/A²', 'Permeabilität'],
-    ['M^-1 L^-3 T^4 I^2', 'F/m', 'Permittivität'],
-    ['L^-1/2', 'm⁻¹ᐟ²', 'Wellenfunktion (1D)'],
-    ['L^-3/2', 'm⁻³ᐟ²', 'Wellenfunktion (3D)'],
-    ['M', 'kg', 'Masse'], ['L', 'm', 'Länge'], ['T', 's', 'Zeit'], ['Θ', 'K', 'Temperatur'],
-    ['I', 'A', 'Stromstärke'], ['N', 'mol', 'Stoffmenge'], ['N^-1', 'mol⁻¹', 'pro Stoffmenge'],
-    ['', '1', 'dimensionslos'],
-  ].map(([d, u, n]) => ({ key: dimKey(dimParse(d)), unit: u, name: n }));
+  const NAMED = I.localize([
+    ['M L T^-2', 'N', 'Kraft', 'force'],
+    ['M L^2 T^-2', 'J', 'Energie', 'energy'],
+    ['M L^2 T^-3', 'W', 'Leistung', 'power'],
+    ['M L^-1 T^-2', 'Pa = J/m³', 'Druck / Energiedichte', 'pressure / energy density'],
+    ['M L^2 T^-2 Θ^-1', 'J/K', 'Entropie', 'entropy'],
+    ['M L^2 T^-1', 'J s', 'Wirkung / Drehimpuls', 'action / angular momentum'],
+    ['L T^-1', 'm/s', 'Geschwindigkeit', 'velocity'],
+    ['L T^-2', 'm/s²', 'Beschleunigung', 'acceleration'],
+    ['T^-1', 's⁻¹', 'Frequenz / Rate', 'frequency / rate'],
+    ['L^2', 'm²', 'Fläche', 'area'],
+    ['L^3', 'm³', 'Volumen', 'volume'],
+    ['L^-2', 'm⁻²', 'Krümmung', 'curvature'],
+    ['M L T^-1', 'kg m/s', 'Impuls', 'momentum'],
+    ['M T^-2', 'N/m', 'Federkonstante', 'spring constant'],
+    ['I T', 'C', 'Ladung', 'charge'],
+    ['L^3 M^-1 T^-2', 'm³ kg⁻¹ s⁻²', 'Gravitationskopplung', 'gravitational coupling'],
+    ['M^-1 L^-1 T^2', 's² kg⁻¹ m⁻¹', 'Einstein-Kopplung', 'Einstein coupling'],
+    ['M L T^-2 I^-2', 'N/A²', 'Permeabilität', 'permeability'],
+    ['M^-1 L^-3 T^4 I^2', 'F/m', 'Permittivität', 'permittivity'],
+    ['L^-1/2', 'm⁻¹ᐟ²', 'Wellenfunktion (1D)', 'wave function (1D)'],
+    ['L^-3/2', 'm⁻³ᐟ²', 'Wellenfunktion (3D)', 'wave function (3D)'],
+    ['M', 'kg', 'Masse', 'mass'], ['L', 'm', 'Länge', 'length'], ['T', 's', 'Zeit', 'time'], ['Θ', 'K', 'Temperatur', 'temperature'],
+    ['I', 'A', 'Stromstärke', 'electric current'], ['N', 'mol', 'Stoffmenge', 'amount of substance'], ['N^-1', 'mol⁻¹', 'pro Stoffmenge', 'per amount of substance'],
+    ['', '1', 'dimensionslos', 'dimensionless'],
+  ].map(([d, u, de, en]) => ({ key: dimKey(dimParse(d)), unit: u, name: { de, en } })));
   const NAMED_MAP = new Map(NAMED.map((x) => [x.key, x]));
   function dimInfo(a) {
     const hit = NAMED_MAP.get(dimKey(a));
@@ -165,11 +167,11 @@
       const pos = start + m[0].length - (m[1] || m[2] || m[3] || '').length;
       if (m[1] !== undefined) toks.push({ t: 'num', v: parseFloat(m[1]), s: pos, e: pos + m[1].length });
       else if (m[2] !== undefined) {
-        if (m[2] === '__proto__') throw parseError('Der Name „__proto__“ ist reserviert – bitte anders benennen', pos, pos + m[2].length);
+        if (m[2] === '__proto__') throw parseError(T('Der Name „__proto__“ ist reserviert – bitte anders benennen', 'The name “__proto__” is reserved – please choose another one'), pos, pos + m[2].length);
         toks.push({ t: 'id', v: m[2], s: pos, e: pos + m[2].length });
       }
       else if (m[3] !== undefined) {
-        if (!'+-*/^(),='.includes(m[3])) throw parseError('Unerwartetes Zeichen „' + m[3] + '“', pos, pos + 1);
+        if (!'+-*/^(),='.includes(m[3])) throw parseError(T('Unerwartetes Zeichen „' + m[3] + '“', 'Unexpected character “' + m[3] + '”'), pos, pos + 1);
         toks.push({ t: 'op', v: m[3], s: pos, e: pos + 1 });
       }
     }
@@ -189,7 +191,7 @@
     const eat = (v) => {
       if (!isOp(v)) {
         const t = toks[p];
-        throw parseError('Erwartet „' + v + '“' + (t ? ' statt „' + t.v + '“' : ' am Ende'), t ? t.s : src.length, t ? t.e : src.length);
+        throw parseError(T('Erwartet „' + v + '“' + (t ? ' statt „' + t.v + '“' : ' am Ende'), 'Expected “' + v + '”' + (t ? ' instead of “' + t.v + '”' : ' at the end')), t ? t.s : src.length, t ? t.e : src.length);
       }
       return toks[p++];
     };
@@ -234,7 +236,7 @@
     }
     function parsePrimary() {
       const t = toks[p];
-      if (!t) throw parseError('Ausdruck endet unerwartet', src.length, src.length);
+      if (!t) throw parseError(T('Ausdruck endet unerwartet', 'Expression ends unexpectedly'), src.length, src.length);
       if (t.t === 'num') { p++; return node('num', { v: t.v }, t.s, t.e); }
       if (t.t === 'id') {
         p++;
@@ -243,7 +245,7 @@
           const args = [parseExpr()];
           while (isOp(',')) { p++; args.push(parseExpr()); }
           const close = eat(')');
-          if (args.length !== 1) throw parseError(t.v + '(…) erwartet genau ein Argument, bekommt aber ' + args.length, t.s, close.e);
+          if (args.length !== 1) throw parseError(t.v + T('(…) erwartet genau ein Argument, bekommt aber ', '(…) takes exactly one argument but got ') + args.length, t.s, close.e);
           return node('call', { name: t.v, args }, t.s, close.e);
         }
         return node('var', { name: t.v }, t.s, t.e);
@@ -256,12 +258,12 @@
         inner.span = [open.s, close.e];
         return inner;
       }
-      throw parseError('Unerwartetes Symbol „' + t.v + '“', t.s, t.e);
+      throw parseError(T('Unerwartetes Symbol „' + t.v + '“', 'Unexpected symbol “' + t.v + '”'), t.s, t.e);
     }
     const ast = parseExpr();
     if (p < toks.length) {
       const t = toks[p];
-      throw parseError('Unerwartetes „' + t.v + '“', t.s, t.e);
+      throw parseError(T('Unerwartetes „' + t.v + '“', 'Unexpected “' + t.v + '”'), t.s, t.e);
     }
     ast.src = src;
     return ast;
@@ -297,9 +299,9 @@
   const LN10 = Math.LN10;
   function mk(x) {
     if (typeof x === 'object') return x;
-    if (Number.isNaN(x)) throw mathError('Ungültiger Zahlenwert (NaN) als Eingabe');
+    if (Number.isNaN(x)) throw mathError(T('Ungültiger Zahlenwert (NaN) als Eingabe', 'Invalid numeric input (NaN)'));
     if (x === 0) return { s: 0, l: -Infinity, d: 0 };
-    if (!isFinite(x)) throw mathError('Unendlicher Eingabewert');
+    if (!isFinite(x)) throw mathError(T('Unendlicher Eingabewert', 'Infinite input value'));
     return { s: Math.sign(x), l: Math.log10(Math.abs(x)), d: x };
   }
   function mathError(msg, n) { const e = new Error(msg); e.kind = 'math'; e.node = n; return e; }
@@ -322,7 +324,7 @@
       return clean(a.d * b.d, s, l);
     },
     div(a, b, n) {
-      if (b.s === 0) throw mathError('Division durch 0 – der Ausdruck ist hier mathematisch undefiniert (Singularität)', n);
+      if (b.s === 0) throw mathError(T('Division durch 0 – der Ausdruck ist hier mathematisch undefiniert (Singularität)', 'Division by 0 – the expression is mathematically undefined here (singularity)'), n);
       if (a.s === 0) return ZERO;
       const s = a.s * b.s, l = a.l - b.l;
       return clean(a.d / b.d, s, l);
@@ -349,12 +351,12 @@
       const k = toDouble(b);
       if (a.s === 0) {
         if (k > 0) return ZERO;
-        if (k === 0) throw mathError('0⁰ ist mathematisch nicht eindeutig festgelegt (unbestimmter Ausdruck)', n);
-        throw mathError('0 hoch ' + k + ' ist undefiniert (Division durch 0)', n);
+        if (k === 0) throw mathError(T('0⁰ ist mathematisch nicht eindeutig festgelegt (unbestimmter Ausdruck)', '0⁰ has no unique mathematical value (indeterminate form)'), n);
+        throw mathError(T('0 hoch ' + k + ' ist undefiniert (Division durch 0)', '0 to the power ' + k + ' is undefined (division by 0)'), n);
       }
       let s = 1;
       if (a.s < 0) {
-        if (!Number.isInteger(k)) throw mathError('Negative Basis mit nicht-ganzzahligem Exponenten – Ergebnis wäre komplex', n);
+        if (!Number.isInteger(k)) throw mathError(T('Negative Basis mit nicht-ganzzahligem Exponenten – Ergebnis wäre komplex', 'Negative base with a non-integer exponent – the result would be complex'), n);
         s = k % 2 === 0 ? 1 : -1;
       }
       return clean(Math.pow(a.d, k), s, a.l * k);
@@ -369,16 +371,16 @@
   // Argument als Double; jenseits von ≈10^±308 gibt es für exp und Winkelfunktionen keinen sinnvollen Wert
   function finiteArg(a, name, n) {
     const x = toDouble(a);
-    if (!isFinite(x)) throw mathError('Argument von ' + name + '(…) liegt außerhalb des Double-Bereichs (≈10^±308) – das Ergebnis ist dort nicht mehr sinnvoll darstellbar', n);
+    if (!isFinite(x)) throw mathError(T('Argument von ' + name + '(…) liegt außerhalb des Double-Bereichs (≈10^±308) – das Ergebnis ist dort nicht mehr sinnvoll darstellbar', 'The argument of ' + name + '(…) lies outside the double range (≈10^±308) – no meaningful result can be represented there'), n);
     return x;
   }
   const trig = (name, fn) => ({ dim: 'less', f: (a, n) => mk(fn(finiteArg(a, name, n))) });
   const FUNCS = Object.assign(Object.create(null), {
-    sqrt: { dim: 'half', f: (a, n) => { if (a.s < 0) throw mathError('Wurzel aus negativer Zahl – Ergebnis wäre imaginär', n); return a.s === 0 ? ZERO : clean(Math.sqrt(a.d), 1, a.l / 2); } },
+    sqrt: { dim: 'half', f: (a, n) => { if (a.s < 0) throw mathError(T('Wurzel aus negativer Zahl – Ergebnis wäre imaginär', 'Square root of a negative number – the result would be imaginary'), n); return a.s === 0 ? ZERO : clean(Math.sqrt(a.d), 1, a.l / 2); } },
     abs: { dim: 'same', f: (a) => (a.s < 0 ? N.neg(a) : a) },
     exp: { dim: 'less', f: (a, n) => { const x = finiteArg(a, 'exp', n); const d = Math.exp(x); return isFinite(d) && d !== 0 ? mk(d) : { s: 1, l: x / LN10, d: NaN }; } },
-    ln: { dim: 'less', f: (a, n) => { if (a.s <= 0) throw mathError('Logarithmus nur für positive Zahlen definiert', n); return mk(a.l * LN10); } },
-    log10: { dim: 'less', f: (a, n) => { if (a.s <= 0) throw mathError('Logarithmus nur für positive Zahlen definiert', n); return mk(a.l); } },
+    ln: { dim: 'less', f: (a, n) => { if (a.s <= 0) throw mathError(T('Logarithmus nur für positive Zahlen definiert', 'Logarithm is only defined for positive numbers'), n); return mk(a.l * LN10); } },
+    log10: { dim: 'less', f: (a, n) => { if (a.s <= 0) throw mathError(T('Logarithmus nur für positive Zahlen definiert', 'Logarithm is only defined for positive numbers'), n); return mk(a.l); } },
     sin: trig('sin', Math.sin),
     cos: trig('cos', Math.cos),
     tan: trig('tan', Math.tan),
@@ -388,7 +390,7 @@
     switch (n.type) {
       case 'num': return mk(n.v);
       case 'var': {
-        if (!has(env, n.name)) throw mathError('Unbekanntes Symbol „' + n.name + '“', n);
+        if (!has(env, n.name)) throw mathError(T('Unbekanntes Symbol „' + n.name + '“', 'Unknown symbol “' + n.name + '”'), n);
         return mk(env[n.name]);
       }
       case 'neg': return N.neg(evalNode(n.a, env));
@@ -399,11 +401,11 @@
       case 'pow': return N.pow(evalNode(n.a, env), evalNode(n.b, env), n);
       case 'call': {
         const F = has(FUNCS, n.name) ? FUNCS[n.name] : null;
-        if (!F) throw mathError('Unbekannte Funktion ' + n.name, n);
+        if (!F) throw mathError(T('Unbekannte Funktion ', 'Unknown function ') + n.name, n);
         return F.f(evalNode(n.args[0], env), n);
       }
     }
-    throw mathError('Unbekannter Knoten ' + n.type, n);
+    throw mathError(T('Unbekannter Knoten ', 'Unknown node ') + n.type, n);
   }
 
   // Safe evaluation: never throws, never returns bare NaN.
@@ -413,9 +415,9 @@
       const issues = [];
       const d = toDouble(r);
       if (r.s !== 0 && (!isFinite(d) || d === 0)) {
-        issues.push({ cat: 'numeric', msg: 'Ergebnis liegt außerhalb des Double-Bereichs (≈10^±308) und wurde logarithmisch berechnet.' });
+        issues.push({ cat: 'numeric', msg: T('Ergebnis liegt außerhalb des Double-Bereichs (≈10^±308) und wurde logarithmisch berechnet.', 'The result lies outside the double range (≈10^±308) and was computed logarithmically.') });
       } else if (r.s !== 0 && !isFinite(r.d)) {
-        issues.push({ cat: 'numeric', msg: 'Zwischenergebnisse lagen außerhalb des Double-Bereichs; Auswertung über log₁₀ stabilisiert.' });
+        issues.push({ cat: 'numeric', msg: T('Zwischenergebnisse lagen außerhalb des Double-Bereichs; Auswertung über log₁₀ stabilisiert.', 'Intermediate results lay outside the double range; evaluation stabilised via log₁₀.') });
       }
       return { ok: true, s: r.s, l: r.l, value: d, representable: r.s === 0 || (isFinite(d) && d !== 0), issues };
     } catch (e) {
@@ -439,14 +441,14 @@
         case 'num': return dimless();
         case 'var': {
           const d = has(symDims, n.name) ? symDims[n.name] : null;
-          if (!d) { errors.push({ node: n, msg: 'Symbol „' + n.name + '“ hat keine bekannte Dimension' }); return dimless(); }
+          if (!d) { errors.push({ node: n, msg: T('Symbol „' + n.name + '“ hat keine bekannte Dimension', 'Symbol “' + n.name + '” has no known dimension') }); return dimless(); }
           return d;
         }
         case 'neg': return go(n.a);
         case 'add': case 'sub': {
           const a = go(n.a), b = go(n.b);
           if (!dimEq(a, b)) {
-            errors.push({ node: n, kind: 'sum', msg: (n.type === 'add' ? 'Addition' : 'Subtraktion') + ' inkompatibler Dimensionen: [' + dimStr(a) + '] ' + (n.type === 'add' ? '+' : '−') + ' [' + dimStr(b) + ']', left: a, right: b });
+            errors.push({ node: n, kind: 'sum', msg: (n.type === 'add' ? T('Addition', 'Addition') : T('Subtraktion', 'Subtraction')) + T(' inkompatibler Dimensionen: [', ' of incompatible dimensions: [') + dimStr(a) + '] ' + (n.type === 'add' ? '+' : '−') + ' [' + dimStr(b) + ']', left: a, right: b });
           }
           return a;
         }
@@ -455,21 +457,21 @@
         case 'pow': {
           const base = go(n.a);
           const ed = go(n.b);
-          if (!dimIsless(ed)) errors.push({ node: n.b, msg: 'Exponent muss dimensionslos sein, hat aber [' + dimStr(ed) + ']' });
+          if (!dimIsless(ed)) errors.push({ node: n.b, msg: T('Exponent muss dimensionslos sein, hat aber [', 'An exponent must be dimensionless, but this one has [') + dimStr(ed) + ']' });
           if (dimIsless(base)) return dimless();
           const k = numericConst(n.b);
-          if (k === null) { errors.push({ node: n.b, msg: 'Eine dimensionsbehaftete Größe darf nur mit einer festen Zahl potenziert werden' }); return base; }
+          if (k === null) { errors.push({ node: n.b, msg: T('Eine dimensionsbehaftete Größe darf nur mit einer festen Zahl potenziert werden', 'A quantity with a dimension can only be raised to a fixed number') }); return base; }
           const r = rFromNumber(k);
-          if (!r) { errors.push({ node: n.b, msg: 'Exponent ' + k + ' ist nicht rational darstellbar – Dimension undefiniert' }); return base; }
+          if (!r) { errors.push({ node: n.b, msg: T('Exponent ' + k + ' ist nicht rational darstellbar – Dimension undefiniert', 'Exponent ' + k + ' is not a simple fraction – dimension undefined') }); return base; }
           return dimPow(base, r);
         }
         case 'call': {
           const F = has(FUNCS, n.name) ? FUNCS[n.name] : null;
           const a = go(n.args[0]);
-          if (!F) { errors.push({ node: n, msg: 'Unbekannte Funktion ' + n.name }); return dimless(); }
+          if (!F) { errors.push({ node: n, msg: T('Unbekannte Funktion ', 'Unknown function ') + n.name }); return dimless(); }
           if (F.dim === 'half') return dimPow(a, R(1, 2));
           if (F.dim === 'same') return a;
-          if (!dimIsless(a)) errors.push({ node: n, msg: n.name + '(…) braucht ein dimensionsloses Argument, bekommt aber [' + dimStr(a) + ']' });
+          if (!dimIsless(a)) errors.push({ node: n, msg: n.name + T('(…) braucht ein dimensionsloses Argument, bekommt aber [', '(…) needs a dimensionless argument, but got [') + dimStr(a) + ']' });
           return dimless();
         }
       }

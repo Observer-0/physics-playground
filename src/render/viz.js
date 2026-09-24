@@ -5,7 +5,7 @@
    ===================================================================== */
 (function (PP) {
   'use strict';
-  const E = PP.engine;
+  const E = PP.engine, tr = PP.i18n.T;
   const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
   const lerp = (a, b, t) => a + (b - a) * t;
   const map = (x, a, b, c, d) => lerp(c, d, clamp((x - a) / (b - a), 0, 1));
@@ -80,11 +80,11 @@
         arrow(ctx, x1 - r1 - 4, cy, x1 - r1 - 4 - len, cy, c, 2.5, 10);
         arrow(ctx, x2 + r2 + 4, cy, x2 + r2 + 4 + len, cy, c, 2.5, 10);
       }
-      label(ctx, 'F = ' + (S.fo ? S.fo('F', true) : f3(Math.abs(F))) + ' N' + (dir < 0 ? '  (abstoßend)' : ''), W / 2, cy - Math.max(r1, r2) - 18, col, { align: 'center', mono: true, color: c, size: 13 });
+      label(ctx, 'F = ' + (S.fo ? S.fo('F', true) : f3(Math.abs(F))) + ' N' + (dir < 0 ? tr('  (abstoßend)', '  (repulsive)') : ''), W / 2, cy - Math.max(r1, r2) - 18, col, { align: 'center', mono: true, color: c, size: 13 });
     } else if (!isFinite(F)) {
-      invalid(ctx, W, H * 0.25, col, 'F ist hier nicht definiert');
+      invalid(ctx, W, H * 0.25, col, tr('F ist hier nicht definiert', 'F is not defined here'));
     }
-    note(ctx, 'Nicht maßstäblich: Größen und Abstand logarithmisch, Pfeillänge ~ log F', W, H, col);
+    note(ctx, tr('Nicht maßstäblich: Größen und Abstand logarithmisch, Pfeillänge ~ log F', 'Not to scale: sizes and distance logarithmic, arrow length ~ log F'), W, H, col);
   };
 
   V.kinematics = (ctx, W, H, S) => {
@@ -94,7 +94,7 @@
     const sAt = (t) => v.s0 + v.v0 * t + 0.5 * v.a * t * t;
     let lo = Infinity, hi = -Infinity;
     for (let i = 0; i <= 60; i++) { const s = sAt((tmax * i) / 60); lo = Math.min(lo, s); hi = Math.max(hi, s); }
-    if (!isFinite(lo) || !isFinite(hi)) return invalid(ctx, W, H, col, 'Werte nicht darstellbar');
+    if (!isFinite(lo) || !isFinite(hi)) return invalid(ctx, W, H, col, tr('Werte nicht darstellbar', 'Values cannot be displayed'));
     if (hi - lo < 1e-9) { lo -= 1; hi += 1; }
     const pad = (hi - lo) * 0.08; lo -= pad; hi += pad;
     const X = (s) => map(s, lo, hi, 40, W - 40);
@@ -133,7 +133,7 @@
     if (v.a !== 0) arrow(ctx, bx, ty - 48, bx + Math.sign(v.a) * 26, ty - 48, col.accent, 2, 7);
     label(ctx, 'v', bx + vl + (vl >= 0 ? 6 : -14), ty - 30, col, { color: col.cyan });
     label(ctx, 't = ' + E.fmt(v.t, 3) + ' s    s = ' + f3(s) + ' m    v = ' + f3(vel) + ' m/s', 16, 24, col, { mono: true, color: col.ink });
-    label(ctx, 'Punkte: Position zu jeder vollen Sekunde', 16, 42, col, { size: 11, color: col.ink3 });
+    label(ctx, tr('Punkte: Position zu jeder vollen Sekunde', 'Dots: position at every full second'), 16, 42, col, { size: 11, color: col.ink3 });
   };
 
   V.freefall = (ctx, W, H, S) => {
@@ -171,9 +171,9 @@
     const vel = o('v');
     if (!landed && isFinite(vi) && vi > 0) arrow(ctx, bx + 22, by, bx + 22, by + (vel / vi) * (ground - top) * 0.35, col.cyan, 2.5);
     label(ctx, 't = ' + E.fmt(v.t, 3) + ' s', W - 16, 30, col, { align: 'right', mono: true, color: col.ink });
-    label(ctx, 'h = ' + (landed ? '0 (am Boden)' : f3(h) + ' m'), W - 16, 48, col, { align: 'right', mono: true, color: landed ? col.red : col.ink });
+    label(ctx, 'h = ' + (landed ? tr('0 (am Boden)', '0 (on the ground)') : f3(h) + ' m'), W - 16, 48, col, { align: 'right', mono: true, color: landed ? col.red : col.ink });
     label(ctx, 'v = ' + f3(landed ? vi : vel) + ' m/s', W - 16, 66, col, { align: 'right', mono: true, color: col.cyan });
-    if (landed) label(ctx, 'Aufschlag bei t = ' + E.fmt(tf, 3) + ' s', bx, ground + 22, col, { align: 'center', color: col.red });
+    if (landed) label(ctx, tr('Aufschlag bei t = ', 'Impact at t = ') + E.fmt(tf, 3) + ' s', bx, ground + 22, col, { align: 'center', color: col.red });
   };
 
   V.spring = (ctx, W, H, S) => {
@@ -186,7 +186,7 @@
     const eq = W * 0.55;
     const scale = (W * 0.3) / Math.max(0.5, Math.abs(v.x));
     if (!isFinite(T) || T <= 0) {
-      invalid(ctx, W, H * 0.3, col, 'Keine Schwingung: k und m müssen positiv sein');
+      invalid(ctx, W, H * 0.3, col, tr('Keine Schwingung: k und m müssen positiv sein', 'No oscillation: k and m must be positive'));
     }
     const Tdisp = isFinite(T) && T > 0 ? clamp(T, 1.2, 6) : Infinity;
     const phase = isFinite(Tdisp) ? (2 * Math.PI * t) / Tdisp : 0;
@@ -210,7 +210,7 @@
     label(ctx, 'F = −kx', mx, cy - 44, col, { align: 'center', color: col.accent, size: 11 });
     if (isFinite(T) && T > 0) {
       const f = T / Tdisp;
-      const txt = Math.abs(f - 1) < 1e-6 ? 'Echtzeit' : f < 1 ? 'Zeitlupe: ' + E.fmt(1 / f, 3) + '× langsamer' : 'Zeitraffer: ' + E.fmt(f, 3) + '× schneller';
+      const txt = Math.abs(f - 1) < 1e-6 ? tr('Echtzeit', 'real time') : f < 1 ? tr('Zeitlupe: ' + E.fmt(1 / f, 3) + '× langsamer', 'slow motion: ' + E.fmt(1 / f, 3) + '× slower') : tr('Zeitraffer: ' + E.fmt(f, 3) + '× schneller', 'time-lapse: ' + E.fmt(f, 3) + '× faster');
       label(ctx, 'T = ' + f3(T) + ' s   (' + txt + ')', 16, 24, col, { mono: true, color: col.ink });
     }
   };
@@ -223,7 +223,7 @@
     ctx.strokeStyle = col.ink3; ctx.setLineDash([4, 5]); ctx.lineWidth = 1;
     ctx.beginPath(); ctx.arc(cx, cy, R, 0, 7); ctx.stroke(); ctx.setLineDash([]);
     ctx.fillStyle = col.ink3; ctx.beginPath(); ctx.arc(cx, cy, 3, 0, 7); ctx.fill();
-    if (!isFinite(T) || T <= 0) return invalid(ctx, W, H, col, 'Keine Umlaufbewegung darstellbar');
+    if (!isFinite(T) || T <= 0) return invalid(ctx, W, H, col, tr('Keine Umlaufbewegung darstellbar', 'No orbital motion to display'));
     const Tdisp = clamp(T, 2.5, 8);
     const ang = -(2 * Math.PI * t) / Tdisp;
     const px = cx + R * Math.cos(ang), py = cy + R * Math.sin(ang);
@@ -234,30 +234,30 @@
     arrow(ctx, px, py, px + (cx - px) * 0.45, py + (cy - py) * 0.45, col.accent, 2.5);
     ctx.fillStyle = col.ink; ctx.beginPath(); ctx.arc(px, py, 9, 0, 7); ctx.fill();
     label(ctx, 'v', px + tx * R * 0.55 + 6, py + ty * R * 0.55, col, { color: col.cyan });
-    label(ctx, 'a (zur Mitte)', 16, 44, col, { color: col.accent, size: 12 });
+    label(ctx, tr('a (zur Mitte)', 'a (towards the centre)'), 16, 44, col, { color: col.accent, size: 12 });
     label(ctx, 'v (tangential)', 16, 62, col, { color: col.cyan, size: 12 });
     const f = T / Tdisp;
-    label(ctx, 'T = ' + f3(T) + ' s' + (Math.abs(f - 1) < 1e-6 ? '' : '   (Anzeige ' + E.fmt(f > 1 ? f : 1 / f, 3) + '× ' + (f > 1 ? 'schneller' : 'langsamer') + ')'), 16, 24, col, { mono: true, color: col.ink });
+    label(ctx, 'T = ' + f3(T) + ' s' + (Math.abs(f - 1) < 1e-6 ? '' : tr('   (Anzeige ', '   (shown ') + E.fmt(f > 1 ? f : 1 / f, 3) + '× ' + (f > 1 ? tr('schneller', 'faster') : tr('langsamer', 'slower')) + ')'), 16, 24, col, { mono: true, color: col.ink });
   };
 
   V.relativity = (ctx, W, H, S) => {
     const { v, o, col, t } = S;
     grid(ctx, W, H, col);
     const g = o('gamma');
-    if (!isFinite(g)) return invalid(ctx, W, H, col, 'γ ist für |β| ≥ 1 nicht definiert');
+    if (!isFinite(g)) return invalid(ctx, W, H, col, tr('γ ist für |β| ≥ 1 nicht definiert', 'γ is not defined for |β| ≥ 1'));
     const L = W * 0.56, x0 = W * 0.36;
     const rowY = [H * 0.16, H * 0.34];
-    label(ctx, 'Stab in Ruhe: L₀', 16, rowY[0] + 5, col, { size: 12 });
+    label(ctx, tr('Stab in Ruhe: L₀', 'Rod at rest: L₀'), 16, rowY[0] + 5, col, { size: 12 });
     ctx.fillStyle = col.ink2; ctx.fillRect(x0, rowY[0] - 7, L, 14);
-    label(ctx, 'gemessen im Labor: L = L₀/γ', 16, rowY[1] + 5, col, { size: 12 });
+    label(ctx, tr('gemessen im Labor: L = L₀/γ', 'measured in the lab: L = L₀/γ'), 16, rowY[1] + 5, col, { size: 12 });
     const Lc = L / g;
     const drift = ((t * 60) % (L - Math.max(Lc, 2) + 1));
     ctx.fillStyle = col.accent; ctx.fillRect(x0 + drift, rowY[1] - 7, Math.max(Lc, 1.5), 14);
-    if (Lc < 3) label(ctx, '(kürzer als ein Pixel)', x0 + drift + 6, rowY[1] - 12, col, { size: 10, color: col.ink3 });
+    if (Lc < 3) label(ctx, tr('(kürzer als ein Pixel)', '(shorter than a pixel)'), x0 + drift + 6, rowY[1] - 12, col, { size: 10, color: col.ink3 });
     arrow(ctx, x0 + drift + Math.max(Lc, 2) + 6, rowY[1], x0 + drift + Math.max(Lc, 2) + 40, rowY[1], col.accent, 2, 7);
     // clocks
     const cyc = H * 0.66, rC = Math.min(52, H * 0.16);
-    const clocks = [[W * 0.3, 1, 'Laboruhr', col.ink], [W * 0.7, 1 / g, 'Bewegte Uhr (Eigenzeit)', col.accent]];
+    const clocks = [[W * 0.3, 1, tr('Laboruhr', 'Lab clock'), col.ink], [W * 0.7, 1 / g, tr('Bewegte Uhr (Eigenzeit)', 'Moving clock (proper time)'), col.accent]];
     clocks.forEach(([cx, rate, name, c]) => {
       ctx.strokeStyle = col.ink3; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(cx, cyc, rC, 0, 7); ctx.stroke();
       for (let i = 0; i < 12; i++) {
@@ -269,7 +269,7 @@
       label(ctx, name, cx, cyc + rC + 20, col, { align: 'center', size: 12, color: c });
     });
     label(ctx, 'γ = ' + E.fmt(g, 6) + '   β = ' + E.fmt(v.beta, 8), 16, H - 14, col, { mono: true, color: col.ink });
-    note(ctx, 'Gemessene, nicht gesehene Längen (Terrell-Penrose)', W, H - 14, col);
+    note(ctx, tr('Gemessene, nicht gesehene Längen (Terrell-Penrose)', 'Measured, not seen, lengths (Terrell–Penrose)'), W, H - 14, col);
   };
 
   const STARS = (() => { const r = rng(7); return Array.from({ length: 90 }, () => [r(), r(), r()]); })();
@@ -283,7 +283,7 @@
     const { v, o, col, t } = S;
     stars(ctx, W, H, col);
     const T = o('TH');
-    if (!isFinite(T)) return invalid(ctx, W, H, col, 'T_H ist für M ≤ 0 nicht definiert');
+    if (!isFinite(T)) return invalid(ctx, W, H, col, tr('T_H ist für M ≤ 0 nicht definiert', 'T_H is not defined for M ≤ 0'));
     const cx = W / 2, cy = H * 0.46;
     const R = map(Math.log10(Math.max(v.M, 1)), 8, 42, 14, Math.min(W, H) * 0.26);
     const lt = Math.log10(T);
@@ -306,9 +306,9 @@
     ctx.strokeStyle = col.ink3; ctx.lineWidth = 1; ctx.stroke();
     label(ctx, 'T_H = ' + f3(T) + ' K', cx, cy + R + 30, col, { align: 'center', mono: true, size: 14, color: col.ink });
     const cmb = PP.model.C.T_cmb.value;
-    label(ctx, T < cmb ? 'kälter als die Hintergrundstrahlung (2,7 K)' : 'heißer als die Hintergrundstrahlung (2,7 K)', cx, cy + R + 50, col, { align: 'center', size: 12, color: T < cmb ? col.cyan : col.accent });
+    label(ctx, T < cmb ? tr('kälter als die Hintergrundstrahlung (2,7 K)', 'colder than the cosmic microwave background (2.7 K)') : tr('heißer als die Hintergrundstrahlung (2,7 K)', 'hotter than the cosmic microwave background (2.7 K)'), cx, cy + R + 50, col, { align: 'center', size: 12, color: T < cmb ? col.cyan : col.accent });
     label(ctx, 'r_s = ' + f3(o('rs')) + ' m', 16, 24, col, { mono: true, color: col.ink2 });
-    note(ctx, 'Schematisch: Größe ~ log M, Teilchenzahl ~ log T', W, H, col);
+    note(ctx, tr('Schematisch: Größe ~ log M, Teilchenzahl ~ log T', 'Schematic: size ~ log M, number of particles ~ log T'), W, H, col);
   };
 
   V.horizon = (ctx, W, H, S) => {
@@ -330,8 +330,8 @@
     ctx.globalAlpha = 1;
     ctx.strokeStyle = col.ink3; ctx.beginPath(); ctx.arc(cx, cy, R, 0, 7); ctx.stroke();
     label(ctx, isFinite(skb) ? 'S/k_B = A/(4 l_P²) ≈ ' + f3(skb) : 'S/k_B nicht definiert', cx, cy + R + 32, col, { align: 'center', mono: true, size: 14, color: col.ink });
-    label(ctx, 'dimensionslos: eine reine Zahl', cx, cy + R + 52, col, { align: 'center', size: 12, color: col.ink2 });
-    note(ctx, 'Schematisch: Jede Zelle steht für unvorstellbar viele Planck-Flächen', W, H, col);
+    label(ctx, tr('dimensionslos: eine reine Zahl', 'dimensionless: a pure number'), cx, cy + R + 52, col, { align: 'center', size: 12, color: col.ink2 });
+    note(ctx, tr('Schematisch: Jede Zelle steht für unvorstellbar viele Planck-Flächen', 'Schematic: each cell stands for an unimaginable number of Planck areas'), W, H, col);
   };
 
   V.spacetime = (ctx, W, H, S) => {
@@ -360,10 +360,10 @@
     const [bx, by] = P(N / 2, N / 2);
     const br = map(Math.log10(Math.max(v.u, 1e-30)), -15, 40, 4, 22);
     ctx.fillStyle = col.accent; ctx.beginPath(); ctx.arc(bx, by - br, br, 0, 7); ctx.fill();
-    label(ctx, 'Geometrie: G_μν ~ L⁻²', 16, H - 36, col, { size: 12, color: col.cyan });
-    label(ctx, 'Materie/Energie: (8πG/c⁴) T_μν ~ L⁻²', W - 16, H - 36, col, { size: 12, color: col.accent, align: 'right' });
+    label(ctx, tr('Geometrie: G_μν ~ L⁻²', 'Geometry: G_μν ~ L⁻²'), 16, H - 36, col, { size: 12, color: col.cyan });
+    label(ctx, tr('Materie/Energie: (8πG/c⁴) T_μν ~ L⁻²', 'Matter/energy: (8πG/c⁴) T_μν ~ L⁻²'), W - 16, H - 36, col, { size: 12, color: col.accent, align: 'right' });
     label(ctx, 'K ~ ' + f3(K) + ' m⁻²   ℓ ~ ' + f3(o('Lc')) + ' m', 16, 24, col, { mono: true, color: col.ink });
-    note(ctx, 'Schematisch – keine Lösung der Feldgleichungen', W, H, col);
+    note(ctx, tr('Schematisch – keine Lösung der Feldgleichungen', 'Schematic – not a solution of the field equations'), W, H, col);
   };
 
   V.wavefunction = (ctx, W, H, S) => {
@@ -410,7 +410,7 @@
       if (k <= 6 || on) label(ctx, 'n=' + k, lx + 24, LY(k) + 4, col, { size: 10, color: on ? col.accent : col.ink3 });
     }
     label(ctx, 'E ∝ n²', lx - 20, top - 12, col, { size: 11, align: 'center' });
-    note(ctx, sup ? 'Überlagerung: |ψ|² schwappt hin und her' : 'Einzelzustand: |ψ|² bleibt konstant, nur die Phase dreht sich', W - 120, H, col);
+    note(ctx, sup ? tr('Überlagerung: |ψ|² schwappt hin und her', 'Superposition: |ψ|² sloshes back and forth') : tr('Einzelzustand: |ψ|² bleibt konstant, nur die Phase dreht sich', 'Single state: |ψ|² stays constant, only the phase rotates'), W - 120, H, col);
   };
 
   V.scales = (ctx, W, H, S) => {
@@ -423,15 +423,15 @@
     // experimentally accessible band (≈ down to 1e-19 m)
     ctx.fillStyle = col.cyan; ctx.globalAlpha = 0.12; ctx.fillRect(X(-19), y - 14, X(hi) - X(-19), 28); ctx.globalAlpha = 1;
     ctx.fillStyle = col.red; ctx.globalAlpha = 0.08; ctx.fillRect(X(Math.log10(o('lP'))), y - 14, X(-19) - X(Math.log10(o('lP'))), 28); ctx.globalAlpha = 1;
-    label(ctx, '≈ 16 Größenordnungen ohne experimentellen Zugang', X(Math.log10(o('lP'))), y - 84, col, { align: 'left', size: 11, color: col.red });
-    label(ctx, 'direkt vermessen (bis ≈ 10⁻¹⁹ m)', Math.min(X(-19), W - 200), y - 64, col, { align: 'left', size: 11, color: col.cyan });
+    label(ctx, tr('≈ 16 Größenordnungen ohne experimentellen Zugang', '≈ 16 orders of magnitude beyond experimental reach'), X(Math.log10(o('lP'))), y - 84, col, { align: 'left', size: 11, color: col.red });
+    label(ctx, tr('direkt vermessen (bis ≈ 10⁻¹⁹ m)', 'measured directly (down to ≈ 10⁻¹⁹ m)'), Math.min(X(-19), W - 200), y - 64, col, { align: 'left', size: 11, color: col.cyan });
     const marks = [
-      [Math.log10(o('lP')), 'Planck-Länge', col.accent],
-      [Math.log10(8.4e-16), 'Proton ≈ 0,84 fm', col.ink],
-      [-10, 'Atom ≈ 10⁻¹⁰ m', col.ink],
-      [Math.log10(1.7), 'Mensch', col.ink],
-      [Math.log10(1.2742e7), 'Erde (Ø)', col.ink],
-      [Math.log10(8.8e26), 'beobachtbares Universum (Ø ≈)', col.ink],
+      [Math.log10(o('lP')), tr('Planck-Länge', 'Planck length'), col.accent],
+      [Math.log10(8.4e-16), tr('Proton ≈ 0,84 fm', 'proton ≈ 0.84 fm'), col.ink],
+      [-10, tr('Atom ≈ 10⁻¹⁰ m', 'atom ≈ 10⁻¹⁰ m'), col.ink],
+      [Math.log10(1.7), tr('Mensch', 'human'), col.ink],
+      [Math.log10(1.2742e7), tr('Erde (Ø)', 'Earth (Ø)'), col.ink],
+      [Math.log10(8.8e26), tr('beobachtbares Universum (Ø ≈)', 'observable universe (Ø ≈)'), col.ink],
     ];
     marks.forEach(([l, s, c], i) => {
       const up = i % 2 === 0;
@@ -439,7 +439,7 @@
       ctx.strokeStyle = c; ctx.beginPath(); ctx.moveTo(X(l), y); ctx.lineTo(X(l), up ? y - 26 : y + 50); ctx.stroke();
       label(ctx, s, X(l), up ? y - 32 : y + 64, col, { align: i === 0 ? 'left' : i === marks.length - 1 ? 'right' : 'center', size: 11, color: c });
     });
-    note(ctx, 'Logarithmische Längenskala in Metern', W, H, col);
+    note(ctx, tr('Logarithmische Längenskala in Metern', 'Logarithmic length scale in metres'), W, H, col);
   };
 
   PP.viz = V;

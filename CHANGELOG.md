@@ -1,5 +1,16 @@
 # Änderungen
 
+## 2026-09-24
+
+**Neu: Englisch**
+
+- Knopf **DE / EN** in der Seitenleiste und in der Kopfzeile auf dem Handy. Alle Texte sind übersetzt: Oberfläche, alle Experimente mit Presets, Hinweisen und Erklärungen, Konstanten und Quellen, Fehlermeldungen der Engine, alle Grundlagen-Abschnitte, Beschriftungen in den Visualisierungen und Graphen sowie die Namen der Tests.
+- Die Wahl wird im Browser gespeichert; ohne gespeicherte Wahl gilt die Browsersprache. Beim Umschalten bleiben Experiment, Werte, Tab und Scrollposition erhalten. `#…&lang=en` in einem Link setzt die Sprache für diese Sitzung.
+- Zahlen in Texten folgen der Sprache (Deutsch 2,7 K, Englisch 2.7 K); `<html lang>` und Seitentitel wechseln mit.
+- Technik: neues Modul `src/core/i18n.js`. Texte stehen als Paare `{ de, en }` direkt neben den Daten bzw. als `T('…', '…')` im Code.
+
+**Tests:** 59 → 63. Neu ist eine Gruppe „Sprache“, die unter anderem prüft, dass in den englischen Texten der Experimente keine deutschen Reste stehen. Die übrigen Prüfungen vergleichen deutsche Meldungen und laufen deshalb immer auf Deutsch; die Testnamen erscheinen in der gewählten Sprache.
+
 ## 2026-09-23
 
 **Fehler behoben**

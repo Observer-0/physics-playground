@@ -4,14 +4,15 @@
    ===================================================================== */
 (function (PP) {
   'use strict';
-  const E = PP.engine, M = PP.model, U = PP.ui;
+  const E = PP.engine, M = PP.model, U = PP.ui, T = PP.i18n.T;
   const S = U.S;
   const { $, $$, esc } = U;
 
-  const CAT = {
-    math: 'Mathematisch undefiniert', numeric: 'Numerisch problematisch', unreal: 'Physikalisch unrealistisch',
-    model: 'Außerhalb des Modells', info: 'Hinweis', assume: 'Modellannahme',
-  };
+  const CAT = PP.i18n.localize({
+    math: { de: 'Mathematisch undefiniert', en: 'Mathematically undefined' }, numeric: { de: 'Numerisch problematisch', en: 'Numerically problematic' },
+    unreal: { de: 'Physikalisch unrealistisch', en: 'Physically unrealistic' }, model: { de: 'Außerhalb des Modells', en: 'Outside the model' },
+    info: { de: 'Hinweis', en: 'Note' }, assume: { de: 'Modellannahme', en: 'Model assumption' },
+  });
   const CAT_ORDER = ['math', 'numeric', 'unreal', 'model', 'info', 'assume'];
   const ANIM = new Set(['spring', 'circular', 'wavefunction', 'relativity', 'blackhole']);
   const form = () => M.formOf(S.exp, S.form);
@@ -96,10 +97,10 @@
       '<div><div class="crumb">' + esc(exp.group) + '</div><h1>' + esc(exp.title) + '</h1>' + (exp.subtitle ? '<div class="sub">' + esc(exp.subtitle) + '</div>' : '') + '</div>' +
       (exp.hall ? '' : '<div class="eq">' + U.tex(exp.tex) + '</div>') +
       '<div class="acts">' +
-      (hasVars ? '<button class="btn' + (S.cmp ? ' on' : '') + '" data-a="cmp" aria-pressed="' + S.cmp + '">Vergleich A/B</button>' +
-        '<button class="btn" data-a="reset" title="Alle Werte auf den Ausgangszustand">Zurücksetzen</button>' : '') +
-      '<button class="btn" data-a="save">Speichern</button>' +
-      '<button class="btn" data-a="share">Teilen</button>' +
+      (hasVars ? '<button class="btn' + (S.cmp ? ' on' : '') + '" data-a="cmp" aria-pressed="' + S.cmp + '">' + T('Vergleich A/B', 'Compare A/B') + '</button>' +
+        '<button class="btn" data-a="reset" title="' + T('Alle Werte auf den Ausgangszustand', 'Reset all values to the starting state') + '">' + T('Zurücksetzen', 'Reset') + '</button>' : '') +
+      '<button class="btn" data-a="save">' + T('Speichern', 'Save') + '</button>' +
+      '<button class="btn" data-a="share">' + T('Teilen', 'Share') + '</button>' +
       '<div class="pop" id="pop" hidden></div>' +
       '</div></header>';
   }
@@ -110,11 +111,11 @@
     const m = exp.meta || {};
     return '<section class="hero">' +
       '<div class="big">' + U.tex(exp.tex) + '</div>' +
-      '<div class="dimline"><span>Dimension von ' + U.tex(prim.tex) + '</span>' + U.tex(E.dimTex(prim.dimv)) + '<span>' + esc(di.name || '') + (U.unit(prim.dimv) ? ' · ' + esc(U.unit(prim.dimv)) : '') + '</span></div>' +
+      '<div class="dimline"><span>' + T('Dimension von ', 'Dimension of ') + U.tex(prim.tex) + '</span>' + U.tex(E.dimTex(prim.dimv)) + '<span>' + esc(di.name || '') + (U.unit(prim.dimv) ? ' · ' + esc(U.unit(prim.dimv)) : '') + '</span></div>' +
       '<div class="meta-row">' +
-      (m.mathType ? '<span><b>Typ</b>' + esc(m.mathType) + '</span>' : '') +
-      (m.mainDim ? '<span><b>Hauptdimension</b>' + esc(m.mainDim) + '</span>' : '') +
-      (m.domain ? '<span><b>Gebiet</b>' + esc(m.domain) + '</span>' : '') +
+      (m.mathType ? '<span><b>' + T('Typ', 'Type') + '</b>' + esc(m.mathType) + '</span>' : '') +
+      (m.mainDim ? '<span><b>' + T('Hauptdimension', 'Main dimension') + '</b>' + esc(m.mainDim) + '</span>' : '') +
+      (m.domain ? '<span><b>' + T('Gebiet', 'Field') + '</b>' + esc(m.domain) + '</span>' : '') +
       '</div></section>';
   }
   function labHTML(exp) {
@@ -123,29 +124,29 @@
     const showGraph = !!S.graph && hasVars;
     const vc = (exp.vizControls || []).map((c) => '<label class="switch plain"><input type="checkbox" data-vo="' + c.key + '"' + (S.vizOpts[c.key] ? ' checked' : '') + '><span>' + esc(c.label) + '</span></label>').join('');
     const forms = exp.forms.length > 1
-      ? '<div class="seg" role="group" aria-label="Formel-Variante">' + exp.forms.map((x) => '<button data-form="' + x.id + '" class="' + (x.id === S.form ? 'on' : '') + '">' + esc(x.label) + '</button>').join('') + '</div>' : '';
-    const ab = S.cmp ? '<div class="seg" role="group" aria-label="Parametersatz bearbeiten"><button data-edit="A" class="' + (S.edit === 'A' ? 'on' : '') + '">Satz A</button><button data-edit="B" class="' + (S.edit === 'B' ? 'on' : '') + '">Satz B</button></div>' : '';
+      ? '<div class="seg" role="group" aria-label="' + T('Formel-Variante', 'Formula variant') + '">' + exp.forms.map((x) => '<button data-form="' + x.id + '" class="' + (x.id === S.form ? 'on' : '') + '">' + esc(x.label) + '</button>').join('') + '</div>' : '';
+    const ab = S.cmp ? '<div class="seg" role="group" aria-label="' + T('Parametersatz bearbeiten', 'Edit parameter set') + '"><button data-edit="A" class="' + (S.edit === 'A' ? 'on' : '') + '">' + T('Satz A', 'Set A') + '</button><button data-edit="B" class="' + (S.edit === 'B' ? 'on' : '') + '">' + T('Satz B', 'Set B') + '</button></div>' : '';
     const presets = (exp.presets || []).filter((p) => !p.form || p.form === S.form);
     return '<div class="lab" id="lab">' +
       '<div class="stage">' +
-      '<section class="panel"><div class="ph"><h3>Visualisierung' + (S.cmp ? ' · Satz ' + S.edit : '') + '</h3>' + vc + '</div><div class="vizwrap"><canvas id="vizc" role="img" aria-label="Visualisierung von ' + esc(exp.title) + '"></canvas></div></section>' +
+      '<section class="panel"><div class="ph"><h3>' + T('Visualisierung', 'Visualisation') + (S.cmp ? T(' · Satz ', ' · Set ') + S.edit : '') + '</h3>' + vc + '</div><div class="vizwrap"><canvas id="vizc" role="img" aria-label="' + T('Visualisierung von ', 'Visualisation of ') + esc(exp.title) + '"></canvas></div></section>' +
       (showGraph ? '<section class="panel" id="gpanel"></section>' : '') +
       '</div>' +
       '<div class="controls">' +
-      '<section class="panel"><div class="ph"><h3>Parameter</h3>' + ab + '</div>' +
+      '<section class="panel"><div class="ph"><h3>' + T('Parameter', 'Parameters') + '</h3>' + ab + '</div>' +
       '<div class="pb">' + (forms ? '<div style="margin-bottom:10px">' + forms + '</div>' : '') +
       (presets.length ? '<div class="presets">' + presets.map((p) => '<button class="chip" data-preset="' + exp.presets.indexOf(p) + '">' + esc(p.name) + '</button>').join('') + '</div><div class="pnote" id="pnote"></div>' : '') +
       '<div id="prms"></div><div id="cprms"></div></div></section>' +
-      '<section class="panel"><div class="ph"><h3>Ergebnis</h3></div><div class="pb" id="res" aria-live="polite"></div></section>' +
-      '<section class="panel"><div class="ph"><h3>Physikalischer Status</h3></div><div class="pb" id="stat"></div></section>' +
+      '<section class="panel"><div class="ph"><h3>' + T('Ergebnis', 'Result') + '</h3></div><div class="pb" id="res" aria-live="polite"></div></section>' +
+      '<section class="panel"><div class="ph"><h3>' + T('Physikalischer Status', 'Physical status') + '</h3></div><div class="pb" id="stat"></div></section>' +
       '</div></div>';
   }
 
   function render(el) {
     const exp = S.exp;
     const tabs = exp.hall
-      ? [['formula', 'Formel'], ['dims', 'Dimensionen'], ['physics', 'Physik'], ['lab', 'Graph & Labor']]
-      : [['formula', 'Formel & Variablen'], ['dims', 'Dimensionsanalyse'], ['physics', 'Physik & Grenzen']];
+      ? [['formula', T('Formel', 'Formula')], ['dims', T('Dimensionen', 'Dimensions')], ['physics', T('Physik', 'Physics')], ['lab', T('Graph & Labor', 'Graph & lab')]]
+      : [['formula', T('Formel & Variablen', 'Formula & variables')], ['dims', T('Dimensionsanalyse', 'Dimensional analysis')], ['physics', T('Physik & Grenzen', 'Physics & limits')]];
     if (!tabs.some((t) => t[0] === S.tab)) S.tab = tabs[0][0];
     let h = '<div class="' + (exp.hall ? 'hallx' : '') + '">' + headerHTML(exp);
     if (exp.hall) h += heroHTML(exp);
@@ -191,11 +192,11 @@
       else if (a === 'share') openPop('share', t);
       else if (a === 'dosave') {
         const name = ($('#savename').value || '').trim() || S.exp.title;
-        if (U.saved.add(name)) { U.toast('Gespeichert: ' + name); closePop(); U.render(false); }
-        else U.toast('Speichern nicht möglich – der Browser-Speicher ist hier gesperrt');
+        if (U.saved.add(name)) { U.toast(T('Gespeichert: ', 'Saved: ') + name); closePop(); U.render(false); }
+        else U.toast(T('Speichern nicht möglich – der Browser-Speicher ist hier gesperrt', 'Cannot save – browser storage is blocked here'));
       } else if (a === 'copylink' || a === 'copycode') {
         const inp = $(a === 'copylink' ? '#sharelink' : '#sharecode');
-        U.copy(inp.value).then((ok) => U.toast(ok ? 'Kopiert' : 'Kopieren fehlgeschlagen – bitte manuell markieren'));
+        U.copy(inp.value).then((ok) => U.toast(ok ? T('Kopiert', 'Copied') : T('Kopieren fehlgeschlagen – bitte manuell markieren', 'Copying failed – please select the text manually')));
       } else if (a === 'closepop') closePop();
     });
     document.addEventListener('keydown', escClose);
@@ -209,13 +210,13 @@
     p.dataset.kind = kind;
     const st = U.stateString();
     if (kind === 'save') {
-      p.innerHTML = '<label for="savename">Name für diesen Zustand</label><input id="savename" value="' + esc(S.exp.title + (S.cmp ? ' (A/B)' : '')) + '"><div class="row"><button class="btn on" data-a="dosave">Speichern</button><button class="btn" data-a="closepop">Abbrechen</button></div><div class="faint" style="font-size:12px">Wird lokal in diesem Browser gespeichert.</div>';
+      p.innerHTML = '<label for="savename">' + T('Name für diesen Zustand', 'Name for this state') + '</label><input id="savename" value="' + esc(S.exp.title + (S.cmp ? ' (A/B)' : '')) + '"><div class="row"><button class="btn on" data-a="dosave">' + T('Speichern', 'Save') + '</button><button class="btn" data-a="closepop">' + T('Abbrechen', 'Cancel') + '</button></div><div class="faint" style="font-size:12px">' + T('Wird lokal in diesem Browser gespeichert.', 'Stored locally in this browser.') + '</div>';
     } else {
       let href = '';
       try { href = location.href.split('#')[0] + '#' + st; } catch (_) { href = '#' + st; }
-      p.innerHTML = '<label for="sharelink">Link auf genau diesen Zustand</label><div class="row"><input id="sharelink" readonly value="' + esc(href) + '"><button class="btn sm" data-a="copylink">Kopieren</button></div>' +
-        '<label for="sharecode">Zustands-Code (zum Einfügen unter „Gespeichert“)</label><div class="row"><input id="sharecode" readonly value="' + esc(st) + '"><button class="btn sm" data-a="copycode">Kopieren</button></div>' +
-        '<div class="faint" style="font-size:12px">Wenn die App in einer Vorschau läuft, funktioniert der Code zuverlässiger als der Link.</div>';
+      p.innerHTML = '<label for="sharelink">' + T('Link auf genau diesen Zustand', 'Link to exactly this state') + '</label><div class="row"><input id="sharelink" readonly value="' + esc(href) + '"><button class="btn sm" data-a="copylink">' + T('Kopieren', 'Copy') + '</button></div>' +
+        '<label for="sharecode">' + T('Zustands-Code (zum Einfügen unter „Gespeichert“)', 'State code (to paste under “Saved”)') + '</label><div class="row"><input id="sharecode" readonly value="' + esc(st) + '"><button class="btn sm" data-a="copycode">' + T('Kopieren', 'Copy') + '</button></div>' +
+        '<div class="faint" style="font-size:12px">' + T('Wenn die App in einer Vorschau läuft, funktioniert der Code zuverlässiger als der Link.', 'If the app is running inside a preview, the code works more reliably than the link.') + '</div>';
     }
     p.hidden = false;
     const f = p.querySelector('input'); if (f) { f.focus(); f.select(); }
@@ -287,20 +288,20 @@
     let extra = '';
     if (d.constant) {
       const c = M.C[d.constant];
-      extra += '<span>Naturkonstante · ' + esc(M.KIND_LABEL[c.kind]) + '</span>';
-      if (S.brk) extra += ' <button class="btn sm" data-op="div" data-k="' + d.key + '">÷10</button><button class="btn sm" data-op="mul" data-k="' + d.key + '">×10</button><button class="btn sm" data-op="orig" data-k="' + d.key + '">Originalwert</button>';
-      else extra += ' <span class="faint">· im Break-Modus veränderbar</span>';
+      extra += '<span>' + T('Naturkonstante · ', 'Constant of nature · ') + esc(M.KIND_LABEL[c.kind]) + '</span>';
+      if (S.brk) extra += ' <button class="btn sm" data-op="div" data-k="' + d.key + '">÷10</button><button class="btn sm" data-op="mul" data-k="' + d.key + '">×10</button><button class="btn sm" data-op="orig" data-k="' + d.key + '">' + T('Originalwert', 'Original value') + '</button>';
+      else extra += ' <span class="faint">' + T('· im Break-Modus veränderbar', '· adjustable in Break mode') + '</span>';
     } else if (S.brk) {
-      extra += '<button class="btn sm" data-op="neg" data-k="' + d.key + '" title="Vorzeichen umkehren">±</button><button class="btn sm" data-op="div" data-k="' + d.key + '">÷10</button><button class="btn sm" data-op="mul" data-k="' + d.key + '">×10</button>';
+      extra += '<button class="btn sm" data-op="neg" data-k="' + d.key + '" title="' + T('Vorzeichen umkehren', 'Flip sign') + '">±</button><button class="btn sm" data-op="div" data-k="' + d.key + '">÷10</button><button class="btn sm" data-op="mul" data-k="' + d.key + '">×10</button>';
     }
     if (S.exp.animateVar === d.key) {
-      extra += '<button class="btn sm' + (S.playing ? ' on' : '') + '" data-op="play" data-k="' + d.key + '">' + (S.playing ? 'Anhalten' : 'Zeit laufen lassen') + '</button>';
+      extra += '<button class="btn sm' + (S.playing ? ' on' : '') + '" data-op="play" data-k="' + d.key + '">' + (S.playing ? T('Anhalten', 'Pause') : T('Zeit laufen lassen', 'Let time run')) + '</button>';
     }
-    if (off && !locked) extra += '<span style="color:var(--red)">außerhalb des Slider-Bereichs</span>';
+    if (off && !locked) extra += '<span style="color:var(--red)">' + T('außerhalb des Slider-Bereichs', 'outside the slider range') + '</span>';
     return '<div class="prm' + (locked ? ' locked' : '') + (off ? ' off' : '') + '" data-k="' + d.key + '">' +
       '<div class="lab2">' + U.tex(d.tex) + '<span class="nm" title="' + esc(d.name) + '">' + esc(d.name) + '</span></div>' +
-      '<div class="valbox"><input class="num" data-k="' + d.key + '" value="' + esc(U.fmtInput(x)) + '" inputmode="decimal" spellcheck="false" aria-label="' + esc(d.name) + ' in ' + esc(di || 'Einheit 1') + '"' + (locked ? ' readonly' : '') + '><span class="unit">' + esc(di) + '</span></div>' +
-      '<div class="sl"><input type="range" min="0" max="1000" step="1" data-k="' + d.key + '" aria-label="' + esc(d.name) + ' Schieberegler"' + (locked ? ' disabled' : '') + '><span class="scl">' + SCL[d.scale] + '</span></div>' +
+      '<div class="valbox"><input class="num" data-k="' + d.key + '" value="' + esc(U.fmtInput(x)) + '" inputmode="decimal" spellcheck="false" aria-label="' + esc(d.name) + ' in ' + esc(di || T('Einheit 1', 'unit 1')) + '"' + (locked ? ' readonly' : '') + '><span class="unit">' + esc(di) + '</span></div>' +
+      '<div class="sl"><input type="range" min="0" max="1000" step="1" data-k="' + d.key + '" aria-label="' + esc(d.name) + T(' Schieberegler', ' slider') + '"' + (locked ? ' disabled' : '') + '><span class="scl">' + SCL[d.scale] + '</span></div>' +
       (extra ? '<div class="extra">' + extra + '</div>' : '') +
       '</div>';
   }
@@ -318,18 +319,18 @@
     const vals = S.vals[S.edit];
     box.innerHTML = f.c.vars.length
       ? f.c.vars.map((d) => prmHTML(d, vals[d.key])).join('')
-      : '<p class="muted" style="margin:0;font-size:13px">Keine freien Parameter: Hier rechnen nur Naturkonstanten.' + (S.brk ? ' Unten kannst du sie verstellen.' : ' Im Break-Modus kannst du sie verstellen.') + '</p>';
+      : '<p class="muted" style="margin:0;font-size:13px">' + T('Keine freien Parameter: Hier rechnen nur Naturkonstanten.', 'No free parameters: only constants of nature go into this calculation.') + (S.brk ? T(' Unten kannst du sie verstellen.', ' You can adjust them below.') : T(' Im Break-Modus kannst du sie verstellen.', ' You can adjust them in Break mode.')) + '</p>';
     const cb = $('#cprms');
     if (S.brk) {
       const cs = usedConstants();
       const cv = S.consts[S.edit];
-      cb.innerHTML = cs.length ? '<div class="side-lbl" style="margin-top:14px">Naturkonstanten in diesen Formeln</div>' + cs.map((k) => {
+      cb.innerHTML = cs.length ? '<div class="side-lbl" style="margin-top:14px">' + T('Naturkonstanten in diesen Formeln', 'Constants of nature in these formulas') + '</div>' + cs.map((k) => {
         const c = M.C[k];
         const x = k in cv ? cv[k] : c.value;
         const changed = k in cv && Math.abs(x / c.value - 1) > 1e-12;
         return '<div class="prm' + (changed ? ' off' : '') + '" data-c="' + k + '"><div class="lab2">' + U.tex(c.tex) + '<span class="nm">' + esc(c.name) + '</span></div>' +
           '<div class="valbox"><input class="num" data-c="' + k + '" value="' + esc(U.fmtInput(x)) + '" inputmode="decimal" aria-label="' + esc(c.name) + '"><span class="unit">' + esc(U.unit(c.dimv)) + '</span></div>' +
-          '<div class="extra"><button class="btn sm" data-cop="div" data-c="' + k + '">÷10</button><button class="btn sm" data-cop="mul" data-c="' + k + '">×10</button><button class="btn sm" data-cop="orig" data-c="' + k + '">Originalwert</button>' + (changed ? '<span style="color:var(--red)">verändert: ×' + esc(E.fmt(x / c.value, 3)) + '</span>' : '') + '</div></div>';
+          '<div class="extra"><button class="btn sm" data-cop="div" data-c="' + k + '">÷10</button><button class="btn sm" data-cop="mul" data-c="' + k + '">×10</button><button class="btn sm" data-cop="orig" data-c="' + k + '">' + T('Originalwert', 'Original value') + '</button>' + (changed ? '<span style="color:var(--red)">' + T('verändert: ×', 'changed: ×') + esc(E.fmt(x / c.value, 3)) + '</span>' : '') + '</div></div>';
       }).join('') : '';
     } else cb.innerHTML = '';
     syncInputs();
@@ -355,7 +356,7 @@
       if (d.constant) return false;
       if (d.integer) x = Math.round(x);
       const clamped = Math.min(d.max, Math.max(d.min, x));
-      if (clamped !== x) U.toast(d.label + ': regulärer Bereich ' + E.fmt(d.min, 3) + ' … ' + E.fmt(d.max, 3) + ' – im Break-Modus frei');
+      if (clamped !== x) U.toast(d.label + T(': regulärer Bereich ', ': regular range ') + E.fmt(d.min, 3) + ' … ' + E.fmt(d.max, 3) + T(' – im Break-Modus frei', ' – unrestricted in Break mode'));
       x = clamped;
     }
     const wasOff = outOfRange(d, vals[k]);
@@ -381,11 +382,11 @@
   }
   function commitNum(t) {
     const x = U.parseNum(t.value);
-    if (x === null) { t.classList.add('bad'); t.title = 'Nicht lesbar. Beispiele: 6.674e-11 · 1,5 · 3×10^8 · 2*M_sun'; return; }
+    if (x === null) { t.classList.add('bad'); t.title = T('Nicht lesbar. Beispiele: 6.674e-11 · 1,5 · 3×10^8 · 2*M_sun', 'Not readable. Examples: 6.674e-11 · 1.5 · 3×10^8 · 2*M_sun'); return; }
     t.classList.remove('bad'); t.title = '';
     if (t.dataset.c) { S.consts[S.edit][t.dataset.c] = x; renderParams(); update(); return; }
     const d = S.exp.vars[t.dataset.k];
-    if (!S.brk && d.positive && !(x > 0)) { t.classList.add('bad'); U.toast(d.label + ' muss positiv sein – im Break-Modus erlaubt'); return; }
+    if (!S.brk && d.positive && !(x > 0)) { t.classList.add('bad'); U.toast(d.label + T(' muss positiv sein – im Break-Modus erlaubt', ' must be positive – allowed in Break mode')); return; }
     setVal(t.dataset.k, x, false);
     t.value = U.fmtInput(S.vals[S.edit][t.dataset.k]);
   }
@@ -455,7 +456,7 @@
       S.edit = b.dataset.edit;
       S.playing = false;
       $$('[data-edit]').forEach((x) => x.classList.toggle('on', x === b));
-      const h = $('#lab .ph h3'); if (h) h.textContent = 'Visualisierung · Satz ' + S.edit;
+      const h = $('#lab .ph h3'); if (h) h.textContent = T('Visualisierung · Satz ', 'Visualisation · Set ') + S.edit;
       renderParams(); update();
     } else if (b.dataset.gx) {
       S.graph.xlog = b.dataset.gx === 'log'; renderGraphPanel(); updatePlots(); U.writeHash();
@@ -487,18 +488,18 @@
       const v = fmtR(r, dg.d);
       const di = E.dimInfo(prim.dimv);
       h += '<div class="rp"><div class="line">' + U.tex(prim.tex) + '<span class="mo">=</span>' +
-        (v === null ? '<span class="v" style="color:var(--red)">nicht definiert</span>' : '<span class="v">' + esc(v) + '</span><span class="u">' + esc(U.unit(prim.dimv)) + '</span>') + '</div>';
+        (v === null ? '<span class="v" style="color:var(--red)">' + T('nicht definiert', 'not defined') + '</span>' : '<span class="v">' + esc(v) + '</span><span class="u">' + esc(U.unit(prim.dimv)) + '</span>') + '</div>';
       const alt = altR(prim, r);
       const meta = [];
       if (alt) meta.push('= ' + alt);
       if (di.name) meta.push(di.name);
       if (U.unit(prim.dimv) && di.si !== U.unit(prim.dimv)) meta.push('SI: ' + di.si);
-      if (dg.u && dg.u.rel > 0) meta.push('rel. Unsicherheit ≈ ' + E.fmt(dg.u.rel, 2) + ' (aus ' + dg.u.parts.map((p) => p.key).join(', ') + ')');
-      else if (dg.u && !Object.keys(S.consts.A).length) meta.push('keine Unsicherheit aus Konstanten');
+      if (dg.u && dg.u.rel > 0) meta.push(T('rel. Unsicherheit ≈ ', 'rel. uncertainty ≈ ') + E.fmt(dg.u.rel, 2) + T(' (aus ', ' (from ') + dg.u.parts.map((p) => p.key).join(', ') + ')');
+      else if (dg.u && !Object.keys(S.consts.A).length) meta.push(T('keine Unsicherheit aus Konstanten', 'no uncertainty from constants'));
       h += '<div class="meta">' + esc(meta.join(' · ')) + '</div>';
       if (S.baseRes && r && r.ok) {
         const q = ratio(S.baseRes.out[prim.key], r);
-        h += '<div class="delta">gegenüber ' + (S.preset ? 'Preset' : 'Ausgangswert') + ': ' + esc(q.t) + (q.p ? '  (' + esc(q.p) + ')' : '') + '</div>';
+        h += '<div class="delta">' + T('gegenüber ' + (S.preset ? 'Preset' : 'Ausgangswert'), 'compared with the ' + (S.preset ? 'preset' : 'starting value')) + ': ' + esc(q.t) + (q.p ? '  (' + esc(q.p) + ')' : '') + '</div>';
       }
       h += '</div>';
       h += '<table class="t rlist"><tbody>' + outs.filter((o) => o !== prim).map((o) => {
@@ -506,25 +507,25 @@
         const vv = fmtR(rr, digitsFor(o, 'A').d);
         const alt2 = altR(o, rr);
         return '<tr><td class="k">' + U.tex(o.tex) + '</td><td class="nm">' + esc(o.name) + (o.note ? '<br><span class="faint">' + esc(o.note) + '</span>' : '') + '</td>' +
-          (vv === null ? '<td class="val err">nicht definiert</td>' : '<td class="val">' + esc(vv) + ' ' + esc(U.unit(o.dimv)) + (alt2 ? '<span class="alt">' + esc(alt2) + '</span>' : '') + '</td>') + '</tr>';
+          (vv === null ? '<td class="val err">' + T('nicht definiert', 'not defined') + '</td>' : '<td class="val">' + esc(vv) + ' ' + esc(U.unit(o.dimv)) + (alt2 ? '<span class="alt">' + esc(alt2) + '</span>' : '') + '</td>') + '</tr>';
       }).join('') + '</tbody></table>';
     } else {
       const B = S.res.B;
-      h += '<div class="scroll-x"><table class="t rlist cmp"><thead><tr><th>Größe</th><th>A</th><th>B</th><th>B / A</th></tr></thead><tbody>' + outs.map((o) => {
+      h += '<div class="scroll-x"><table class="t rlist cmp"><thead><tr><th>' + T('Größe', 'Quantity') + '</th><th>A</th><th>B</th><th>B / A</th></tr></thead><tbody>' + outs.map((o) => {
         const ra = A.out[o.key], rb = B.out[o.key];
         const d = Math.min(digitsFor(o, 'A').d, 5);
         const va = fmtR(ra, d), vb = fmtR(rb, d);
         const q = ratio(ra, rb);
         const u = U.unit(o.dimv);
         return '<tr><td class="k">' + U.tex(o.tex) + (o.primary ? ' <span class="faint">★</span>' : '') + '</td>' +
-          '<td class="val">' + (va === null ? '<span style="color:var(--red)">undef.</span>' : esc(va)) + '</td>' +
-          '<td class="val">' + (vb === null ? '<span style="color:var(--red)">undef.</span>' : esc(vb)) + '</td>' +
+          '<td class="val">' + (va === null ? '<span style="color:var(--red)">' + T('undef.', 'undef.') + '</span>' : esc(va)) + '</td>' +
+          '<td class="val">' + (vb === null ? '<span style="color:var(--red)">' + T('undef.', 'undef.') + '</span>' : esc(vb)) + '</td>' +
           '<td class="ratio">' + esc(q.t) + '<br><span class="faint">' + esc(q.p) + '</span></td></tr>' +
           (u ? '' : '');
       }).join('') + '</tbody></table></div>';
       const diffs = form().c.vars.filter((v) => S.vals.A[v.key] !== S.vals.B[v.key]);
-      h += '<div class="meta faint" style="font-size:12px;margin-top:8px">Einheiten wie in der Einzelansicht. ' +
-        (diffs.length ? 'Unterschiede: ' + diffs.map((v) => esc(v.label) + ' ' + esc(ratio({ ok: true, ...E.mk(S.vals.A[v.key]) }, { ok: true, ...E.mk(S.vals.B[v.key]) }).t)).join(', ') : 'A und B sind noch identisch – wähle „Satz B“ und verändere einen Wert.') + '</div>';
+      h += '<div class="meta faint" style="font-size:12px;margin-top:8px">' + T('Einheiten wie in der Einzelansicht. ', 'Units as in the single view. ') +
+        (diffs.length ? T('Unterschiede: ', 'Differences: ') + diffs.map((v) => esc(v.label) + ' ' + esc(ratio({ ok: true, ...E.mk(S.vals.A[v.key]) }, { ok: true, ...E.mk(S.vals.B[v.key]) }).t)).join(', ') : T('A und B sind noch identisch – wähle „Satz B“ und verändere einen Wert.', 'A and B are still identical – choose “Set B” and change a value.')) + '</div>';
     }
     box.innerHTML = h;
   }
@@ -549,10 +550,10 @@
     const list = collectIssues();
     const has = (c) => list.some((i) => i.cat === c);
     const chips = [
-      ['math', 'Mathematisch definiert', 'Mathematisch undefiniert', ''],
-      ['numeric', 'Numerisch unauffällig', 'Numerik abgefangen', 'soft'],
-      ['unreal', 'Physikalisch realistisch', 'Physikalisch unrealistisch', ''],
-      ['model', 'Im Gültigkeitsbereich', 'Außerhalb des Modells', ''],
+      ['math', T('Mathematisch definiert', 'Mathematically defined'), T('Mathematisch undefiniert', 'Mathematically undefined'), ''],
+      ['numeric', T('Numerisch unauffällig', 'Numerically sound'), T('Numerik abgefangen', 'Numerics handled'), 'soft'],
+      ['unreal', T('Physikalisch realistisch', 'Physically realistic'), T('Physikalisch unrealistisch', 'Physically unrealistic'), ''],
+      ['model', T('Im Gültigkeitsbereich', 'Within the model’s range'), T('Außerhalb des Modells', 'Outside the model'), ''],
     ];
     let h = '<div class="stat">' + chips.map(([c, ok, bad, cls]) => '<div class="st ' + (has(c) ? 'warn ' + cls : '') + '">' + (has(c) ? bad : ok) + '</div>').join('') + '</div>';
     h += '<ul class="issues">' + list.map((i) => '<li class="' + i.cat + '"><b>' + CAT[i.cat] + '</b>' + esc(i.msg) + '</li>').join('') + '</ul>';
@@ -591,7 +592,7 @@
     catch (err) {
       const col = PP.colors();
       ctx.fillStyle = col.red; ctx.font = '13px ' + col.sans; ctx.textAlign = 'center';
-      ctx.fillText('Für diese Werte gibt es keine sinnvolle Darstellung.', W / 2, H / 2);
+      ctx.fillText(T('Für diese Werte gibt es keine sinnvolle Darstellung.', 'There is no meaningful picture for these values.'), W / 2, H / 2);
     }
   }
 
@@ -613,11 +614,11 @@
     const opt = (list, cur) => list.map((o) => '<option value="' + o.key + '"' + (o.key === cur ? ' selected' : '') + '>' + esc(o.sym || o.label) + ' – ' + esc(o.name) + '</option>').join('');
     const specs = plotSpecs();
     const palette = plotColors();
-    let h = '<div class="ph"><div class="gsel"><select data-g="y" aria-label="y-Achse">' + opt(f.c.outputs, g.y) + '</select><span>über</span><select data-g="x" aria-label="x-Achse">' + opt(f.c.vars, g.x) + '</select></div>' +
+    let h = '<div class="ph"><div class="gsel"><select data-g="y" aria-label="' + T('y-Achse', 'y axis') + '">' + opt(f.c.outputs, g.y) + '</select><span>' + T('über', 'vs.') + '</span><select data-g="x" aria-label="' + T('x-Achse', 'x axis') + '">' + opt(f.c.vars, g.x) + '</select></div>' +
       '<span style="margin-left:auto"></span>' +
-      '<div class="seg" title="x-Achse"><button data-gx="lin" class="' + (!g.xlog ? 'on' : '') + '">x lin</button><button data-gx="log" class="' + (g.xlog ? 'on' : '') + '"' + (xv.min > 0 ? '' : ' disabled title="Bereich enthält Werte ≤ 0"') + '>x log</button></div>' +
-      '<div class="seg" title="y-Achse"><button data-gy="lin" class="' + (!g.ylog ? 'on' : '') + '">y lin</button><button data-gy="log" class="' + (g.ylog ? 'on' : '') + '">y log</button></div>' +
-      '<div class="seg"><button data-gz="out" aria-label="Herauszoomen">−</button><button data-gz="in" aria-label="Hineinzoomen">+</button><button data-gz="reset">Reset</button></div></div>';
+      '<div class="seg" title="' + T('x-Achse', 'x axis') + '"><button data-gx="lin" class="' + (!g.xlog ? 'on' : '') + '">x lin</button><button data-gx="log" class="' + (g.xlog ? 'on' : '') + '"' + (xv.min > 0 ? '' : ' disabled title="' + T('Bereich enthält Werte ≤ 0', 'The range contains values ≤ 0') + '"') + '>x log</button></div>' +
+      '<div class="seg" title="' + T('y-Achse', 'y axis') + '"><button data-gy="lin" class="' + (!g.ylog ? 'on' : '') + '">y lin</button><button data-gy="log" class="' + (g.ylog ? 'on' : '') + '">y log</button></div>' +
+      '<div class="seg"><button data-gz="out" aria-label="' + T('Herauszoomen', 'Zoom out') + '">−</button><button data-gz="in" aria-label="' + T('Hineinzoomen', 'Zoom in') + '">+</button><button data-gz="reset">Reset</button></div></div>';
     const others = f.c.outputs.filter((o) => o.key !== g.y);
     let ci = 1;
     h += '<div class="legend">' + '<span class="chip on" style="cursor:default"><i style="background:' + palette[0] + '"></i>' + esc(f.c.outputs.find((o) => o.key === g.y).sym) + '</span>' +
@@ -625,9 +626,9 @@
         const on = g.extra.includes(o.key);
         const col = on ? palette[(ci++) % palette.length] : 'transparent';
         return '<button class="chip' + (on ? ' on' : '') + '" data-gextra="' + o.key + '" aria-pressed="' + on + '"><i style="background:' + col + '"></i>' + esc(o.sym) + '</button>';
-      }).join('') + (S.cmp ? '<span class="chip" style="cursor:default">durchgezogen = A · gestrichelt = B</span>' : '') + '</div>';
-    h += specs.map((s, i) => '<div class="plotwrap' + (s.small ? ' small' : '') + '"><canvas data-plot="' + i + '" role="img" aria-label="Graph ' + esc(s.ys.join(', ')) + ' über ' + esc(g.x) + '"></canvas><div class="tip" hidden></div></div>').join('');
-    h += '<div class="ghint">Mausrad: Zoom · Ziehen: verschieben · Doppelklick: zurücksetzen · Weitere Größen oben zuschalten' + (specs.length > 1 ? ' (andere Einheit → eigener Graph)' : '') + '</div>';
+      }).join('') + (S.cmp ? '<span class="chip" style="cursor:default">' + T('durchgezogen = A · gestrichelt = B', 'solid = A · dashed = B') + '</span>' : '') + '</div>';
+    h += specs.map((s, i) => '<div class="plotwrap' + (s.small ? ' small' : '') + '"><canvas data-plot="' + i + '" role="img" aria-label="' + T('Graph ', 'Graph of ') + esc(s.ys.join(', ')) + T(' über ', ' vs. ') + esc(g.x) + '"></canvas><div class="tip" hidden></div></div>').join('');
+    h += '<div class="ghint">' + T('Mausrad: Zoom · Ziehen: verschieben · Doppelklick: zurücksetzen · Weitere Größen oben zuschalten', 'Mouse wheel: zoom · Drag: pan · Double-click: reset · Add more quantities above') + (specs.length > 1 ? T(' (andere Einheit → eigener Graph)', ' (different unit → separate graph)') : '') + '</div>';
     p.innerHTML = h;
     S.plots = $$('canvas[data-plot]', p).map((c) => new PP.Plot(c, c.nextElementSibling));
     S.plots.forEach((pl, i) => {
