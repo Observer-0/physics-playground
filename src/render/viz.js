@@ -739,33 +739,144 @@
     note(ctx, nt, textW(ctx, nt) < W - 140 ? W - 120 : W, H, col);
   };
 
+  /* ---------- Planck-Einheiten: je Größe eine logarithmische Skala ----------
+     Der Planck-Wert kommt aus der Engine (im Break-Modus wandert er mit den Konstanten).
+     Vergleichswerte: Konstanten aus dem Register oder gerundete Literaturwerte:
+     247 zs – Grundmann et al., Science 370, 339 (2020); 38 pK – Deppner et al., PRL 127, 100401 (2021);
+     Quark-Gluon-Plasma ≈ 5,5 × 10¹² K – ALICE (2012); 3,2 × 10²⁰ eV – Fly's Eye (1991); LHC Run 3: 13,6 TeV;
+     Alter des Universums 13,8 Mrd. Jahre – Planck 2018. */
+  const lg10 = Math.log10;
+  function planckScale(S, q) {
+    const C = PP.model.C, ev = C.eV.value, c2 = C.c.value ** 2;
+    const LHC = 13.6e12 * ev, OMG = 3.2e20 * ev;
+    // k_B so, wie die Engine ihn verwendet hat (E_P / T_P) – im Break-Modus also auch ein verstellter Wert
+    const kB = rd(ratio(S.num('EP'), S.num('TP')));
+    switch (q) {
+      case 't': return {
+        key: 'tP', unit: 's', lo: -48, hi: 20, f: 't_P = √(ħG/c⁵)', pl: tr('Planck-Zeit', 'Planck time'),
+        head2: tr('t_P = l_P / c: so lange braucht Licht für eine Planck-Länge', 't_P = l_P / c: the time light takes to cross one Planck length'),
+        marks: [[lg10(2.47e-19), tr('kürzeste gemessene Zeitspanne ≈ 247 zs', 'shortest time span measured ≈ 247 zs')], [0, tr('1 Sekunde', '1 second'), true],
+          [lg10(3.15576e7), tr('1 Jahr', '1 year'), true], [lg10(4.35e17), tr('Alter des Universums ≈ 13,8 Mrd. Jahre', 'age of the universe ≈ 13.8 billion years')]],
+        reach: [lg10(2.47e-19), 20], reachLabel: tr('direkt gemessen (bis ≈ 10⁻¹⁹ s)', 'measured directly (down to ≈ 10⁻¹⁹ s)'),
+        gap: (n) => tr('≈ ' + n + ' Größenordnungen ohne direkte Messung', '≈ ' + n + ' orders of magnitude without direct measurement'),
+      };
+      case 'm': return {
+        key: 'mP', unit: 'kg', lo: -32, hi: 32, f: 'm_P = √(ħc/G)', pl: tr('Planck-Masse ≈ ', 'Planck mass ≈ ') + E.fmt(S.o('mP') * 1e9, 2) + ' µg',
+        head2: tr('Für sich genommen keine extreme Masse – extrem wäre, sie in ein einziges Teilchen zu packen.', 'Not an extreme mass in itself – the extreme part would be packing it into a single particle.'),
+        marks: [[lg10(C.m_e.value), tr('Elektron', 'electron')], [lg10(C.m_p.value), tr('Proton', 'proton'), true], [lg10(LHC / c2), tr('LHC-Kollision 13,6 TeV als E/c²', 'LHC collision 13.6 TeV as E/c²')],
+          [lg10(70), tr('Mensch ≈ 70 kg', 'human ≈ 70 kg'), true], [lg10(C.M_earth.value), tr('Erde', 'Earth')], [lg10(C.M_sun.value), tr('Sonne', 'Sun')]],
+        reach: [lg10(C.m_e.value), lg10(LHC / c2)], reachLabel: tr('im Beschleuniger erzeugt (bis E/c² am LHC)', 'produced in accelerators (up to E/c² at the LHC)'),
+        gap: (n) => tr('≈ ' + n + ' Größenordnungen über dem LHC', '≈ ' + n + ' orders of magnitude above the LHC'),
+      };
+      case 'T': return {
+        key: 'TP', unit: 'K', lo: -12, hi: 36, f: 'T_P = E_P / k_B', pl: tr('Planck-Temperatur', 'Planck temperature'),
+        head2: 'k_B = ' + E.fmt(kB, 7) + ' J/K  ·  1 K ↔ ' + E.fmt(kB / ev, 4) + ' eV',
+        marks: [[lg10(3.8e-11), tr('kältestes Labor ≈ 38 pK', 'coldest lab ≈ 38 pK')], [S.at({ M: C.M_sun.value }, 'hawking').lg('TH'), tr('Hawking-Temperatur, 1 M☉', 'Hawking temperature, 1 M☉'), true],
+          [lg10(C.T_cmb.value), tr('Hintergrundstrahlung 2,7 K', 'cosmic background 2.7 K')], [lg10(293), tr('Raumtemperatur', 'room temperature'), true],
+          [lg10(1.57e7), tr('Sonnenkern', 'solar core')], [lg10(5.5e12), tr('Quark-Gluon-Plasma (LHC)', 'quark–gluon plasma (LHC)')]],
+        reach: [lg10(3.8e-11), lg10(5.5e12)], reachLabel: tr('im Labor erreicht', 'reached in the lab'),
+        gap: (n) => tr('≈ ' + n + ' Größenordnungen darüber', '≈ ' + n + ' orders of magnitude above'),
+        second: { shift: lg10(kB / ev), label: tr('k_B T in eV', 'k_B T in eV') },
+      };
+      case 'E': return {
+        key: 'EP', unit: 'J', lo: -24, hi: 12, f: 'E_P = √(ħc⁵/G) = m_P c²', pl: tr('Planck-Energie', 'Planck energy'),
+        head2: 'E_P ≈ ' + E.fmt(S.o('EP') / ev, 3) + ' eV ≈ ' + E.fmt(S.o('EP') / 3.6e6, 3) + ' kWh' + tr(' – im Alltag keine extreme Energie, für ein einzelnes Teilchen aber gewaltig', ' – not extreme in everyday terms, but enormous for a single particle'),
+        marks: [[lg10(kB * 293), tr('k_B T bei Raumtemperatur', 'k_B T at room temperature'), true], [lg10(ev), '1 eV'], [lg10(LHC), tr('LHC-Kollision 13,6 TeV', 'LHC collision 13.6 TeV')],
+          [lg10(OMG), tr('kosmisches Teilchen ≈ 3 × 10²⁰ eV (1991)', 'cosmic-ray particle ≈ 3 × 10²⁰ eV (1991)')], [lg10(3.6e6), '1 kWh', true]],
+        reach: [-24, lg10(OMG)], reachLabel: tr('an einzelnen Teilchen gemessen', 'measured for single particles'),
+        gap: (n) => tr('≈ ' + n + ' Größenordnungen darüber – pro Teilchen', '≈ ' + n + ' orders of magnitude above – per particle'),
+        second: { shift: -lg10(ev), label: 'eV' },
+      };
+      default: return {
+        key: 'lP', unit: 'm', lo: -36, hi: 28, f: 'l_P = √(ħG/c³)', pl: tr('Planck-Länge', 'Planck length'),
+        head2: tr('rund 10' + E.sup(Math.round(lg10(8.4e-16) - S.lg('lP'))) + '-mal kleiner als ein Proton', 'roughly 10' + E.sup(Math.round(lg10(8.4e-16) - S.lg('lP'))) + ' times smaller than a proton'),
+        marks: [[lg10(8.4e-16), tr('Proton ≈ 0,84 fm', 'proton ≈ 0.84 fm')], [-10, tr('Atom ≈ 10⁻¹⁰ m', 'atom ≈ 10⁻¹⁰ m')], [lg10(1.7), tr('Mensch', 'human'), true],
+          [lg10(1.2742e7), tr('Erde (Ø)', 'Earth (Ø)')], [lg10(8.8e26), tr('beobachtbares Universum (Ø ≈)', 'observable universe (Ø ≈)')]],
+        reach: [-19, 28], reachLabel: tr('direkt vermessen (bis ≈ 10⁻¹⁹ m)', 'measured directly (down to ≈ 10⁻¹⁹ m)'),
+        gap: (n) => tr('≈ ' + n + ' Größenordnungen ohne experimentellen Zugang', '≈ ' + n + ' orders of magnitude beyond experimental reach'),
+      };
+    }
+  }
+  // Text in Zeilen umbrechen, die höchstens maxW breit sind
+  function wrap(ctx, s, maxW) {
+    const out = [];
+    let line = '';
+    for (const w of s.split(' ')) {
+      const t = line ? line + ' ' + w : w;
+      if (line && textW(ctx, t) > maxW) { out.push(line); line = w; } else line = t;
+    }
+    if (line) out.push(line);
+    return out;
+  }
   V.scales = (ctx, W, H, S) => {
-    const { o, col } = S;
+    const { col } = S;
     grid(ctx, W, H, col);
-    const lo = -36, hi = 28, y = H * 0.52;
+    const sc = planckScale(S, S.opts.q);
+    const pl = S.lg(sc.key);
+    if (!isFinite(pl)) return invalid(ctx, W, H, col, sc.f.split(' =')[0] + tr(' ist hier nicht definiert', ' is not defined here'));
+    const narrow = W < 520;
+    // Abstand der Zehnerpotenzen so wählen, dass die Beschriftungen nicht aneinanderstoßen
+    const ppd = (W - 48) / (sc.hi - sc.lo), step = [4, 8, 12, 16, 20].find((k) => k * ppd >= 40) || 20;
+    const lo = Math.floor(Math.min(sc.lo, pl - 2) / step) * step, hi = Math.ceil(Math.max(sc.hi, pl + 2) / step) * step;
     const X = (l) => map(l, lo, hi, 24, W - 24);
+    const y = H * 0.58;
+    // Kopf: Formel und Wert aus der Engine
+    segs(ctx, [[sc.f + ' = ', col.ink2], [S.fo(sc.key) + ' ' + sc.unit, col.accent]], 16, 22, col, { mono: true, size: narrow ? 12 : 13 });
+    font(ctx, col, 11);
+    wrap(ctx, sc.head2, W - 32).slice(0, 2).forEach((s, i) => label(ctx, s, 16, 39 + i * 13, col, { size: 11, color: col.ink2 }));
+    // Achse, Zehnerpotenzen und – bei Temperatur und Energie – eine zweite Einheit darunter
     ctx.strokeStyle = col.ink3; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(X(lo), y); ctx.lineTo(X(hi), y); ctx.stroke();
-    for (let k = lo; k <= hi; k += 4) { ctx.beginPath(); ctx.moveTo(X(k), y - 4); ctx.lineTo(X(k), y + 4); ctx.stroke(); label(ctx, '10' + E.sup(k), X(k), y + 36, col, { align: 'center', size: 10, mono: true, color: col.ink3 }); }
-    // experimentally accessible band (≈ down to 1e-19 m)
-    ctx.fillStyle = col.cyan; ctx.globalAlpha = 0.12; ctx.fillRect(X(-19), y - 14, X(hi) - X(-19), 28); ctx.globalAlpha = 1;
-    ctx.fillStyle = col.red; ctx.globalAlpha = 0.08; ctx.fillRect(X(Math.log10(o('lP'))), y - 14, X(-19) - X(Math.log10(o('lP'))), 28); ctx.globalAlpha = 1;
-    label(ctx, tr('≈ 16 Größenordnungen ohne experimentellen Zugang', '≈ 16 orders of magnitude beyond experimental reach'), X(Math.log10(o('lP'))), y - 84, col, { align: 'left', size: 11, color: col.red });
-    label(ctx, tr('direkt vermessen (bis ≈ 10⁻¹⁹ m)', 'measured directly (down to ≈ 10⁻¹⁹ m)'), Math.min(X(-19), W - 200), y - 64, col, { align: 'left', size: 11, color: col.cyan });
-    const marks = [
-      [Math.log10(o('lP')), tr('Planck-Länge', 'Planck length'), col.accent],
-      [Math.log10(8.4e-16), tr('Proton ≈ 0,84 fm', 'proton ≈ 0.84 fm'), col.ink],
-      [-10, tr('Atom ≈ 10⁻¹⁰ m', 'atom ≈ 10⁻¹⁰ m'), col.ink],
-      [Math.log10(1.7), tr('Mensch', 'human'), col.ink],
-      [Math.log10(1.2742e7), tr('Erde (Ø)', 'Earth (Ø)'), col.ink],
-      [Math.log10(8.8e26), tr('beobachtbares Universum (Ø ≈)', 'observable universe (Ø ≈)'), col.ink],
-    ];
-    marks.forEach(([l, s, c], i) => {
-      const up = i % 2 === 0;
-      ctx.fillStyle = c; ctx.beginPath(); ctx.arc(X(l), y, 4, 0, Math.PI * 2); ctx.fill();
-      ctx.strokeStyle = c; ctx.beginPath(); ctx.moveTo(X(l), y); ctx.lineTo(X(l), up ? y - 26 : y + 50); ctx.stroke();
-      label(ctx, s, X(l), up ? y - 32 : y + 64, col, { align: i === 0 ? 'left' : i === marks.length - 1 ? 'right' : 'center', size: 11, color: c });
-    });
-    note(ctx, tr('Logarithmische Längenskala in Metern', 'Logarithmic length scale in metres'), W, H, col);
+    for (let k = lo; k <= hi; k += step) {
+      ctx.beginPath(); ctx.moveTo(X(k), y - 4); ctx.lineTo(X(k), y + 4); ctx.stroke();
+      label(ctx, '10' + E.sup(k), X(k), y + 17, col, { align: 'center', size: 10, mono: true, color: col.ink3 });
+    }
+    const sec = sc.second && isFinite(sc.second.shift) ? sc.second : null;
+    if (sec) {
+      for (let j = Math.ceil((lo + sec.shift) / step) * step; j - sec.shift <= hi; j += step) {
+        const x = X(j - sec.shift);
+        ctx.strokeStyle = col.cyan; ctx.beginPath(); ctx.moveTo(x, y + 20); ctx.lineTo(x, y + 24); ctx.stroke();
+        label(ctx, '10' + E.sup(j), x, y + 34, col, { align: 'center', size: 10, mono: true, color: col.cyan });
+      }
+      label(ctx, sec.label, 16, y + 48, col, { size: 10, color: col.cyan });
+    }
+    // Bereiche: erreicht/gemessen (cyan) und die Lücke bis zum Planck-Wert (rot)
+    const [ra, rb] = sc.reach;
+    ctx.fillStyle = col.cyan; ctx.globalAlpha = 0.12; ctx.fillRect(X(ra), y - 12, X(rb) - X(ra), 24); ctx.globalAlpha = 1;
+    font(ctx, col, 11);
+    const cw = textW(ctx, sc.reachLabel);
+    label(ctx, sc.reachLabel, clamp((X(ra) + X(rb)) / 2 - cw / 2, 8, W - 8 - cw), y - 58, col, { size: 11, color: col.cyan });
+    const edge = pl < ra ? ra : pl > rb ? rb : null;
+    if (edge !== null) {
+      const a = Math.min(pl, edge), b = Math.max(pl, edge);
+      ctx.fillStyle = col.red; ctx.globalAlpha = 0.1; ctx.fillRect(X(a), y - 12, X(b) - X(a), 24); ctx.globalAlpha = 1;
+      const gl = sc.gap(Math.round(b - a));
+      const gw = textW(ctx, gl);
+      label(ctx, gl, clamp((X(a) + X(b)) / 2 - gw / 2, 8, W - 8 - gw), y - 76, col, { size: 11, color: col.red });
+    }
+    // Marken: erst der Planck-Wert, dann die Vergleichswerte; Beschriftungen weichen einander aus
+    const used = { up: [[], []], down: [[], []] };
+    const place = (x, w, sides) => {
+      for (const tier of [0, 1]) for (const side of sides) {
+        const x0 = clamp(x - w / 2, 4, W - 4 - w);
+        if (used[side][tier].every(([a, b]) => x0 + w + 8 < a || x0 > b + 8)) { used[side][tier].push([x0, x0 + w]); return { side, tier, x0 }; }
+      }
+      const x0 = clamp(x - w / 2, 4, W - 4 - w);
+      return { side: sides[0], tier: 1, x0 };
+    };
+    const downY = y + (sec ? 64 : 36);
+    const mark = (l, s, c, size, sides) => {
+      const x = X(l);
+      font(ctx, col, size);
+      const p = place(x, textW(ctx, s), sides);
+      const ly = p.side === 'up' ? y - 22 - p.tier * 14 : downY + p.tier * 14;
+      ctx.strokeStyle = c; ctx.lineWidth = 1; ctx.globalAlpha = 0.6;
+      ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x, p.side === 'up' ? ly + 3 : ly - 11); ctx.stroke(); ctx.globalAlpha = 1;
+      ctx.fillStyle = c; ctx.beginPath(); ctx.arc(x, y, size > 11 ? 5 : 3.5, 0, Math.PI * 2); ctx.fill();
+      label(ctx, s, p.x0, ly, col, { size, color: c });
+    };
+    mark(pl, sc.pl, col.accent, 12, ['up']);
+    sc.marks.filter((m) => isFinite(m[0]) && m[0] >= lo && m[0] <= hi && !(narrow && m[2])).forEach(([l, s]) => mark(l, s, col.ink, 11, ['up', 'down']));
+    note(ctx, tr('Zehnerpotenzen in ' + sc.unit + ' · Vergleichswerte gerundet', 'Powers of ten in ' + sc.unit + ' · reference values rounded'), W, H, col);
   };
 
   PP.viz = V;

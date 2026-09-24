@@ -92,6 +92,7 @@ main { min-width: 0; padding: 22px 28px 60px; }
 .seg button { border: 0; background: transparent; padding: 3px 10px; font-size: 12px; color: var(--ink2); }
 .seg button + button { border-left: 1px solid var(--line2); }
 .seg button.on { background: var(--panel2); color: var(--ink); box-shadow: inset 0 -2px 0 var(--accent); }
+.seg.vseg { flex-wrap: wrap; }
 select { background: var(--panel); border: 1px solid var(--line2); border-radius: 5px; padding: 3px 6px; font-size: 13px; }
 .panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); min-width: 0; }
 .ph { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 8px 12px; border-bottom: 1px solid var(--line); min-height: 42px; }
@@ -2082,14 +2083,27 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
       { label: { de: 'Planck-Zeit', en: 'Planck time' }, eq: 't_P = sqrt(hbar*G/c^5)' },
       { label: { de: 'Planck-Masse', en: 'Planck mass' }, eq: 'm_P = sqrt(hbar*c/G)' },
       { label: { de: 'Planck-Temperatur', en: 'Planck temperature' }, eq: 'T_P = sqrt(hbar*c^5/(G*k_B^2))' },
+      { label: { de: 'Planck-Energie', en: 'Planck energy' }, eq: 'E_P = sqrt(hbar*c^5/G)' },
+      { label: { de: 'Temperatur aus Energie: k_B rechnet um', en: 'Temperature from energy: k_B converts' }, eq: 'T_P = E_P/k_B' },
     ],
-    symbols: { l_P: { dim: 'L' }, t_P: { dim: 'T' }, m_P: { dim: 'M' }, T_P: { dim: 'Θ' } },
+    symbols: { l_P: { dim: 'L' }, t_P: { dim: 'T' }, m_P: { dim: 'M' }, T_P: { dim: 'Θ' }, E_P: { dim: 'M L^2 T^-2' } },
+    notes: [
+      { t: { de: 'Wie k_B aus einer Energie eine Temperatur macht', en: 'How k_B turns an energy into a temperature' }, steps: [
+        '[k_{\\mathrm{B}}] = \\mathrm{J/K} = \\mathsf{M}\\,\\mathsf{L}^{2}\\,\\mathsf{T}^{-2}\\,\\Theta^{-1}',
+        'T_{\\mathrm{P}} = \\frac{E_{\\mathrm{P}}}{k_{\\mathrm{B}}}',
+        '[T_{\\mathrm{P}}] = \\frac{\\mathsf{M}\\,\\mathsf{L}^{2}\\,\\mathsf{T}^{-2}}{\\mathsf{M}\\,\\mathsf{L}^{2}\\,\\mathsf{T}^{-2}\\,\\Theta^{-1}} = \\Theta',
+      ], after: { de: 'In ħ, G und c kommt keine Temperatur vor. Erst k_B bringt die Dimension Θ ins Spiel – als reiner Umrechnungsfaktor.', en: 'No temperature appears in ħ, G or c. Only k_B brings in the dimension Θ – purely as a conversion factor.' } },
+    ],
     checks({ issues }) {
       issues.push({ cat: 'info', msg: T('Die Werte folgen allein aus Konstanten. Ihre Unsicherheit stammt fast vollständig von G.', 'The values follow from constants alone. Their uncertainty comes almost entirely from G.') });
     },
     presets: [],
     graph: null,
     viz: 'scales',
+    vizControls: [{ key: 'q', label: { de: 'Größe', en: 'Quantity' }, options: [
+      { v: 'l', label: { de: 'Länge', en: 'Length' } }, { v: 't', label: { de: 'Zeit', en: 'Time' } }, { v: 'm', label: { de: 'Masse', en: 'Mass' } },
+      { v: 'T', label: { de: 'Temperatur', en: 'Temperature' } }, { v: 'E', label: { de: 'Energie', en: 'Energy' } },
+    ] }],
     explain: {
       intuition: {
         de: 'Aus ħ, G, c und k_B lässt sich genau eine Länge, eine Zeit, eine Masse und eine Temperatur bauen. Das sind die Planck-Einheiten – natürliche Maßstäbe, die ohne menschliche Konventionen auskommen.',
@@ -2099,7 +2113,8 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
         { t: { de: 'Länge', en: 'Length' }, tex: 'l_{\\mathrm{P}} = \\sqrt{\\hbar G / c^3}' },
         { t: { de: 'Zeit', en: 'Time' }, tex: 't_{\\mathrm{P}} = \\sqrt{\\hbar G / c^5} = l_{\\mathrm{P}}/c' },
         { t: { de: 'Masse', en: 'Mass' }, tex: 'm_{\\mathrm{P}} = \\sqrt{\\hbar c / G}' },
-        { t: { de: 'Temperatur', en: 'Temperature' }, tex: 'T_{\\mathrm{P}} = \\sqrt{\\hbar c^5 / (G k_{\\mathrm{B}}^2)} = m_{\\mathrm{P}} c^2 / k_{\\mathrm{B}}' },
+        { t: { de: 'Energie', en: 'Energy' }, tex: 'E_{\\mathrm{P}} = \\sqrt{\\hbar c^5 / G} = m_{\\mathrm{P}} c^2' },
+        { t: { de: 'Temperatur: die Planck-Energie, mit k_B umgerechnet', en: 'Temperature: the Planck energy, converted with k_B' }, tex: 'T_{\\mathrm{P}} = \\sqrt{\\hbar c^5 / (G k_{\\mathrm{B}}^2)} = \\frac{E_{\\mathrm{P}}}{k_{\\mathrm{B}}} = \\frac{m_{\\mathrm{P}} c^2}{k_{\\mathrm{B}}}' },
       ],
       physics: {
         de: 'Die Planck-Einheiten sind zunächst ein Ergebnis der Dimensionsanalyse. Man erwartet, dass bei diesen Skalen Quanteneffekte der Gravitation wichtig werden – das ist eine Erwartung, keine Messung. Oft liest man, die Planck-Länge sei die „kleinste mögliche Länge“ oder der Raum sei dort „gepixelt“. Das ist nicht nachgewiesen und folgt auch nicht aus der Dimensionsanalyse. Außerdem gilt: Welche Kombination man „die“ Planck-Einheit nennt, ist teils Konvention (manche Autoren verwenden 8πG statt G).',
@@ -2109,7 +2124,24 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
         { type: 'math', text: { de: 'Eindeutige Kombination der Konstanten mit der gewünschten Dimension (bis auf dimensionslose Vorfaktoren).', en: 'The unique combination of the constants with the desired dimension (up to dimensionless prefactors).' } },
         { type: 'assume', text: { de: 'Die physikalische Bedeutung als Skala der Quantengravitation ist eine theoretische Erwartung.', en: 'Their physical meaning as the scale of quantum gravity is a theoretical expectation.' } },
         { type: 'measured', text: { de: 'Die Zahlenwerte hängen am gemessenen G (relative Unsicherheit ≈ 1,1 × 10⁻⁵ für √G).', en: 'The numerical values depend on the measured G (relative uncertainty ≈ 1.1 × 10⁻⁵ for √G).' } },
+        { type: 'math', text: { de: 'k_B ist seit 2019 exakt festgelegt: T_P = E_P / k_B ist eine Umrechnung ohne zusätzliche Unsicherheit.', en: 'k_B has been fixed exactly since 2019: T_P = E_P / k_B is a conversion with no extra uncertainty.' } },
       ],
+      more: [{
+        t: { de: 'Boltzmann und k_B', en: 'Boltzmann and k_B' }, sub: { de: 'Hintergrund', en: 'Background' },
+        paras: [
+          { de: 'Ludwig Boltzmann (1844–1906) erklärte Wärme als ungeordnete Bewegung sehr vieler Teilchen. Sein Kerngedanke: Die Entropie zählt, auf wie viele Arten Ω sich ein Zustand mikroskopisch verwirklichen lässt, S = k_B ln Ω. Die Formel steht auf seinem Grab in Wien.',
+            en: 'Ludwig Boltzmann (1844–1906) explained heat as the disordered motion of a huge number of particles. His key idea: entropy counts in how many ways Ω a state can be realised microscopically, S = k_B ln Ω. The formula is on his grave in Vienna.' },
+          { de: 'Die Konstante selbst führte Max Planck 1900 ein, bei der Herleitung seines Strahlungsgesetzes – im selben Zug wie h. Boltzmann hat sie nie als eigene Konstante geschrieben; der Name ehrt ihn nachträglich.',
+            en: 'The constant itself was introduced by Max Planck in 1900, while deriving his radiation law – together with h. Boltzmann never wrote it as a constant of its own; the name honours him after the fact.' },
+          { de: 'k_B ist ein Umrechnungsfaktor zwischen Temperatur und Energie. k_B T ist die typische thermische Energie pro Teilchen (genauer ½ k_B T je Freiheitsgrad, der quadratisch in die Energie eingeht). Bei Raumtemperatur sind das etwa 4 × 10⁻²¹ J, rund 1/40 eV. Zusammen mit der Avogadro-Konstante ergibt k_B die Gaskonstante R = N_A k_B.',
+            en: 'k_B is a conversion factor between temperature and energy. k_B T is the typical thermal energy per particle (more precisely ½ k_B T per degree of freedom that enters the energy quadratically). At room temperature this is about 4 × 10⁻²¹ J, roughly 1/40 eV. Together with the Avogadro constant, k_B gives the gas constant R = N_A k_B.' },
+          { de: 'Seit 2019 ist k_B = 1,380649 × 10⁻²³ J/K exakt festgelegt. Damit ist das Kelvin über die Energie definiert und nicht mehr über den Tripelpunkt des Wassers.',
+            en: 'Since 2019, k_B = 1.380649 × 10⁻²³ J/K has been fixed exactly. This defines the kelvin through energy rather than through the triple point of water.' },
+          { de: 'In den Planck-Einheiten bringt k_B keine neue Physik: T_P = E_P / k_B ist die Planck-Energie, als Temperatur ausgedrückt. Wer Temperaturen gleich in Energieeinheiten angibt (k_B = 1, in der theoretischen Physik üblich), erhält für T_P und E_P dieselbe Zahl. Die Visualisierung zeigt beide Achsen: Kelvin oben, k_B T in Elektronvolt darunter.',
+            en: 'In the Planck units, k_B adds no new physics: T_P = E_P / k_B is the Planck energy expressed as a temperature. If you give temperatures directly in energy units (k_B = 1, common in theoretical physics), T_P and E_P are the same number. The visualisation shows both axes: kelvin on top, k_B T in electronvolts below.' },
+        ],
+        link: { href: '#view=theorie&sec=entropy', label: { de: 'Mehr zu Boltzmann und Entropie in den Grundlagen →', en: 'More on Boltzmann and entropy in the basics →' } },
+      }],
     },
   });
 
@@ -2195,6 +2227,8 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
     'Gravitation: Die Faktoren im Bild zeigen F ∝ m₁m₂/r² (m₁ ×2, r ×½ → F ×8)': 'Gravity: the factors in the picture show F ∝ m₁m₂/r² (m₁ ×2, r ×½ → F ×8)',
     'Feldgleichungen: Das Bild ist als schematische Projektion gekennzeichnet': 'Field equations: the picture is labelled as a schematic projection',
     'Schrödinger: Ein nicht ganzzahliges n wird nicht als Welle gezeichnet': 'Schrödinger: a non-integer n is not drawn as a wave',
+    'Planck-Einheiten: Jede Skala zeigt den Wert aus der Engine (l_P, t_P, m_P, T_P, E_P)': 'Planck units: every scale shows the value from the engine (l_P, t_P, m_P, T_P, E_P)',
+    'Planck-Temperatur: k_B im Bild ist E_P / T_P = 1,380649 × 10⁻²³ J/K, mit zweiter Achse in eV': 'Planck temperature: k_B in the picture is E_P / T_P = 1.380649 × 10⁻²³ J/K, with a second axis in eV',
     'Engine-Meldungen und Dimensionsnamen gibt es auf Deutsch und Englisch': 'Engine messages and dimension names exist in German and English',
     'Umschalten wirkt auch auf die kompilierten Kopien der Experimente': 'Switching also affects the compiled copies of the experiments',
     'Keine deutschen Reste in den englischen Texten der Experimente und Konstanten': 'No German left in the English texts of the experiments and constants',
@@ -2548,13 +2582,15 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
     PP.viz[exp.viz](ctx, o.W || 640, o.H || 330, S);
     return ctx.texts;
   };
+  // Alle Einstellungen der Bedienelemente einer Visualisierung (Schalter: aus/an, Auswahl: jede Option)
+  const optSets = (exp) => (exp.vizControls || []).reduce((sets, c) => sets.flatMap((o) => (c.options ? c.options.map((x) => x.v) : [false, true]).map((v) => Object.assign({}, o, { [c.key]: v }))), [{}]);
   const fmtOut = (r, k) => E.fmt({ s: r.out[k].s, l: r.out[k].l, d: r.out[k].value }, 3);
   test('Visualisierung', 'Alle Visualisierungen zeichnen Standardwerte und Presets ohne Fehler und ohne „NaN“', () => {
     if (!PP.viz || !PP.vizState) return;
     for (const exp of M.registry) {
       if (!exp.viz) continue;
       const cases = [{}].concat((exp.presets || []).map((p) => ({ vals: p.values, form: p.form })));
-      for (const c of cases) for (const W of [640, 360]) for (const opts of exp.vizControls ? [{}, { superpos: true }] : [{}]) {
+      for (const c of cases) for (const W of [640, 360]) for (const opts of optSets(exp)) {
         let texts;
         try { texts = draw(exp.id, c.vals, { form: c.form, W, H: W < 400 ? 260 : 330, base: c.vals, opts }); }
         catch (e) { throw new Error(exp.id + ' (' + W + ' px): ' + e.message); }
@@ -2595,6 +2631,21 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
     if (!PP.viz) return;
     const texts = draw('schroedinger', { n: 2.5 });
     ok(texts.some((x) => /n muss eine positive ganze Zahl sein/.test(x)) && !texts.includes('|ψ|²'), texts.slice(0, 3).join(' | '));
+  });
+
+  test('Visualisierung', 'Planck-Einheiten: Jede Skala zeigt den Wert aus der Engine (l_P, t_P, m_P, T_P, E_P)', () => {
+    if (!PP.viz) return;
+    const r = run('planck');
+    for (const [q, k, unit] of [['l', 'lP', 'm'], ['t', 'tP', 's'], ['m', 'mP', 'kg'], ['T', 'TP', 'K'], ['E', 'EP', 'J']]) {
+      const texts = draw('planck', {}, { opts: { q } });
+      ok(texts.includes(fmtOut(r, k) + ' ' + unit), q + ': ' + fmtOut(r, k) + ' ' + unit + ' fehlt');
+    }
+  });
+  test('Visualisierung', 'Planck-Temperatur: k_B im Bild ist E_P / T_P = 1,380649 × 10⁻²³ J/K, mit zweiter Achse in eV', () => {
+    if (!PP.viz) return;
+    const texts = draw('planck', {}, { opts: { q: 'T' } });
+    ok(texts.some((x) => x.startsWith('k_B = 1.380649 × 10⁻²³ J/K')), texts.find((x) => x.startsWith('k_B')) || 'k_B-Zeile fehlt');
+    ok(texts.includes('k_B T in eV'), 'zweite Achse fehlt');
   });
 
   /* --- Sprache --- */
@@ -2638,8 +2689,8 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
     I.with('en', () => {
       for (const exp of M.registry) {
         if (!exp.viz) continue;
-        for (const c of [{}].concat((exp.presets || []).map((p) => ({ vals: p.values, form: p.form })))) for (const W of [640, 360]) {
-          draw(exp.id, c.vals, { form: c.form, W, base: c.vals, opts: { superpos: true } }).forEach((x) => { if (german.test(x)) bad.push(exp.id + ': ' + x); });
+        for (const c of [{}].concat((exp.presets || []).map((p) => ({ vals: p.values, form: p.form })))) for (const W of [640, 360]) for (const opts of optSets(exp)) {
+          draw(exp.id, c.vals, { form: c.form, W, base: c.vals, opts }).forEach((x) => { if (german.test(x)) bad.push(exp.id + ': ' + x); });
         }
       }
       draw('special-rel', { beta: 1 }).concat(draw('free-fall', { t: 9 }), draw('schroedinger', { n: 2.5 })).forEach((x) => { if (german.test(x)) bad.push(x); });
@@ -3829,33 +3880,144 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
     note(ctx, nt, textW(ctx, nt) < W - 140 ? W - 120 : W, H, col);
   };
 
+  /* ---------- Planck-Einheiten: je Größe eine logarithmische Skala ----------
+     Der Planck-Wert kommt aus der Engine (im Break-Modus wandert er mit den Konstanten).
+     Vergleichswerte: Konstanten aus dem Register oder gerundete Literaturwerte:
+     247 zs – Grundmann et al., Science 370, 339 (2020); 38 pK – Deppner et al., PRL 127, 100401 (2021);
+     Quark-Gluon-Plasma ≈ 5,5 × 10¹² K – ALICE (2012); 3,2 × 10²⁰ eV – Fly's Eye (1991); LHC Run 3: 13,6 TeV;
+     Alter des Universums 13,8 Mrd. Jahre – Planck 2018. */
+  const lg10 = Math.log10;
+  function planckScale(S, q) {
+    const C = PP.model.C, ev = C.eV.value, c2 = C.c.value ** 2;
+    const LHC = 13.6e12 * ev, OMG = 3.2e20 * ev;
+    // k_B so, wie die Engine ihn verwendet hat (E_P / T_P) – im Break-Modus also auch ein verstellter Wert
+    const kB = rd(ratio(S.num('EP'), S.num('TP')));
+    switch (q) {
+      case 't': return {
+        key: 'tP', unit: 's', lo: -48, hi: 20, f: 't_P = √(ħG/c⁵)', pl: tr('Planck-Zeit', 'Planck time'),
+        head2: tr('t_P = l_P / c: so lange braucht Licht für eine Planck-Länge', 't_P = l_P / c: the time light takes to cross one Planck length'),
+        marks: [[lg10(2.47e-19), tr('kürzeste gemessene Zeitspanne ≈ 247 zs', 'shortest time span measured ≈ 247 zs')], [0, tr('1 Sekunde', '1 second'), true],
+          [lg10(3.15576e7), tr('1 Jahr', '1 year'), true], [lg10(4.35e17), tr('Alter des Universums ≈ 13,8 Mrd. Jahre', 'age of the universe ≈ 13.8 billion years')]],
+        reach: [lg10(2.47e-19), 20], reachLabel: tr('direkt gemessen (bis ≈ 10⁻¹⁹ s)', 'measured directly (down to ≈ 10⁻¹⁹ s)'),
+        gap: (n) => tr('≈ ' + n + ' Größenordnungen ohne direkte Messung', '≈ ' + n + ' orders of magnitude without direct measurement'),
+      };
+      case 'm': return {
+        key: 'mP', unit: 'kg', lo: -32, hi: 32, f: 'm_P = √(ħc/G)', pl: tr('Planck-Masse ≈ ', 'Planck mass ≈ ') + E.fmt(S.o('mP') * 1e9, 2) + ' µg',
+        head2: tr('Für sich genommen keine extreme Masse – extrem wäre, sie in ein einziges Teilchen zu packen.', 'Not an extreme mass in itself – the extreme part would be packing it into a single particle.'),
+        marks: [[lg10(C.m_e.value), tr('Elektron', 'electron')], [lg10(C.m_p.value), tr('Proton', 'proton'), true], [lg10(LHC / c2), tr('LHC-Kollision 13,6 TeV als E/c²', 'LHC collision 13.6 TeV as E/c²')],
+          [lg10(70), tr('Mensch ≈ 70 kg', 'human ≈ 70 kg'), true], [lg10(C.M_earth.value), tr('Erde', 'Earth')], [lg10(C.M_sun.value), tr('Sonne', 'Sun')]],
+        reach: [lg10(C.m_e.value), lg10(LHC / c2)], reachLabel: tr('im Beschleuniger erzeugt (bis E/c² am LHC)', 'produced in accelerators (up to E/c² at the LHC)'),
+        gap: (n) => tr('≈ ' + n + ' Größenordnungen über dem LHC', '≈ ' + n + ' orders of magnitude above the LHC'),
+      };
+      case 'T': return {
+        key: 'TP', unit: 'K', lo: -12, hi: 36, f: 'T_P = E_P / k_B', pl: tr('Planck-Temperatur', 'Planck temperature'),
+        head2: 'k_B = ' + E.fmt(kB, 7) + ' J/K  ·  1 K ↔ ' + E.fmt(kB / ev, 4) + ' eV',
+        marks: [[lg10(3.8e-11), tr('kältestes Labor ≈ 38 pK', 'coldest lab ≈ 38 pK')], [S.at({ M: C.M_sun.value }, 'hawking').lg('TH'), tr('Hawking-Temperatur, 1 M☉', 'Hawking temperature, 1 M☉'), true],
+          [lg10(C.T_cmb.value), tr('Hintergrundstrahlung 2,7 K', 'cosmic background 2.7 K')], [lg10(293), tr('Raumtemperatur', 'room temperature'), true],
+          [lg10(1.57e7), tr('Sonnenkern', 'solar core')], [lg10(5.5e12), tr('Quark-Gluon-Plasma (LHC)', 'quark–gluon plasma (LHC)')]],
+        reach: [lg10(3.8e-11), lg10(5.5e12)], reachLabel: tr('im Labor erreicht', 'reached in the lab'),
+        gap: (n) => tr('≈ ' + n + ' Größenordnungen darüber', '≈ ' + n + ' orders of magnitude above'),
+        second: { shift: lg10(kB / ev), label: tr('k_B T in eV', 'k_B T in eV') },
+      };
+      case 'E': return {
+        key: 'EP', unit: 'J', lo: -24, hi: 12, f: 'E_P = √(ħc⁵/G) = m_P c²', pl: tr('Planck-Energie', 'Planck energy'),
+        head2: 'E_P ≈ ' + E.fmt(S.o('EP') / ev, 3) + ' eV ≈ ' + E.fmt(S.o('EP') / 3.6e6, 3) + ' kWh' + tr(' – im Alltag keine extreme Energie, für ein einzelnes Teilchen aber gewaltig', ' – not extreme in everyday terms, but enormous for a single particle'),
+        marks: [[lg10(kB * 293), tr('k_B T bei Raumtemperatur', 'k_B T at room temperature'), true], [lg10(ev), '1 eV'], [lg10(LHC), tr('LHC-Kollision 13,6 TeV', 'LHC collision 13.6 TeV')],
+          [lg10(OMG), tr('kosmisches Teilchen ≈ 3 × 10²⁰ eV (1991)', 'cosmic-ray particle ≈ 3 × 10²⁰ eV (1991)')], [lg10(3.6e6), '1 kWh', true]],
+        reach: [-24, lg10(OMG)], reachLabel: tr('an einzelnen Teilchen gemessen', 'measured for single particles'),
+        gap: (n) => tr('≈ ' + n + ' Größenordnungen darüber – pro Teilchen', '≈ ' + n + ' orders of magnitude above – per particle'),
+        second: { shift: -lg10(ev), label: 'eV' },
+      };
+      default: return {
+        key: 'lP', unit: 'm', lo: -36, hi: 28, f: 'l_P = √(ħG/c³)', pl: tr('Planck-Länge', 'Planck length'),
+        head2: tr('rund 10' + E.sup(Math.round(lg10(8.4e-16) - S.lg('lP'))) + '-mal kleiner als ein Proton', 'roughly 10' + E.sup(Math.round(lg10(8.4e-16) - S.lg('lP'))) + ' times smaller than a proton'),
+        marks: [[lg10(8.4e-16), tr('Proton ≈ 0,84 fm', 'proton ≈ 0.84 fm')], [-10, tr('Atom ≈ 10⁻¹⁰ m', 'atom ≈ 10⁻¹⁰ m')], [lg10(1.7), tr('Mensch', 'human'), true],
+          [lg10(1.2742e7), tr('Erde (Ø)', 'Earth (Ø)')], [lg10(8.8e26), tr('beobachtbares Universum (Ø ≈)', 'observable universe (Ø ≈)')]],
+        reach: [-19, 28], reachLabel: tr('direkt vermessen (bis ≈ 10⁻¹⁹ m)', 'measured directly (down to ≈ 10⁻¹⁹ m)'),
+        gap: (n) => tr('≈ ' + n + ' Größenordnungen ohne experimentellen Zugang', '≈ ' + n + ' orders of magnitude beyond experimental reach'),
+      };
+    }
+  }
+  // Text in Zeilen umbrechen, die höchstens maxW breit sind
+  function wrap(ctx, s, maxW) {
+    const out = [];
+    let line = '';
+    for (const w of s.split(' ')) {
+      const t = line ? line + ' ' + w : w;
+      if (line && textW(ctx, t) > maxW) { out.push(line); line = w; } else line = t;
+    }
+    if (line) out.push(line);
+    return out;
+  }
   V.scales = (ctx, W, H, S) => {
-    const { o, col } = S;
+    const { col } = S;
     grid(ctx, W, H, col);
-    const lo = -36, hi = 28, y = H * 0.52;
+    const sc = planckScale(S, S.opts.q);
+    const pl = S.lg(sc.key);
+    if (!isFinite(pl)) return invalid(ctx, W, H, col, sc.f.split(' =')[0] + tr(' ist hier nicht definiert', ' is not defined here'));
+    const narrow = W < 520;
+    // Abstand der Zehnerpotenzen so wählen, dass die Beschriftungen nicht aneinanderstoßen
+    const ppd = (W - 48) / (sc.hi - sc.lo), step = [4, 8, 12, 16, 20].find((k) => k * ppd >= 40) || 20;
+    const lo = Math.floor(Math.min(sc.lo, pl - 2) / step) * step, hi = Math.ceil(Math.max(sc.hi, pl + 2) / step) * step;
     const X = (l) => map(l, lo, hi, 24, W - 24);
+    const y = H * 0.58;
+    // Kopf: Formel und Wert aus der Engine
+    segs(ctx, [[sc.f + ' = ', col.ink2], [S.fo(sc.key) + ' ' + sc.unit, col.accent]], 16, 22, col, { mono: true, size: narrow ? 12 : 13 });
+    font(ctx, col, 11);
+    wrap(ctx, sc.head2, W - 32).slice(0, 2).forEach((s, i) => label(ctx, s, 16, 39 + i * 13, col, { size: 11, color: col.ink2 }));
+    // Achse, Zehnerpotenzen und – bei Temperatur und Energie – eine zweite Einheit darunter
     ctx.strokeStyle = col.ink3; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(X(lo), y); ctx.lineTo(X(hi), y); ctx.stroke();
-    for (let k = lo; k <= hi; k += 4) { ctx.beginPath(); ctx.moveTo(X(k), y - 4); ctx.lineTo(X(k), y + 4); ctx.stroke(); label(ctx, '10' + E.sup(k), X(k), y + 36, col, { align: 'center', size: 10, mono: true, color: col.ink3 }); }
-    // experimentally accessible band (≈ down to 1e-19 m)
-    ctx.fillStyle = col.cyan; ctx.globalAlpha = 0.12; ctx.fillRect(X(-19), y - 14, X(hi) - X(-19), 28); ctx.globalAlpha = 1;
-    ctx.fillStyle = col.red; ctx.globalAlpha = 0.08; ctx.fillRect(X(Math.log10(o('lP'))), y - 14, X(-19) - X(Math.log10(o('lP'))), 28); ctx.globalAlpha = 1;
-    label(ctx, tr('≈ 16 Größenordnungen ohne experimentellen Zugang', '≈ 16 orders of magnitude beyond experimental reach'), X(Math.log10(o('lP'))), y - 84, col, { align: 'left', size: 11, color: col.red });
-    label(ctx, tr('direkt vermessen (bis ≈ 10⁻¹⁹ m)', 'measured directly (down to ≈ 10⁻¹⁹ m)'), Math.min(X(-19), W - 200), y - 64, col, { align: 'left', size: 11, color: col.cyan });
-    const marks = [
-      [Math.log10(o('lP')), tr('Planck-Länge', 'Planck length'), col.accent],
-      [Math.log10(8.4e-16), tr('Proton ≈ 0,84 fm', 'proton ≈ 0.84 fm'), col.ink],
-      [-10, tr('Atom ≈ 10⁻¹⁰ m', 'atom ≈ 10⁻¹⁰ m'), col.ink],
-      [Math.log10(1.7), tr('Mensch', 'human'), col.ink],
-      [Math.log10(1.2742e7), tr('Erde (Ø)', 'Earth (Ø)'), col.ink],
-      [Math.log10(8.8e26), tr('beobachtbares Universum (Ø ≈)', 'observable universe (Ø ≈)'), col.ink],
-    ];
-    marks.forEach(([l, s, c], i) => {
-      const up = i % 2 === 0;
-      ctx.fillStyle = c; ctx.beginPath(); ctx.arc(X(l), y, 4, 0, Math.PI * 2); ctx.fill();
-      ctx.strokeStyle = c; ctx.beginPath(); ctx.moveTo(X(l), y); ctx.lineTo(X(l), up ? y - 26 : y + 50); ctx.stroke();
-      label(ctx, s, X(l), up ? y - 32 : y + 64, col, { align: i === 0 ? 'left' : i === marks.length - 1 ? 'right' : 'center', size: 11, color: c });
-    });
-    note(ctx, tr('Logarithmische Längenskala in Metern', 'Logarithmic length scale in metres'), W, H, col);
+    for (let k = lo; k <= hi; k += step) {
+      ctx.beginPath(); ctx.moveTo(X(k), y - 4); ctx.lineTo(X(k), y + 4); ctx.stroke();
+      label(ctx, '10' + E.sup(k), X(k), y + 17, col, { align: 'center', size: 10, mono: true, color: col.ink3 });
+    }
+    const sec = sc.second && isFinite(sc.second.shift) ? sc.second : null;
+    if (sec) {
+      for (let j = Math.ceil((lo + sec.shift) / step) * step; j - sec.shift <= hi; j += step) {
+        const x = X(j - sec.shift);
+        ctx.strokeStyle = col.cyan; ctx.beginPath(); ctx.moveTo(x, y + 20); ctx.lineTo(x, y + 24); ctx.stroke();
+        label(ctx, '10' + E.sup(j), x, y + 34, col, { align: 'center', size: 10, mono: true, color: col.cyan });
+      }
+      label(ctx, sec.label, 16, y + 48, col, { size: 10, color: col.cyan });
+    }
+    // Bereiche: erreicht/gemessen (cyan) und die Lücke bis zum Planck-Wert (rot)
+    const [ra, rb] = sc.reach;
+    ctx.fillStyle = col.cyan; ctx.globalAlpha = 0.12; ctx.fillRect(X(ra), y - 12, X(rb) - X(ra), 24); ctx.globalAlpha = 1;
+    font(ctx, col, 11);
+    const cw = textW(ctx, sc.reachLabel);
+    label(ctx, sc.reachLabel, clamp((X(ra) + X(rb)) / 2 - cw / 2, 8, W - 8 - cw), y - 58, col, { size: 11, color: col.cyan });
+    const edge = pl < ra ? ra : pl > rb ? rb : null;
+    if (edge !== null) {
+      const a = Math.min(pl, edge), b = Math.max(pl, edge);
+      ctx.fillStyle = col.red; ctx.globalAlpha = 0.1; ctx.fillRect(X(a), y - 12, X(b) - X(a), 24); ctx.globalAlpha = 1;
+      const gl = sc.gap(Math.round(b - a));
+      const gw = textW(ctx, gl);
+      label(ctx, gl, clamp((X(a) + X(b)) / 2 - gw / 2, 8, W - 8 - gw), y - 76, col, { size: 11, color: col.red });
+    }
+    // Marken: erst der Planck-Wert, dann die Vergleichswerte; Beschriftungen weichen einander aus
+    const used = { up: [[], []], down: [[], []] };
+    const place = (x, w, sides) => {
+      for (const tier of [0, 1]) for (const side of sides) {
+        const x0 = clamp(x - w / 2, 4, W - 4 - w);
+        if (used[side][tier].every(([a, b]) => x0 + w + 8 < a || x0 > b + 8)) { used[side][tier].push([x0, x0 + w]); return { side, tier, x0 }; }
+      }
+      const x0 = clamp(x - w / 2, 4, W - 4 - w);
+      return { side: sides[0], tier: 1, x0 };
+    };
+    const downY = y + (sec ? 64 : 36);
+    const mark = (l, s, c, size, sides) => {
+      const x = X(l);
+      font(ctx, col, size);
+      const p = place(x, textW(ctx, s), sides);
+      const ly = p.side === 'up' ? y - 22 - p.tier * 14 : downY + p.tier * 14;
+      ctx.strokeStyle = c; ctx.lineWidth = 1; ctx.globalAlpha = 0.6;
+      ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x, p.side === 'up' ? ly + 3 : ly - 11); ctx.stroke(); ctx.globalAlpha = 1;
+      ctx.fillStyle = c; ctx.beginPath(); ctx.arc(x, y, size > 11 ? 5 : 3.5, 0, Math.PI * 2); ctx.fill();
+      label(ctx, s, p.x0, ly, col, { size, color: c });
+    };
+    mark(pl, sc.pl, col.accent, 12, ['up']);
+    sc.marks.filter((m) => isFinite(m[0]) && m[0] >= lo && m[0] <= hi && !(narrow && m[2])).forEach(([l, s]) => mark(l, s, col.ink, 11, ['up', 'down']));
+    note(ctx, tr('Zehnerpotenzen in ' + sc.unit + ' · Vergleichswerte gerundet', 'Powers of ten in ' + sc.unit + ' · reference values rounded'), W, H, col);
   };
 
   PP.viz = V;
@@ -4374,11 +4536,16 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
       (m.domain ? '<span><b>' + T('Gebiet', 'Field') + '</b>' + esc(m.domain) + '</span>' : '') +
       '</div></section>';
   }
+  // Auswahl im Kopf der Visualisierung (z. B. welche Planck-Größe); Standard ist die erste Option
+  function vizSeg(c) {
+    const cur = S.vizOpts[c.key] || c.options[0].v;
+    return '<div class="seg vseg" role="group" aria-label="' + esc(c.label) + '">' + c.options.map((o) => '<button data-vs="' + c.key + '" data-val="' + o.v + '" aria-pressed="' + (o.v === cur) + '" class="' + (o.v === cur ? 'on' : '') + '">' + esc(o.label) + '</button>').join('') + '</div>';
+  }
   function labHTML(exp) {
     const f = form();
     const hasVars = f.c.vars.length > 0;
     const showGraph = !!S.graph && hasVars;
-    const vc = (exp.vizControls || []).map((c) => '<label class="switch plain"><input type="checkbox" data-vo="' + c.key + '"' + (S.vizOpts[c.key] ? ' checked' : '') + '><span>' + esc(c.label) + '</span></label>').join('') +
+    const vc = (exp.vizControls || []).map((c) => (c.options ? vizSeg(c) : '<label class="switch plain"><input type="checkbox" data-vo="' + c.key + '"' + (S.vizOpts[c.key] ? ' checked' : '') + '><span>' + esc(c.label) + '</span></label>')).join('') +
       (exp.sweep ? '<button class="btn sm" data-v="sweep"></button>' : '') +
       (ANIM.has(exp.viz) ? '<button class="btn sm" data-v="pause"></button>' : '');
     const forms = exp.forms.length > 1
@@ -4739,6 +4906,10 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
       $$('.presets .chip').forEach((c) => c.classList.toggle('on', c === b));
       const n = $('#pnote'); if (n) n.textContent = p.note ? p.note : '';
       renderParams(); update();
+    } else if (b.dataset.vs) {
+      S.vizOpts[b.dataset.vs] = b.dataset.val;
+      $$('[data-vs="' + b.dataset.vs + '"]').forEach((x) => { x.classList.toggle('on', x === b); x.setAttribute('aria-pressed', String(x === b)); });
+      drawViz();
     } else if (b.dataset.v) {
       if (b.dataset.v === 'pause') {
         S.paused = !S.paused;
@@ -5096,6 +5267,8 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
   function physicsDoc() {
     const exp = S.exp, ex = exp.explain || {};
     let h = lvl(T('Physik', 'Physics'), T('Ebene 3', 'Level 3'), '<div class="prose"><p>' + esc(ex.physics || '') + '</p></div>');
+    // Zusätzliche Hintergrund-Abschnitte (z. B. Boltzmann und k_B bei den Planck-Einheiten)
+    (ex.more || []).forEach((m) => { h += lvl(esc(m.t), esc(m.sub || ''), '<div class="prose">' + m.paras.map((p) => '<p>' + esc(p) + '</p>').join('') + (m.link ? '<p><a href="' + esc(m.link.href) + '">' + esc(m.link.label) + '</a></p>' : '') + '</div>'); });
     h += lvl(T('Einordnung', 'Classification'), T('Was ist was?', 'What is what?'), '<ul class="ep">' + (ex.epistemics || []).map((e) => '<li><span class="tag ' + e.type + '">' + EP_LABEL[e.type] + '</span><span>' + esc(e.text) + '</span></li>').join('') + '</ul>');
     const iss = (S.res.A ? S.res.A.issues : []).filter((i) => i.cat === 'assume' || i.cat === 'model');
     if (iss.length) h += lvl(T('Aktuell', 'Currently'), T('für die eingestellten Werte', 'for the values you set'), '<ul class="issues">' + iss.map((i) => '<li class="' + i.cat + '"><b>' + U.lab.CAT[i.cat] + '</b>' + esc(i.msg) + '</li>').join('') + '</ul>');

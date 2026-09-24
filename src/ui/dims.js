@@ -54,6 +54,8 @@
   function physicsDoc() {
     const exp = S.exp, ex = exp.explain || {};
     let h = lvl(T('Physik', 'Physics'), T('Ebene 3', 'Level 3'), '<div class="prose"><p>' + esc(ex.physics || '') + '</p></div>');
+    // Zusätzliche Hintergrund-Abschnitte (z. B. Boltzmann und k_B bei den Planck-Einheiten)
+    (ex.more || []).forEach((m) => { h += lvl(esc(m.t), esc(m.sub || ''), '<div class="prose">' + m.paras.map((p) => '<p>' + esc(p) + '</p>').join('') + (m.link ? '<p><a href="' + esc(m.link.href) + '">' + esc(m.link.label) + '</a></p>' : '') + '</div>'); });
     h += lvl(T('Einordnung', 'Classification'), T('Was ist was?', 'What is what?'), '<ul class="ep">' + (ex.epistemics || []).map((e) => '<li><span class="tag ' + e.type + '">' + EP_LABEL[e.type] + '</span><span>' + esc(e.text) + '</span></li>').join('') + '</ul>');
     const iss = (S.res.A ? S.res.A.issues : []).filter((i) => i.cat === 'assume' || i.cat === 'model');
     if (iss.length) h += lvl(T('Aktuell', 'Currently'), T('für die eingestellten Werte', 'for the values you set'), '<ul class="issues">' + iss.map((i) => '<li class="' + i.cat + '"><b>' + U.lab.CAT[i.cat] + '</b>' + esc(i.msg) + '</li>').join('') + '</ul>');

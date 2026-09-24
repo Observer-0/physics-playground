@@ -21,7 +21,7 @@ veröffentlicht `dist/` auf GitHub Pages (`.github/workflows/pages.yml`).
 Entwicklung (Node ≥ 18):
 
 ```bash
-npm test        # Tests (70; die 6 UI-Tests laufen vollständig nur im Browser unter „Tests“)
+npm test        # Tests (72; die 6 UI-Tests laufen vollständig nur im Browser unter „Tests“)
 npm run build   # bündelt alles nach dist/index.html
 ```
 
@@ -36,7 +36,7 @@ bauen und `dist/index.html` mit committen – die gebündelte Datei ist die ausl
 |---|---|
 | Mechanik | Newtonsche Gravitation · Kinematik · Freier Fall · Federpendel · Kreisbewegung |
 | Relativität | Lorentz-Faktor (Zeitdilatation, Längenkontraktion, Energie) |
-| Famous Equations | Hawking-Temperatur · Bekenstein-Hawking-Entropie · Einsteinsche Feldgleichungen · Schrödinger-Gleichung · Planck-Einheiten |
+| Famous Equations | Hawking-Temperatur · Bekenstein-Hawking-Entropie · Einsteinsche Feldgleichungen · Schrödinger-Gleichung · Planck-Einheiten (Länge, Zeit, Masse, Temperatur, Energie; mit Boltzmann und k_B) |
 | Grundlagen | Theorie kurz erklärt: Dimensionsanalyse · Inertialprinzip & Trägheit · Relativitätstheorie · Indizes μν (interaktive 4×4-Tabelle) · Tensor-Aufbau (Drehung/Boost-Demo) · Einstein-Hilbert-Wirkung (Demo zum Prinzip der kleinsten Wirkung) · Die Köpfe hinter der ART (Poincaré, Minkowski, Grossmann, Hilbert, Noether) · Quantenmechanik · Entropie (Clausius bis Wald, mit Mikrozustands-Demo) · Warum beide (noch) nicht zusammenpassen |
 | Werkzeuge | Eigene/falsche Gleichungen prüfen · Konstanten · Gespeichert · Tests im Browser |
 
@@ -115,7 +115,8 @@ englischen Texten der Experimente und Konstanten“ meldet vergessene Übersetzu
 Dimensionsanalyse, Graph, Vergleich, URL-State und die automatische Dimensionsprüfung in den Tests
 funktionieren dann ohne weiteren Code. Für eine eigene Visualisierung eine Funktion
 `PP.viz.name = (ctx, W, H, S) => { … }` in `src/render/viz.js` ergänzen. Zahlen kommen dabei immer aus
-`S.o('key')` bzw. `S.at({ t: 2 }).o('key')` – nie aus einer nachgebauten Formel. Mit
+`S.o('key')` bzw. `S.at({ t: 2 }).o('key')` – nie aus einer nachgebauten Formel. `vizControls` sind Schalter oder, mit `options`, eine Auswahl im Kopf der Visualisierung (Wert in
+`S.opts`). Mit
 `sweep: { key, span, period, label }` bekommt die Visualisierung einen Knopf, der einen Wert um seinen
 Ausgangswert pendeln lässt (Faktor `span` nach oben und unten).
 

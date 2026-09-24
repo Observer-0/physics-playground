@@ -683,14 +683,27 @@
       { label: { de: 'Planck-Zeit', en: 'Planck time' }, eq: 't_P = sqrt(hbar*G/c^5)' },
       { label: { de: 'Planck-Masse', en: 'Planck mass' }, eq: 'm_P = sqrt(hbar*c/G)' },
       { label: { de: 'Planck-Temperatur', en: 'Planck temperature' }, eq: 'T_P = sqrt(hbar*c^5/(G*k_B^2))' },
+      { label: { de: 'Planck-Energie', en: 'Planck energy' }, eq: 'E_P = sqrt(hbar*c^5/G)' },
+      { label: { de: 'Temperatur aus Energie: k_B rechnet um', en: 'Temperature from energy: k_B converts' }, eq: 'T_P = E_P/k_B' },
     ],
-    symbols: { l_P: { dim: 'L' }, t_P: { dim: 'T' }, m_P: { dim: 'M' }, T_P: { dim: 'Θ' } },
+    symbols: { l_P: { dim: 'L' }, t_P: { dim: 'T' }, m_P: { dim: 'M' }, T_P: { dim: 'Θ' }, E_P: { dim: 'M L^2 T^-2' } },
+    notes: [
+      { t: { de: 'Wie k_B aus einer Energie eine Temperatur macht', en: 'How k_B turns an energy into a temperature' }, steps: [
+        '[k_{\\mathrm{B}}] = \\mathrm{J/K} = \\mathsf{M}\\,\\mathsf{L}^{2}\\,\\mathsf{T}^{-2}\\,\\Theta^{-1}',
+        'T_{\\mathrm{P}} = \\frac{E_{\\mathrm{P}}}{k_{\\mathrm{B}}}',
+        '[T_{\\mathrm{P}}] = \\frac{\\mathsf{M}\\,\\mathsf{L}^{2}\\,\\mathsf{T}^{-2}}{\\mathsf{M}\\,\\mathsf{L}^{2}\\,\\mathsf{T}^{-2}\\,\\Theta^{-1}} = \\Theta',
+      ], after: { de: 'In ħ, G und c kommt keine Temperatur vor. Erst k_B bringt die Dimension Θ ins Spiel – als reiner Umrechnungsfaktor.', en: 'No temperature appears in ħ, G or c. Only k_B brings in the dimension Θ – purely as a conversion factor.' } },
+    ],
     checks({ issues }) {
       issues.push({ cat: 'info', msg: T('Die Werte folgen allein aus Konstanten. Ihre Unsicherheit stammt fast vollständig von G.', 'The values follow from constants alone. Their uncertainty comes almost entirely from G.') });
     },
     presets: [],
     graph: null,
     viz: 'scales',
+    vizControls: [{ key: 'q', label: { de: 'Größe', en: 'Quantity' }, options: [
+      { v: 'l', label: { de: 'Länge', en: 'Length' } }, { v: 't', label: { de: 'Zeit', en: 'Time' } }, { v: 'm', label: { de: 'Masse', en: 'Mass' } },
+      { v: 'T', label: { de: 'Temperatur', en: 'Temperature' } }, { v: 'E', label: { de: 'Energie', en: 'Energy' } },
+    ] }],
     explain: {
       intuition: {
         de: 'Aus ħ, G, c und k_B lässt sich genau eine Länge, eine Zeit, eine Masse und eine Temperatur bauen. Das sind die Planck-Einheiten – natürliche Maßstäbe, die ohne menschliche Konventionen auskommen.',
@@ -700,7 +713,8 @@
         { t: { de: 'Länge', en: 'Length' }, tex: 'l_{\\mathrm{P}} = \\sqrt{\\hbar G / c^3}' },
         { t: { de: 'Zeit', en: 'Time' }, tex: 't_{\\mathrm{P}} = \\sqrt{\\hbar G / c^5} = l_{\\mathrm{P}}/c' },
         { t: { de: 'Masse', en: 'Mass' }, tex: 'm_{\\mathrm{P}} = \\sqrt{\\hbar c / G}' },
-        { t: { de: 'Temperatur', en: 'Temperature' }, tex: 'T_{\\mathrm{P}} = \\sqrt{\\hbar c^5 / (G k_{\\mathrm{B}}^2)} = m_{\\mathrm{P}} c^2 / k_{\\mathrm{B}}' },
+        { t: { de: 'Energie', en: 'Energy' }, tex: 'E_{\\mathrm{P}} = \\sqrt{\\hbar c^5 / G} = m_{\\mathrm{P}} c^2' },
+        { t: { de: 'Temperatur: die Planck-Energie, mit k_B umgerechnet', en: 'Temperature: the Planck energy, converted with k_B' }, tex: 'T_{\\mathrm{P}} = \\sqrt{\\hbar c^5 / (G k_{\\mathrm{B}}^2)} = \\frac{E_{\\mathrm{P}}}{k_{\\mathrm{B}}} = \\frac{m_{\\mathrm{P}} c^2}{k_{\\mathrm{B}}}' },
       ],
       physics: {
         de: 'Die Planck-Einheiten sind zunächst ein Ergebnis der Dimensionsanalyse. Man erwartet, dass bei diesen Skalen Quanteneffekte der Gravitation wichtig werden – das ist eine Erwartung, keine Messung. Oft liest man, die Planck-Länge sei die „kleinste mögliche Länge“ oder der Raum sei dort „gepixelt“. Das ist nicht nachgewiesen und folgt auch nicht aus der Dimensionsanalyse. Außerdem gilt: Welche Kombination man „die“ Planck-Einheit nennt, ist teils Konvention (manche Autoren verwenden 8πG statt G).',
@@ -710,7 +724,24 @@
         { type: 'math', text: { de: 'Eindeutige Kombination der Konstanten mit der gewünschten Dimension (bis auf dimensionslose Vorfaktoren).', en: 'The unique combination of the constants with the desired dimension (up to dimensionless prefactors).' } },
         { type: 'assume', text: { de: 'Die physikalische Bedeutung als Skala der Quantengravitation ist eine theoretische Erwartung.', en: 'Their physical meaning as the scale of quantum gravity is a theoretical expectation.' } },
         { type: 'measured', text: { de: 'Die Zahlenwerte hängen am gemessenen G (relative Unsicherheit ≈ 1,1 × 10⁻⁵ für √G).', en: 'The numerical values depend on the measured G (relative uncertainty ≈ 1.1 × 10⁻⁵ for √G).' } },
+        { type: 'math', text: { de: 'k_B ist seit 2019 exakt festgelegt: T_P = E_P / k_B ist eine Umrechnung ohne zusätzliche Unsicherheit.', en: 'k_B has been fixed exactly since 2019: T_P = E_P / k_B is a conversion with no extra uncertainty.' } },
       ],
+      more: [{
+        t: { de: 'Boltzmann und k_B', en: 'Boltzmann and k_B' }, sub: { de: 'Hintergrund', en: 'Background' },
+        paras: [
+          { de: 'Ludwig Boltzmann (1844–1906) erklärte Wärme als ungeordnete Bewegung sehr vieler Teilchen. Sein Kerngedanke: Die Entropie zählt, auf wie viele Arten Ω sich ein Zustand mikroskopisch verwirklichen lässt, S = k_B ln Ω. Die Formel steht auf seinem Grab in Wien.',
+            en: 'Ludwig Boltzmann (1844–1906) explained heat as the disordered motion of a huge number of particles. His key idea: entropy counts in how many ways Ω a state can be realised microscopically, S = k_B ln Ω. The formula is on his grave in Vienna.' },
+          { de: 'Die Konstante selbst führte Max Planck 1900 ein, bei der Herleitung seines Strahlungsgesetzes – im selben Zug wie h. Boltzmann hat sie nie als eigene Konstante geschrieben; der Name ehrt ihn nachträglich.',
+            en: 'The constant itself was introduced by Max Planck in 1900, while deriving his radiation law – together with h. Boltzmann never wrote it as a constant of its own; the name honours him after the fact.' },
+          { de: 'k_B ist ein Umrechnungsfaktor zwischen Temperatur und Energie. k_B T ist die typische thermische Energie pro Teilchen (genauer ½ k_B T je Freiheitsgrad, der quadratisch in die Energie eingeht). Bei Raumtemperatur sind das etwa 4 × 10⁻²¹ J, rund 1/40 eV. Zusammen mit der Avogadro-Konstante ergibt k_B die Gaskonstante R = N_A k_B.',
+            en: 'k_B is a conversion factor between temperature and energy. k_B T is the typical thermal energy per particle (more precisely ½ k_B T per degree of freedom that enters the energy quadratically). At room temperature this is about 4 × 10⁻²¹ J, roughly 1/40 eV. Together with the Avogadro constant, k_B gives the gas constant R = N_A k_B.' },
+          { de: 'Seit 2019 ist k_B = 1,380649 × 10⁻²³ J/K exakt festgelegt. Damit ist das Kelvin über die Energie definiert und nicht mehr über den Tripelpunkt des Wassers.',
+            en: 'Since 2019, k_B = 1.380649 × 10⁻²³ J/K has been fixed exactly. This defines the kelvin through energy rather than through the triple point of water.' },
+          { de: 'In den Planck-Einheiten bringt k_B keine neue Physik: T_P = E_P / k_B ist die Planck-Energie, als Temperatur ausgedrückt. Wer Temperaturen gleich in Energieeinheiten angibt (k_B = 1, in der theoretischen Physik üblich), erhält für T_P und E_P dieselbe Zahl. Die Visualisierung zeigt beide Achsen: Kelvin oben, k_B T in Elektronvolt darunter.',
+            en: 'In the Planck units, k_B adds no new physics: T_P = E_P / k_B is the Planck energy expressed as a temperature. If you give temperatures directly in energy units (k_B = 1, common in theoretical physics), T_P and E_P are the same number. The visualisation shows both axes: kelvin on top, k_B T in electronvolts below.' },
+        ],
+        link: { href: '#view=theorie&sec=entropy', label: { de: 'Mehr zu Boltzmann und Entropie in den Grundlagen →', en: 'More on Boltzmann and entropy in the basics →' } },
+      }],
     },
   });
 

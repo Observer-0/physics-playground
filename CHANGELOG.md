@@ -2,6 +2,16 @@
 
 ## 2026-09-24
 
+**Planck-Einheiten: alle Größen, dazu Boltzmann und k_B**
+
+- Die Visualisierung zeigt jetzt nicht nur die Planck-Länge. Ein Umschalter wechselt zwischen **Länge, Zeit, Masse, Temperatur und Energie**. Jede Skala hat Vergleichswerte, markiert den experimentell erreichten Bereich und nennt die Lücke bis zum Planck-Wert, z. B. „≈ 25 Größenordnungen ohne direkte Messung“ bei der Zeit. Der Planck-Wert kommt aus der Engine und wandert im Break-Modus mit den Konstanten.
+- Masse und Energie zeigen, dass m_P ≈ 22 µg und E_P ≈ 543 kWh im Alltag nicht extrem sind. Extrem wäre erst, sie in ein einziges Teilchen zu packen: 15 bzw. 8 Größenordnungen über dem LHC bzw. dem energiereichsten gemessenen kosmischen Teilchen.
+- Temperatur mit zweiter Achse k_B T in eV: So wird sichtbar, dass k_B nur zwischen Temperatur und Energie umrechnet. Die Hawking-Temperatur eines Schwarzen Lochs mit Sonnenmasse ist markiert und kommt aus dem Hawking-Experiment.
+- Neuer Abschnitt **Boltzmann und k_B** im Tab „Physik“: Boltzmanns Entropie, Plancks Einführung der Konstante, k_B T als thermische Energie, die exakte Festlegung seit 2019 und T_P = E_P / k_B. Dazu ein Link zum Entropie-Abschnitt der Grundlagen.
+- Tab „Dimensionen“: Herleitung, wie k_B aus einer Energie eine Temperatur macht, und zwei neue geprüfte Gleichungen (E_P = √(ħc⁵/G), T_P = E_P / k_B). Die Mathematik-Ebene nennt jetzt auch E_P.
+
+**Tests:** 70 → 72 (jede Planck-Skala zeigt den Engine-Wert; k_B im Bild ist E_P / T_P). Die Tests der Visualisierungen prüfen jetzt jede Stellung des Umschalters.
+
 **Visualisierungen: die Mathematik sichtbar machen**
 
 - Alle Zahlen im Bild kommen aus der Rechen-Engine. Vorher rechneten einige Bilder Formeln selbst nach (Spur beim freien Fall, Kinematik, Federkraft, Phasen und Energieleiter bei Schrödinger); das ist entfallen.

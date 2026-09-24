@@ -119,11 +119,16 @@
       (m.domain ? '<span><b>' + T('Gebiet', 'Field') + '</b>' + esc(m.domain) + '</span>' : '') +
       '</div></section>';
   }
+  // Auswahl im Kopf der Visualisierung (z. B. welche Planck-Größe); Standard ist die erste Option
+  function vizSeg(c) {
+    const cur = S.vizOpts[c.key] || c.options[0].v;
+    return '<div class="seg vseg" role="group" aria-label="' + esc(c.label) + '">' + c.options.map((o) => '<button data-vs="' + c.key + '" data-val="' + o.v + '" aria-pressed="' + (o.v === cur) + '" class="' + (o.v === cur ? 'on' : '') + '">' + esc(o.label) + '</button>').join('') + '</div>';
+  }
   function labHTML(exp) {
     const f = form();
     const hasVars = f.c.vars.length > 0;
     const showGraph = !!S.graph && hasVars;
-    const vc = (exp.vizControls || []).map((c) => '<label class="switch plain"><input type="checkbox" data-vo="' + c.key + '"' + (S.vizOpts[c.key] ? ' checked' : '') + '><span>' + esc(c.label) + '</span></label>').join('') +
+    const vc = (exp.vizControls || []).map((c) => (c.options ? vizSeg(c) : '<label class="switch plain"><input type="checkbox" data-vo="' + c.key + '"' + (S.vizOpts[c.key] ? ' checked' : '') + '><span>' + esc(c.label) + '</span></label>')).join('') +
       (exp.sweep ? '<button class="btn sm" data-v="sweep"></button>' : '') +
       (ANIM.has(exp.viz) ? '<button class="btn sm" data-v="pause"></button>' : '');
     const forms = exp.forms.length > 1
@@ -484,6 +489,10 @@
       $$('.presets .chip').forEach((c) => c.classList.toggle('on', c === b));
       const n = $('#pnote'); if (n) n.textContent = p.note ? p.note : '';
       renderParams(); update();
+    } else if (b.dataset.vs) {
+      S.vizOpts[b.dataset.vs] = b.dataset.val;
+      $$('[data-vs="' + b.dataset.vs + '"]').forEach((x) => { x.classList.toggle('on', x === b); x.setAttribute('aria-pressed', String(x === b)); });
+      drawViz();
     } else if (b.dataset.v) {
       if (b.dataset.v === 'pause') {
         S.paused = !S.paused;

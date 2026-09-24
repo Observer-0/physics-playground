@@ -75,6 +75,8 @@
     'Gravitation: Die Faktoren im Bild zeigen F ∝ m₁m₂/r² (m₁ ×2, r ×½ → F ×8)': 'Gravity: the factors in the picture show F ∝ m₁m₂/r² (m₁ ×2, r ×½ → F ×8)',
     'Feldgleichungen: Das Bild ist als schematische Projektion gekennzeichnet': 'Field equations: the picture is labelled as a schematic projection',
     'Schrödinger: Ein nicht ganzzahliges n wird nicht als Welle gezeichnet': 'Schrödinger: a non-integer n is not drawn as a wave',
+    'Planck-Einheiten: Jede Skala zeigt den Wert aus der Engine (l_P, t_P, m_P, T_P, E_P)': 'Planck units: every scale shows the value from the engine (l_P, t_P, m_P, T_P, E_P)',
+    'Planck-Temperatur: k_B im Bild ist E_P / T_P = 1,380649 × 10⁻²³ J/K, mit zweiter Achse in eV': 'Planck temperature: k_B in the picture is E_P / T_P = 1.380649 × 10⁻²³ J/K, with a second axis in eV',
     'Engine-Meldungen und Dimensionsnamen gibt es auf Deutsch und Englisch': 'Engine messages and dimension names exist in German and English',
     'Umschalten wirkt auch auf die kompilierten Kopien der Experimente': 'Switching also affects the compiled copies of the experiments',
     'Keine deutschen Reste in den englischen Texten der Experimente und Konstanten': 'No German left in the English texts of the experiments and constants',
@@ -428,13 +430,15 @@
     PP.viz[exp.viz](ctx, o.W || 640, o.H || 330, S);
     return ctx.texts;
   };
+  // Alle Einstellungen der Bedienelemente einer Visualisierung (Schalter: aus/an, Auswahl: jede Option)
+  const optSets = (exp) => (exp.vizControls || []).reduce((sets, c) => sets.flatMap((o) => (c.options ? c.options.map((x) => x.v) : [false, true]).map((v) => Object.assign({}, o, { [c.key]: v }))), [{}]);
   const fmtOut = (r, k) => E.fmt({ s: r.out[k].s, l: r.out[k].l, d: r.out[k].value }, 3);
   test('Visualisierung', 'Alle Visualisierungen zeichnen Standardwerte und Presets ohne Fehler und ohne „NaN“', () => {
     if (!PP.viz || !PP.vizState) return;
     for (const exp of M.registry) {
       if (!exp.viz) continue;
       const cases = [{}].concat((exp.presets || []).map((p) => ({ vals: p.values, form: p.form })));
-      for (const c of cases) for (const W of [640, 360]) for (const opts of exp.vizControls ? [{}, { superpos: true }] : [{}]) {
+      for (const c of cases) for (const W of [640, 360]) for (const opts of optSets(exp)) {
         let texts;
         try { texts = draw(exp.id, c.vals, { form: c.form, W, H: W < 400 ? 260 : 330, base: c.vals, opts }); }
         catch (e) { throw new Error(exp.id + ' (' + W + ' px): ' + e.message); }
@@ -475,6 +479,21 @@
     if (!PP.viz) return;
     const texts = draw('schroedinger', { n: 2.5 });
     ok(texts.some((x) => /n muss eine positive ganze Zahl sein/.test(x)) && !texts.includes('|ψ|²'), texts.slice(0, 3).join(' | '));
+  });
+
+  test('Visualisierung', 'Planck-Einheiten: Jede Skala zeigt den Wert aus der Engine (l_P, t_P, m_P, T_P, E_P)', () => {
+    if (!PP.viz) return;
+    const r = run('planck');
+    for (const [q, k, unit] of [['l', 'lP', 'm'], ['t', 'tP', 's'], ['m', 'mP', 'kg'], ['T', 'TP', 'K'], ['E', 'EP', 'J']]) {
+      const texts = draw('planck', {}, { opts: { q } });
+      ok(texts.includes(fmtOut(r, k) + ' ' + unit), q + ': ' + fmtOut(r, k) + ' ' + unit + ' fehlt');
+    }
+  });
+  test('Visualisierung', 'Planck-Temperatur: k_B im Bild ist E_P / T_P = 1,380649 × 10⁻²³ J/K, mit zweiter Achse in eV', () => {
+    if (!PP.viz) return;
+    const texts = draw('planck', {}, { opts: { q: 'T' } });
+    ok(texts.some((x) => x.startsWith('k_B = 1.380649 × 10⁻²³ J/K')), texts.find((x) => x.startsWith('k_B')) || 'k_B-Zeile fehlt');
+    ok(texts.includes('k_B T in eV'), 'zweite Achse fehlt');
   });
 
   /* --- Sprache --- */
@@ -518,8 +537,8 @@
     I.with('en', () => {
       for (const exp of M.registry) {
         if (!exp.viz) continue;
-        for (const c of [{}].concat((exp.presets || []).map((p) => ({ vals: p.values, form: p.form })))) for (const W of [640, 360]) {
-          draw(exp.id, c.vals, { form: c.form, W, base: c.vals, opts: { superpos: true } }).forEach((x) => { if (german.test(x)) bad.push(exp.id + ': ' + x); });
+        for (const c of [{}].concat((exp.presets || []).map((p) => ({ vals: p.values, form: p.form })))) for (const W of [640, 360]) for (const opts of optSets(exp)) {
+          draw(exp.id, c.vals, { form: c.form, W, base: c.vals, opts }).forEach((x) => { if (german.test(x)) bad.push(exp.id + ': ' + x); });
         }
       }
       draw('special-rel', { beta: 1 }).concat(draw('free-fall', { t: 9 }), draw('schroedinger', { n: 2.5 })).forEach((x) => { if (german.test(x)) bad.push(x); });
