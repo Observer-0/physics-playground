@@ -6,7 +6,12 @@ wann ein Ergebnis nur noch Mathematik ist.
 
 ## Starten
 
-`dist/index.html` im Browser öffnen – fertig. Kein Server, kein Build nötig.
+Online: **https://observer-0.github.io/physics-playground/**
+
+Oder lokal `dist/index.html` im Browser öffnen – fertig. Kein Server, kein Build nötig.
+
+Jeder Push auf `main` lässt über GitHub Actions die Tests laufen, baut die App neu und
+veröffentlicht `dist/` auf GitHub Pages (`.github/workflows/pages.yml`).
 
 Entwicklung (Node ≥ 18):
 
