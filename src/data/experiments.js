@@ -58,6 +58,7 @@
     ],
     graph: { x: 'r', y: 'F' },
     viz: 'gravity',
+    sweep: { key: 'r', span: 2, period: 4, label: { de: 'Abstand pendeln lassen', en: 'Oscillate the distance' } },
     explain: {
       intuition: {
         de: 'Zwei Massen ziehen sich an. Doppelte Masse bedeutet doppelte Kraft, doppelter Abstand nur noch ein Viertel der Kraft. Die Kraft wirkt auf beide Körper gleich stark, aber der leichtere wird viel stärker beschleunigt.',

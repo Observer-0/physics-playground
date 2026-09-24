@@ -297,7 +297,7 @@
       '</div></aside>' +
       '<main id="main" tabindex="-1"></main></div>';
     U.$('#brk').addEventListener('change', (e) => U.setBreak(e.target.checked));
-    U.$('#anim').addEventListener('change', (e) => { S.paused = !e.target.checked; });
+    U.$('#anim').addEventListener('change', (e) => { S.paused = !e.target.checked; if (U.onPause) U.onPause(); });
     U.$('#theme').addEventListener('change', (e) => {
       document.documentElement.setAttribute('data-theme', e.target.checked ? 'light' : 'dark');
       U.store.set('pp.theme', e.target.checked ? 'light' : 'dark');

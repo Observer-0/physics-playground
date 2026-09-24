@@ -14,7 +14,8 @@
     info: { de: 'Hinweis', en: 'Note' }, assume: { de: 'Modellannahme', en: 'Model assumption' },
   });
   const CAT_ORDER = ['math', 'numeric', 'unreal', 'model', 'info', 'assume'];
-  const ANIM = new Set(['spring', 'circular', 'wavefunction', 'relativity', 'blackhole']);
+  const ANIM = new Set(['spring', 'circular', 'wavefunction', 'relativity', 'blackhole', 'horizon', 'spacetime']);
+  const VIZ_CATS = ['math', 'numeric', 'unreal', 'model'];
   const form = () => M.formOf(S.exp, S.form);
 
   /* ---------- slider mapping ---------- */
@@ -122,14 +123,16 @@
     const f = form();
     const hasVars = f.c.vars.length > 0;
     const showGraph = !!S.graph && hasVars;
-    const vc = (exp.vizControls || []).map((c) => '<label class="switch plain"><input type="checkbox" data-vo="' + c.key + '"' + (S.vizOpts[c.key] ? ' checked' : '') + '><span>' + esc(c.label) + '</span></label>').join('');
+    const vc = (exp.vizControls || []).map((c) => '<label class="switch plain"><input type="checkbox" data-vo="' + c.key + '"' + (S.vizOpts[c.key] ? ' checked' : '') + '><span>' + esc(c.label) + '</span></label>').join('') +
+      (exp.sweep ? '<button class="btn sm" data-v="sweep"></button>' : '') +
+      (ANIM.has(exp.viz) ? '<button class="btn sm" data-v="pause"></button>' : '');
     const forms = exp.forms.length > 1
       ? '<div class="seg" role="group" aria-label="' + T('Formel-Variante', 'Formula variant') + '">' + exp.forms.map((x) => '<button data-form="' + x.id + '" class="' + (x.id === S.form ? 'on' : '') + '">' + esc(x.label) + '</button>').join('') + '</div>' : '';
     const ab = S.cmp ? '<div class="seg" role="group" aria-label="' + T('Parametersatz bearbeiten', 'Edit parameter set') + '"><button data-edit="A" class="' + (S.edit === 'A' ? 'on' : '') + '">' + T('Satz A', 'Set A') + '</button><button data-edit="B" class="' + (S.edit === 'B' ? 'on' : '') + '">' + T('Satz B', 'Set B') + '</button></div>' : '';
     const presets = (exp.presets || []).filter((p) => !p.form || p.form === S.form);
     return '<div class="lab" id="lab">' +
       '<div class="stage">' +
-      '<section class="panel"><div class="ph"><h3>' + T('Visualisierung', 'Visualisation') + (S.cmp ? T(' · Satz ', ' · Set ') + S.edit : '') + '</h3>' + vc + '</div><div class="vizwrap"><canvas id="vizc" role="img" aria-label="' + T('Visualisierung von ', 'Visualisation of ') + esc(exp.title) + '"></canvas></div></section>' +
+      '<section class="panel"><div class="ph"><h3>' + T('Visualisierung', 'Visualisation') + (S.cmp ? T(' · Satz ', ' · Set ') + S.edit : '') + '</h3><span class="vbadges" id="vbadges"></span>' + vc + '</div><div class="vizwrap"><canvas id="vizc" role="img" aria-label="' + T('Visualisierung von ', 'Visualisation of ') + esc(exp.title) + '"></canvas></div></section>' +
       (showGraph ? '<section class="panel" id="gpanel"></section>' : '') +
       '</div>' +
       '<div class="controls">' +
@@ -254,6 +257,8 @@
     if (ro) { ro.disconnect(); ro = null; }
     S.plots = [];
     S.playing = false;
+    stopSweep(true);
+    pauseShown = null;
     void keepListeners;
   }
 
@@ -277,7 +282,64 @@
       if (!S.playing) renderParams();
       return;
     }
-    if (!S.paused && ANIM.has(S.exp.viz)) { S.clock += dt; drawViz(); }
+    if (S.sweep) {
+      const sw = S.sweep, cfg = sw.cfg;
+      sw.ph += dt;
+      sw.vals[sw.key] = Number((sw.base * Math.pow(cfg.span, Math.sin((2 * Math.PI * sw.ph) / cfg.period))).toPrecision(6));
+      if (!S.paused && !S.vizFrozen && ANIM.has(S.exp.viz)) S.clock += dt;
+      update();
+      return;
+    }
+    if (pauseShown !== S.paused) syncVizButtons();
+    if (!S.paused && !S.vizFrozen && ANIM.has(S.exp.viz)) { S.clock += dt; drawViz(); }
+  }
+
+  /* ---------- Knöpfe der Visualisierung: Anhalten, Pendeln ---------- */
+  let pauseShown = null;
+  function syncVizButtons() {
+    pauseShown = S.paused;
+    const p = $('[data-v="pause"]');
+    if (p) {
+      p.textContent = S.paused ? T('Abspielen', 'Play') : T('Anhalten', 'Pause');
+      p.setAttribute('aria-pressed', String(S.paused));
+      p.title = T('Gilt für alle Animationen, wie der Schalter „Animationen“', 'Applies to all animations, like the “Animations” switch');
+    }
+    const s = $('[data-v="sweep"]');
+    if (s && S.exp.sweep) {
+      s.textContent = S.sweep ? T('Pendeln anhalten', 'Stop oscillating') : S.exp.sweep.label;
+      s.classList.toggle('on', !!S.sweep);
+      s.setAttribute('aria-pressed', String(!!S.sweep));
+    }
+  }
+  // Pendeln: der Wert schwingt um seinen Ausgangswert (Faktor span hoch ±1), alles andere rechnet live mit
+  function startSweep() {
+    const k = S.exp.sweep.key, x = S.vals[S.edit][k];
+    if (!(x > 0) || !isFinite(x)) { U.toast(T('Pendeln geht nur mit einem positiven Wert', 'Oscillating only works with a positive value')); return; }
+    S.playing = false;
+    S.sweep = { set: S.edit, vals: S.vals[S.edit], key: k, base: x, ph: 0, cfg: S.exp.sweep };
+  }
+  function stopSweep(restore) {
+    if (!S.sweep) return;
+    // Nach Zurücksetzen oder Wechsel des Experiments gibt es neue Wertesätze – dann nichts zurückschreiben
+    if (restore && S.vals[S.sweep.set] === S.sweep.vals) S.sweep.vals[S.sweep.key] = S.sweep.base;
+    S.sweep = null;
+    syncVizButtons();
+  }
+  function renderVizBadges() {
+    const b = $('#vbadges');
+    const res = S.res[S.edit] || S.res.A;
+    const cats = new Set(res.issues.map((i) => i.cat));
+    S.vizFrozen = cats.has('math');
+    if (!b) return;
+    const on = VIZ_CATS.filter((c) => cats.has(c));
+    const key = on.join() + '|' + PP.i18n.lang;
+    if (b.dataset.k === key) return;
+    b.dataset.k = key;
+    b.innerHTML = on.map((c) => '<span class="vb vb-' + c + '">' + esc(CAT[c]) + '</span>').join('');
+  }
+  function baseLabel() {
+    const p = S.base && S.base.preset;
+    return p ? T('Preset „' + p.name + '“', 'preset “' + p.name + '”') : T('Ausgangswerte', 'starting values');
   }
 
   /* ---------- parameters ---------- */
@@ -360,6 +422,7 @@
       x = clamped;
     }
     const wasOff = outOfRange(d, vals[k]);
+    if (S.sweep && S.sweep.key === k) stopSweep(false);
     vals[k] = x;
     if (S.preset !== null) { S.preset = null; const n = $('#pnote'); if (n) n.textContent = ''; $$('.presets .chip').forEach((c) => c.classList.remove('on')); }
     if (wasOff !== outOfRange(d, x) && S.brk) { renderParams(); }
@@ -411,17 +474,26 @@
     if (!b) return;
     const vals = S.vals[S.edit];
     if (b.dataset.preset !== undefined) {
+      stopSweep(false);
       const p = S.exp.presets[Number(b.dataset.preset)];
       Object.assign(vals, p.values);
       S.consts[S.edit] = {};
-      S.base = { vals: Object.assign({}, vals), consts: {}, form: S.form };
+      S.base = { vals: Object.assign({}, vals), consts: {}, form: S.form, preset: p };
       S.preset = p;
       S.playing = false;
       $$('.presets .chip').forEach((c) => c.classList.toggle('on', c === b));
       const n = $('#pnote'); if (n) n.textContent = p.note ? p.note : '';
       renderParams(); update();
+    } else if (b.dataset.v) {
+      if (b.dataset.v === 'pause') {
+        S.paused = !S.paused;
+        const a = $('#anim'); if (a) a.checked = !S.paused;
+      } else if (S.sweep) { stopSweep(true); update(); }
+      else startSweep();
+      syncVizButtons();
     } else if (b.dataset.op) {
       const k = b.dataset.k, d = S.exp.vars[k];
+      if (S.sweep && S.sweep.key === k) stopSweep(false);
       if (b.dataset.op === 'play') {
         if (S.playing) S.playing = false;
         else {
@@ -453,6 +525,7 @@
       S.preset = null;
       U.render(false);
     } else if (b.dataset.edit) {
+      stopSweep(true);
       S.edit = b.dataset.edit;
       S.playing = false;
       $$('[data-edit]').forEach((x) => x.classList.toggle('on', x === b));
@@ -499,7 +572,7 @@
       h += '<div class="meta">' + esc(meta.join(' · ')) + '</div>';
       if (S.baseRes && r && r.ok) {
         const q = ratio(S.baseRes.out[prim.key], r);
-        h += '<div class="delta">' + T('gegenüber ' + (S.preset ? 'Preset' : 'Ausgangswert'), 'compared with the ' + (S.preset ? 'preset' : 'starting value')) + ': ' + esc(q.t) + (q.p ? '  (' + esc(q.p) + ')' : '') + '</div>';
+        h += '<div class="delta">' + T('gegenüber ' + (S.base.preset ? 'Preset' : 'Ausgangswert'), 'compared with the ' + (S.base.preset ? 'preset' : 'starting value')) + ': ' + esc(q.t) + (q.p ? '  (' + esc(q.p) + ')' : '') + '</div>';
       }
       h += '</div>';
       h += '<table class="t rlist"><tbody>' + outs.filter((o) => o !== prim).map((o) => {
@@ -577,18 +650,12 @@
     ctx.clearRect(0, 0, W, H);
     const fn = PP.viz[S.exp.viz];
     if (!fn) return;
-    const res = S.res[S.edit] || S.res.A;
-    // Values beyond the double range are clamped for drawing only: they are defined, just huge/tiny
-    const o = (k) => {
-      const r = res.out[k];
-      if (!r || !r.ok) return NaN;
-      if (r.s === 0) return 0;
-      if (r.l > 308) return r.s * 1.7e308;
-      if (r.l < -307) return r.s * 1e-307;
-      return E.toDouble(U.num(r));
-    };
-    const fo = (k, abs) => { const r = res.out[k]; if (!r || !r.ok) return '—'; const n = U.num(r); if (abs && n.s < 0) { n.s = 1; n.d = Math.abs(n.d); } return E.fmt(n, 3); };
-    try { fn(ctx, W, H, { v: S.vals[S.edit], o, fo, col: PP.colors(), t: S.clock, opts: S.vizOpts }); }
+    const st = PP.vizState({
+      exp: S.exp, form: S.form, vals: S.vals[S.edit], consts: S.consts[S.edit], res: S.res[S.edit] || S.res.A,
+      base: S.base && S.base.form === S.form ? S.base.vals : null, baseLabel: baseLabel(),
+      t: S.clock, opts: S.vizOpts, col: PP.colors(),
+    });
+    try { fn(ctx, W, H, st); }
     catch (err) {
       const col = PP.colors();
       ctx.fillStyle = col.red; ctx.font = '13px ' + col.sans; ctx.textAlign = 'center';
@@ -704,11 +771,14 @@
     syncInputs();
     renderResults();
     renderStatus();
+    renderVizBadges();
+    if (pauseShown === null) syncVizButtons();
     drawViz();
     updatePlots();
     U.writeHash();
   }
 
+  U.onPause = () => syncVizButtons();
   U.redrawAll = () => { drawViz(); if (S.plots.length) { renderGraphPanel(); updatePlots(); } };
   U.lab = { toPos, fromPos, update, recompute, ratio, collectIssues, CAT, CAT_ORDER };
   U.views.exp = { title: 'Experiment', render };

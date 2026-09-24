@@ -21,7 +21,7 @@ veröffentlicht `dist/` auf GitHub Pages (`.github/workflows/pages.yml`).
 Entwicklung (Node ≥ 18):
 
 ```bash
-npm test        # Tests (63; die 6 UI-Tests laufen vollständig nur im Browser unter „Tests“)
+npm test        # Tests (70; die 6 UI-Tests laufen vollständig nur im Browser unter „Tests“)
 npm run build   # bündelt alles nach dist/index.html
 ```
 
@@ -80,12 +80,12 @@ Alle Dateien erweitern den globalen Namensraum `PP`; die Ladereihenfolge steht i
 | `src/core/engine.js` | Lexer/Parser (Unicode, implizite Multiplikation), Dimensionen als rationale Exponentenvektoren über 7 SI-Basisgrößen, Auswertung in `{Vorzeichen, log₁₀}`-Darstellung (Werte jenseits 10^±308), Fehlerlokalisierung per Zeichenposition, TeX-Ausgabe, Formatierung |
 | `src/core/model.js` | Konstanten-Registry mit Art (exakt / gemessen / Konvention / astronomisch / modellabhängig) und Quelle; Experiment-Modell; `compute()` wirft nie und liefert Warnkategorien; Fehlerfortpflanzung aus gemessenen Konstanten |
 | `src/data/experiments.js` | Experiment-Definitionen: Variablen, Formeln, Gleichungen, Checks, Presets, Graph-Defaults, Erklärungen in drei Ebenen, epistemische Einordnung |
-| `tests/tests.js` | Referenzwerte (CODATA 2022 u. a.), Numerik-Grenzfälle, Dimensionsprüfung aller Formeln, Parser |
+| `tests/tests.js` | Referenzwerte (CODATA 2022 u. a.), Numerik-Grenzfälle, Dimensionsprüfung aller Formeln, Parser, Visualisierungen (mit einem Zeichenkontext, der nur Texte aufzeichnet) |
 | `src/render/tex.js` | kleiner eigener Formelsatz (ersetzt KaTeX, dessen Webfonts in einer gehosteten Einzeldatei nicht laden) |
 | `src/render/plot.js` | Canvas-Graph in transformierten Koordinaten |
-| `src/render/viz.js` | Canvas-Visualisierungen |
+| `src/render/viz.js` | Canvas-Visualisierungen. `PP.vizState` liefert alle Zahlen aus der Engine: `o`/`lg`/`fo` für die Ergebnisse, `at(änderungen)` für dieselben Formeln mit anderen Eingaben (Spuren, Kurven, Skalen) oder für ein anderes Experiment, dazu die Warnkategorien und die Bezugswerte (Preset/Ausgangswert). Die Zeichenfunktionen rechnen keine Formel selbst nach |
 | `src/ui/core.js` | Zustand, Routing, URL-State, Speichern, Navigation, gemeinsame Animationsschleife der Theorie-Widgets (`U.widgetLoop`) |
-| `src/ui/lab.js` | Labor: Parameter, Ergebnisse, Status, Graph, Animation, Vergleich |
+| `src/ui/lab.js` | Labor: Parameter, Ergebnisse, Status, Graph, Animation (Anhalten, Pendeln eines Werts), Warnhinweise im Kopf der Visualisierung, Vergleich |
 | `src/ui/dims.js` | Erklär-Ebenen, Dimensionsanalyse, Nightmare Mode, eigene Gleichungen (mit Hinweisen auf mehrdeutige Symbole wie h, T, e und auf „a / b c“) |
 | `src/ui/pages.js` | Hall of Fame, Konstanten, Gespeichert, Tests, Über |
 | `src/ui/sections/tensor.js` | Abschnitte „Indizes μν“ und „Tensor-Aufbau“ mit interaktiven Widgets; hängt sich in `src/ui/theory.js` ein |
@@ -114,7 +114,10 @@ englischen Texten der Experimente und Konstanten“ meldet vergessene Übersetzu
 
 Dimensionsanalyse, Graph, Vergleich, URL-State und die automatische Dimensionsprüfung in den Tests
 funktionieren dann ohne weiteren Code. Für eine eigene Visualisierung eine Funktion
-`PP.viz.name = (ctx, W, H, S) => { … }` in `src/render/viz.js` ergänzen.
+`PP.viz.name = (ctx, W, H, S) => { … }` in `src/render/viz.js` ergänzen. Zahlen kommen dabei immer aus
+`S.o('key')` bzw. `S.at({ t: 2 }).o('key')` – nie aus einer nachgebauten Formel. Mit
+`sweep: { key, span, period, label }` bekommt die Visualisierung einen Knopf, der einen Wert um seinen
+Ausgangswert pendeln lässt (Faktor `span` nach oben und unten).
 
 ## Warnkategorien
 
@@ -130,7 +133,8 @@ Dazu Hinweise und Modellannahmen.
 - Konstanten: CODATA 2022, IAU 2012/2015, Planck 2018, jeweils mit Quelle in der App
 - Stellenzahl wird durch die Unsicherheit gemessener Konstanten begrenzt (keine falsche Präzision)
 - Erklärungen trennen Mathematik, Modell, Näherung, Messung und Annahme
-- Nicht maßstäbliche Visualisierungen sind gekennzeichnet
+- Nicht maßstäbliche Visualisierungen sind gekennzeichnet; Projektionen (Feldgleichungen) als „schematisch (Modell)“
+- Visualisierungen zeigen nur Werte der Engine und übernehmen ihre Warnkategorien: Hinweis im Kopf der Visualisierung, bei „mathematisch undefiniert“ keine Animation und keine Zahl
 - Dimensionskonsistenz wird nie als Beweis physikalischer Korrektheit dargestellt
 
 ## Abhängigkeiten & Lizenzen
@@ -142,7 +146,7 @@ automatisiert mit jsdom + node-canvas (nur Entwicklung, nicht im Bundle).
 ## Robustheit
 
 - Namen werden nur als eigene Einträge nachgeschlagen: `constructor`, `toString` usw. sind in Formeln unbekannte Symbole, `__proto__` wird abgelehnt, unbekannte `#exp=`/`#view=` in der URL werden ignoriert
-- Theorie-Widgets zeichnen nur bei Änderungen und nur, solange sie sichtbar sind; der Schalter „Animationen“ (Standard: aus bei `prefers-reduced-motion`) wirkt sofort auf alle Widgets
+- Theorie-Widgets zeichnen nur bei Änderungen und nur, solange sie sichtbar sind; der Schalter „Animationen“ (Standard: aus bei `prefers-reduced-motion`) wirkt sofort auf alle Widgets und ist mit dem Knopf „Anhalten“ an jeder Animation gekoppelt
 
 ## Bekannte Grenzen
 

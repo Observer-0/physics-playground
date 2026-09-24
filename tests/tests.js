@@ -9,7 +9,7 @@
   // Die Prüfungen selbst laufen immer auf Deutsch (siehe runAll), weil sie Meldungstexte vergleichen.
   const EN = {
     'Gravitation': 'Gravity', 'Numerik': 'Numerics', 'Einheiten': 'Units', 'Dimensionsanalyse': 'Dimensional analysis', 'Referenzwerte': 'Reference values',
-    'Parser': 'Parser', 'Formatierung': 'Formatting', 'Sprache': 'Language', 'UI (im Browser)': 'UI (in the browser)',
+    'Parser': 'Parser', 'Formatierung': 'Formatting', 'Sprache': 'Language', 'UI (im Browser)': 'UI (in the browser)', 'Visualisierung': 'Visualisation',
     'G=6.67430e-11, m₁=m₂=r=1 → F ≈ 6.67430e-11 N': 'G=6.67430e-11, m₁=m₂=r=1 → F ≈ 6.67430e-11 N',
     'Abstand ×2 → Kraft /4': 'Distance ×2 → force /4',
     'Erde–Apfel liefert ≈ 0,98 N': 'Earth–apple gives ≈ 0.98 N',
@@ -69,10 +69,17 @@
     'Eigene Gleichung: Klammer-Vorschlag bei „ħ c / G M“ behält ħ und ³ bei': 'Own equation: the bracket suggestion for “ħ c / G M” keeps ħ and ³',
     'URL mit #exp=constructor oder #view=toString wird ignoriert': 'A URL with #exp=constructor or #view=toString is ignored',
     'Wirkungs-Demo: geschlossene Form ΔS = mπ²/(4T)·(ε₁² + 4ε₂²) stimmt mit der Integration überein': 'Action demo: the closed form ΔS = mπ²/(4T)·(ε₁² + 4ε₂²) agrees with the integration',
+    'Alle Visualisierungen zeichnen Standardwerte und Presets ohne Fehler und ohne „NaN“': 'All visualisations draw default values and presets without errors and without “NaN”',
+    'β = 1: Die Visualisierung zeigt γ als nicht definiert statt einer Zahl': 'β = 1: the visualisation shows γ as undefined instead of a number',
+    'Schwarzes Loch: r_s, A, S_BH und T_H im Bild stammen aus der Engine, Exponenten 1, 2, 2, −1': 'Black hole: r_s, A, S_BH and T_H in the picture come from the engine, exponents 1, 2, 2, −1',
+    'Gravitation: Die Faktoren im Bild zeigen F ∝ m₁m₂/r² (m₁ ×2, r ×½ → F ×8)': 'Gravity: the factors in the picture show F ∝ m₁m₂/r² (m₁ ×2, r ×½ → F ×8)',
+    'Feldgleichungen: Das Bild ist als schematische Projektion gekennzeichnet': 'Field equations: the picture is labelled as a schematic projection',
+    'Schrödinger: Ein nicht ganzzahliges n wird nicht als Welle gezeichnet': 'Schrödinger: a non-integer n is not drawn as a wave',
     'Engine-Meldungen und Dimensionsnamen gibt es auf Deutsch und Englisch': 'Engine messages and dimension names exist in German and English',
     'Umschalten wirkt auch auf die kompilierten Kopien der Experimente': 'Switching also affects the compiled copies of the experiments',
     'Keine deutschen Reste in den englischen Texten der Experimente und Konstanten': 'No German left in the English texts of the experiments and constants',
     'Jeder Test hat einen englischen Namen': 'Every test has an English name',
+    'Keine deutschen Reste in den englischen Beschriftungen der Visualisierungen': 'No German left in the English labels of the visualisations',
   };
   const pair = (de) => (Object.prototype.hasOwnProperty.call(EN, de) ? { de, en: EN[de] } : de);
   const test = (group, name, fn) => T.push(I.localize({ group: pair(group), name: pair(name), fn }));
@@ -407,6 +414,69 @@
     for (const [a, b] of [[1, 0], [0, 1], [1.3, -0.7], [-2, 2]]) close(A.dS(a, b), A.action(a, b) - S0n, 1e-4, 'ΔS(' + a + ', ' + b + ')');
   });
 
+  /* --- Visualisierung: zeichnet nur, was die Engine liefert --- */
+  // Zeichenkontext, der nur die geschriebenen Texte aufzeichnet
+  function recCtx() {
+    const texts = [], noop = () => {}, grad = { addColorStop: noop };
+    const t = { texts, measureText: (x) => ({ width: String(x).length * 7 }), createRadialGradient: () => grad, createLinearGradient: () => grad, fillText: (x) => texts.push(String(x)) };
+    return new Proxy(t, { get: (o, k) => (k in o ? o[k] : noop), set: (o, k, v) => { o[k] = v; return true; } });
+  }
+  const COL = { bg: '#000', panel: '#111', panel2: '#222', ink: '#eee', ink2: '#bbb', ink3: '#777', grid: '#333', accent: '#fa0', cyan: '#0cd', red: '#f55', green: '#5c5', violet: '#a8f', mono: 'monospace', sans: 'sans-serif' };
+  const draw = (id, vals, o = {}) => {
+    const exp = M.byId[id], form = o.form || exp.forms[0].id, ctx = recCtx();
+    const S = PP.vizState({ exp, form, vals: Object.assign(M.defaults(exp), vals || {}), consts: {}, base: o.base ? Object.assign(M.defaults(exp), o.base) : null, baseLabel: 'Test', t: o.t || 1.3, opts: o.opts || {}, col: COL });
+    PP.viz[exp.viz](ctx, o.W || 640, o.H || 330, S);
+    return ctx.texts;
+  };
+  const fmtOut = (r, k) => E.fmt({ s: r.out[k].s, l: r.out[k].l, d: r.out[k].value }, 3);
+  test('Visualisierung', 'Alle Visualisierungen zeichnen Standardwerte und Presets ohne Fehler und ohne „NaN“', () => {
+    if (!PP.viz || !PP.vizState) return;
+    for (const exp of M.registry) {
+      if (!exp.viz) continue;
+      const cases = [{}].concat((exp.presets || []).map((p) => ({ vals: p.values, form: p.form })));
+      for (const c of cases) for (const W of [640, 360]) for (const opts of exp.vizControls ? [{}, { superpos: true }] : [{}]) {
+        let texts;
+        try { texts = draw(exp.id, c.vals, { form: c.form, W, H: W < 400 ? 260 : 330, base: c.vals, opts }); }
+        catch (e) { throw new Error(exp.id + ' (' + W + ' px): ' + e.message); }
+        const bad = texts.find((x) => /NaN|undefined|Infinity/.test(x));
+        ok(!bad, exp.id + ': „' + bad + '“');
+      }
+    }
+  });
+  test('Visualisierung', 'β = 1: Die Visualisierung zeigt γ als nicht definiert statt einer Zahl', () => {
+    if (!PP.viz) return;
+    const texts = draw('special-rel', { beta: 1 });
+    ok(texts.some((x) => /γ ist für \|β\| ≥ 1 nicht definiert/.test(x)), 'Hinweis fehlt');
+    ok(!texts.some((x) => /^γ = /.test(x)), 'γ als Zahl gezeichnet');
+  });
+  test('Visualisierung', 'Schwarzes Loch: r_s, A, S_BH und T_H im Bild stammen aus der Engine, Exponenten 1, 2, 2, −1', () => {
+    if (!PP.viz) return;
+    const Msun = M.C.M_sun.value;
+    const hk = run('hawking', { M: Msun }), be = run('bh-entropy', { M: Msun }, 'mass');
+    for (const [id, form] of [['hawking'], ['bh-entropy', 'mass']]) {
+      const texts = draw(id, { M: Msun }, { form });
+      for (const want of [fmtOut(hk, 'rs') + ' m', fmtOut(be, 'A') + ' m²', fmtOut(be, 'S') + ' J/K', fmtOut(hk, 'TH') + ' K']) ok(texts.includes(want), id + ': ' + want + ' fehlt');
+      ok(texts.filter((x) => x === '∝ M').length === 1 && texts.filter((x) => x === '∝ M²').length === 2 && texts.filter((x) => x === '∝ M⁻¹').length === 1, id + ': Exponenten ' + texts.filter((x) => x.startsWith('∝')).join(', '));
+    }
+  });
+  test('Visualisierung', 'Gravitation: Die Faktoren im Bild zeigen F ∝ m₁m₂/r² (m₁ ×2, r ×½ → F ×8)', () => {
+    if (!PP.viz) return;
+    const texts = draw('newton-gravity', { m1: 2, m2: 1, r: 0.5 }, { base: { m1: 1, m2: 1, r: 1 } });
+    const i = texts.indexOf('F / F₀');
+    ok(i >= 0, 'Faktorzeile fehlt');
+    const f = texts.filter((x) => /^×/.test(x));
+    ok(f.join(' ') === '×8 ×2 ×1 ×4', f.join(' '));
+  });
+  test('Visualisierung', 'Feldgleichungen: Das Bild ist als schematische Projektion gekennzeichnet', () => {
+    if (!PP.viz) return;
+    for (const W of [640, 360]) ok(draw('efe', {}, { W }).some((x) => /Schematische Projektion \(Modell\)/.test(x)), W + ' px');
+  });
+  test('Visualisierung', 'Schrödinger: Ein nicht ganzzahliges n wird nicht als Welle gezeichnet', () => {
+    if (!PP.viz) return;
+    const texts = draw('schroedinger', { n: 2.5 });
+    ok(texts.some((x) => /n muss eine positive ganze Zahl sein/.test(x)) && !texts.includes('|ψ|²'), texts.slice(0, 3).join(' | '));
+  });
+
   /* --- Sprache --- */
   test('Sprache', 'Engine-Meldungen und Dimensionsnamen gibt es auf Deutsch und Englisch', () => {
     const msg = () => E.evaluate(E.parse('1/0'), {}).issues[0].msg;
@@ -440,6 +510,21 @@
     };
     I.with('en', () => { M.registry.forEach((e) => walk(e, e.id)); walk(M.C, 'C'); walk(M.KIND_LABEL, 'KIND_LABEL'); });
     ok(!bad.length, bad.slice(0, 3).join(' | '));
+  });
+  test('Sprache', 'Keine deutschen Reste in den englischen Beschriftungen der Visualisierungen', () => {
+    if (!PP.viz) return;
+    const german = /[„äöüÄÖÜß]|(und|der|die|das|nicht|mit|ist|bei|oder|Abstand|Bezug|Zeit|Kraft|Anzeige|Punkte)/;
+    const bad = [];
+    I.with('en', () => {
+      for (const exp of M.registry) {
+        if (!exp.viz) continue;
+        for (const c of [{}].concat((exp.presets || []).map((p) => ({ vals: p.values, form: p.form })))) for (const W of [640, 360]) {
+          draw(exp.id, c.vals, { form: c.form, W, base: c.vals, opts: { superpos: true } }).forEach((x) => { if (german.test(x)) bad.push(exp.id + ': ' + x); });
+        }
+      }
+      draw('special-rel', { beta: 1 }).concat(draw('free-fall', { t: 9 }), draw('schroedinger', { n: 2.5 })).forEach((x) => { if (german.test(x)) bad.push(x); });
+    });
+    ok(!bad.length, [...new Set(bad)].slice(0, 3).join(' | '));
   });
   test('Sprache', 'Jeder Test hat einen englischen Namen', () => {
     const has = (k) => Object.prototype.hasOwnProperty.call(EN, k);

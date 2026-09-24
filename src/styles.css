@@ -117,6 +117,12 @@ table.t tr:last-child td { border-bottom: 0; }
 .lab { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 14px; align-items: start; }
 .stage { display: grid; gap: 14px; min-width: 0; }
 .vizwrap { position: relative; height: 330px; }
+.ph h3:has(+ .vbadges) { margin-right: 0; }
+.vbadges { display: inline-flex; flex-wrap: wrap; gap: 4px; margin-right: auto; }
+.vb { font-size: 11px; line-height: 1; padding: 4px 7px; border-radius: 999px; border: 1px solid var(--line2); color: var(--ink2); white-space: nowrap; }
+.vb-math, .vb-unreal { border-color: var(--red); color: var(--red); background: var(--red-soft); }
+.vb-model { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+.vb-numeric { border-color: var(--violet); color: var(--violet); background: var(--violet-soft); }
 .vizwrap canvas, .plotwrap canvas { width: 100%; height: 100%; display: block; }
 .plotwrap { position: relative; height: 300px; touch-action: none; }
 .plotwrap.small { height: 190px; }
