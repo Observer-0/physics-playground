@@ -157,30 +157,27 @@
 
   function render(el) {
     const exp = S.exp;
-    const tabs = exp.hall
-      ? [['lab', T('Graph & Labor', 'Graph & lab')], ['formula', T('Formel', 'Formula')], ['dims', T('Dimensionen', 'Dimensions')], ['physics', T('Physik', 'Physics')]]
-      : [['formula', T('Formel & Variablen', 'Formula & variables')], ['dims', T('Dimensionsanalyse', 'Dimensional analysis')], ['physics', T('Physik & Grenzen', 'Physics & limits')]];
+    // Alle Experimente haben dieselben Tabs direkt unter dem Kopf; das Labor ist der erste und voreingestellte
+    const tabs = [['lab', T('Graph & Labor', 'Graph & lab')], ['formula', T('Formel & Variablen', 'Formula & variables')], ['dims', T('Dimensionsanalyse', 'Dimensional analysis')], ['physics', T('Physik & Grenzen', 'Physics & limits')]];
     if (PP.sources && PP.sources.byId[exp.id]) tabs.push(['sources', T('Quellen', 'Sources')]);
     if (!tabs.some((t) => t[0] === S.tab)) S.tab = tabs[0][0];
     let h = '<div class="' + (exp.hall ? 'hallx' : '') + '">' + headerHTML(exp);
     // Schnittpunkt-Block (Hawking) steht immer sichtbar über den Tabs; sonst die Formel, ggf. mit Wörterbuch
     if (exp.crossroads) h += U.crossroads.html(exp);
     else if (exp.hall) h += heroHTML(exp) + U.crossroads.dictCompact(exp);
-    else h += labHTML(exp);
     h += '<div class="tabs" role="tablist">' + tabs.map(([k, t]) => '<button role="tab" aria-selected="' + (S.tab === k) + '" data-tab="' + k + '" class="' + (S.tab === k ? 'on' : '') + '">' + t + '</button>').join('') + '</div>';
     h += '<div id="tabc"></div></div>';
     el.innerHTML = h;
     bindPage(el);
     U.crossroads.bind(el);
     renderTab();
-    if (!exp.hall) mountLab();
   }
 
   function renderTab() {
     const c = $('#tabc');
     if (!c) return;
     if (S.tab === 'lab') { c.innerHTML = labHTML(S.exp); mountLab(); return; }
-    if (S.exp.hall) unmountLab(true);
+    unmountLab(true);
     recompute();
     if (S.tab === 'formula') c.innerHTML = U.docs.formula();
     else if (S.tab === 'physics') c.innerHTML = U.docs.physics();
@@ -610,7 +607,7 @@
         const rr = A.out[o.key];
         const vv = fmtR(rr, digitsFor(o, 'A').d);
         const alt2 = altR(o, rr);
-        return '<tr><td class="k">' + U.tex(o.tex) + '</td><td class="nm">' + esc(o.name) + (o.note ? '<br><span class="faint">' + esc(o.note) + '</span>' : '') + '</td>' +
+        return '<tr><td class="k">' + U.tex(o.tex) + '</td><td class="nm">' + esc(o.name) + (o.note ? '<span class="rnote">' + esc(o.note) + '</span>' : '') + '</td>' +
           (vv === null ? '<td class="val err">' + T('nicht definiert', 'not defined') + '</td>' : '<td class="val">' + esc(vv) + ' ' + esc(U.unit(o.dimv)) + (alt2 ? '<span class="alt">' + esc(alt2) + '</span>' : '') + '</td>') + '</tr>';
       }).join('') + '</tbody></table>';
     } else {

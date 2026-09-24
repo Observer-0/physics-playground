@@ -35,7 +35,7 @@ require(path.join(root, 'src/data/sources.js'));
 const M = globalThis.PP.model;
 const hashes = [];
 for (const e of M.registry) {
-  for (const tab of (e.hall ? ['lab', 'formula', 'dims', 'physics'] : ['formula', 'dims', 'physics'])) hashes.push('exp=' + e.id + '&tab=' + tab);
+  for (const tab of ['lab', 'formula', 'dims', 'physics']) hashes.push('exp=' + e.id + '&tab=' + tab);
   if (globalThis.PP.sources.byId[e.id]) hashes.push('exp=' + e.id + '&tab=sources');
 }
 for (const v of ['hall', 'custom', 'theorie', 'constants', 'saved', 'about']) hashes.push('view=' + v);

@@ -106,7 +106,7 @@
       if (v.t < 0) issues.push({ cat: 'info', msg: T('Negative Zeit: Die Formel extrapoliert rückwärts. Mathematisch zulässig, sofern die Beschleunigung vorher schon konstant war.', 'Negative time: the formula extrapolates backwards. Mathematically fine, provided the acceleration was already constant before.') });
       const vel = Math.abs(o('v'));
       if (vel > 0.1 * C.c) issues.push({ cat: 'model', why: T('|v| > 0,1 c: relativistisch', '|v| > 0.1 c: relativistic'), msg: T('|v| > 0,1 c: nichtrelativistische Kinematik ist hier ungenau.', '|v| > 0.1 c: non-relativistic kinematics is inaccurate here.') });
-      if (vel > C.c) issues.push({ cat: 'unreal', why: T('schneller als Licht', 'faster than light'), msg: T('Schneller als Licht – für massive Körper ausgeschlossen. Konstante Beschleunigung kann nicht beliebig lange andauern.', 'Faster than light – impossible for massive bodies. Constant acceleration cannot go on indefinitely.') });
+      if (vel > C.c) issues.push({ cat: 'unreal', why: T('schneller als Licht', 'faster than light'), msg: T('Schneller als Licht – nach der Relativitätstheorie für massive Körper ausgeschlossen. Konstante Beschleunigung kann nicht beliebig lange andauern.', 'Faster than light – ruled out for massive bodies by relativity. Constant acceleration cannot go on indefinitely.') });
       issues.push({ cat: 'assume', msg: T('Die Beschleunigung ist über die ganze Zeit exakt konstant.', 'The acceleration is exactly constant the whole time.') });
     },
     presets: [

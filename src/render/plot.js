@@ -175,7 +175,7 @@
       const pad = (ymax - ymin) * 0.07;
       ymin -= pad; ymax += pad;
 
-      ctx.font = '11px ' + col.mono;
+      ctx.font = '12px ' + col.mono;
       const yt = ticks(ymin, ymax, Math.max(3, Math.floor(H / 55)), cfg.ylog);
       const ystep = yt.length > 1 ? yt[1] - yt[0] : 1;
       const ylabels = yt.map((v) => tickLabel(v, cfg.ylog, ystep));
@@ -230,7 +230,7 @@
       refs.forEach((r) => {
         ctx.strokeStyle = r.color || col.ink3; ctx.setLineDash([6, 4]); ctx.lineWidth = 1;
         ctx.beginPath(); ctx.moveTo(pl, Y(r.t)); ctx.lineTo(pl + pw, Y(r.t)); ctx.stroke(); ctx.setLineDash([]);
-        ctx.fillStyle = col.ink2; ctx.font = '11px ' + col.sans; ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+        ctx.fillStyle = col.ink2; ctx.font = '12px ' + col.sans; ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
         ctx.fillText(r.label, pl + 6, Y(r.t) - 3);
       });
       // curves

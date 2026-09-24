@@ -83,7 +83,7 @@
     view: 'exp', exp: null, form: null,
     vals: { A: {}, B: {} }, consts: { A: {}, B: {} }, base: null,
     edit: 'A', cmp: false, brk: !!U.store.get('pp.brk', false),
-    graph: null, tab: 'formula', nightmare: false, vizOpts: {},
+    graph: null, tab: 'lab', nightmare: false, vizOpts: {},
     paused: reduced, playing: false, preset: null, clock: 0,
     custom: { src: 'X = G M / c', dims: { X: 'L' } },
     res: {}, pop: null,
@@ -159,8 +159,8 @@
     S.edit = 'A';
     S.graph = U.defaultGraph(exp, S.form);
     if (opts.g && S.graph) Object.assign(S.graph, opts.g);
-    // Bei den berühmten Gleichungen öffnet das Labor zuerst
-    S.tab = opts.tab || (exp.hall ? 'lab' : 'formula');
+    // Jedes Experiment öffnet mit dem Labor
+    S.tab = opts.tab || 'lab';
     S.preset = null; S.playing = false;
     if (changed) { S.vizOpts = {}; S.nightmare = false; }
   };
@@ -180,7 +180,7 @@
       const a = encVals(S.vals.A); if (a) q.set('a', a);
       const ca = encVals(S.consts.A); if (ca) q.set('ca', ca);
       if (S.cmp) { q.set('cmp', '1'); q.set('b', encVals(S.vals.B)); const cb = encVals(S.consts.B); if (cb) q.set('cb', cb); }
-      if (S.tab !== (S.exp.hall ? 'lab' : 'formula')) q.set('tab', S.tab);
+      if (S.tab !== 'lab') q.set('tab', S.tab);
       if (S.graph) q.set('g', [S.graph.x, S.graph.y, S.graph.xlog ? 1 : 0, S.graph.ylog ? 1 : 0, S.graph.extra.join('+')].join(','));
       // Einstellungen der Visualisierung (z. B. Planck-Größe, Überlagerung)
       const vo = Object.keys(S.vizOpts).filter((k) => S.vizOpts[k] !== false && S.vizOpts[k] != null).map((k) => k + ':' + (S.vizOpts[k] === true ? '1' : S.vizOpts[k])).join(';');
