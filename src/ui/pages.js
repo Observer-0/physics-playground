@@ -119,13 +119,13 @@
     h += '<p>Eine Experimentierumgebung nach dem Prinzip <b>„Was passiert, wenn ich das ändere?“</b> Regler bewegen, Zahlen und Graphen reagieren sofort, und die App sagt ehrlich, wann ein Ergebnis nur noch Mathematik ist.</p>';
     h += '<h2 class="sec">Architektur</h2><p>Alle ' + M.registry.length + ' Experimente – auch die berühmten Gleichungen – sind reine Datenbeschreibungen. Eine gemeinsame Pipeline verarbeitet sie: <b>Formel → Syntaxbaum → Variablen → Einheiten → Dimensionen → Auswertung → Visualisierung → Erklärung</b>. Derzeit prüft die Engine ' + nEq + ' deklarierte Gleichungen plus jede berechnete Größe gegen ihre Dimension.</p>';
     h += '<table class="t"><tbody>' + [
-      ['engine.js', 'Parser (Unicode, implizite Multiplikation), Dimensionsanalyse mit rationalen Exponenten, numerisch stabile Auswertung in log₁₀-Darstellung, Fehlerlokalisierung'],
-      ['model.js', 'Konstanten-Registry mit Quellen, Experiment-Modell, Plausibilitäts-Kategorien, Fehlerfortpflanzung aus gemessenen Konstanten'],
-      ['experiments.js', 'alle Experimente als Daten: Variablen, Formeln, Gleichungen, Checks, Presets, Erklärungen'],
-      ['tests.js', 'Referenzwerte (CODATA u. a.), Numerik-Grenzfälle, Dimensionsprüfung, Parser'],
-      ['tex.js', 'kleiner eigener Formelsatz (Brüche, Wurzeln, Indizes) – ohne externe Abhängigkeit'],
-      ['plot.js · viz.js', 'Canvas-Graph mit log-Achsen jenseits von 10³⁰⁸, Zoom, Tooltips; Visualisierungen'],
-      ['app-*.js', 'Oberfläche, Zustand, URL-State, Speichern'],
+      ['core/engine.js', 'Parser (Unicode, implizite Multiplikation), Dimensionsanalyse mit rationalen Exponenten, numerisch stabile Auswertung in log₁₀-Darstellung, Fehlerlokalisierung'],
+      ['core/model.js', 'Konstanten-Registry mit Quellen, Experiment-Modell, Plausibilitäts-Kategorien, Fehlerfortpflanzung aus gemessenen Konstanten'],
+      ['data/experiments.js', 'alle Experimente als Daten: Variablen, Formeln, Gleichungen, Checks, Presets, Erklärungen'],
+      ['tests/tests.js', 'Referenzwerte (CODATA u. a.), Numerik-Grenzfälle, Dimensionsprüfung, Parser'],
+      ['render/tex.js', 'kleiner eigener Formelsatz (Brüche, Wurzeln, Indizes) – ohne externe Abhängigkeit'],
+      ['render/plot.js · viz.js', 'Canvas-Graph mit log-Achsen jenseits von 10³⁰⁸, Zoom, Tooltips; Visualisierungen'],
+      ['ui/*.js', 'Oberfläche, Zustand, URL-State, Speichern'],
     ].map(([a, b]) => '<tr><td class="mono" style="white-space:nowrap">' + a + '</td><td>' + b + '</td></tr>').join('') + '</tbody></table>';
     h += '<h2 class="sec">Die vier Warnkategorien</h2><ul class="issues">' +
       '<li class="math"><b>Mathematisch undefiniert</b>Division durch null, Wurzel aus negativen Zahlen, γ bei β ≥ 1.</li>' +
@@ -135,7 +135,7 @@
     h += '<h2 class="sec">Wissenschaftliche Ehrlichkeit</h2><p>Jede Erklärung trennt mathematische Aussagen, physikalische Modelle, Näherungen, gemessene Größen und theoretische Annahmen. Angezeigte Stellen werden durch die Unsicherheit gemessener Konstanten begrenzt, damit keine falsche Präzision entsteht. Visualisierungen, die nicht maßstäblich sind, sagen das. Dimensionskonsistenz wird nie als Beweis physikalischer Korrektheit ausgegeben.</p>';
     h += '<h2 class="sec">Abhängigkeiten &amp; Lizenzen</h2><p>Keine JavaScript-Bibliotheken. Schriften: IBM Plex Sans/Mono und STIX Two Text (beide SIL Open Font License) über Google Fonts, mit System-Fallbacks. KaTeX wurde bewusst ersetzt, weil eine einzelne gehostete Datei dessen Webfonts nicht laden kann.</p>';
     h += '<h2 class="sec">Bedienung</h2><p>Zahlenfelder verstehen <span class="kbd">6.674e-11</span>, <span class="kbd">6,674×10^-11</span> und Ausdrücke wie <span class="kbd">2*M_sun</span>. Graph: Mausrad zoomt, Ziehen verschiebt, Doppelklick setzt zurück. Der Zustand steckt in der Adresse und lässt sich über „Teilen“ weitergeben.</p>';
-    h += '<h2 class="sec">Erweitern</h2><p>Ein neues Experiment ist ein weiterer <span class="mono">define({…})</span>-Block in <span class="mono">experiments.js</span>: Variablen mit Dimension und Bereich, Formeln als Text, optional Checks, Presets und Erklärungen. Visualisierung, Graph, Dimensionsanalyse, Vergleich und Tests funktionieren dann automatisch.</p>';
+    h += '<h2 class="sec">Erweitern</h2><p>Ein neues Experiment ist ein weiterer <span class="mono">define({…})</span>-Block in <span class="mono">src/data/experiments.js</span>: Variablen mit Dimension und Bereich, Formeln als Text, optional Checks, Presets und Erklärungen. Visualisierung, Graph, Dimensionsanalyse, Vergleich und Tests funktionieren dann automatisch.</p>';
     h += '</div>';
     el.innerHTML = h;
   }

@@ -11,9 +11,12 @@ wann ein Ergebnis nur noch Mathematik ist.
 Entwicklung (Node ≥ 18):
 
 ```bash
-node run-tests.js   # Tests (59; die 6 UI-Tests laufen vollständig nur im Browser unter „Tests“)
-node build.js       # bündelt alles nach dist/index.html
+npm test        # Tests (59; die 6 UI-Tests laufen vollständig nur im Browser unter „Tests“)
+npm run build   # bündelt alles nach dist/index.html
 ```
+
+Nach Änderungen in `src/` immer `npm run build` ausführen und `dist/index.html` mit committen –
+die gebündelte Datei ist die auslieferbare App.
 
 ## Inhalt
 
@@ -39,27 +42,46 @@ Pipeline verarbeitet sie:
 Formel (Text) → AST → Variablen → Einheiten → Dimensionen → Auswertung → Visualisierung → Erklärung
 ```
 
+### Projektstruktur
+
+```
+physics-playground/
+├── src/
+│   ├── core/          Rechenkern: Parser, Dimensionen, Konstanten, Modell
+│   ├── data/          Experimente als reine Daten
+│   ├── render/        Formelsatz, Graph, Visualisierungen (Canvas)
+│   ├── ui/            Oberfläche: Zustand, Labor, Seiten, Grundlagen
+│   │   └── sections/  einzelne Grundlagen-Abschnitte mit Widgets
+│   └── styles.css
+├── tests/             Testfälle (laufen in Node und im Browser) + Node-Runner
+├── scripts/build.js   bündelt src/ zu einer einzigen HTML-Datei
+└── dist/index.html    gebaute App (eingecheckt)
+```
+
+Alle Dateien erweitern den globalen Namensraum `PP`; die Ladereihenfolge steht in
+`scripts/build.js`.
+
 | Datei | Aufgabe |
 |---|---|
-| `engine.js` | Lexer/Parser (Unicode, implizite Multiplikation), Dimensionen als rationale Exponentenvektoren über 7 SI-Basisgrößen, Auswertung in `{Vorzeichen, log₁₀}`-Darstellung (Werte jenseits 10^±308), Fehlerlokalisierung per Zeichenposition, TeX-Ausgabe, Formatierung |
-| `model.js` | Konstanten-Registry mit Art (exakt / gemessen / Konvention / astronomisch / modellabhängig) und Quelle; Experiment-Modell; `compute()` wirft nie und liefert Warnkategorien; Fehlerfortpflanzung aus gemessenen Konstanten |
-| `experiments.js` | Experiment-Definitionen: Variablen, Formeln, Gleichungen, Checks, Presets, Graph-Defaults, Erklärungen in drei Ebenen, epistemische Einordnung |
-| `tests.js` | Referenzwerte (CODATA 2022 u. a.), Numerik-Grenzfälle, Dimensionsprüfung aller Formeln, Parser |
-| `tex.js` | kleiner eigener Formelsatz (ersetzt KaTeX, dessen Webfonts in einer gehosteten Einzeldatei nicht laden) |
-| `plot.js` | Canvas-Graph in transformierten Koordinaten |
-| `viz.js` | Canvas-Visualisierungen |
-| `app-core.js` | Zustand, Routing, URL-State, Speichern, Navigation, gemeinsame Animationsschleife der Theorie-Widgets (`U.widgetLoop`) |
-| `app-lab.js` | Labor: Parameter, Ergebnisse, Status, Graph, Animation, Vergleich |
-| `app-dims.js` | Erklär-Ebenen, Dimensionsanalyse, Nightmare Mode, eigene Gleichungen (mit Hinweisen auf mehrdeutige Symbole wie h, T, e und auf „a / b c“) |
-| `app-pages.js` | Hall of Fame, Konstanten, Gespeichert, Tests, Über |
-| `app-tensor.js` | Abschnitte „Indizes μν“ und „Tensor-Aufbau“ mit interaktiven Widgets; hängt sich in `app-theory.js` ein |
-| `app-action.js` | Abschnitte „Einstein-Hilbert-Wirkung“ (Wirkungs-Demo mit exakter Formel ΔS = mπ²/(4τ)·(ε₁² + 4ε₂²)) und „Die Köpfe hinter der ART“ |
-| `app-entropy.js` | Abschnitt „Entropie – ein Wort, viele Bedeutungen“ mit Ehrenfest-Modell |
-| `app-theory.js` | Grundlagen-Seite (Theorie-Abschnitte als Daten, Direktlink per `#view=theorie&sec=dim` / `inertia` / `rel` / `idx` / `tensor` / `action` / `history` / `qm` / `entropy` / `gap`) |
+| `src/core/engine.js` | Lexer/Parser (Unicode, implizite Multiplikation), Dimensionen als rationale Exponentenvektoren über 7 SI-Basisgrößen, Auswertung in `{Vorzeichen, log₁₀}`-Darstellung (Werte jenseits 10^±308), Fehlerlokalisierung per Zeichenposition, TeX-Ausgabe, Formatierung |
+| `src/core/model.js` | Konstanten-Registry mit Art (exakt / gemessen / Konvention / astronomisch / modellabhängig) und Quelle; Experiment-Modell; `compute()` wirft nie und liefert Warnkategorien; Fehlerfortpflanzung aus gemessenen Konstanten |
+| `src/data/experiments.js` | Experiment-Definitionen: Variablen, Formeln, Gleichungen, Checks, Presets, Graph-Defaults, Erklärungen in drei Ebenen, epistemische Einordnung |
+| `tests/tests.js` | Referenzwerte (CODATA 2022 u. a.), Numerik-Grenzfälle, Dimensionsprüfung aller Formeln, Parser |
+| `src/render/tex.js` | kleiner eigener Formelsatz (ersetzt KaTeX, dessen Webfonts in einer gehosteten Einzeldatei nicht laden) |
+| `src/render/plot.js` | Canvas-Graph in transformierten Koordinaten |
+| `src/render/viz.js` | Canvas-Visualisierungen |
+| `src/ui/core.js` | Zustand, Routing, URL-State, Speichern, Navigation, gemeinsame Animationsschleife der Theorie-Widgets (`U.widgetLoop`) |
+| `src/ui/lab.js` | Labor: Parameter, Ergebnisse, Status, Graph, Animation, Vergleich |
+| `src/ui/dims.js` | Erklär-Ebenen, Dimensionsanalyse, Nightmare Mode, eigene Gleichungen (mit Hinweisen auf mehrdeutige Symbole wie h, T, e und auf „a / b c“) |
+| `src/ui/pages.js` | Hall of Fame, Konstanten, Gespeichert, Tests, Über |
+| `src/ui/sections/tensor.js` | Abschnitte „Indizes μν“ und „Tensor-Aufbau“ mit interaktiven Widgets; hängt sich in `src/ui/theory.js` ein |
+| `src/ui/sections/action.js` | Abschnitte „Einstein-Hilbert-Wirkung“ (Wirkungs-Demo mit exakter Formel ΔS = mπ²/(4τ)·(ε₁² + 4ε₂²)) und „Die Köpfe hinter der ART“ |
+| `src/ui/sections/entropy.js` | Abschnitt „Entropie – ein Wort, viele Bedeutungen“ mit Ehrenfest-Modell |
+| `src/ui/theory.js` | Grundlagen-Seite (Theorie-Abschnitte als Daten, Direktlink per `#view=theorie&sec=dim` / `inertia` / `rel` / `idx` / `tensor` / `action` / `history` / `qm` / `entropy` / `gap`) |
 
 ### Neues Experiment hinzufügen
 
-Ein weiterer `define({ … })`-Block in `experiments.js`:
+Ein weiterer `define({ … })`-Block in `src/data/experiments.js`:
 
 ```js
 define({
@@ -74,7 +96,7 @@ define({
 
 Dimensionsanalyse, Graph, Vergleich, URL-State und die automatische Dimensionsprüfung in den Tests
 funktionieren dann ohne weiteren Code. Für eine eigene Visualisierung eine Funktion
-`PP.viz.name = (ctx, W, H, S) => { … }` ergänzen.
+`PP.viz.name = (ctx, W, H, S) => { … }` in `src/render/viz.js` ergänzen.
 
 ## Warnkategorien
 

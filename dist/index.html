@@ -446,7 +446,7 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
 <body>
 <div id="root"><noscript>Der Physics Playground braucht JavaScript.</noscript></div>
 <script>
-/* ---- engine.js ---- */
+/* ---- src/core/engine.js ---- */
 /* =====================================================================
    Physics Playground — Formula Engine
    Formula → AST → Dimensions → Evaluation (double + log10 domain)
@@ -1099,7 +1099,7 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
   };
 })(globalThis.PP = globalThis.PP || {});
 
-/* ---- model.js ---- */
+/* ---- src/core/model.js ---- */
 /* =====================================================================
    Physics Playground — Constants registry + experiment model layer
    ===================================================================== */
@@ -1300,7 +1300,7 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
   PP.model = { C, CONST_ENV, KIND_LABEL, registry, byId, define, compute, defaults, uncertainty, formOf };
 })(globalThis.PP = globalThis.PP || {});
 
-/* ---- experiments.js ---- */
+/* ---- src/data/experiments.js ---- */
 /* =====================================================================
    Physics Playground — Experiment definitions (pure data + checks)
    Every experiment — ordinary or "famous" — uses the same structure:
@@ -1926,7 +1926,7 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
   PP.hallOrder = ['hawking', 'bh-entropy', 'efe', 'schroedinger', 'planck'];
 })(globalThis.PP = globalThis.PP || {});
 
-/* ---- tests.js ---- */
+/* ---- tests/tests.js ---- */
 /* =====================================================================
    Physics Playground — Test suite (runs in Node and in the browser)
    ===================================================================== */
@@ -2277,7 +2277,7 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
   PP.tests = { list: T, runAll };
 })(globalThis.PP = globalThis.PP || {});
 
-/* ---- tex.js ---- */
+/* ---- src/render/tex.js ---- */
 /* =====================================================================
    Physics Playground — mini TeX → HTML renderer
    Covers the TeX subset produced by the engine and the experiment data
@@ -2457,7 +2457,7 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
   PP.tex = { render, tex };
 })(globalThis.PP = globalThis.PP || {});
 
-/* ---- plot.js ---- */
+/* ---- src/render/plot.js ---- */
 /* =====================================================================
    Physics Playground — Plot (canvas). Works in transformed coordinates:
    a log axis uses log10 values directly (from the engine's {s,l}),
@@ -2704,7 +2704,7 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
   PP.Plot = Plot;
 })(globalThis.PP = globalThis.PP || {});
 
-/* ---- viz.js ---- */
+/* ---- src/render/viz.js ---- */
 /* =====================================================================
    Physics Playground — Visualizations (canvas 2D)
    draw(ctx, W, H, S) with S = { v, o(key)→double (clamped to the double range),
@@ -3152,7 +3152,7 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
   PP.viz = V;
 })(globalThis.PP = globalThis.PP || {});
 
-/* ---- app-core.js ---- */
+/* ---- src/ui/core.js ---- */
 /* =====================================================================
    Physics Playground — UI core: helpers, state, routing, shell
    ===================================================================== */
@@ -3514,7 +3514,7 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
   };
 })(globalThis.PP = globalThis.PP || {});
 
-/* ---- app-lab.js ---- */
+/* ---- src/ui/lab.js ---- */
 /* =====================================================================
    Physics Playground — experiment view: parameters, results, status,
    graph, visualization, compare mode, save/share
@@ -4230,7 +4230,7 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
   U.views.exp = { title: 'Experiment', render };
 })(globalThis.PP = globalThis.PP || {});
 
-/* ---- app-dims.js ---- */
+/* ---- src/ui/dims.js ---- */
 /* =====================================================================
    Physics Playground — explanation layers, dimension analysis
    (normal + Nightmare Mode), custom / wrong equation mode.
@@ -4682,7 +4682,7 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
   U.views.custom = { title: 'Eigene Gleichung', render: customRender };
 })(globalThis.PP = globalThis.PP || {});
 
-/* ---- app-pages.js ---- */
+/* ---- src/ui/pages.js ---- */
 /* =====================================================================
    Physics Playground — overview pages: Hall of Fame, constants,
    saved states, tests, about
@@ -4804,13 +4804,13 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
     h += '<p>Eine Experimentierumgebung nach dem Prinzip <b>„Was passiert, wenn ich das ändere?“</b> Regler bewegen, Zahlen und Graphen reagieren sofort, und die App sagt ehrlich, wann ein Ergebnis nur noch Mathematik ist.</p>';
     h += '<h2 class="sec">Architektur</h2><p>Alle ' + M.registry.length + ' Experimente – auch die berühmten Gleichungen – sind reine Datenbeschreibungen. Eine gemeinsame Pipeline verarbeitet sie: <b>Formel → Syntaxbaum → Variablen → Einheiten → Dimensionen → Auswertung → Visualisierung → Erklärung</b>. Derzeit prüft die Engine ' + nEq + ' deklarierte Gleichungen plus jede berechnete Größe gegen ihre Dimension.</p>';
     h += '<table class="t"><tbody>' + [
-      ['engine.js', 'Parser (Unicode, implizite Multiplikation), Dimensionsanalyse mit rationalen Exponenten, numerisch stabile Auswertung in log₁₀-Darstellung, Fehlerlokalisierung'],
-      ['model.js', 'Konstanten-Registry mit Quellen, Experiment-Modell, Plausibilitäts-Kategorien, Fehlerfortpflanzung aus gemessenen Konstanten'],
-      ['experiments.js', 'alle Experimente als Daten: Variablen, Formeln, Gleichungen, Checks, Presets, Erklärungen'],
-      ['tests.js', 'Referenzwerte (CODATA u. a.), Numerik-Grenzfälle, Dimensionsprüfung, Parser'],
-      ['tex.js', 'kleiner eigener Formelsatz (Brüche, Wurzeln, Indizes) – ohne externe Abhängigkeit'],
-      ['plot.js · viz.js', 'Canvas-Graph mit log-Achsen jenseits von 10³⁰⁸, Zoom, Tooltips; Visualisierungen'],
-      ['app-*.js', 'Oberfläche, Zustand, URL-State, Speichern'],
+      ['core/engine.js', 'Parser (Unicode, implizite Multiplikation), Dimensionsanalyse mit rationalen Exponenten, numerisch stabile Auswertung in log₁₀-Darstellung, Fehlerlokalisierung'],
+      ['core/model.js', 'Konstanten-Registry mit Quellen, Experiment-Modell, Plausibilitäts-Kategorien, Fehlerfortpflanzung aus gemessenen Konstanten'],
+      ['data/experiments.js', 'alle Experimente als Daten: Variablen, Formeln, Gleichungen, Checks, Presets, Erklärungen'],
+      ['tests/tests.js', 'Referenzwerte (CODATA u. a.), Numerik-Grenzfälle, Dimensionsprüfung, Parser'],
+      ['render/tex.js', 'kleiner eigener Formelsatz (Brüche, Wurzeln, Indizes) – ohne externe Abhängigkeit'],
+      ['render/plot.js · viz.js', 'Canvas-Graph mit log-Achsen jenseits von 10³⁰⁸, Zoom, Tooltips; Visualisierungen'],
+      ['ui/*.js', 'Oberfläche, Zustand, URL-State, Speichern'],
     ].map(([a, b]) => '<tr><td class="mono" style="white-space:nowrap">' + a + '</td><td>' + b + '</td></tr>').join('') + '</tbody></table>';
     h += '<h2 class="sec">Die vier Warnkategorien</h2><ul class="issues">' +
       '<li class="math"><b>Mathematisch undefiniert</b>Division durch null, Wurzel aus negativen Zahlen, γ bei β ≥ 1.</li>' +
@@ -4820,7 +4820,7 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
     h += '<h2 class="sec">Wissenschaftliche Ehrlichkeit</h2><p>Jede Erklärung trennt mathematische Aussagen, physikalische Modelle, Näherungen, gemessene Größen und theoretische Annahmen. Angezeigte Stellen werden durch die Unsicherheit gemessener Konstanten begrenzt, damit keine falsche Präzision entsteht. Visualisierungen, die nicht maßstäblich sind, sagen das. Dimensionskonsistenz wird nie als Beweis physikalischer Korrektheit ausgegeben.</p>';
     h += '<h2 class="sec">Abhängigkeiten &amp; Lizenzen</h2><p>Keine JavaScript-Bibliotheken. Schriften: IBM Plex Sans/Mono und STIX Two Text (beide SIL Open Font License) über Google Fonts, mit System-Fallbacks. KaTeX wurde bewusst ersetzt, weil eine einzelne gehostete Datei dessen Webfonts nicht laden kann.</p>';
     h += '<h2 class="sec">Bedienung</h2><p>Zahlenfelder verstehen <span class="kbd">6.674e-11</span>, <span class="kbd">6,674×10^-11</span> und Ausdrücke wie <span class="kbd">2*M_sun</span>. Graph: Mausrad zoomt, Ziehen verschiebt, Doppelklick setzt zurück. Der Zustand steckt in der Adresse und lässt sich über „Teilen“ weitergeben.</p>';
-    h += '<h2 class="sec">Erweitern</h2><p>Ein neues Experiment ist ein weiterer <span class="mono">define({…})</span>-Block in <span class="mono">experiments.js</span>: Variablen mit Dimension und Bereich, Formeln als Text, optional Checks, Presets und Erklärungen. Visualisierung, Graph, Dimensionsanalyse, Vergleich und Tests funktionieren dann automatisch.</p>';
+    h += '<h2 class="sec">Erweitern</h2><p>Ein neues Experiment ist ein weiterer <span class="mono">define({…})</span>-Block in <span class="mono">src/data/experiments.js</span>: Variablen mit Dimension und Bereich, Formeln als Text, optional Checks, Presets und Erklärungen. Visualisierung, Graph, Dimensionsanalyse, Vergleich und Tests funktionieren dann automatisch.</p>';
     h += '</div>';
     el.innerHTML = h;
   }
@@ -4834,7 +4834,7 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
   });
 })(globalThis.PP = globalThis.PP || {});
 
-/* ---- app-theory.js ---- */
+/* ---- src/ui/theory.js ---- */
 /* =====================================================================
    Physics Playground — Grundlagen: Dimensionsanalyse, Inertialprinzip
    & Trägheit, Relativitätstheorie, Quantenmechanik und warum beide
@@ -4970,7 +4970,7 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
   Object.assign(U.views, { theorie: { title: 'Theorie kurz erklärt', render } });
 })(globalThis.PP = globalThis.PP || {});
 
-/* ---- app-tensor.js ---- */
+/* ---- src/ui/sections/tensor.js ---- */
 /* =====================================================================
    Physics Playground — Grundlagen, Teil „Sprache der ART“:
    Indizes (μ, ν) mit interaktiver 4×4-Tabelle und Tensor-Aufbau mit
@@ -5313,7 +5313,7 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
   list.splice(at + 1, 0, IDX, TENSOR);
 })(globalThis.PP = globalThis.PP || {});
 
-/* ---- app-action.js ---- */
+/* ---- src/ui/sections/action.js ---- */
 /* =====================================================================
    Physics Playground — Grundlagen, Teil 3:
    Einstein-Hilbert-Wirkung (mit Demo zum Prinzip der kleinsten Wirkung)
@@ -5574,7 +5574,7 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
   list.splice(at + 1, 0, ACTION, HISTORY);
 })(globalThis.PP = globalThis.PP || {});
 
-/* ---- app-entropy.js ---- */
+/* ---- src/ui/sections/entropy.js ---- */
 /* =====================================================================
    Physics Playground — Grundlagen, Teil 4: Entropie
    Clausius, Boltzmann/Gibbs, Shannon, von Neumann, Bekenstein-Hawking,

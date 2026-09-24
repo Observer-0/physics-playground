@@ -1,9 +1,16 @@
 // Bundles everything into dist/index.html (single self-contained file)
 const fs = require('fs');
 const path = require('path');
-const ORDER = ['engine.js', 'model.js', 'experiments.js', 'tests.js', 'tex.js', 'plot.js', 'viz.js', 'app-core.js', 'app-lab.js', 'app-dims.js', 'app-pages.js', 'app-theory.js', 'app-tensor.js', 'app-action.js', 'app-entropy.js'];
-const css = fs.readFileSync(path.join(__dirname, 'styles.css'), 'utf8');
-const js = ORDER.map((f) => '/* ---- ' + f + ' ---- */\n' + fs.readFileSync(path.join(__dirname, f), 'utf8')).join('\n').replace(/<\/script/gi, '<\\/script');
+const ROOT = path.join(__dirname, '..');
+// Load order matters: every file extends the global PP namespace; ui/sections/* hook into ui/theory.js.
+const ORDER = [
+  'src/core/engine.js', 'src/core/model.js', 'src/data/experiments.js', 'tests/tests.js',
+  'src/render/tex.js', 'src/render/plot.js', 'src/render/viz.js',
+  'src/ui/core.js', 'src/ui/lab.js', 'src/ui/dims.js', 'src/ui/pages.js', 'src/ui/theory.js',
+  'src/ui/sections/tensor.js', 'src/ui/sections/action.js', 'src/ui/sections/entropy.js',
+];
+const css = fs.readFileSync(path.join(ROOT, 'src/styles.css'), 'utf8');
+const js = ORDER.map((f) => '/* ---- ' + f + ' ---- */\n' + fs.readFileSync(path.join(ROOT, f), 'utf8')).join('\n').replace(/<\/script/gi, '<\\/script');
 const html = `<!doctype html>
 <html lang="de" data-theme="dark">
 <head>
@@ -27,6 +34,6 @@ PP.ui.boot(document.getElementById('root'));
 </body>
 </html>
 `;
-fs.mkdirSync(path.join(__dirname, 'dist'), { recursive: true });
-fs.writeFileSync(path.join(__dirname, 'dist', 'index.html'), html);
+fs.mkdirSync(path.join(ROOT, 'dist'), { recursive: true });
+fs.writeFileSync(path.join(ROOT, 'dist', 'index.html'), html);
 console.log('dist/index.html', (html.length / 1024).toFixed(0) + ' KB');

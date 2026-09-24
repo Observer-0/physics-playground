@@ -1,0 +1,19 @@
+{
+  "name": "physics-playground",
+  "version": "1.0.0",
+  "description": "Interaktive Physik-Experimentierumgebung – „Was passiert, wenn ich das ändere?“",
+  "private": true,
+  "license": "MIT",
+  "author": "Adrian Zander",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Observer-0/physics-playground.git"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node tests/run.js",
+    "build": "node scripts/build.js"
+  }
+}
