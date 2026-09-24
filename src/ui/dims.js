@@ -414,7 +414,7 @@
   }
 
   function customRender(el) {
-    let h = '<header class="xhead"><div><div class="crumb">Famous Equations</div><h1>' + T('Eigene Gleichung prüfen', 'Check your own equation') + '</h1><div class="sub">' + T('Artificial / Wrong Equation Mode – dieselbe Engine wie bei allen anderen Formeln', 'Artificial / Wrong Equation Mode – the same engine as for every other formula') + '</div></div></header>';
+    let h = '<header class="xhead">' + U.fieldBanner('famous') + '<div><h1>' + T('Eigene Gleichung prüfen', 'Check your own equation') + '</h1><div class="sub">' + T('Artificial / Wrong Equation Mode – dieselbe Engine wie bei allen anderen Formeln', 'Artificial / Wrong Equation Mode – the same engine as for every other formula') + '</div></div></header>';
     h += '<div class="eqin"><input id="eqsrc" value="' + esc(S.custom.src) + '" aria-label="' + T('Gleichung eingeben', 'Enter an equation') + '" spellcheck="false" autocomplete="off"></div>';
     h += '<div class="presets" style="margin:10px 0 18px">' + EXAMPLES.map((x, i) => '<button class="chip" data-ex="' + i + '" title="' + esc(x.note || '') + '"><span class="mono" style="font-size:12px">' + esc(x.src) + '</span></button>').join('') + '</div>';
     h += '<div id="cres"></div>';

@@ -17,7 +17,7 @@
   /* ============================ MECHANIK ============================ */
 
   define({
-    id: 'newton-gravity', group: MECH, title: { de: 'Newtonsche Gravitation', en: 'Newtonian gravity' }, short: { de: 'Gravitation', en: 'Gravity' },
+    id: 'newton-gravity', group: MECH, field: 'mech', title: { de: 'Newtonsche Gravitation', en: 'Newtonian gravity' }, short: { de: 'Gravitation', en: 'Gravity' },
     tex: 'F = G\\,\\frac{m_1\\, m_2}{r^2}',
     vars: {
       G:  { label: 'G', tex: 'G', name: { de: 'Gravitationskonstante', en: 'Gravitational constant' }, dim: 'L^3 M^-1 T^-2', constant: 'G', min: 1e-15, max: 1e-3, scale: 'log' },
@@ -85,7 +85,7 @@
   });
 
   define({
-    id: 'kinematics', group: MECH, title: { de: 'Gleichmäßig beschleunigte Bewegung', en: 'Uniformly accelerated motion' }, short: { de: 'Kinematik', en: 'Kinematics' },
+    id: 'kinematics', group: MECH, field: 'mech', title: { de: 'Gleichmäßig beschleunigte Bewegung', en: 'Uniformly accelerated motion' }, short: { de: 'Kinematik', en: 'Kinematics' },
     tex: 's(t) = s_0 + v_0\\,t + \\tfrac12\\,a\\,t^2',
     vars: {
       s0: { label: 's₀', tex: 's_0', name: { de: 'Startposition', en: 'Initial position' }, dim: 'L', default: 0, min: -100, max: 100, scale: 'lin' },
@@ -139,7 +139,7 @@
   });
 
   define({
-    id: 'free-fall', group: MECH, title: { de: 'Freier Fall', en: 'Free fall' }, short: { de: 'Freier Fall', en: 'Free fall' },
+    id: 'free-fall', group: MECH, field: 'mech', title: { de: 'Freier Fall', en: 'Free fall' }, short: { de: 'Freier Fall', en: 'Free fall' },
     tex: 'h(t) = h_0 - \\tfrac12\\, g\\, t^2',
     vars: {
       h0: { label: 'h₀', tex: 'h_0', name: { de: 'Starthöhe', en: 'Initial height' }, dim: 'L', default: 100, min: 0, max: 1000, scale: 'lin' },
@@ -197,7 +197,7 @@
   });
 
   define({
-    id: 'spring', group: MECH, title: { de: 'Federpendel (Hookesches Gesetz)', en: 'Mass on a spring (Hooke’s law)' }, short: { de: 'Feder', en: 'Spring' },
+    id: 'spring', group: MECH, field: 'mech', title: { de: 'Federpendel (Hookesches Gesetz)', en: 'Mass on a spring (Hooke’s law)' }, short: { de: 'Feder', en: 'Spring' },
     tex: 'F = -k\\,x',
     vars: {
       k: { label: 'k', tex: 'k', name: { de: 'Federkonstante', en: 'Spring constant' }, dim: 'M T^-2', default: 50, min: 0.1, max: 1e6, scale: 'log', positive: true },
@@ -249,7 +249,7 @@
   });
 
   define({
-    id: 'circular', group: MECH, title: { de: 'Gleichförmige Kreisbewegung', en: 'Uniform circular motion' }, short: { de: 'Kreisbewegung', en: 'Circular motion' },
+    id: 'circular', group: MECH, field: 'mech', title: { de: 'Gleichförmige Kreisbewegung', en: 'Uniform circular motion' }, short: { de: 'Kreisbewegung', en: 'Circular motion' },
     tex: 'a = \\frac{v^2}{r}',
     vars: {
       v: { label: 'v', tex: 'v', name: { de: 'Bahngeschwindigkeit', en: 'Orbital speed' }, dim: 'L T^-1', default: 10, min: 0.01, max: 1e6, scale: 'log', positive: true },
@@ -302,7 +302,7 @@
   });
 
   define({
-    id: 'pendulum', group: MECH, title: { de: 'Fadenpendel: Näherung und exakte Lösung', en: 'Simple pendulum: approximation and exact solution' }, short: { de: 'Fadenpendel', en: 'Pendulum' },
+    id: 'pendulum', group: MECH, field: 'mech', title: { de: 'Fadenpendel: Näherung und exakte Lösung', en: 'Simple pendulum: approximation and exact solution' }, short: { de: 'Fadenpendel', en: 'Pendulum' },
     tex: 'T = 4\\sqrt{\\frac{L}{g}}\\;K\\left(\\sin\\frac{\\theta_0}{2}\\right)',
     vars: {
       L: { label: 'L', tex: 'L', name: { de: 'Fadenlänge', en: 'Length of the string' }, dim: 'L', default: 1, min: 0.01, max: 100, scale: 'log', positive: true },
@@ -364,7 +364,7 @@
   });
 
   define({
-    id: 'projectile', group: MECH, title: { de: 'Schiefer Wurf', en: 'Projectile motion' }, short: { de: 'Schiefer Wurf', en: 'Projectile' },
+    id: 'projectile', group: MECH, field: 'mech', title: { de: 'Schiefer Wurf', en: 'Projectile motion' }, short: { de: 'Schiefer Wurf', en: 'Projectile' },
     tex: 'R = \\frac{v_0^2\\,\\sin 2\\alpha}{g}',
     vars: {
       v0: { label: 'v₀', tex: 'v_0', name: { de: 'Abwurfgeschwindigkeit', en: 'Launch speed' }, dim: 'L T^-1', default: 20, min: 0.1, max: 1000, scale: 'log', positive: true },
@@ -427,7 +427,7 @@
   /* ======================= SPEZIELLE RELATIVITÄT ======================= */
 
   define({
-    id: 'special-rel', group: { de: 'Relativität', en: 'Relativity' }, title: { de: 'Spezielle Relativität: Lorentz-Faktor', en: 'Special relativity: Lorentz factor' }, short: { de: 'Lorentz-Faktor', en: 'Lorentz factor' },
+    id: 'special-rel', group: { de: 'Relativität', en: 'Relativity' }, field: 'rel', title: { de: 'Spezielle Relativität: Lorentz-Faktor', en: 'Special relativity: Lorentz factor' }, short: { de: 'Lorentz-Faktor', en: 'Lorentz factor' },
     tex: '\\gamma = \\frac{1}{\\sqrt{1 - v^2/c^2}}',
     vars: {
       beta: { label: 'β = v/c', tex: '\\beta', name: { de: 'Geschwindigkeit in Einheiten von c', en: 'Speed in units of c' }, dim: '', default: 0.8, min: 0, max: 1, scale: 'toone', toone: 12 },
@@ -493,7 +493,7 @@
 
   const NA = C.N_A.value;
   define({
-    id: 'ideal-gas', group: { de: 'Thermodynamik', en: 'Thermodynamics' }, title: { de: 'Ideales Gas', en: 'Ideal gas' }, short: { de: 'Ideales Gas', en: 'Ideal gas' },
+    id: 'ideal-gas', group: { de: 'Thermodynamik', en: 'Thermodynamics' }, field: 'thermo', title: { de: 'Ideales Gas', en: 'Ideal gas' }, short: { de: 'Ideales Gas', en: 'Ideal gas' },
     tex: 'p\\,V = N\\,k_{\\mathrm{B}}\\,T',
     vars: {
       N: { label: 'N', tex: 'N', name: { de: 'Teilchenzahl', en: 'Number of particles' }, dim: '', default: NA, min: 1, max: 1e30, scale: 'log', positive: true },
@@ -562,7 +562,7 @@
   const SCALAR = { de: 'skalar', en: 'scalar' };
 
   define({
-    id: 'hawking', group: 'Famous Equations', hall: true, title: { de: 'Hawking-Temperatur', en: 'Hawking temperature' }, short: { de: 'Hawking-Temperatur', en: 'Hawking temperature' },
+    id: 'hawking', group: 'Famous Equations', field: 'famous', hall: true, title: { de: 'Hawking-Temperatur', en: 'Hawking temperature' }, short: { de: 'Hawking-Temperatur', en: 'Hawking temperature' },
     tex: 'T_{\\mathrm{H}} = \\frac{\\hbar\\, c^3}{8\\pi\\, G\\, M\\, k_{\\mathrm{B}}}',
     meta: { mathType: SCALAR, mainDim: { de: 'Temperatur', en: 'Temperature' }, domain: BH_THERMO, status: { de: 'theoretische Vorhersage, nicht beobachtet', en: 'theoretical prediction, not observed' } },
     vars: {
@@ -627,7 +627,7 @@
   const SCHW_R = { de: 'Schwarzschild-Radius', en: 'Schwarzschild radius' };
 
   define({
-    id: 'bh-entropy', group: 'Famous Equations', hall: true, title: BH_ENTROPY, short: { de: 'BH-Entropie', en: 'BH entropy' },
+    id: 'bh-entropy', group: 'Famous Equations', field: 'famous', hall: true, title: BH_ENTROPY, short: { de: 'BH-Entropie', en: 'BH entropy' },
     tex: 'S_{\\mathrm{BH}} = \\frac{k_{\\mathrm{B}}\\, c^3 A}{4\\, G\\, \\hbar}',
     meta: { mathType: SCALAR, mainDim: { de: 'Entropie', en: 'Entropy' }, domain: BH_THERMO, status: { de: 'theoretisches Ergebnis, nicht gemessen', en: 'theoretical result, not measured' } },
     vars: {
@@ -700,7 +700,7 @@
   });
 
   define({
-    id: 'efe', group: 'Famous Equations', hall: true, title: { de: 'Einsteinsche Feldgleichungen', en: 'Einstein field equations' }, short: { de: 'Feldgleichungen', en: 'Field equations' },
+    id: 'efe', group: 'Famous Equations', field: 'famous', hall: true, title: { de: 'Einsteinsche Feldgleichungen', en: 'Einstein field equations' }, short: { de: 'Feldgleichungen', en: 'Field equations' },
     tex: 'G_{\\mu\\nu} + \\Lambda\\, g_{\\mu\\nu} = \\frac{8\\pi G}{c^4}\\, T_{\\mu\\nu}',
     meta: {
       mathType: { de: 'Tensorgleichung (10 gekoppelte nichtlineare PDGs)', en: 'Tensor equation (10 coupled nonlinear PDEs)' },
@@ -767,7 +767,7 @@
   const ENERGY = { de: 'Energie', en: 'Energy' };
 
   define({
-    id: 'schroedinger', group: 'Famous Equations', hall: true, title: { de: 'Schrödinger-Gleichung', en: 'Schrödinger equation' }, short: 'Schrödinger',
+    id: 'schroedinger', group: 'Famous Equations', field: 'famous', hall: true, title: { de: 'Schrödinger-Gleichung', en: 'Schrödinger equation' }, short: 'Schrödinger',
     tex: 'i\\hbar\\,\\frac{\\partial \\psi}{\\partial t} = \\Bigl[-\\frac{\\hbar^2}{2m}\\nabla^2 + V\\Bigr]\\psi',
     meta: {
       mathType: { de: 'lineare partielle Differentialgleichung', en: 'linear partial differential equation' },
@@ -852,7 +852,7 @@
   });
 
   define({
-    id: 'planck', group: 'Famous Equations', hall: true, title: { de: 'Planck-Einheiten', en: 'Planck units' }, short: { de: 'Planck-Einheiten', en: 'Planck units' },
+    id: 'planck', group: 'Famous Equations', field: 'famous', hall: true, title: { de: 'Planck-Einheiten', en: 'Planck units' }, short: { de: 'Planck-Einheiten', en: 'Planck units' },
     subtitle: { de: 'Wenn Dimensionen zu Physik werden', en: 'When dimensions turn into physics' },
     tex: 'l_{\\mathrm{P}} = \\sqrt{\\frac{\\hbar G}{c^3}}',
     meta: {

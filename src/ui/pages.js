@@ -7,8 +7,8 @@
   const E = PP.engine, M = PP.model, U = PP.ui, I = PP.i18n, T = I.T;
   const { $, esc } = U;
 
-  function head(crumb, title, sub) {
-    return '<header class="xhead"><div><div class="crumb">' + esc(crumb) + '</div><h1>' + esc(title) + '</h1>' + (sub ? '<div class="sub">' + esc(sub) + '</div>' : '') + '</div></header>';
+  function head(field, title, sub) {
+    return '<header class="xhead">' + U.fieldBanner(field) + '<div><h1>' + esc(title) + '</h1>' + (sub ? '<div class="sub">' + esc(sub) + '</div>' : '') + '</div></header>';
   }
   function eqStatus(exp) {
     let n = 0, ok = 0;
@@ -25,7 +25,7 @@
   /* ---------- Hall of Fame ---------- */
   function hall(el) {
     const exps = PP.hallOrder.map((id) => M.byId[id]);
-    let h = '<div class="hallx">' + head('Famous Equations', 'The Physics Hall of Fame');
+    let h = '<div class="hallx">' + head('famous', 'The Physics Hall of Fame');
     h += '<p class="hall-intro">' + T('Berühmte Gleichungen, zerlegt mit derselben Engine wie jedes andere Experiment: Formel → Variablen → Einheiten → Dimensionen → Auswertung → Visualisierung → Erklärung. Keine Sonderfälle, keine hart codierten Ergebnisse.',
       'Famous equations, taken apart by the same engine as every other experiment: formula → variables → units → dimensions → evaluation → visualisation → explanation. No special cases, no hard-coded results.') + '</p>';
     h += '<div class="wall">' + exps.map((e) => {
@@ -51,7 +51,7 @@
 
   /* ---------- constants ---------- */
   function constants(el) {
-    let h = head(T('Werkzeuge', 'Tools'), T('Konstanten', 'Constants'), T('Zentrale Registry – jede Formel bezieht ihre Werte von hier', 'Central registry – every formula takes its values from here'));
+    let h = head('tools', T('Konstanten', 'Constants'), T('Zentrale Registry – jede Formel bezieht ihre Werte von hier', 'Central registry – every formula takes its values from here'));
     h += '<p class="muted" style="max-width:760px">' + T('Seit der SI-Reform 2019 sind c, h, e, k_B und N_A per Definition exakt. G ist dagegen eine der am ungenauesten gemessenen Naturkonstanten. Astronomische Werte sind Referenzwerte (≈); Λ hängt vom kosmologischen Modell ab.', 'Since the 2019 SI reform, c, h, e, k_B and N_A are exact by definition. G, by contrast, is one of the least precisely measured constants of nature. Astronomical values are reference values (≈); Λ depends on the cosmological model.') + '</p>';
     h += '<div class="panel scroll-x"><table class="t const"><thead><tr><th>Symbol</th><th>Name</th><th>' + T('Wert', 'Value') + '</th><th>' + T('Einheit', 'Unit') + '</th><th>Dimension</th><th>' + T('Art', 'Kind') + '</th><th>' + T('rel. Unsicherheit', 'rel. uncertainty') + '</th><th>' + T('Quelle', 'Source') + '</th></tr></thead><tbody>' +
       Object.keys(M.C).map((k) => {
@@ -67,7 +67,7 @@
   /* ---------- saved ---------- */
   function saved(el) {
     const list = U.saved.list();
-    let h = head(T('Werkzeuge', 'Tools'), T('Gespeicherte Experimente', 'Saved experiments'), T('Lokal in diesem Browser', 'Stored locally in this browser'));
+    let h = head('tools', T('Gespeicherte Experimente', 'Saved experiments'), T('Lokal in diesem Browser', 'Stored locally in this browser'));
     h += list.length
       ? '<div class="panel scroll-x"><table class="t savedlist"><thead><tr><th>Name</th><th>Experiment</th><th>' + T('Gespeichert', 'Saved') + '</th><th></th></tr></thead><tbody>' +
         list.map((s) => '<tr><td>' + esc(s.name) + '</td><td class="muted">' + esc(s.exp) + '</td><td class="faint mono" style="font-size:12px">' + esc(new Date(s.date).toLocaleString(I.locale())) + '</td>' +
@@ -93,7 +93,7 @@
 
   /* ---------- tests ---------- */
   function tests(el) {
-    el.innerHTML = head(T('Werkzeuge', 'Tools'), T('Tests der Formula Engine', 'Formula engine tests'), T('Laufen hier direkt im Browser', 'Running right here in the browser')) + '<div id="tout"><p class="muted">' + T('Läuft …', 'Running …') + '</p></div>';
+    el.innerHTML = head('tools', T('Tests der Formula Engine', 'Formula engine tests'), T('Laufen hier direkt im Browser', 'Running right here in the browser')) + '<div id="tout"><p class="muted">' + T('Läuft …', 'Running …') + '</p></div>';
     const run = () => {
       const t0 = performance.now();
       const res = PP.tests.runAll();
@@ -115,7 +115,7 @@
   /* ---------- about ---------- */
   function about(el) {
     const nEq = M.registry.reduce((a, e) => a + e.forms.reduce((b, f) => b + f.c.equations.length, 0), 0);
-    let h = head(T('Werkzeuge', 'Tools'), T('Über den Physics Playground', 'About the Physics Playground'));
+    let h = head('tools', T('Über den Physics Playground', 'About the Physics Playground'));
     h += '<div class="prose">';
     h += T('<p>Eine Experimentierumgebung nach dem Prinzip <b>„Was passiert, wenn ich das ändere?“</b> Regler bewegen, Zahlen und Graphen reagieren sofort, und die App sagt ehrlich, wann ein Ergebnis nur noch Mathematik ist.</p>',
       '<p>An environment for experimenting, built around one question: <b>“What happens if I change this?”</b> Move a slider, and numbers and graphs respond instantly – and the app tells you honestly when a result is only mathematics any more.</p>');

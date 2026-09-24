@@ -94,8 +94,8 @@
   /* ---------- page ---------- */
   function headerHTML(exp) {
     const hasVars = exp.forms.some((f) => f.vars.length);
-    return '<header class="xhead">' +
-      '<div><div class="crumb">' + esc(exp.group) + '</div><h1>' + esc(exp.title) + '</h1>' + (exp.subtitle ? '<div class="sub">' + esc(exp.subtitle) + '</div>' : '') + '</div>' +
+    return '<header class="xhead">' + U.fieldBanner(U.fieldOf(exp), exp.group) +
+      '<div><h1>' + esc(exp.title) + '</h1>' + (exp.subtitle ? '<div class="sub">' + esc(exp.subtitle) + '</div>' : '') + '</div>' +
       (exp.hall ? '' : '<div class="eq">' + U.tex(exp.tex) + '</div>') +
       '<div class="acts">' +
       (hasVars ? '<button class="btn' + (S.cmp ? ' on' : '') + '" data-a="cmp" aria-pressed="' + S.cmp + '">' + T('Vergleich A/B', 'Compare A/B') + '</button>' +

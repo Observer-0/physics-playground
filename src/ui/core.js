@@ -262,6 +262,37 @@
     remove(id) { U.store.set('pp.saved.v1', U.saved.list().filter((x) => x.id !== id)); },
   };
 
+  /* ---------- Themenfelder ----------
+     Name, Icon und Farbe je Bereich. Die Farbe steht in styles.css unter [data-field="…"]
+     und ist bewusst keine der Datenfarben (Orange = Hauptergebnis, Rot = Warnung …).
+     Farbe ist nie das einzige Merkmal: Icon und Name stehen immer dabei. */
+  const svg = (d) => '<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">' + d + '</svg>';
+  const ICON = {
+    mech: svg('<path d="M3 2.5h10M8 2.5l2.9 7.1"/><circle cx="11.6" cy="11.6" r="2.2"/>'),
+    rel: svg('<path d="M2.5 2.5l11 11M13.5 2.5l-11 11"/><ellipse cx="8" cy="2.8" rx="5.3" ry="1.3"/><ellipse cx="8" cy="13.2" rx="5.3" ry="1.3"/>'),
+    thermo: svg('<path d="M6.5 9.3V3a1.5 1.5 0 0 1 3 0v6.3"/><circle cx="8" cy="11.5" r="2.6"/><path d="M8 5v5"/>'),
+    famous: svg('<path d="M8 1.8l1.9 3.9 4.3.6-3.1 3 .7 4.3L8 11.6l-3.8 2 .7-4.3-3.1-3 4.3-.6z"/>'),
+    found: svg('<path d="M8 4.2C6.6 3 4.5 2.6 2 2.8v9.6c2.5-.2 4.6.2 6 1.4 1.4-1.2 3.5-1.6 6-1.4V2.8c-2.5-.2-4.6.2-6 1.4zM8 4.2v9.6"/>'),
+    tools: svg('<path d="M10.2 2.2a3.3 3.3 0 0 0-3.8 4.4L2.2 10.8a1.4 1.4 0 0 0 2 2l4.2-4.2a3.3 3.3 0 0 0 4.4-3.8l-2 2-1.8-.4-.4-1.8z"/>'),
+  };
+  U.FIELDS = I.localize({
+    mech: { name: { de: 'Mechanik', en: 'Mechanics' } },
+    rel: { name: { de: 'Relativität', en: 'Relativity' } },
+    thermo: { name: { de: 'Thermodynamik', en: 'Thermodynamics' } },
+    famous: { name: 'Famous Equations' },
+    found: { name: { de: 'Grundlagen', en: 'Foundations' } },
+    tools: { name: { de: 'Werkzeuge', en: 'Tools' } },
+  });
+  U.fieldIcon = (key) => ICON[key] || '';
+  // Feld eines Experiments; ohne bekanntes `field` gilt: berühmte Gleichung → famous, sonst keins (eigene Gruppe)
+  U.fieldOf = (exp) => (exp && E.has(U.FIELDS, exp.field) ? exp.field : exp && exp.hall ? 'famous' : null);
+  // Großes Banner über dem Seitentitel: Feldname, Icon, Farbstreifen
+  U.fieldBanner = (key, fallback) => {
+    const f = E.has(U.FIELDS, key) ? U.FIELDS[key] : null;
+    return '<div class="fband"' + (f ? ' data-field="' + key + '"' : '') + '>' + (f ? '<span class="fic">' + ICON[key] + '</span>' : '') + '<span class="fnm">' + U.esc(f ? f.name : fallback || '') + '</span></div>';
+  };
+  U.fieldHead = (key, fallback) => '<h6><span class="fic">' + (ICON[key] || '') + '</span>' + U.esc(E.has(U.FIELDS, key) ? U.FIELDS[key].name : fallback || '') + '</h6>';
+
   /* ---------- shell ---------- */
   U.views = Object.create(null); // filled by other modules: name → { title, render(main), mount?() }
 
@@ -269,24 +300,25 @@
 
   function navHTML() {
     const cur = S.view === 'exp' && S.exp ? S.exp.id : null;
-    const groups = {};
-    M.registry.filter((e) => !e.hall).forEach((e) => { (groups[e.group] = groups[e.group] || []).push(e); });
-    let h = '';
-    for (const g in groups) {
-      h += '<h6>' + U.esc(g) + '</h6>';
-      h += groups[g].map((e) => '<a href="#exp=' + e.id + '" class="' + (cur === e.id ? 'on' : '') + '">' + U.esc(e.short) + '</a>').join('');
-    }
-    h += '<h6>Famous Equations</h6>';
-    h += '<a href="#view=hall" class="hall ' + (S.view === 'hall' ? 'on' : '') + '">' + T('Übersicht &amp; Vergleich', 'Overview &amp; comparison') + '</a>';
-    h += PP.hallOrder.map((id) => { const e = M.byId[id]; return '<a href="#exp=' + id + '" class="hall ' + (cur === id ? 'on' : '') + '">' + U.esc(e.short) + '</a>'; }).join('');
-    h += '<a href="#view=custom" class="hall ' + (S.view === 'custom' ? 'on' : '') + '">' + T('Eigene Gleichung prüfen', 'Check your own equation') + '</a>';
-    h += '<h6>' + T('Grundlagen', 'Foundations') + '</h6>';
-    h += '<a href="#view=theorie" class="' + (S.view === 'theorie' ? 'on' : '') + '">' + T('Theorie kurz erklärt', 'Theory in brief') + '</a>';
-    h += '<h6>' + T('Werkzeuge', 'Tools') + '</h6>';
-    const n = U.saved.list().length;
-    [['constants', T('Konstanten', 'Constants'), M.registry.length ? Object.keys(M.C).length : ''], ['saved', T('Gespeichert', 'Saved'), n || ''], ['tests', 'Tests', PP.tests ? PP.tests.list.length : ''], ['about', T('Über', 'About'), '']].forEach(([v, t, c]) => {
-      h += '<a href="#view=' + v + '" class="' + (S.view === v ? 'on' : '') + '">' + t + (c !== '' ? '<small>' + c + '</small>' : '') + '</a>';
+    // Gruppen nach Themenfeld; Experimente ohne bekanntes Feld bilden eine eigene Gruppe mit ihrem group-Namen
+    const groups = new Map();
+    M.registry.filter((e) => !e.hall).forEach((e) => {
+      const f = U.fieldOf(e), k = f || 'g:' + e.group;
+      if (!groups.has(k)) groups.set(k, { f, label: e.group, items: [] });
+      groups.get(k).items.push(e);
     });
+    const block = (f, label, links) => '<div class="ng"' + (f ? ' data-field="' + f + '"' : '') + '>' + U.fieldHead(f, label) + links + '</div>';
+    let h = '';
+    for (const g of groups.values()) {
+      h += block(g.f, g.label, g.items.map((e) => '<a href="#exp=' + e.id + '" class="' + (cur === e.id ? 'on' : '') + '">' + U.esc(e.short) + '</a>').join(''));
+    }
+    h += block('famous', '', '<a href="#view=hall" class="hall ' + (S.view === 'hall' ? 'on' : '') + '">' + T('Übersicht &amp; Vergleich', 'Overview &amp; comparison') + '</a>' +
+      PP.hallOrder.map((id) => { const e = M.byId[id]; return '<a href="#exp=' + id + '" class="hall ' + (cur === id ? 'on' : '') + '">' + U.esc(e.short) + '</a>'; }).join('') +
+      '<a href="#view=custom" class="hall ' + (S.view === 'custom' ? 'on' : '') + '">' + T('Eigene Gleichung prüfen', 'Check your own equation') + '</a>');
+    h += block('found', '', U.theoryNav ? U.theoryNav() : '<a href="#view=theorie" class="' + (S.view === 'theorie' ? 'on' : '') + '">' + T('Theorie kurz erklärt', 'Theory in brief') + '</a>');
+    const n = U.saved.list().length;
+    h += block('tools', '', [['constants', T('Konstanten', 'Constants'), M.registry.length ? Object.keys(M.C).length : ''], ['saved', T('Gespeichert', 'Saved'), n || ''], ['tests', 'Tests', PP.tests ? PP.tests.list.length : ''], ['about', T('Über', 'About'), '']].map(([v, t, c]) =>
+      '<a href="#view=' + v + '" class="' + (S.view === v ? 'on' : '') + '">' + t + (c !== '' ? '<small>' + c + '</small>' : '') + '</a>').join(''));
     return h;
   }
 

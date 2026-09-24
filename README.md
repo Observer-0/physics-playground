@@ -114,7 +114,7 @@ Ein weiterer `define({ … })`-Block in `src/data/experiments.js`. Jeder Text st
 
 ```js
 define({
-  id: 'mein-exp', group: MECH, title: { de: 'Ruheenergie', en: 'Rest energy' }, short: { de: 'Ruheenergie', en: 'Rest energy' }, tex: 'E = m c^2',
+  id: 'mein-exp', group: MECH, field: 'mech', title: { de: 'Ruheenergie', en: 'Rest energy' }, short: { de: 'Ruheenergie', en: 'Rest energy' }, tex: 'E = m c^2',
   vars:    { m: { label: 'm', tex: 'm', name: { de: 'Masse', en: 'Mass' }, dim: 'M', default: 1, min: 1e-3, max: 1e3, scale: 'log', positive: true } },
   outputs: [{ key: 'E', sym: 'E', tex: 'E', name: { de: 'Energie', en: 'Energy' }, expr: 'm*c^2', dim: 'M L^2 T^-2', primary: true }],
   equations: [{ label: { de: 'Ruheenergie', en: 'Rest energy' }, eq: 'E = m*c^2' }],
@@ -122,6 +122,10 @@ define({
   explain: { intuition: { de: '…', en: '…' }, math: [], physics: { de: '…', en: '…' }, epistemics: [] },
 });
 ```
+
+`field` ordnet das Experiment einem Themenfeld zu (`mech`, `rel`, `thermo`, `famous`). Name, Icon und
+Farbe des Felds stehen in `src/ui/core.js` (`U.FIELDS`) bzw. `src/styles.css` (`[data-field]`); ohne
+bekanntes `field` bekommt das Experiment eine neutrale Gruppe mit seinem `group`-Namen.
 
 Aufgaben kommen nach `src/data/tasks.js`, Quellen nach `src/data/sources.js`.
 

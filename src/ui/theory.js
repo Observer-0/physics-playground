@@ -194,7 +194,7 @@
   ]);
 
   function render(el) {
-    let h = '<header class="xhead"><div><div class="crumb">' + T('Grundlagen', 'Foundations') + '</div><h1>' + T('Theorie kurz erklärt', 'Theory in brief') + '</h1><div class="sub">' + T('Die Ideen hinter den Experimenten – ohne Formelballast, aber ehrlich', 'The ideas behind the experiments – without excess formulas, but honest') + '</div></div></header>';
+    let h = '<header class="xhead">' + U.fieldBanner('found') + '<div><h1>' + T('Theorie kurz erklärt', 'Theory in brief') + '</h1><div class="sub">' + T('Die Ideen hinter den Experimenten – ohne Formelballast, aber ehrlich', 'The ideas behind the experiments – without excess formulas, but honest') + '</div></div></header>';
     h += '<nav class="th-toc" aria-label="' + T('Inhalt', 'Contents') + '">' + SECTIONS.map((s, i) => '<button class="btn" data-jump="' + s.id + '">' + (i + 1) + '. ' + esc(s.title) + '</button>').join('') + '</nav>';
     h += '<div class="prose th">' + SECTIONS.map((s, i) => '<section id="th-' + s.id + '"><h2 class="sec">' + (i + 1) + '. ' + esc(s.title) + '</h2>' + s.body() + '</section>').join('') + '</div>';
     el.innerHTML = h;
