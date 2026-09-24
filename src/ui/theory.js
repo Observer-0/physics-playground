@@ -269,7 +269,7 @@
 
   function sectionPage(el, i) {
     const s = SECTIONS[i], prev = SECTIONS[i - 1], next = SECTIONS[i + 1];
-    let h = '<header class="xhead">' + U.fieldBanner('found') + '<div><a class="th-back" href="#view=theorie">← ' + esc(TITLE()) + '</a><h1>' + (i + 1) + '. ' + esc(s.title) + '</h1><div class="sub">' + esc(meta(s).teaser) + (s.mount ? ' ' + badge() : '') + '</div></div></header>';
+    let h = '<header class="xhead th-head">' + U.fieldBanner('found') + '<div><a class="th-back" href="#view=theorie">← ' + esc(TITLE()) + '</a><h1>' + (i + 1) + '. ' + esc(s.title) + '</h1><div class="sub">' + esc(meta(s).teaser) + (s.mount ? ' ' + badge() : '') + '</div></div></header>';
     h += '<div class="th-page"><article class="prose th th-article" id="th-' + s.id + '">' + s.body() + '</article>' +
       '<aside class="th-side"><nav class="th-stoc" aria-label="' + T('Auf dieser Seite', 'On this page') + '"><div class="th-stoc-h">' + T('Auf dieser Seite', 'On this page') + '</div><ol id="th-stoc"></ol></nav></aside></div>';
     h += '<nav class="th-foot" aria-label="' + T('Weitere Abschnitte', 'More sections') + '">' +

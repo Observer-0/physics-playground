@@ -2,6 +2,13 @@
 
 ## 2026-09-24
 
+**Breite Bildschirme**
+
+- Der Inhalt ist höchstens 1760 px breit und steht mittig; bis etwa 2000 px Fensterbreite ändert sich dadurch nichts.
+- Grundlagen-Seiten: Der Text bleibt in Lesebreite (ca. 66 Zeichen) und steht mittig, der Titel fluchtet mit ihm. Tabellen und Vertiefungen sind breiter, Widgets am breitesten, das Inhaltsverzeichnis steht rechts. Ab 1600 px ist die Schrift etwas größer, die Lesebreite wächst mit.
+- Übersicht der Grundlagen: Die Karten nutzen die ganze Breite (bei 1920 px fünf Spalten).
+- „Über“: eine Lesespalte in der Mitte. Hall of Fame: Formel und Beschreibung teilen sich die Zeile je zur Hälfte.
+
 **Themenfelder, Hawking-Temperatur, Diagramme, Grundlagen**
 
 - **Themenfelder sofort erkennbar:** Mechanik, Relativität, Thermodynamik, Famous Equations, Grundlagen und Werkzeuge haben ein Icon und eine eigene Farbe. Die Gruppenköpfe in der Seitenleiste sind groß, fett und in Versalien; jede Seite beginnt mit einem Banner des Themenfelds. Die Feldfarben sind keine Datenfarben (Orange bleibt das Hauptergebnis); Famous Equations behält Violett, ihre bisherige Kennfarbe. Icon und Name stehen immer dabei.
