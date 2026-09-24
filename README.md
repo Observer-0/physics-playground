@@ -24,7 +24,7 @@ im Browser und veröffentlicht `dist/` auf GitHub Pages (`.github/workflows/page
 Entwicklung (Node ≥ 18; `npm install` holt nur ESLint):
 
 ```bash
-npm test          # 80 Tests in Node (die 6 UI-Tests laufen vollständig nur im Browser)
+npm test          # 90 Tests in Node (die 7 UI-Tests laufen vollständig nur im Browser)
 npm run lint      # ESLint
 npm run build     # bündelt alles nach dist/index.html
 npm run check:ui  # lädt jede Seite in beiden Sprachen in Headless-Chrome/-Edge und prüft sie,
@@ -42,17 +42,20 @@ Die Ladereihenfolge der Dateien steht nur in `src/index.html`; `npm run build` l
 | Relativität | Lorentz-Faktor (Zeitdilatation, Längenkontraktion, Energie) |
 | Thermodynamik | Ideales Gas (pV = N k_B T) |
 | Famous Equations | Hawking-Temperatur · Bekenstein-Hawking-Entropie · Einsteinsche Feldgleichungen · Schrödinger-Gleichung · Planck-Einheiten (Länge, Zeit, Masse, Temperatur, Energie; mit Boltzmann und k_B) |
-| Grundlagen | Theorie kurz erklärt: Dimensionsanalyse · Inertialprinzip & Trägheit · Relativitätstheorie · Indizes μν (interaktive 4×4-Tabelle) · Tensor-Aufbau (Drehung/Boost-Demo) · Einstein-Hilbert-Wirkung (Demo zum Prinzip der kleinsten Wirkung) · Die Köpfe hinter der ART (Poincaré, Minkowski, Grossmann, Hilbert, Noether) · Quantenmechanik · Entropie (Clausius bis Wald, mit Mikrozustands-Demo) · Warum beide (noch) nicht zusammenpassen |
+| Grundlagen | Theorie kurz erklärt – Übersicht mit Karten, jeder Abschnitt als eigene Seite: Dimensionsanalyse · Inertialprinzip & Trägheit · Relativitätstheorie · Indizes μν (interaktive 4×4-Tabelle) · Tensor-Aufbau (Drehung/Boost-Demo) · Einstein-Hilbert-Wirkung (Demo zum Prinzip der kleinsten Wirkung) · Die Köpfe hinter der ART (Poincaré, Minkowski, Grossmann, Hilbert, Noether) · Quantenmechanik · Entropie (Clausius bis Wald, mit Mikrozustands-Demo) · Warum beide (noch) nicht zusammenpassen |
 | Werkzeuge | Eigene/falsche Gleichungen prüfen · Konstanten · Gespeichert · Tests im Browser |
 
 Funktionen: log/lin-Regler, freie Zahleneingabe (auch `3×10^8`, `2*M_sun`), Graph mit freier
-Achsenwahl, lin/log, Zoom, Tooltips, mehreren Kurven und schraffierten Modellgrenzen,
+Achsenwahl, lin/log, Zoom, Tooltips, mehreren Kurven und schraffierten Modellgrenzen (mit Grund, nur bei
+den Größen, die eine Grenze betrifft; Standardbereich so, dass der gültige Bereich das Bild bestimmt),
 Vergleichsmodus A/B mit Verhältnis und %-Änderung (Satz B blass im Bild), Presets mit Quellen,
 „Probier mal“-Aufgaben mit automatischer Prüfung, Tab „Quellen“ mit Originalarbeiten und DOIs,
 Break-the-Physics-Modus, Nightmare Mode der Dimensionsanalyse, Zustand in der URL (auch die
-Einstellungen der Visualisierung), lokales Speichern, helles und dunkles Theme. Bei den berühmten
-Gleichungen öffnet zuerst das Labor; auf dem Handy bleibt das Bild beim Scrollen durch die Regler
-oben stehen.
+Einstellungen der Visualisierung), lokales Speichern, helles und dunkles Theme. Jedes Experiment
+hat dieselben Tabs (Graph & Labor, Formel & Variablen, Dimensionsanalyse, Physik & Grenzen, Quellen)
+und öffnet mit dem Labor; auf dem Handy bleibt das Bild beim Scrollen durch die Regler oben stehen.
+Die Hawking-Temperatur zeigt über dem Labor, wie sich Quantenmechanik, Relativität, Gravitation und
+Thermodynamik in ihr treffen – mit Grenzfällen, die sich im Break-Modus live ausprobieren lassen.
 
 ## Architektur
 
@@ -99,7 +102,7 @@ Alle Dateien erweitern den globalen Namensraum `PP`; die Ladereihenfolge steht i
 | `src/render/plot.js` | Canvas-Graph in transformierten Koordinaten |
 | `src/render/viz.js` | Canvas-Visualisierungen. `PP.vizState` liefert alle Zahlen aus der Engine: `o`/`lg`/`fo` für die Ergebnisse, `at(änderungen)` für dieselben Formeln mit anderen Eingaben (Spuren, Kurven, Skalen) oder für ein anderes Experiment, dazu die Warnkategorien und die Bezugswerte (Preset/Ausgangswert). Die Zeichenfunktionen rechnen keine Formel selbst nach |
 | `src/ui/core.js` | Zustand, Routing, URL-State, Speichern, Navigation, gemeinsame Animationsschleife der Theorie-Widgets (`U.widgetLoop`) |
-| `src/ui/lab.js` | Labor: Parameter, Ergebnisse, Status, Graph mit schraffierten Modellgrenzen, Animation (Anhalten, Pendeln eines Werts), Warnhinweise im Kopf der Visualisierung, Vergleich (Satz B blass im Bild), „Probier mal“, Tab „Quellen“, Textbeschreibung des Bildes für Screenreader |
+| `src/ui/lab.js` | Labor: Parameter, Ergebnisse, Status, Graph mit schraffierten Modellgrenzen (Grund `why`, betroffene Größen über `on` und `PP.model.affects`, Standardbereich `graph.view`), Animation (Anhalten, Pendeln eines Werts), Warnhinweise im Kopf der Visualisierung, Vergleich (Satz B blass im Bild), „Probier mal“, Tab „Quellen“, Textbeschreibung des Bildes für Screenreader |
 | `src/ui/crossroads.js` | Schnittpunkt-Block der Hawking-Temperatur (`exp.crossroads`): Formel mit anklickbaren Symbolen und Karten je Theorie, Grenzfälle live im Break-Modus, Kette κ → T, „Aha“-Kasten, Epistemik-Zeile; Wörterbuch Schwarzes Loch ↔ Thermodynamik (`exp.dict`) auf der Hawking- und der Entropie-Seite. Zahlen kommen aus der Engine |
 | `src/ui/dims.js` | Erklär-Ebenen, Dimensionsanalyse, Nightmare Mode, eigene Gleichungen (mit Hinweisen auf mehrdeutige Symbole wie h, T, e und auf „a / b c“) |
 | `src/ui/pages.js` | Hall of Fame, Konstanten, Gespeichert, Tests, Über |
