@@ -90,6 +90,11 @@
     'Keine deutschen Reste in den englischen Texten der Experimente und Konstanten': 'No German left in the English texts of the experiments and constants',
     'Jeder Test hat einen englischen Namen': 'Every test has an English name',
     'Keine deutschen Reste in den englischen Beschriftungen der Visualisierungen': 'No German left in the English labels of the visualisations',
+    'Hawking-Temperatur': 'Hawking temperature',
+    'Drei Wege, ein Wert: ħc³/(8πGMk_B) = ħκ/(2πck_B) = T_P·m_P/(8πM), κ = c⁴/(4GM)': 'Three routes, one value: ħc³/(8πGMk_B) = ħκ/(2πck_B) = T_P·m_P/(8πM), κ = c⁴/(4GM)',
+    'Grenzfälle im Break-Modus: G → 0 „außerhalb des Modells“, G = 0 undefiniert, ħ = 0 ergibt T_H = 0, k_B·T_H bleibt bei k_B ÷ 1000': 'Limits in Break mode: G → 0 “outside the model”, G = 0 undefined, ħ = 0 gives T_H = 0, k_B·T_H is unchanged for k_B ÷ 1000',
+    'Schnittpunkt-Block: Symbole, Kette, Aha-Kasten und Wörterbuch verweisen nur auf vorhandene Engine-Größen': 'Crossroads block: symbols, chain, aha box and dictionary only refer to existing engine quantities',
+    'Schwarzes Loch: G = 0, ħ = 0, k_B = 0 und c × 10¹² zeichnen ohne „NaN“': 'Black hole: G = 0, ħ = 0, k_B = 0 and c × 10¹² draw without “NaN”',
   };
   const pair = (de) => (Object.prototype.hasOwnProperty.call(EN, de) ? { de, en: EN[de] } : de);
   const test = (group, name, fn) => T.push(I.localize({ group: pair(group), name: pair(name), fn }));
@@ -508,7 +513,7 @@
   const COL = { bg: '#000', panel: '#111', panel2: '#222', ink: '#eee', ink2: '#bbb', ink3: '#777', grid: '#333', accent: '#fa0', cyan: '#0cd', red: '#f55', green: '#5c5', violet: '#a8f', mono: 'monospace', sans: 'sans-serif' };
   const draw = (id, vals, o = {}) => {
     const exp = M.byId[id], form = o.form || exp.forms[0].id, ctx = recCtx();
-    const S = PP.vizState({ exp, form, vals: Object.assign(M.defaults(exp), vals || {}), consts: {}, base: o.base ? Object.assign(M.defaults(exp), o.base) : null, baseLabel: 'Test', t: o.t || 1.3, opts: o.opts || {}, col: COL });
+    const S = PP.vizState({ exp, form, vals: Object.assign(M.defaults(exp), vals || {}), consts: o.consts || {}, base: o.base ? Object.assign(M.defaults(exp), o.base) : null, baseLabel: 'Test', t: o.t || 1.3, opts: o.opts || {}, col: COL });
     PP.viz[exp.viz](ctx, o.W || 640, o.H || 330, S);
     return ctx.texts;
   };
@@ -579,6 +584,54 @@
   });
 
   /* --- Sprache --- */
+  /* --- Hawking-Temperatur: Schnittpunkt der vier Theorien --- */
+  test('Hawking-Temperatur', 'Drei Wege, ein Wert: ħc³/(8πGMk_B) = ħκ/(2πck_B) = T_P·m_P/(8πM), κ = c⁴/(4GM)', () => {
+    for (const Mx of [M.C.M_sun.value, 1e12, 6.5e9 * M.C.M_sun.value]) {
+      const r = run('hawking', { M: Mx });
+      close(val(r, 'THk'), val(r, 'TH'), 1e-12, 'T aus κ');
+      close(val(r, 'THp'), val(r, 'TH'), 1e-12, 'T_P·m_P/(8πM)');
+      close(val(r, 'kappa'), Math.pow(M.C.c.value, 4) / (4 * M.C.G.value * Mx), 1e-12, 'κ');
+      close(val(r, 'MmP') * val(r, 'mP'), Mx, 1e-12, 'M/m_P');
+    }
+    const p = run('planck');
+    close(val(run('hawking'), 'TP'), val(p, 'TP'), 1e-12, 'T_P wie bei den Planck-Einheiten');
+  });
+  test('Hawking-Temperatur', 'Grenzfälle im Break-Modus: G → 0 „außerhalb des Modells“, G = 0 undefiniert, ħ = 0 ergibt T_H = 0, k_B·T_H bleibt bei k_B ÷ 1000', () => {
+    const exp = M.byId.hawking, v = M.defaults(exp), C = M.C;
+    const at = (consts) => M.compute(exp, 'main', v, { consts });
+    const base = at({});
+    ok(!base.issues.some((i) => i.cat === 'model'), 'ohne Änderung keine Modellgrenze: ' + base.issues.map((i) => i.msg).join(' | '));
+    const g = at({ G: C.G.value * 1e-3 });
+    ok(g.issues.some((i) => i.cat === 'model' && /Horizont/.test(i.msg)), 'G ÷ 1000: Modellgrenze fehlt');
+    close(val(g, 'TH'), val(base, 'TH') * 1e3, 1e-9, 'T_H ∝ 1/G');
+    const g0 = at({ G: 0 });
+    ok(!g0.out.TH.ok && g0.issues.some((i) => i.cat === 'math') && g0.issues.some((i) => i.cat === 'model' && /G ≤ 0/.test(i.msg)), 'G = 0: ' + g0.issues.map((i) => i.cat).join(','));
+    ok(at({ c: C.c.value * 10 }).issues.some((i) => i.cat === 'model' && /c → ∞/.test(i.msg)), 'c × 10: Hinweis auf c → ∞ fehlt');
+    const h0 = at({ hbar: 0 });
+    ok(h0.out.TH.ok && h0.out.TH.s === 0 && h0.issues.some((i) => i.cat === 'info' && /ħ → 0/.test(i.msg)), 'ħ = 0: T_H = 0 und Hinweis erwartet');
+    const k = at({ k_B: C.k_B.value * 1e-3 });
+    close(val(k, 'TH') * C.k_B.value * 1e-3, val(base, 'TH') * C.k_B.value, 1e-12, 'k_B·T_H');
+    ok(k.issues.some((i) => i.cat === 'info' && /k_B rechnet nur/.test(i.msg)), 'k_B: Hinweis fehlt');
+  });
+  test('Hawking-Temperatur', 'Schnittpunkt-Block: Symbole, Kette, Aha-Kasten und Wörterbuch verweisen nur auf vorhandene Engine-Größen', () => {
+    const exp = M.byId.hawking, xr = exp.crossroads;
+    const outOf = (id, form) => M.formOf(M.byId[id], form).c.outputs.map((o) => o.key);
+    xr.num.concat(xr.den).forEach((k) => ok(Object.prototype.hasOwnProperty.call(xr.symbols, k), 'Symbol ' + k));
+    Object.values(xr.symbols).forEach((s) => { if (s.live && s.live.c) ok(M.C[s.live.c], 'Konstante ' + s.live.c); if (s.live && s.live.v) ok(exp.vars[s.live.v], 'Eingabe ' + s.live.v); });
+    const main = outOf('hawking');
+    xr.chain.steps.concat(xr.aha.parts).forEach((p) => ok(main.includes(p.key), 'Ausgabe ' + p.key));
+    xr.epistemic.filter((e) => e.value).forEach((e) => ok(main.includes(e.value.key), 'Ausgabe ' + e.value.key));
+    for (const id of xr.dict.pair) ok(M.byId[id] && (M.byId[id].dict || (M.byId[id].crossroads || {}).dict) === xr.dict, id + ' zeigt das Wörterbuch nicht');
+    xr.dict.rows.forEach((r) => [r.l.src, r.r.src].forEach((s) => ok(s.var ? M.byId.hawking.vars[s.var] : outOf(s.exp, s.form).includes(s.key), JSON.stringify(s))));
+  });
+  test('Visualisierung', 'Schwarzes Loch: G = 0, ħ = 0, k_B = 0 und c × 10¹² zeichnen ohne „NaN“', () => {
+    if (!PP.viz) return;
+    for (const consts of [{ G: 0 }, { hbar: 0 }, { k_B: 0 }, { c: M.C.c.value * 1e12 }]) {
+      const bad = draw('hawking', {}, { consts }).find((x) => /NaN|undefined|Infinity/.test(x));
+      ok(!bad, JSON.stringify(consts) + ': „' + bad + '“');
+    }
+  });
+
   test('Sprache', 'Engine-Meldungen und Dimensionsnamen gibt es auf Deutsch und Englisch', () => {
     const msg = () => E.evaluate(E.parse('1/0'), {}).issues[0].msg;
     ok(/Division durch 0/.test(I.with('de', msg)), I.with('de', msg));

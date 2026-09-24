@@ -363,6 +363,64 @@ input[type=range]:focus-visible { outline: 1px dashed var(--accent); outline-off
 .hero.compact .big { font-size: clamp(20px, 2.6vw, 30px); padding: 2px 0; }
 .hero.compact .dimline { margin-top: 4px; }
 .hero.compact .meta-row { display: none; }
+/* ---------- Schnittpunkt-Block (Hawking) und Wörterbuch ---------- */
+/* Farbe je Theorie: --xc setzen die Klassen xc-*, sichtbar wird sie über .xc, .xsym und den Kartenrand */
+.xc-res { --xc: var(--accent); } .xc-q { --xc: var(--cyan); } .xc-rel { --xc: var(--f-rel); } .xc-grav { --xc: var(--f-mech); }
+.xc-thermo { --xc: var(--f-thermo); } .xc-mass { --xc: var(--ink); } .xc-geo { --xc: var(--ink2); }
+.xc { color: var(--xc); }
+.xr { border: 1px solid var(--line); border-radius: 8px; background: var(--panel); padding: 16px 18px; display: grid; gap: 14px; }
+.xr-top { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+.xr-formula { text-align: center; font-size: clamp(30px, 3.8vw, 48px); padding: 2px 0; overflow-x: auto; overflow-y: hidden; }
+.xr-formula > .math { font-size: 1em; }
+.xsym { font: inherit; color: var(--xc); background: none; border: 0; margin: 0; padding: 0 .06em; border-radius: .12em; line-height: inherit; cursor: pointer; border-bottom: .04em dashed var(--xc); }
+.xsym:hover, .xsym:focus-visible, .xsym[aria-pressed="true"] { background: var(--panel2); outline: none; box-shadow: 0 0 0 .035em var(--xc); }
+.xr-dim { text-align: center; font-size: 13px; color: var(--ink2); margin-top: 4px; }
+.xr-dim .math { font-size: 16px; }
+.xr-legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin-top: 10px; }
+.xr-chip { display: inline-flex; align-items: center; gap: 7px; border: 1px solid var(--line2); border-radius: 999px; padding: 2px 11px 2px 9px; background: transparent; color: var(--ink2); font-size: 13px; }
+.xr-chip .math { font-size: 17px; }
+.xr-chip:hover, .xr-chip:focus-visible, .xr-chip[aria-pressed="true"] { color: var(--ink); border-color: var(--xc, var(--ink3)); background: var(--panel2); outline: none; }
+.xr-chip[aria-pressed="true"] { border-color: var(--ink3); }
+.xr-lead { font-size: 13.5px; color: var(--ink2); margin: 12px auto 0; text-align: center; max-width: 60ch; }
+.xr-card { border: 1px solid var(--line2); border-left: 3px solid var(--xc, var(--line2)); border-radius: var(--r); padding: 12px 14px; background: var(--bg); min-height: 200px; font-size: 13.5px; color: var(--ink2); }
+.xr-card p { margin: 0 0 8px; }
+.xr-card-h { display: flex; align-items: baseline; gap: 10px; margin-bottom: 6px; }
+.xr-card-h .math { font-size: 26px; }
+.xr-card-h b { font-size: 15px; font-weight: 600; color: var(--ink); }
+.xr-hint { color: var(--ink3); font-size: 12.5px; text-align: center; margin: 6px 0 0; }
+.xr-lim { border-left: 2px solid var(--line2); padding: 2px 0 0 10px; margin: 10px 0 6px; }
+.xr-lim-f { font-size: 18px; color: var(--ink); margin-bottom: 4px; }
+.xr-live { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 10px; }
+.xr-live .btn .math { font-size: 14px; }
+.xr-live-k { font-size: 12.5px; color: var(--ink3); }
+.xr-live-now { font-size: 12.5px; color: var(--red); font-family: var(--font-mono); }
+.xr-live-note { font-size: 12.5px; color: var(--ink3); }
+.xr-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 12px; }
+.xr-box { border: 1px dashed var(--line2); border-radius: var(--r); padding: 10px 14px; font-size: 13px; color: var(--ink2); min-width: 0; }
+.xr-box h4 { margin: 0 0 8px; font-size: 14px; font-weight: 600; color: var(--ink); }
+.xr-step { text-align: center; }
+.xr-step-f { font-size: 19px; color: var(--ink); text-align: center; overflow-x: auto; overflow-y: hidden; }
+.xr-step small { display: block; font-size: 12.5px; color: var(--ink2); }
+.xr-step-v, .xv { font-family: var(--font-mono); font-size: 13px; color: var(--ink); white-space: nowrap; }
+.xr-ar { text-align: center; color: var(--ink3); line-height: 1.2; }
+.xr-note { margin: 10px 0 0; font-size: 12.5px; }
+.xr-vals { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 3px 12px; margin: 8px 0 0; align-items: baseline; }
+.xr-vals dt { text-align: right; } .xr-vals dt .math { font-size: 16px; } .xr-vals dd { margin: 0; }
+.xr-dict-body { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 10px 22px; align-items: center; }
+.xr-dt { border-collapse: collapse; width: 100%; }
+.xr-dt th { font-size: 12px; font-weight: 500; color: var(--ink3); text-align: left; padding: 0 6px 4px; }
+.xr-dt td { padding: 4px 6px; vertical-align: middle; border-top: 1px solid var(--line); }
+.xr-d-sym { white-space: nowrap; } .xr-d-sym .math { font-size: 18px; color: var(--ink); }
+.xr-d-nm { display: block; font-size: 12.5px; color: var(--ink2); }
+.xr-d-ar { text-align: center; color: var(--ink3); font-size: 17px; }
+.xr-law, .xr-both { text-align: center; font-size: 17px; color: var(--ink); overflow-x: auto; overflow-y: hidden; padding: 4px 0; }
+.xr-link { font-size: 13px; font-weight: 400; margin-left: 6px; white-space: nowrap; }
+.xr-dict-c { margin-top: 12px; background: var(--panel); }
+.xr-dict-c summary { cursor: pointer; font-size: 14px; color: var(--ink); }
+.xr-dict-c[open] summary { margin-bottom: 10px; }
+.xr-ep { border-top: 1px solid var(--line); padding-top: 12px; }
+.xr-ep li { font-size: 13px; color: var(--ink2); }
+
 .meta-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 14px; position: relative; }
 .meta-row span { font-size: 12px; color: var(--ink2); border: 1px solid var(--line2); border-radius: 3px; padding: 2px 8px; background: var(--panel); }
 .meta-row span b { font-weight: 500; color: var(--ink3); margin-right: 5px; }
@@ -439,6 +497,9 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
   main { padding: 16px 14px 50px; }
   .fband { font-size: 15px; padding: 7px 12px; border-left-width: 4px; }
   .fband .fic svg { width: 19px; height: 19px; }
+  .xr { padding: 12px; }
+  .xr-top { grid-template-columns: minmax(0, 1fr); }
+  .xr-card { min-height: 0; }
   .lvl, .step, .ep li, .wall a { grid-template-columns: 1fr; }
   .vizwrap { height: 260px; }
   .plotwrap { height: 250px; }

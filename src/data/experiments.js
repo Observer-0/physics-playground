@@ -560,9 +560,129 @@
 
   const BH_THERMO = { de: 'Thermodynamik Schwarzer Löcher', en: 'Black hole thermodynamics' };
   const SCALAR = { de: 'skalar', en: 'scalar' };
+  // Gemessene bzw. festgelegte Werte – für die Checks im Break-Modus („Konstante verkleinert?“)
+  const K0 = { hbar: C.hbar.value, c: C.c.value, G: C.G.value, k_B: C.k_B.value };
+
+  /* Wörterbuch Mechanik Schwarzer Löcher ↔ Thermodynamik – steht auf der Hawking- und der Entropie-Seite.
+     src: woher die Zahl kommt (Ausgabe eines Experiments oder Eingabe); gerechnet wird immer in der Engine. */
+  const BH_DICT = {
+    pair: ['hawking', 'bh-entropy'],
+    title: { de: 'Wörterbuch: Schwarzes Loch ↔ Thermodynamik', en: 'Dictionary: black hole ↔ thermodynamics' },
+    rows: [
+      { l: { tex: '\\kappa', name: { de: 'Oberflächengravitation', en: 'surface gravity' }, src: { exp: 'hawking', key: 'kappa' } },
+        r: { tex: 'T', name: { de: 'Temperatur', en: 'temperature' }, src: { exp: 'hawking', key: 'TH' } } },
+      { l: { tex: 'A', name: { de: 'Horizontfläche', en: 'horizon area' }, src: { exp: 'bh-entropy', form: 'mass', key: 'A' } },
+        r: { tex: 'S', name: { de: 'Entropie', en: 'entropy' }, src: { exp: 'bh-entropy', form: 'mass', key: 'S' } } },
+      { l: { tex: 'M', name: { de: 'Masse', en: 'mass' }, src: { var: 'M' } },
+        r: { tex: 'E = Mc^2', name: { de: 'Energie', en: 'energy' }, src: { exp: 'hawking', key: 'E' } } },
+    ],
+    law: 'c^2\\,\\mathrm{d}M = \\frac{\\kappa\\, c^2}{8\\pi G}\\,\\mathrm{d}A \\;\\;\\longleftrightarrow\\;\\; \\mathrm{d}E = T\\,\\mathrm{d}S',
+    both: '\\xc{res}{T_{\\mathrm{H}}} = \\frac{\\xc{q}{\\hbar}\\,\\xc{rel}{c^3}}{8\\pi\\,\\xc{grav}{G}\\,M\\,\\xc{thermo}{k_{\\mathrm{B}}}} \\qquad \\xc{res}{S_{\\mathrm{BH}}} = \\frac{\\xc{thermo}{k_{\\mathrm{B}}}\\,\\xc{rel}{c^3}\\,A}{4\\,\\xc{grav}{G}\\,\\xc{q}{\\hbar}}',
+    text: {
+      de: 'Bardeen, Carter und Hawking fanden 1973 für Schwarze Löcher Gesetze, die genau wie die Hauptsätze der Thermodynamik aussehen. Zunächst war das eine formale Analogie. Mit T_H und S_BH wurde daraus – im Rahmen der semiklassischen Gravitation – eine physikalische Aussage. Beide Formeln enthalten alle vier Konstanten ħ, c, G und k_B.',
+      en: 'In 1973 Bardeen, Carter and Hawking found laws for black holes that look exactly like the laws of thermodynamics. At first this was a formal analogy. With T_H and S_BH it became a physical statement – within semiclassical gravity. Both formulas contain all four constants ħ, c, G and k_B.',
+    },
+    link: {
+      hawking: { de: 'Zur Hawking-Temperatur →', en: 'To the Hawking temperature →' },
+      'bh-entropy': { de: 'Zur Bekenstein-Hawking-Entropie →', en: 'To the Bekenstein–Hawking entropy →' },
+    },
+  };
+
+  /* Schnittpunkt-Block der Hawking-Seite (src/ui/crossroads.js zeichnet ihn).
+     color: q = Quantenmechanik, rel = Relativität, grav = Gravitation/Geometrie, thermo = Thermodynamik,
+            mass = das Schwarze Loch, geo = reine Zahl. live: Knopf, der die Größe im Break-Modus verändert. */
+  const HAWKING_XR = {
+    lhs: 'T_{\\mathrm{H}}', num: ['hbar', 'c'], den: ['8pi', 'G', 'M', 'k_B'],
+    lead: {
+      de: 'Ein Schnittpunkt, keine Vereinigung: Vier Theorien berühren sich hier in einer Zeile. Eine gemeinsame Theorie der Quantengravitation gibt es noch nicht.',
+      en: 'A crossroads, not a unification: four theories touch here in a single line. A common theory of quantum gravity does not exist yet.',
+    },
+    gapLink: { de: 'Warum beide (noch) nicht zusammenpassen →', en: 'Why the two don’t fit together (yet) →' },
+    hint: { de: 'Zeig auf ein Symbol oder tippe es an: Welche Theorie steckt dahinter – und was passiert, wenn man sie abschaltet?', en: 'Point at a symbol or tap it: which theory is behind it – and what happens if you switch it off?' },
+    symbols: {
+      hbar: {
+        tex: '\\hbar', color: 'q', theory: { de: 'Quantenmechanik', en: 'Quantum mechanics' },
+        role: { de: 'Das Wirkungsquantum bringt die Quantenfeldtheorie ins Spiel: Hawking rechnete mit Quantenfeldern auf der gekrümmten Raumzeit vor dem Horizont. T_H ist proportional zu ħ.',
+          en: 'The quantum of action brings in quantum field theory: Hawking calculated with quantum fields on the curved spacetime outside the horizon. T_H is proportional to ħ.' },
+        limit: '\\hbar \\to 0 \\;\\Rightarrow\\; T_{\\mathrm{H}} \\to 0',
+        limitText: { de: 'Klassisch ist ein Schwarzes Loch vollkommen schwarz: Es verschluckt alles und strahlt nichts ab. Hawking-Strahlung ist ein reiner Quanteneffekt.',
+          en: 'Classically a black hole is perfectly black: it swallows everything and emits nothing. Hawking radiation is a pure quantum effect.' },
+        live: { c: 'hbar', f: 1e-3, zero: true },
+      },
+      c: {
+        tex: 'c^3', color: 'rel', theory: { de: 'Relativität', en: 'Relativity' },
+        role: { de: 'Die Lichtgeschwindigkeit legt fest, wo der Horizont liegt: Innerhalb von r_s = 2GM/c² kann nicht einmal Licht entkommen. Sie steht in dritter Potenz im Zähler.',
+          en: 'The speed of light fixes where the horizon lies: inside r_s = 2GM/c² not even light can escape. It appears to the third power in the numerator.' },
+        limit: 'c \\to \\infty \\;\\Rightarrow\\; r_{\\mathrm{s}} \\to 0',
+        limitText: { de: 'Relativität „abschalten“ heißt c → ∞, das ist Newtons Physik. Dann schrumpft r_s auf null, und es gibt keinen Ereignishorizont – den kennt erst die Relativitätstheorie.',
+          en: 'Switching relativity “off” means c → ∞, which is Newton’s physics. Then r_s shrinks to zero and there is no event horizon – only relativity knows about horizons.' },
+        live: { c: 'c', f: 10 },
+      },
+      G: {
+        tex: 'G', color: 'grav', theory: { de: 'Gravitation – Geometrie der Raumzeit', en: 'Gravity – the geometry of spacetime' },
+        role: { de: 'G sagt, wie stark Masse die Raumzeit krümmt. Mehr G heißt ein größerer Horizont und damit ein kälteres Loch: T_H ist proportional zu 1/G.',
+          en: 'G says how strongly mass curves spacetime. More G means a larger horizon and therefore a colder hole: T_H is proportional to 1/G.' },
+        limit: 'G \\to 0 \\;\\Rightarrow\\; r_{\\mathrm{s}} \\to 0',
+        limitText: { de: 'Ohne Gravitation gibt es keinen Horizont und kein Schwarzes Loch. Die Formel liefert trotzdem eine immer höhere Temperatur – ein Zeichen, dass sie dort nicht mehr gilt. Die App meldet das als „Außerhalb des Modells“.',
+          en: 'Without gravity there is no horizon and no black hole. The formula still returns an ever higher temperature – a sign that it no longer applies there. The app reports this as “Outside the model”.' },
+        live: { c: 'G', f: 1e-3, zero: true },
+      },
+      k_B: {
+        tex: 'k_{\\mathrm{B}}', color: 'thermo', theory: { de: 'Thermodynamik', en: 'Thermodynamics' },
+        role: { de: 'Die Boltzmann-Konstante macht aus einer Energie eine Temperatur. Durch sie wird das Schwarze Loch zu einem thermischen Körper – mit Temperatur und mit Entropie.',
+          en: 'The Boltzmann constant turns an energy into a temperature. Through it the black hole becomes a thermal body – with a temperature and with an entropy.' },
+        limit: 'k_{\\mathrm{B}} \\to 0 \\;\\Rightarrow\\; T_{\\mathrm{H}} \\to \\infty',
+        limitText: { de: 'Die Temperatur in Kelvin divergiert, die Energie k_B·T_H = ħc³/(8πGM) bleibt aber gleich. k_B rechnet nur zwischen Energie und Temperatur um; seit 2019 ist ihr Wert exakt festgelegt.',
+          en: 'The temperature in kelvin diverges, but the energy k_B·T_H = ħc³/(8πGM) stays the same. k_B only converts between energy and temperature; since 2019 its value has been fixed exactly.' },
+        live: { c: 'k_B', f: 1e-3 },
+      },
+      M: {
+        tex: 'M', color: 'mass', theory: { de: 'Das Schwarze Loch selbst', en: 'The black hole itself' },
+        role: { de: 'Die Masse ist die einzige Eigenschaft eines ungeladenen, nicht rotierenden Lochs – und die einzige Größe, die du hier frei wählst. Sie steht im Nenner: Je schwerer, desto kälter.',
+          en: 'The mass is the only property of an uncharged, non-rotating hole – and the only quantity you choose freely here. It sits in the denominator: the heavier, the colder.' },
+        limit: 'M \\to \\infty \\;\\Rightarrow\\; T_{\\mathrm{H}} \\to 0',
+        limitText: { de: 'Große Löcher sind kalt, kleine heiß. Für M → 0 würde T_H divergieren – doch nahe der Planck-Masse (≈ 22 µg) versagt die semiklassische Rechnung.',
+          en: 'Large holes are cold, small ones hot. As M → 0, T_H would diverge – but near the Planck mass (≈ 22 µg) the semiclassical calculation breaks down.' },
+        live: { v: 'M', f: 1e-3 },
+      },
+      '8pi': {
+        tex: '8\\pi', color: 'geo', theory: { de: 'Geometrie + Quantenperiodizität', en: 'Geometry + quantum periodicity' },
+        role: { de: '8π = 4 · 2π. Die 4 stammt aus der Geometrie des Horizonts (κ = c⁴/4GM), die 2π aus der Periodizität der Quantenfelder in imaginärer Zeit – derselbe Faktor wie beim Unruh-Effekt.',
+          en: '8π = 4 · 2π. The 4 comes from the geometry of the horizon (κ = c⁴/4GM), the 2π from the periodicity of the quantum fields in imaginary time – the same factor as in the Unruh effect.' },
+        limit: '8\\pi = 4 \\cdot 2\\pi',
+        limitText: { de: 'Eine reine Zahl – die Dimensionsanalyse kann sie nicht liefern. Sie ergibt ħc³/(GMk_B) nur bis auf einen solchen Faktor; erst die vollständige Rechnung zeigt, dass es 8π ist.',
+          en: 'A pure number – dimensional analysis cannot supply it. It gives ħc³/(GMk_B) only up to such a factor; only the full calculation shows that it is 8π.' },
+      },
+    },
+    chain: {
+      title: { de: 'Von der Geometrie zur Temperatur', en: 'From geometry to temperature' },
+      steps: [
+        { tex: '\\kappa = \\frac{\\xc{rel}{c^4}}{\\xc{geo}{4}\\,\\xc{grav}{G}\\,M}', key: 'kappa', text: { de: 'Oberflächengravitation des Horizonts – reine Geometrie', en: 'Surface gravity of the horizon – pure geometry' } },
+        { tex: 'T_{\\mathrm{H}} = \\frac{\\xc{q}{\\hbar}\\,\\kappa}{\\xc{geo}{2\\pi}\\,\\xc{rel}{c}\\,\\xc{thermo}{k_{\\mathrm{B}}}}', key: 'THk', text: { de: 'Temperatur über die Quantenperiodizität', en: 'Temperature via the quantum periodicity' } },
+      ],
+      note: { de: '8π = 4 · 2π: Die 4 kommt aus der Horizontgeometrie, die 2π aus der Quantenperiodizität. Nach demselben Muster misst ein gleichmäßig beschleunigter Beobachter im leeren Raum die Unruh-Temperatur T = ħa/(2πck_B).',
+        en: '8π = 4 · 2π: the 4 comes from the horizon geometry, the 2π from the quantum periodicity. Following the same pattern, a uniformly accelerated observer in empty space measures the Unruh temperature T = ħa/(2πck_B).' },
+    },
+    aha: {
+      title: { de: 'Aha: die Planck-Temperatur, verdünnt', en: 'Aha: the Planck temperature, diluted' },
+      tex: 'T_{\\mathrm{H}} = T_{\\mathrm{P}} \\cdot \\frac{m_{\\mathrm{P}}}{8\\pi M}',
+      parts: [{ key: 'TP', tex: 'T_{\\mathrm{P}}' }, { key: 'MmP', tex: 'M/m_{\\mathrm{P}}' }, { key: 'THp', tex: 'T_{\\mathrm{H}}' }],
+      text: { de: 'Ein Loch mit Planck-Masse hätte – bis auf den Faktor 8π – die Planck-Temperatur. Jede Verzehnfachung der Masse macht es zehnmal kälter.',
+        en: 'A hole with the Planck mass would have the Planck temperature – up to the factor 8π. Every tenfold increase in mass makes it ten times colder.' },
+    },
+    epistemic: [
+      { type: 'assume', text: { de: 'Semiklassisch: Quantenfelder auf einer klassischen, gekrümmten Raumzeit (Hawking 1974/75) – kein Ergebnis einer Quantengravitation.', en: 'Semiclassical: quantum fields on a classical, curved spacetime (Hawking 1974/75) – not a result of quantum gravity.' } },
+      { type: 'measured', text: { de: 'Nicht direkt beobachtet. Sonnenmasse: T_H ≈ ', en: 'Not observed directly. Solar mass: T_H ≈ ' }, value: { key: 'TH', at: { M: MS } },
+        after: { de: ' – kälter als die kosmische Hintergrundstrahlung (≈ 2,7 K).', en: ' – colder than the cosmic microwave background (≈ 2.7 K).' } },
+      { type: 'model', text: { de: 'Elektromagnetismus fehlt: Weder e noch ε₀ kommen vor. Die Formel gilt für ungeladene, nicht rotierende Löcher.', en: 'Electromagnetism is missing: neither e nor ε₀ appears. The formula holds for uncharged, non-rotating holes.' } },
+    ],
+    dict: BH_DICT,
+  };
 
   define({
     id: 'hawking', group: 'Famous Equations', field: 'famous', hall: true, title: { de: 'Hawking-Temperatur', en: 'Hawking temperature' }, short: { de: 'Hawking-Temperatur', en: 'Hawking temperature' },
+    subtitle: { de: 'Wo Quantenmechanik, Relativität, Gravitation und Thermodynamik in einer Zeile zusammentreffen.', en: 'Where quantum mechanics, relativity, gravity and thermodynamics meet in a single line.' },
+    crossroads: HAWKING_XR,
     tex: 'T_{\\mathrm{H}} = \\frac{\\hbar\\, c^3}{8\\pi\\, G\\, M\\, k_{\\mathrm{B}}}',
     meta: { mathType: SCALAR, mainDim: { de: 'Temperatur', en: 'Temperature' }, domain: BH_THERMO, status: { de: 'theoretische Vorhersage, nicht beobachtet', en: 'theoretical prediction, not observed' } },
     vars: {
@@ -574,6 +694,14 @@
       { key: 'rs', sym: 'r_s', tex: 'r_{\\mathrm{s}}', name: { de: 'Schwarzschild-Radius', en: 'Schwarzschild radius' }, expr: '2*G*M/c^2', dim: 'L' },
       { key: 'tev', sym: 't_evap', tex: 't_{\\mathrm{evap}}', name: { de: 'Verdampfungszeit (grobe Abschätzung)', en: 'Evaporation time (rough estimate)' }, expr: '5120*pi*G^2*M^3/(hbar*c^4)', dim: 'T', note: { de: 'nur Photonen, ohne Greybody-Faktoren, ohne Einstrahlung', en: 'photons only, without greybody factors, without incoming radiation' } },
       { key: 'tevy', sym: { de: 't_evap / Jahr', en: 't_evap / year' }, tex: 't_{\\mathrm{evap}}/\\mathrm{a}', name: { de: 'Verdampfungszeit in Jahren', en: 'Evaporation time in years' }, expr: 'tev/31557600', dim: '', noEq: true },
+      { key: 'kappa', sym: 'κ', tex: '\\kappa', name: { de: 'Oberflächengravitation am Horizont', en: 'Surface gravity at the horizon' }, expr: 'c^4/(4*G*M)', dim: 'L T^-2' },
+      // Hilfsgrößen (aux) für den Schnittpunkt-Block: dieselbe Temperatur auf zwei anderen Wegen, nicht in der Ergebnisliste
+      { key: 'THk', sym: 'T_H(κ)', tex: 'T_{\\mathrm{H}}(\\kappa)', name: { de: 'Hawking-Temperatur aus κ: ħκ/(2π c k_B)', en: 'Hawking temperature from κ: ħκ/(2π c k_B)' }, expr: 'hbar*kappa/(2*pi*c*k_B)', dim: 'Θ', aux: true },
+      { key: 'TP', sym: 'T_P', tex: 'T_{\\mathrm{P}}', name: { de: 'Planck-Temperatur', en: 'Planck temperature' }, expr: 'sqrt(hbar*c^5/(G*k_B^2))', dim: 'Θ', aux: true },
+      { key: 'mP', sym: 'm_P', tex: 'm_{\\mathrm{P}}', name: { de: 'Planck-Masse', en: 'Planck mass' }, expr: 'sqrt(hbar*c/G)', dim: 'M', aux: true },
+      { key: 'MmP', sym: 'M/m_P', tex: 'M/m_{\\mathrm{P}}', name: { de: 'Masse in Planck-Massen', en: 'Mass in Planck masses' }, expr: 'M/mP', dim: '', aux: true },
+      { key: 'THp', sym: 'T_H(Planck)', tex: 'T_{\\mathrm{P}}\\,m_{\\mathrm{P}}/(8\\pi M)', name: { de: 'Hawking-Temperatur aus Planck-Größen: T_P · m_P / (8πM)', en: 'Hawking temperature from Planck quantities: T_P · m_P / (8πM)' }, expr: 'TP*mP/(8*pi*M)', dim: 'Θ', aux: true },
+      { key: 'E', sym: 'E', tex: 'E', name: { de: 'Energie Mc²', en: 'Energy Mc²' }, expr: 'M*c^2', dim: 'M L^2 T^-2', aux: true },
     ],
     equations: [
       { label: { de: 'Hawking-Temperatur', en: 'Hawking temperature' }, eq: 'T_H = hbar*c^3/(8*pi*G*M*k_B)' },
@@ -585,6 +713,17 @@
       if (isFinite(Th) && Th < C.T_cmb) issues.push({ cat: 'info', msg: T('T_H ≈ ' + fmt(Th, 3) + ' K liegt unter der Temperatur der Hintergrundstrahlung (≈ 2,7 K). Heute absorbiert so ein Loch mehr Strahlung, als es abgibt – es wächst netto.', 'T_H ≈ ' + fmt(Th, 3) + ' K is below the temperature of the cosmic microwave background (≈ 2.7 K). Today such a hole absorbs more radiation than it emits – it grows on balance.') });
       if (v.M > 0 && v.M < 1e-6) issues.push({ cat: 'model', msg: T('Nahe der Planck-Masse (≈ 2,2 × 10⁻⁸ kg) versagt die semiklassische Rechnung – dafür bräuchte es eine Quantengravitation.', 'Near the Planck mass (≈ 2.2 × 10⁻⁸ kg) the semiclassical calculation breaks down – that would take a theory of quantum gravity.') });
       if (v.M > 0 && v.M < 5e11) issues.push({ cat: 'info', msg: T('Für so kleine Massen wäre die abgeschätzte Lebensdauer kürzer als das Alter des Universums. Solche primordialen Schwarzen Löcher sind hypothetisch.', 'For masses this small, the estimated lifetime would be shorter than the age of the universe. Such primordial black holes are hypothetical.') });
+      // Break-Modus: eine der vier Theorien „abschalten“
+      const rs = o('rs');
+      if (!(C.G > 0)) issues.push({ cat: 'model', msg: T('G ≤ 0: Ohne Gravitation gibt es keinen Horizont (r_s = 0) und damit kein Schwarzes Loch. T_H hat hier keine Bedeutung.', 'G ≤ 0: without gravity there is no horizon (r_s = 0) and therefore no black hole. T_H has no meaning here.') });
+      else if (C.G < K0.G * (1 - 1e-9)) issues.push({ cat: 'model', msg: T('G ist kleiner als gemessen: r_s schrumpft mit G (hier ≈ ' + fmt(rs, 3) + ' m), T_H wächst wie 1/G. Für G → 0 verschwindet der Horizont – ohne Horizont gibt es kein Schwarzes Loch und keine Hawking-Strahlung. Dass die Formel dann eine immer höhere Temperatur liefert, heißt nur: Sie gilt dort nicht mehr.',
+        'G is smaller than measured: r_s shrinks with G (here ≈ ' + fmt(rs, 3) + ' m), and T_H grows like 1/G. As G → 0 the horizon disappears – without a horizon there is no black hole and no Hawking radiation. That the formula then returns an ever higher temperature only means that it no longer applies there.') });
+      if (C.c > K0.c * (1 + 1e-9)) issues.push({ cat: 'model', msg: T('c ist größer als gemessen: r_s ∝ 1/c² schrumpft (hier ≈ ' + fmt(rs, 3) + ' m). Im Grenzfall c → ∞ – Newtons Physik – gibt es keinen Ereignishorizont; den kennt erst die Relativitätstheorie.',
+        'c is larger than measured: r_s ∝ 1/c² shrinks (here ≈ ' + fmt(rs, 3) + ' m). In the limit c → ∞ – Newton’s physics – there is no event horizon; only relativity knows about horizons.') });
+      if (C.hbar < K0.hbar * (1 - 1e-9)) issues.push({ cat: 'info', msg: T('ħ ist kleiner als gemessen, und T_H ∝ ħ sinkt mit. Im Grenzfall ħ → 0 ist T_H = 0: Klassisch ist ein Schwarzes Loch vollkommen schwarz – Hawking-Strahlung ist ein reiner Quanteneffekt.',
+        'ħ is smaller than measured, and T_H ∝ ħ drops with it. In the limit ħ → 0, T_H = 0: classically a black hole is perfectly black – Hawking radiation is a pure quantum effect.') });
+      if (C.k_B < K0.k_B * (1 - 1e-9)) issues.push({ cat: 'info', msg: T('k_B ist kleiner als festgelegt: T_H in Kelvin steigt, die Energie k_B·T_H bleibt aber gleich. k_B rechnet nur zwischen Energie und Temperatur um.',
+        'k_B is smaller than defined: T_H in kelvin rises, but the energy k_B·T_H stays the same. k_B only converts between energy and temperature.') });
       issues.push({ cat: 'assume', msg: T('Idealisiertes Schwarzschild-Loch (ungeladen, nicht rotierend) in semiklassischer Gravitation.', 'Idealised Schwarzschild black hole (uncharged, non-rotating) in semiclassical gravity.') });
     },
     presets: [
@@ -628,6 +767,7 @@
 
   define({
     id: 'bh-entropy', group: 'Famous Equations', field: 'famous', hall: true, title: BH_ENTROPY, short: { de: 'BH-Entropie', en: 'BH entropy' },
+    dict: BH_DICT,
     tex: 'S_{\\mathrm{BH}} = \\frac{k_{\\mathrm{B}}\\, c^3 A}{4\\, G\\, \\hbar}',
     meta: { mathType: SCALAR, mainDim: { de: 'Entropie', en: 'Entropy' }, domain: BH_THERMO, status: { de: 'theoretisches Ergebnis, nicht gemessen', en: 'theoretical result, not measured' } },
     vars: {

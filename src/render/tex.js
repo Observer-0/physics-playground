@@ -151,6 +151,8 @@
       if (c === 'mathsf') return { html: '<span class="msf">' + esc(arg('raw').raw) + '</span>' };
       if (c === 'mathbf') return { html: '<b class="mbf">' + render(arg('raw').raw, { upright: true }) + '</b>' };
       if (c === 'mathbb') { const r = arg('raw').raw; return { html: '<span class="mu">' + ({ R: 'ℝ', C: 'ℂ', N: 'ℕ', Z: 'ℤ' }[r] || r) + '</span>' }; }
+      // \xc{Farbe}{…}: Teilformel in einer benannten Farbe (Klasse xc-Farbe in styles.css), z. B. \xc{q}{\hbar}
+      if (c === 'xc') { const k = String(arg('raw').raw).replace(/[^a-z]/g, ''); const a = arg(); return { html: '<span class="xc xc-' + k + '">' + a.html + '</span>', frac: a.frac }; }
       if (c === 'hat') { const a = arg(); return { html: '<span class="mhat">' + a.html + '</span>' }; }
       if (c === 'vec') { const a = arg(); return { html: '<span class="mvec">' + a.html + '</span>' }; }
       if (c === 'int') return { html: '<span class="mint">∫</span>', big: true };

@@ -163,12 +163,15 @@
     if (PP.sources && PP.sources.byId[exp.id]) tabs.push(['sources', T('Quellen', 'Sources')]);
     if (!tabs.some((t) => t[0] === S.tab)) S.tab = tabs[0][0];
     let h = '<div class="' + (exp.hall ? 'hallx' : '') + '">' + headerHTML(exp);
-    if (exp.hall) h += heroHTML(exp);
+    // Schnittpunkt-Block (Hawking) steht immer sichtbar über den Tabs; sonst die Formel, ggf. mit Wörterbuch
+    if (exp.crossroads) h += U.crossroads.html(exp);
+    else if (exp.hall) h += heroHTML(exp) + U.crossroads.dictCompact(exp);
     else h += labHTML(exp);
     h += '<div class="tabs" role="tablist">' + tabs.map(([k, t]) => '<button role="tab" aria-selected="' + (S.tab === k) + '" data-tab="' + k + '" class="' + (S.tab === k ? 'on' : '') + '">' + t + '</button>').join('') + '</div>';
     h += '<div id="tabc"></div></div>';
     el.innerHTML = h;
     bindPage(el);
+    U.crossroads.bind(el);
     renderTab();
     if (!exp.hall) mountLab();
   }
@@ -183,6 +186,7 @@
     else if (S.tab === 'physics') c.innerHTML = U.docs.physics();
     else if (S.tab === 'dims') { c.innerHTML = U.dims.page(); U.dims.bind(c); }
     else if (S.tab === 'sources') c.innerHTML = sourcesHTML();
+    U.crossroads.update();
   }
 
   // Quellen: Originalarbeiten, Messungen, Referenzwerte – DOIs verlinkt
@@ -602,7 +606,7 @@
         h += '<div class="delta">' + T('gegenüber ' + (S.base.preset ? 'Preset' : 'Ausgangswert'), 'compared with the ' + (S.base.preset ? 'preset' : 'starting value')) + ': ' + esc(q.t) + (q.p ? '  (' + esc(q.p) + ')' : '') + '</div>';
       }
       h += '</div>';
-      h += '<table class="t rlist"><tbody>' + outs.filter((o) => o !== prim).map((o) => {
+      h += '<table class="t rlist"><tbody>' + outs.filter((o) => o !== prim && !o.aux).map((o) => {
         const rr = A.out[o.key];
         const vv = fmtR(rr, digitsFor(o, 'A').d);
         const alt2 = altR(o, rr);
@@ -611,7 +615,7 @@
       }).join('') + '</tbody></table>';
     } else {
       const B = S.res.B;
-      h += '<div class="scroll-x"><table class="t rlist cmp"><thead><tr><th>' + T('Größe', 'Quantity') + '</th><th>A</th><th>B</th><th>B / A</th></tr></thead><tbody>' + outs.map((o) => {
+      h += '<div class="scroll-x"><table class="t rlist cmp"><thead><tr><th>' + T('Größe', 'Quantity') + '</th><th>A</th><th>B</th><th>B / A</th></tr></thead><tbody>' + outs.filter((o) => !o.aux).map((o) => {
         const ra = A.out[o.key], rb = B.out[o.key];
         const d = Math.min(digitsFor(o, 'A').d, 5);
         const va = fmtR(ra, d), vb = fmtR(rb, d);
@@ -770,12 +774,12 @@
     const opt = (list, cur) => list.map((o) => '<option value="' + o.key + '"' + (o.key === cur ? ' selected' : '') + '>' + esc(o.sym || o.label) + ' – ' + esc(o.name) + '</option>').join('');
     const specs = plotSpecs();
     const palette = plotColors();
-    let h = '<div class="ph"><div class="gsel"><select data-g="y" aria-label="' + T('y-Achse', 'y axis') + '">' + opt(f.c.outputs, g.y) + '</select><span>' + T('über', 'vs.') + '</span><select data-g="x" aria-label="' + T('x-Achse', 'x axis') + '">' + opt(f.c.vars, g.x) + '</select></div>' +
+    let h = '<div class="ph"><div class="gsel"><select data-g="y" aria-label="' + T('y-Achse', 'y axis') + '">' + opt(f.c.outputs.filter((o) => !o.aux), g.y) + '</select><span>' + T('über', 'vs.') + '</span><select data-g="x" aria-label="' + T('x-Achse', 'x axis') + '">' + opt(f.c.vars, g.x) + '</select></div>' +
       '<span style="margin-left:auto"></span>' +
       '<div class="seg" title="' + T('x-Achse', 'x axis') + '"><button data-gx="lin" class="' + (!g.xlog ? 'on' : '') + '">x lin</button><button data-gx="log" class="' + (g.xlog ? 'on' : '') + '"' + (xv.min > 0 ? '' : ' disabled title="' + T('Bereich enthält Werte ≤ 0', 'The range contains values ≤ 0') + '"') + '>x log</button></div>' +
       '<div class="seg" title="' + T('y-Achse', 'y axis') + '"><button data-gy="lin" class="' + (!g.ylog ? 'on' : '') + '">y lin</button><button data-gy="log" class="' + (g.ylog ? 'on' : '') + '">y log</button></div>' +
       '<div class="seg"><button data-gz="out" aria-label="' + T('Herauszoomen', 'Zoom out') + '">−</button><button data-gz="in" aria-label="' + T('Hineinzoomen', 'Zoom in') + '">+</button><button data-gz="reset">Reset</button></div></div>';
-    const others = f.c.outputs.filter((o) => o.key !== g.y);
+    const others = f.c.outputs.filter((o) => o.key !== g.y && !o.aux);
     let ci = 1;
     h += '<div class="legend">' + '<span class="chip on" style="cursor:default"><i style="background:' + palette[0] + '"></i>' + esc(f.c.outputs.find((o) => o.key === g.y).sym) + '</span>' +
       others.map((o) => {
@@ -899,6 +903,7 @@
     if (pauseShown === null) syncVizButtons();
     drawViz(true);
     updatePlots();
+    U.crossroads.update();
     U.writeHash();
   }
 
