@@ -588,72 +588,14 @@
     },
   };
 
-  /* Schnittpunkt-Block der Hawking-Seite (src/ui/crossroads.js zeichnet ihn).
-     color: q = Quantenmechanik, rel = Relativität, grav = Gravitation/Geometrie, thermo = Thermodynamik,
-            mass = das Schwarze Loch, geo = reine Zahl. live: Knopf, der die Größe im Break-Modus verändert. */
+  /* Schnittpunkt-Block der Hawking-Seite (src/ui/crossroads.js zeichnet ihn). Die Formel mit ihren Symbolen
+     steht in src/data/equations.js (byId.hawking) und wird von src/ui/eqx.js gezeichnet. */
   const HAWKING_XR = {
-    lhs: 'T_{\\mathrm{H}}', num: ['hbar', 'c'], den: ['8pi', 'G', 'M', 'k_B'],
     lead: {
       de: 'Ein Schnittpunkt, keine Vereinigung: Vier Theorien berühren sich hier in einer Zeile. Eine gemeinsame Theorie der Quantengravitation gibt es noch nicht.',
       en: 'A crossroads, not a unification: four theories touch here in a single line. A common theory of quantum gravity does not exist yet.',
     },
     gapLink: { de: 'Warum beide (noch) nicht zusammenpassen →', en: 'Why the two don’t fit together (yet) →' },
-    hint: { de: 'Zeig auf ein Symbol oder tippe es an: Welche Theorie steckt dahinter – und was passiert, wenn man sie abschaltet?', en: 'Point at a symbol or tap it: which theory is behind it – and what happens if you switch it off?' },
-    symbols: {
-      hbar: {
-        tex: '\\hbar', color: 'q', theory: { de: 'Quantenmechanik', en: 'Quantum mechanics' },
-        role: { de: 'Das Wirkungsquantum bringt die Quantenfeldtheorie ins Spiel: Hawking rechnete mit Quantenfeldern auf der gekrümmten Raumzeit vor dem Horizont. T_H ist proportional zu ħ.',
-          en: 'The quantum of action brings in quantum field theory: Hawking calculated with quantum fields on the curved spacetime outside the horizon. T_H is proportional to ħ.' },
-        limit: '\\hbar \\to 0 \\;\\Rightarrow\\; T_{\\mathrm{H}} \\to 0',
-        limitText: { de: 'Klassisch ist ein Schwarzes Loch vollkommen schwarz: Es verschluckt alles und strahlt nichts ab. Hawking-Strahlung ist ein reiner Quanteneffekt.',
-          en: 'Classically a black hole is perfectly black: it swallows everything and emits nothing. Hawking radiation is a pure quantum effect.' },
-        live: { c: 'hbar', f: 1e-3, zero: true },
-      },
-      c: {
-        tex: 'c^3', color: 'rel', theory: { de: 'Relativität', en: 'Relativity' },
-        role: { de: 'Die Lichtgeschwindigkeit legt fest, wo der Horizont liegt: Innerhalb von r_s = 2GM/c² kann nicht einmal Licht entkommen. Sie steht in dritter Potenz im Zähler.',
-          en: 'The speed of light fixes where the horizon lies: inside r_s = 2GM/c² not even light can escape. It appears to the third power in the numerator.' },
-        limit: 'c \\to \\infty \\;\\Rightarrow\\; r_{\\mathrm{s}} \\to 0',
-        limitText: { de: 'Relativität „abschalten“ heißt c → ∞, das ist Newtons Physik. Dann schrumpft r_s auf null, und es gibt keinen Ereignishorizont – den kennt erst die Relativitätstheorie.',
-          en: 'Switching relativity “off” means c → ∞, which is Newton’s physics. Then r_s shrinks to zero and there is no event horizon – only relativity knows about horizons.' },
-        live: { c: 'c', f: 10 },
-      },
-      G: {
-        tex: 'G', color: 'grav', theory: { de: 'Gravitation – Geometrie der Raumzeit', en: 'Gravity – the geometry of spacetime' },
-        role: { de: 'G sagt, wie stark Masse die Raumzeit krümmt. Mehr G heißt ein größerer Horizont und damit ein kälteres Loch: T_H ist proportional zu 1/G.',
-          en: 'G says how strongly mass curves spacetime. More G means a larger horizon and therefore a colder hole: T_H is proportional to 1/G.' },
-        limit: 'G \\to 0 \\;\\Rightarrow\\; r_{\\mathrm{s}} \\to 0',
-        limitText: { de: 'Ohne Gravitation gibt es keinen Horizont und kein Schwarzes Loch. Die Formel liefert trotzdem eine immer höhere Temperatur – ein Zeichen, dass sie dort nicht mehr gilt. Die App meldet das als „Außerhalb des Modells“.',
-          en: 'Without gravity there is no horizon and no black hole. The formula still returns an ever higher temperature – a sign that it no longer applies there. The app reports this as “Outside the model”.' },
-        live: { c: 'G', f: 1e-3, zero: true },
-      },
-      k_B: {
-        tex: 'k_{\\mathrm{B}}', color: 'thermo', theory: { de: 'Thermodynamik', en: 'Thermodynamics' },
-        role: { de: 'Die Boltzmann-Konstante macht aus einer Energie eine Temperatur. Durch sie wird das Schwarze Loch zu einem thermischen Körper – mit Temperatur und mit Entropie.',
-          en: 'The Boltzmann constant turns an energy into a temperature. Through it the black hole becomes a thermal body – with a temperature and with an entropy.' },
-        limit: 'k_{\\mathrm{B}} \\to 0 \\;\\Rightarrow\\; T_{\\mathrm{H}} \\to \\infty',
-        limitText: { de: 'Die Temperatur in Kelvin divergiert, die Energie k_B·T_H = ħc³/(8πGM) bleibt aber gleich. k_B rechnet nur zwischen Energie und Temperatur um; seit 2019 ist ihr Wert exakt festgelegt.',
-          en: 'The temperature in kelvin diverges, but the energy k_B·T_H = ħc³/(8πGM) stays the same. k_B only converts between energy and temperature; since 2019 its value has been fixed exactly.' },
-        live: { c: 'k_B', f: 1e-3 },
-      },
-      M: {
-        tex: 'M', color: 'mass', theory: { de: 'Das Schwarze Loch selbst', en: 'The black hole itself' },
-        role: { de: 'Die Masse ist die einzige Eigenschaft eines ungeladenen, nicht rotierenden Lochs – und die einzige Größe, die du hier frei wählst. Sie steht im Nenner: Je schwerer, desto kälter.',
-          en: 'The mass is the only property of an uncharged, non-rotating hole – and the only quantity you choose freely here. It sits in the denominator: the heavier, the colder.' },
-        limit: 'M \\to \\infty \\;\\Rightarrow\\; T_{\\mathrm{H}} \\to 0',
-        limitText: { de: 'Große Löcher sind kalt, kleine heiß. Für M → 0 würde T_H divergieren – doch nahe der Planck-Masse (≈ 22 µg) versagt die semiklassische Rechnung.',
-          en: 'Large holes are cold, small ones hot. As M → 0, T_H would diverge – but near the Planck mass (≈ 22 µg) the semiclassical calculation breaks down.' },
-        live: { v: 'M', f: 1e-3 },
-      },
-      '8pi': {
-        tex: '8\\pi', color: 'geo', theory: { de: 'Geometrie + Quantenperiodizität', en: 'Geometry + quantum periodicity' },
-        role: { de: '8π = 4 · 2π. Die 4 stammt aus der Geometrie des Horizonts (κ = c⁴/4GM), die 2π aus der Periodizität der Quantenfelder in imaginärer Zeit – derselbe Faktor wie beim Unruh-Effekt.',
-          en: '8π = 4 · 2π. The 4 comes from the geometry of the horizon (κ = c⁴/4GM), the 2π from the periodicity of the quantum fields in imaginary time – the same factor as in the Unruh effect.' },
-        limit: '8\\pi = 4 \\cdot 2\\pi',
-        limitText: { de: 'Eine reine Zahl – die Dimensionsanalyse kann sie nicht liefern. Sie ergibt ħc³/(GMk_B) nur bis auf einen solchen Faktor; erst die vollständige Rechnung zeigt, dass es 8π ist.',
-          en: 'A pure number – dimensional analysis cannot supply it. It gives ħc³/(GMk_B) only up to such a factor; only the full calculation shows that it is 8π.' },
-      },
-    },
     chain: {
       title: { de: 'Von der Geometrie zur Temperatur', en: 'From geometry to temperature' },
       steps: [

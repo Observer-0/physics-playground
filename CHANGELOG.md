@@ -1,5 +1,15 @@
 # Änderungen
 
+## 2026-10-01
+
+**Famous Equations: jede Formel interaktiv**
+
+- Alle fünf berühmten Gleichungen (Hawking-Temperatur, Bekenstein-Hawking-Entropie, Einsteinsche Feldgleichungen, Schrödinger-Gleichung, Planck-Länge) bedienen sich jetzt wie bisher nur T_H: Jede Naturkonstante und jede Größe in der Formel lässt sich zeigen, antippen oder anklicken. Die Karte daneben nennt Name und Symbol, bei Konstanten Wert, Einheit und Quelle, bei Ein- und Ausgaben den aktuellen Wert, dazu die physikalische Bedeutung und die Rolle in genau dieser Gleichung. Das gewählte Symbol ist in der Formel hervorgehoben, mehrfach vorkommende (ħ und ψ bei Schrödinger) an jeder Stelle. × oder Esc schließt die Karte.
+- Gemeinsame Komponente `src/ui/eqx.js`, Daten in `src/data/equations.js`. Die Zahlenwerte der Konstanten kommen nur aus `src/core/model.js`, ihre Bedeutung steht einmal für alle Gleichungen. Die Formeln selbst sind unverändert (Test).
+- Hawking-Temperatur: Bedienung, Grenzfälle und Live-Knöpfe wie vorher. Neu sind das anklickbare T_H, Name, Wert und Bedeutung auf jeder Karte sowie das ×.
+
+**Tests:** 90 → 93 (jede berühmte Gleichung interaktiv und ohne Marker gleich `exp.tex`; vollständige Symboldaten auf Deutsch und Englisch; Auswahl, × und Esc im Browser).
+
 ## 2026-09-24
 
 **Breite Bildschirme**

@@ -102,6 +102,10 @@
     'Grenzfälle im Break-Modus: G → 0 „außerhalb des Modells“, G = 0 undefiniert, ħ = 0 ergibt T_H = 0, k_B·T_H bleibt bei k_B ÷ 1000': 'Limits in Break mode: G → 0 “outside the model”, G = 0 undefined, ħ = 0 gives T_H = 0, k_B·T_H is unchanged for k_B ÷ 1000',
     'Schnittpunkt-Block: Symbole, Kette, Aha-Kasten und Wörterbuch verweisen nur auf vorhandene Engine-Größen': 'Crossroads block: symbols, chain, aha box and dictionary only refer to existing engine quantities',
     'Schwarzes Loch: G = 0, ħ = 0, k_B = 0 und c × 10¹² zeichnen ohne „NaN“': 'Black hole: G = 0, ħ = 0, k_B = 0 and c × 10¹² draw without “NaN”',
+    'Interaktive Gleichungen': 'Interactive equations',
+    'Jede berühmte Gleichung ist interaktiv und ohne Marker gesetzt genau ihre Formel exp.tex': 'Every famous equation is interactive and, typeset without markers, is exactly its formula exp.tex',
+    'Jedes Symbol: eine Quelle, Farbe, Kurzlabel, Rolle und Bedeutung auf Deutsch und Englisch, je höchstens drei Sätze; Werte nur aus PP.model.C': 'Every symbol: one source, colour, short label, role and meaning in German and English, at most three sentences each; values only from PP.model.C',
+    'Interaktive Gleichung: Zeigen und Klick wählen ein Symbol samt Karte, × und Esc schließen sie': 'Interactive equation: pointing and clicking select a symbol and its card, × and Esc close it',
   };
   const pair = (de) => (Object.prototype.hasOwnProperty.call(EN, de) ? { de, en: EN[de] } : de);
   const test = (group, name, fn) => T.push(I.localize({ group: pair(group), name: pair(name), fn }));
@@ -634,8 +638,7 @@
   test('Hawking-Temperatur', 'Schnittpunkt-Block: Symbole, Kette, Aha-Kasten und Wörterbuch verweisen nur auf vorhandene Engine-Größen', () => {
     const exp = M.byId.hawking, xr = exp.crossroads;
     const outOf = (id, form) => M.formOf(M.byId[id], form).c.outputs.map((o) => o.key);
-    xr.num.concat(xr.den).forEach((k) => ok(Object.prototype.hasOwnProperty.call(xr.symbols, k), 'Symbol ' + k));
-    Object.values(xr.symbols).forEach((s) => { if (s.live && s.live.c) ok(M.C[s.live.c], 'Konstante ' + s.live.c); if (s.live && s.live.v) ok(exp.vars[s.live.v], 'Eingabe ' + s.live.v); });
+    Object.values(PP.equations.byId.hawking.symbols).forEach((s) => { if (s.live && s.live.c) ok(M.C[s.live.c], 'Konstante ' + s.live.c); if (s.live && s.live.v) ok(exp.vars[s.live.v], 'Eingabe ' + s.live.v); });
     const main = outOf('hawking');
     xr.chain.steps.concat(xr.aha.parts).forEach((p) => ok(main.includes(p.key), 'Ausgabe ' + p.key));
     xr.epistemic.filter((e) => e.value).forEach((e) => ok(main.includes(e.value.key), 'Ausgabe ' + e.value.key));
@@ -648,6 +651,76 @@
       const bad = draw('hawking', {}, { consts }).find((x) => /NaN|undefined|Infinity/.test(x));
       ok(!bad, JSON.stringify(consts) + ': „' + bad + '“');
     }
+  });
+
+  /* --- Interaktive Gleichungen (src/data/equations.js, src/ui/eqx.js) --- */
+  const EQ_COLORS = ['q', 'rel', 'grav', 'thermo', 'cosmo', 'mass', 'geo', 'res'];
+  const xsKeys = (tex) => [...tex.matchAll(/\\xs\{([^}]*)\}/g)].map((m) => m[1]);
+  test('Interaktive Gleichungen', 'Jede berühmte Gleichung ist interaktiv und ohne Marker gesetzt genau ihre Formel exp.tex', () => {
+    for (const id of PP.hallOrder) {
+      const eq = PP.equations.byId[id];
+      ok(eq, id + ': keine interaktive Gleichung');
+      if (PP.tex) ok(PP.tex.render(eq.tex) === PP.tex.render(M.byId[id].tex), id + ': Formel weicht von exp.tex ab');
+      const keys = new Set(xsKeys(eq.tex)), sym = Object.keys(eq.symbols);
+      ok(sym.every((k) => keys.has(k)) && [...keys].every((k) => sym.includes(k)), id + ': Symbole und \\xs-Marker passen nicht zusammen');
+      ok(sym.includes(eq.pre), id + ': pre');
+    }
+  });
+  test('Interaktive Gleichungen', 'Jedes Symbol: eine Quelle, Farbe, Kurzlabel, Rolle und Bedeutung auf Deutsch und Englisch, je höchstens drei Sätze; Werte nur aus PP.model.C', () => {
+    const sentences = (t) => t.split(/[.!?](?=\s+\S|\s*$)/).filter((x) => x.trim()).length;
+    const bad = [];
+    for (const id of Object.keys(PP.equations.byId)) {
+      const exp = M.byId[id], eq = PP.equations.byId[id];
+      if (!exp) { bad.push(id + ': kein Experiment'); continue; }
+      for (const [k, s] of Object.entries(eq.symbols)) {
+        const at = id + '.' + k;
+        const srcs = ['c', 'v', 'o', 's', 'n'].filter((x) => s[x] !== undefined);
+        if (srcs.length !== 1) bad.push(at + ': Quellen ' + srcs.join(','));
+        if (s.c !== undefined && !E.has(M.C, s.c)) bad.push(at + ': Konstante ' + s.c);
+        if (s.v !== undefined && !exp.vars[s.v]) bad.push(at + ': Eingabe ' + s.v);
+        if (s.o !== undefined && !exp.forms.some((f) => f.c.outputs.some((o) => o.key === s.o))) bad.push(at + ': Ausgabe ' + s.o);
+        if (s.s !== undefined && !(exp.symbols && exp.symbols[s.s])) bad.push(at + ': Symbol ' + s.s);
+        if (s.n !== undefined && !Number.isFinite(s.n)) bad.push(at + ': Zahl');
+        if ('value' in s) bad.push(at + ': eigener Zahlenwert – Konstanten kommen aus PP.model.C');
+        if (!EQ_COLORS.includes(s.color)) bad.push(at + ': Farbe ' + s.color);
+        if (s.c === undefined && s.v === undefined && s.o === undefined && !s.tex) bad.push(at + ': tex fehlt');
+        for (const lang of ['de', 'en']) I.with(lang, () => {
+          const texts = { tag: s.tag, role: s.role, meaning: s.c !== undefined ? PP.equations.meaning[s.c] : s.meaning };
+          for (const [f, t] of Object.entries(texts)) {
+            if (f === 'meaning' && s.n !== undefined && !t) continue; // reine Zahl: Bedeutung freiwillig
+            if (typeof t !== 'string' || !t.trim()) bad.push(at + ': ' + f + ' fehlt (' + lang + ')');
+            else if (f !== 'tag' && sentences(t) > 3) bad.push(at + ': ' + f + ' hat ' + sentences(t) + ' Sätze (' + lang + ')');
+          }
+        });
+        if (s.live && s.live.c && !E.has(M.C, s.live.c)) bad.push(at + ': live ' + s.live.c);
+        if (s.live && s.live.v && !exp.vars[s.live.v]) bad.push(at + ': live ' + s.live.v);
+      }
+    }
+    ok(!bad.length, bad.slice(0, 4).join(' | '));
+  });
+  test('UI (im Browser)', 'Interaktive Gleichung: Zeigen und Klick wählen ein Symbol samt Karte, × und Esc schließen sie', () => {
+    if (!PP.ui || !PP.ui.eqx || typeof document === 'undefined') return;
+    const U = PP.ui, S = U.S, keep = { exp: S.exp, form: S.form, xsel: S.xsel };
+    try {
+      const exp = M.byId.efe;
+      S.exp = exp; S.form = exp.forms[0].id; S.xsel = {};
+      const el = document.createElement('div');
+      el.innerHTML = U.eqx.hero(exp, '');
+      U.eqx.bind(el);
+      const on = () => [...new Set([...el.querySelectorAll('[aria-pressed="true"]')].map((b) => b.dataset.xs))].join(',');
+      const card = () => el.querySelector('#xr-card');
+      ok(on() === 'Gmn' && /Einstein-Tensor/.test(card().textContent), 'Start: ' + on());
+      el.querySelector('.big [data-xs="Lambda"]').dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
+      ok(on() === 'Lambda' && card().textContent.includes(E.fmt(M.C.Lambda.value, 12)), 'Zeigen auf Λ: ' + on());
+      el.querySelector('.xr-chip[data-xs="G"]').click();
+      ok(on() === 'G' && card().textContent.includes(M.C.G.name) && /In dieser Gleichung/.test(card().textContent), 'Klick auf G: ' + on());
+      el.querySelector('[data-xclose]').click();
+      ok(on() === '' && card().querySelector('.xr-hint') && S.xsel.efe === null, '× schließt nicht');
+      const b = el.querySelector('.big [data-xs="Tmn"]');
+      b.click();
+      ok(on() === 'Tmn', 'Klick auf T_μν: ' + on());
+      ok(U.eqx.escape(el) && on() === '' && S.xsel.efe === null && !U.eqx.escape(el), 'Esc schließt nicht');
+    } finally { S.exp = keep.exp; S.form = keep.form; S.xsel = keep.xsel; }
   });
 
   /* --- Graph: Schraffur je Größe, Gründe, Standardbereich --- */
@@ -735,7 +808,7 @@
         else walk(v, path + '.' + k);
       }
     };
-    I.with('en', () => { M.registry.forEach((e) => walk(e, e.id)); walk(M.C, 'C'); walk(M.KIND_LABEL, 'KIND_LABEL'); });
+    I.with('en', () => { M.registry.forEach((e) => walk(e, e.id)); walk(M.C, 'C'); walk(M.KIND_LABEL, 'KIND_LABEL'); if (PP.equations) walk(PP.equations, 'equations'); });
     ok(!bad.length, bad.slice(0, 3).join(' | '));
   });
   test('Sprache', 'Keine deutschen Reste in den englischen Beschriftungen der Visualisierungen', () => {

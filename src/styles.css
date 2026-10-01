@@ -372,10 +372,21 @@ input[type=range]:focus-visible { outline: 1px dashed var(--accent); outline-off
 .hero.compact .big { font-size: clamp(20px, 2.6vw, 30px); padding: 2px 0; }
 .hero.compact .dimline { margin-top: 4px; }
 .hero.compact .meta-row { display: none; }
+/* Kopf mit interaktiver Gleichung: links Formel und Legende, rechts die Karte (wie im Schnittpunkt-Block der Hawking-Seite) */
+.hero.eqx { padding: 26px 20px 22px; }
+.hero.eqx .xr-top { position: relative; }
+/* oben verankert: Ändert sich die Höhe der Karte, bleibt die Formel unter dem Mauszeiger stehen */
+.hero.eqx .xr-left { min-width: 0; }
+.hero.eqx .xr-card { text-align: left; min-height: 220px; }
+.hero.eqx .big { font-size: clamp(26px, 3.3vw, 44px); }
+.hero.eqx.compact { padding: 14px 16px 14px; }
+.hero.eqx.compact .big { font-size: clamp(22px, 2.6vw, 32px); }
+.hero.eqx.compact .xr-legend { margin-top: 8px; }
+.hero.eqx.compact .xr-card { min-height: 0; }
 /* ---------- Schnittpunkt-Block (Hawking) und Wörterbuch ---------- */
 /* Farbe je Theorie: --xc setzen die Klassen xc-*, sichtbar wird sie über .xc, .xsym und den Kartenrand */
 .xc-res { --xc: var(--accent); } .xc-q { --xc: var(--cyan); } .xc-rel { --xc: var(--f-rel); } .xc-grav { --xc: var(--f-mech); }
-.xc-thermo { --xc: var(--f-thermo); } .xc-mass { --xc: var(--ink); } .xc-geo { --xc: var(--ink2); }
+.xc-thermo { --xc: var(--f-thermo); } .xc-mass { --xc: var(--ink); } .xc-geo { --xc: var(--ink2); } .xc-cosmo { --xc: var(--green); }
 .xc { color: var(--xc); }
 .xr { border: 1px solid var(--line); border-radius: 8px; background: var(--panel); padding: 16px 18px; display: grid; gap: 14px; }
 .xr-top { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 18px; align-items: start; }
@@ -396,6 +407,21 @@ input[type=range]:focus-visible { outline: 1px dashed var(--accent); outline-off
 .xr-card-h { display: flex; align-items: baseline; gap: 10px; margin-bottom: 6px; }
 .xr-card-h .math { font-size: 26px; }
 .xr-card-h b { font-size: 15px; font-weight: 600; color: var(--ink); }
+/* Karte einer interaktiven Gleichung (src/ui/eqx.js): Name, Kurzlabel, Schließen; Wert und Einheit; Bedeutung; Rolle */
+.xr-card-t { display: flex; flex-direction: column; min-width: 0; flex: 1; line-height: 1.3; }
+.xr-card-t small { font-size: 12px; color: var(--ink3); }
+.xr-x { align-self: flex-start; flex: none; background: none; border: 1px solid transparent; border-radius: 4px; color: var(--ink3); font-size: 19px; line-height: 1; padding: 3px 8px 5px; margin: -4px -6px 0 0; cursor: pointer; }
+.xr-x:hover, .xr-x:focus-visible { color: var(--ink); border-color: var(--line2); background: var(--panel2); outline: none; }
+.xr-card:focus { outline: none; }
+.xr-card:focus-visible { box-shadow: 0 0 0 2px var(--line2); }
+.xr-facts { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 3px 12px; margin: 2px 0 10px; font-size: 12.5px; align-items: baseline; }
+.xr-facts dt { color: var(--ink3); }
+.xr-facts dd { margin: 0; min-width: 0; }
+.xr-fv { font-family: var(--font-mono); color: var(--ink); overflow-wrap: anywhere; }
+.xr-facts small { display: block; color: var(--ink3); font-size: 11.5px; }
+.xr-brk { color: var(--red); }
+.xr-mean { color: var(--ink); }
+.xr-role b { font-weight: 600; color: var(--ink); }
 .xr-hint { color: var(--ink3); font-size: 12.5px; text-align: center; margin: 6px 0 0; }
 .xr-lim { border-left: 2px solid var(--line2); padding: 2px 0 0 10px; margin: 10px 0 6px; }
 .xr-lim-f { font-size: 18px; color: var(--ink); margin-bottom: 4px; }
@@ -516,6 +542,7 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
   .xhead .acts .pop { left: 0; right: auto; }
   .xhead .acts .btn { padding: 4px 9px; font-size: 12.5px; }
   .hero { padding: 22px 12px 18px; }
+  .hero.eqx { padding: 16px 12px; }
   .balance { grid-template-columns: 1fr; }
   .stat { grid-template-columns: 1fr; }
 }

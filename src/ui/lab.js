@@ -110,14 +110,16 @@
     const prim = f.c.outputs.find((o) => o.primary) || f.c.outputs[0];
     const di = E.dimInfo(prim.dimv);
     const m = exp.meta || {};
-    return '<section class="hero' + (S.tab === 'lab' ? ' compact' : '') + '">' +
-      '<div class="big">' + U.tex(exp.tex) + '</div>' +
-      '<div class="dimline"><span>' + T('Dimension von ', 'Dimension of ') + U.tex(prim.tex) + '</span>' + U.tex(E.dimTex(prim.dimv)) + '<span>' + esc(di.name || '') + (U.unit(prim.dimv) ? ' · ' + esc(U.unit(prim.dimv)) : '') + '</span></div>' +
+    const top = '<div class="dimline"><span>' + T('Dimension von ', 'Dimension of ') + U.tex(prim.tex) + '</span>' + U.tex(E.dimTex(prim.dimv)) + '<span>' + esc(di.name || '') + (U.unit(prim.dimv) ? ' · ' + esc(U.unit(prim.dimv)) : '') + '</span></div>' +
       '<div class="meta-row">' +
       (m.mathType ? '<span><b>' + T('Typ', 'Type') + '</b>' + esc(m.mathType) + '</span>' : '') +
       (m.mainDim ? '<span><b>' + T('Hauptdimension', 'Main dimension') + '</b>' + esc(m.mainDim) + '</span>' : '') +
       (m.domain ? '<span><b>' + T('Gebiet', 'Field') + '</b>' + esc(m.domain) + '</span>' : '') +
-      '</div></section>';
+      '</div>';
+    // Mit Daten in src/data/equations.js: Formel mit anklickbaren Symbolen, Legende und Karte (src/ui/eqx.js)
+    const eqx = !!U.eqx.of(exp);
+    return '<section class="hero' + (eqx ? ' eqx' : '') + (S.tab === 'lab' ? ' compact' : '') + '">' +
+      (eqx ? U.eqx.hero(exp, top) : '<div class="big">' + U.tex(exp.tex) + '</div>' + top) + '</section>';
   }
   // Auswahl im Kopf der Visualisierung (z. B. welche Planck-Größe); Standard ist die erste Option
   function vizSeg(c) {
@@ -169,7 +171,7 @@
     h += '<div id="tabc"></div></div>';
     el.innerHTML = h;
     bindPage(el);
-    U.crossroads.bind(el);
+    U.eqx.bind(el);
     renderTab();
   }
 
@@ -183,7 +185,7 @@
     else if (S.tab === 'physics') c.innerHTML = U.docs.physics();
     else if (S.tab === 'dims') { c.innerHTML = U.dims.page(); U.dims.bind(c); }
     else if (S.tab === 'sources') c.innerHTML = sourcesHTML();
-    U.crossroads.update();
+    U.eqx.update();
   }
 
   // Quellen: Originalarbeiten, Messungen, Referenzwerte – DOIs verlinkt
@@ -229,7 +231,13 @@
     document.addEventListener('keydown', escClose);
     U.teardown = () => { document.removeEventListener('keydown', escClose); unmountLab(); };
   }
-  function escClose(e) { if (e.key === 'Escape') closePop(); }
+  // Esc schließt zuerst das Speichern/Teilen-Fenster, sonst die Karte der interaktiven Gleichung
+  function escClose(e) {
+    if (e.key !== 'Escape') return;
+    const p = $('#pop');
+    if (p && !p.hidden) closePop();
+    else U.eqx.escape();
+  }
   function openPop(kind, btn) {
     const p = $('#pop');
     if (!p) return;
@@ -945,7 +953,7 @@
     if (pauseShown === null) syncVizButtons();
     drawViz(true);
     updatePlots();
-    U.crossroads.update();
+    U.eqx.update();
     U.writeHash();
   }
 

@@ -155,6 +155,9 @@
       if (c === 'mathbb') { const r = arg('raw').raw; return { html: '<span class="mu">' + ({ R: 'ℝ', C: 'ℂ', N: 'ℕ', Z: 'ℤ' }[r] || r) + '</span>' }; }
       // \xc{Farbe}{…}: Teilformel in einer benannten Farbe (Klasse xc-Farbe in styles.css), z. B. \xc{q}{\hbar}
       if (c === 'xc') { const k = String(arg('raw').raw).replace(/[^a-z]/g, ''); const a = arg(); return { html: '<span class="xc xc-' + k + '">' + a.html + '</span>', frac: a.frac }; }
+      // \xs{Schlüssel}{…}: anklickbares Symbol einer interaktiven Gleichung (src/ui/eqx.js). Ohne opts.sym wird nur der Inhalt gesetzt –
+      // dieselbe Formel sieht dann genauso aus wie ohne Marker.
+      if (c === 'xs') { const k = String(arg('raw').raw).replace(/[^A-Za-z0-9_]/g, ''); const a = arg(); return { html: opts.sym ? opts.sym(k, a.html) : a.html, frac: a.frac }; }
       if (c === 'hat') { const a = arg(); return { html: '<span class="mhat">' + a.html + '</span>' }; }
       if (c === 'dot' || c === 'ddot') { const a = arg(); return { html: '<span class="m' + c + '">' + a.html + '</span>' }; }
       if (c === 'vec') { const a = arg(); return { html: '<span class="mvec">' + a.html + '</span>' }; }

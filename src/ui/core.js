@@ -87,6 +87,7 @@
     paused: reduced, playing: false, preset: null, clock: 0,
     custom: { src: 'X = G M / c', dims: { X: 'L' } },
     res: {}, pop: null,
+    xsel: {}, // interaktive Gleichungen: ausgewähltes Symbol je Experiment (src/ui/eqx.js)
   });
 
   U.copyVals = (o) => Object.assign({}, o);
