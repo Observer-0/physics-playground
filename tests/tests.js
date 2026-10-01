@@ -103,7 +103,7 @@
     'Schnittpunkt-Block: Symbole, Kette, Aha-Kasten und Wörterbuch verweisen nur auf vorhandene Engine-Größen': 'Crossroads block: symbols, chain, aha box and dictionary only refer to existing engine quantities',
     'Schwarzes Loch: G = 0, ħ = 0, k_B = 0 und c × 10¹² zeichnen ohne „NaN“': 'Black hole: G = 0, ħ = 0, k_B = 0 and c × 10¹² draw without “NaN”',
     'Interaktive Gleichungen': 'Interactive equations',
-    'Jede berühmte Gleichung ist interaktiv und ohne Marker gesetzt genau ihre Formel exp.tex': 'Every famous equation is interactive and, typeset without markers, is exactly its formula exp.tex',
+    'Jede Gleichung ist interaktiv und ohne Marker gesetzt genau ihre Formel exp.tex': 'Every equation is interactive and, typeset without markers, is exactly its formula exp.tex',
     'Jedes Symbol: eine Quelle, Farbe, Kurzlabel, Rolle und Bedeutung auf Deutsch und Englisch, je höchstens drei Sätze; Werte nur aus PP.model.C': 'Every symbol: one source, colour, short label, role and meaning in German and English, at most three sentences each; values only from PP.model.C',
     'Interaktive Gleichung: Zeigen und Klick wählen ein Symbol samt Karte, × und Esc schließen sie': 'Interactive equation: pointing and clicking select a symbol and its card, × and Esc close it',
   };
@@ -656,8 +656,8 @@
   /* --- Interaktive Gleichungen (src/data/equations.js, src/ui/eqx.js) --- */
   const EQ_COLORS = ['q', 'rel', 'grav', 'thermo', 'cosmo', 'mass', 'geo', 'res'];
   const xsKeys = (tex) => [...tex.matchAll(/\\xs\{([^}]*)\}/g)].map((m) => m[1]);
-  test('Interaktive Gleichungen', 'Jede berühmte Gleichung ist interaktiv und ohne Marker gesetzt genau ihre Formel exp.tex', () => {
-    for (const id of PP.hallOrder) {
+  test('Interaktive Gleichungen', 'Jede Gleichung ist interaktiv und ohne Marker gesetzt genau ihre Formel exp.tex', () => {
+    for (const { id } of M.registry) {
       const eq = PP.equations.byId[id];
       ok(eq, id + ': keine interaktive Gleichung');
       if (PP.tex) ok(PP.tex.render(eq.tex) === PP.tex.render(M.byId[id].tex), id + ': Formel weicht von exp.tex ab');
@@ -674,13 +674,14 @@
       if (!exp) { bad.push(id + ': kein Experiment'); continue; }
       for (const [k, s] of Object.entries(eq.symbols)) {
         const at = id + '.' + k;
-        const srcs = ['c', 'v', 'o', 's', 'n'].filter((x) => s[x] !== undefined);
+        const srcs = ['c', 'v', 'o', 's', 'm', 'n'].filter((x) => s[x] !== undefined);
         if (srcs.length !== 1) bad.push(at + ': Quellen ' + srcs.join(','));
         if (s.c !== undefined && !E.has(M.C, s.c)) bad.push(at + ': Konstante ' + s.c);
         if (s.v !== undefined && !exp.vars[s.v]) bad.push(at + ': Eingabe ' + s.v);
         if (s.o !== undefined && !exp.forms.some((f) => f.c.outputs.some((o) => o.key === s.o))) bad.push(at + ': Ausgabe ' + s.o);
         if (s.s !== undefined && !(exp.symbols && exp.symbols[s.s])) bad.push(at + ': Symbol ' + s.s);
         if (s.n !== undefined && !Number.isFinite(s.n)) bad.push(at + ': Zahl');
+        if (s.m !== undefined && (typeof s.m !== 'string' || !s.tex)) bad.push(at + ': Funktion braucht Namen und tex');
         if ('value' in s) bad.push(at + ': eigener Zahlenwert – Konstanten kommen aus PP.model.C');
         if (!EQ_COLORS.includes(s.color)) bad.push(at + ': Farbe ' + s.color);
         if (s.c === undefined && s.v === undefined && s.o === undefined && !s.tex) bad.push(at + ': tex fehlt');

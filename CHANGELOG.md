@@ -2,6 +2,13 @@
 
 ## 2026-10-01
 
+**Jede Gleichung interaktiv**
+
+- Auch die neun übrigen Experimente (Gravitation, gleichmäßig beschleunigte Bewegung, freier Fall, Feder, Kreisbewegung, Fadenpendel, schiefer Wurf, Lorentz-Faktor, ideales Gas) zeigen ihre Formel jetzt groß mit anklickbaren Symbolen, Legende und Karte – wie die Famous Equations. Vorgewählt ist das Ergebnis; seine Karte erklärt den Aufbau der ganzen Formel (z. B. „Produkt der Massen, geteilt durch das Abstandsquadrat, mal G“). Die kleine Formel neben dem Titel entfällt dafür.
+- Auch Vorzeichen und Zahlenfaktoren, die die Physik tragen, sind Symbole: das Minus in F = −kx, das ½ in ½gt², die 4 und das elliptische Integral K beim Pendel. Winkel zeigen ihren Wert in Grad. Ist eine Konstante im Experiment ein Regler (G bei der Gravitation), nennt die Karte auch den eingestellten Wert.
+
+**Tests:** Der Test „ohne Marker gleich `exp.tex`“ prüft jetzt alle 14 Experimente.
+
 **Famous Equations: jede Formel interaktiv**
 
 - Alle fünf berühmten Gleichungen (Hawking-Temperatur, Bekenstein-Hawking-Entropie, Einsteinsche Feldgleichungen, Schrödinger-Gleichung, Planck-Länge) bedienen sich jetzt wie bisher nur T_H: Jede Naturkonstante und jede Größe in der Formel lässt sich zeigen, antippen oder anklicken. Die Karte daneben nennt Name und Symbol, bei Konstanten Wert, Einheit und Quelle, bei Ein- und Ausgaben den aktuellen Wert, dazu die physikalische Bedeutung und die Rolle in genau dieser Gleichung. Das gewählte Symbol ist in der Formel hervorgehoben, mehrfach vorkommende (ħ und ψ bei Schrödinger) an jeder Stelle. × oder Esc schließt die Karte.
