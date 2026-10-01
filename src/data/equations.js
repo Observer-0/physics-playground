@@ -182,8 +182,8 @@
           s: 'G_mn', tex: 'G_{\\mu\\nu}', color: 'res', tag: { de: 'Krümmung', en: 'Curvature' }, name: { de: 'Einstein-Tensor', en: 'Einstein tensor' },
           meaning: { de: 'Der Einstein-Tensor beschreibt, wie die Raumzeit gekrümmt ist. Er wird aus der Metrik und ihren ersten und zweiten Ableitungen gebildet: G_μν = R_μν − ½ R g_μν.',
             en: 'The Einstein tensor describes how spacetime is curved. It is built from the metric and its first and second derivatives: G_μν = R_μν − ½ R g_μν.' },
-          role: { de: 'Die linke Seite ist Geometrie. Die Indizes μ, ν laufen über die Zeit und drei Raumrichtungen; weil G_μν symmetrisch ist, stehen hier 10 unabhängige Gleichungen.',
-            en: 'The left-hand side is geometry. The indices μ, ν run over time and the three directions of space; since G_μν is symmetric, this is 10 independent equations.' },
+          role: { de: 'Die linke Seite ist Geometrie. Die Indizes μ, ν laufen über die Zeit und drei Raumrichtungen; weil G_μν symmetrisch ist, sind es 10 Gleichungen – eine je unabhängiger Komponente.',
+            en: 'The left-hand side is geometry. The indices μ, ν run over time and the three directions of space; since G_μν is symmetric, these are 10 equations – one for each independent component.' },
           src: { key: 'K' }, at: { de: 'Größenordnung hier (K ~ κu)', en: 'Order of magnitude here (K ~ κu)' },
         },
         Lambda: {
@@ -254,8 +254,8 @@
           s: 'd_t', tex: '\\partial/\\partial t', color: 'geo', tag: { de: 'Zeitentwicklung', en: 'Time evolution' }, name: { de: 'Partielle Zeitableitung', en: 'Partial time derivative' },
           meaning: { de: 'Gibt an, wie schnell sich ψ an einem festen Ort mit der Zeit t ändert.',
             en: 'States how fast ψ changes with time t at a fixed position.' },
-          role: { de: 'Die Gleichung enthält nur die erste Zeitableitung: Kennt man ψ zu einem Zeitpunkt, ist ψ für alle späteren Zeiten festgelegt. Zufall kommt erst bei der Messung ins Spiel.',
-            en: 'The equation contains only the first time derivative: if ψ is known at one moment, ψ is fixed for all later times. Chance only enters with the measurement.' },
+          role: { de: 'Die Gleichung enthält nur die erste Zeitableitung: Kennt man ψ zu einem Zeitpunkt, ist ψ für alle späteren Zeiten festgelegt. Wahrscheinlichkeiten treten erst bei der Messung auf (Born-Regel).',
+            en: 'The equation contains only the first time derivative: if ψ is known at one moment, ψ is fixed for all later times. Probabilities only enter with the measurement (Born rule).' },
         },
         lap: {
           s: 'lap', tex: '\\nabla^2', color: 'geo', tag: { de: 'Ortsableitung', en: 'Spatial derivative' }, name: { de: 'Laplace-Operator', en: 'Laplace operator' },
