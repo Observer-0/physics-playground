@@ -96,7 +96,8 @@
     const hasVars = exp.forms.some((f) => f.vars.length);
     return '<header class="xhead">' + U.fieldBanner(U.fieldOf(exp), exp.group) +
       '<div><h1>' + esc(exp.title) + '</h1>' + (exp.subtitle ? '<div class="sub">' + esc(exp.subtitle) + '</div>' : '') + '</div>' +
-      (exp.hall ? '' : '<div class="eq">' + U.tex(exp.tex) + '</div>') +
+      // Die Formel steht groß im Kopfblock darunter (Famous Equations, interaktive Gleichungen), sonst klein neben dem Titel
+      (hasHero(exp) ? '' : '<div class="eq">' + U.tex(exp.tex) + '</div>') +
       '<div class="acts">' +
       (hasVars ? '<button class="btn' + (S.cmp ? ' on' : '') + '" data-a="cmp" aria-pressed="' + S.cmp + '">' + T('Vergleich A/B', 'Compare A/B') + '</button>' +
         '<button class="btn" data-a="reset" title="' + T('Alle Werte auf den Ausgangszustand', 'Reset all values to the starting state') + '">' + T('Zurücksetzen', 'Reset') + '</button>' : '') +
@@ -105,17 +106,17 @@
       '<div class="pop" id="pop" hidden></div>' +
       '</div></header>';
   }
+  const hasHero = (exp) => !!(exp.hall || U.eqx.of(exp));
   function heroHTML(exp) {
     const f = form();
     const prim = f.c.outputs.find((o) => o.primary) || f.c.outputs[0];
     const di = E.dimInfo(prim.dimv);
     const m = exp.meta || {};
-    const top = '<div class="dimline"><span>' + T('Dimension von ', 'Dimension of ') + U.tex(prim.tex) + '</span>' + U.tex(E.dimTex(prim.dimv)) + '<span>' + esc(di.name || '') + (U.unit(prim.dimv) ? ' · ' + esc(U.unit(prim.dimv)) : '') + '</span></div>' +
-      '<div class="meta-row">' +
-      (m.mathType ? '<span><b>' + T('Typ', 'Type') + '</b>' + esc(m.mathType) + '</span>' : '') +
+    const meta = (m.mathType ? '<span><b>' + T('Typ', 'Type') + '</b>' + esc(m.mathType) + '</span>' : '') +
       (m.mainDim ? '<span><b>' + T('Hauptdimension', 'Main dimension') + '</b>' + esc(m.mainDim) + '</span>' : '') +
-      (m.domain ? '<span><b>' + T('Gebiet', 'Field') + '</b>' + esc(m.domain) + '</span>' : '') +
-      '</div>';
+      (m.domain ? '<span><b>' + T('Gebiet', 'Field') + '</b>' + esc(m.domain) + '</span>' : '');
+    const top = '<div class="dimline"><span>' + T('Dimension von ', 'Dimension of ') + U.tex(prim.tex) + '</span>' + U.tex(E.dimTex(prim.dimv)) + '<span>' + esc(di.name || '') + (U.unit(prim.dimv) ? ' · ' + esc(U.unit(prim.dimv)) : '') + '</span></div>' +
+      (meta ? '<div class="meta-row">' + meta + '</div>' : '');
     // Mit Daten in src/data/equations.js: Formel mit anklickbaren Symbolen, Legende und Karte (src/ui/eqx.js)
     const eqx = !!U.eqx.of(exp);
     return '<section class="hero' + (eqx ? ' eqx' : '') + (S.tab === 'lab' ? ' compact' : '') + '">' +
@@ -164,9 +165,10 @@
     if (PP.sources && PP.sources.byId[exp.id]) tabs.push(['sources', T('Quellen', 'Sources')]);
     if (!tabs.some((t) => t[0] === S.tab)) S.tab = tabs[0][0];
     let h = '<div class="' + (exp.hall ? 'hallx' : '') + '">' + headerHTML(exp);
-    // Schnittpunkt-Block (Hawking) steht immer sichtbar über den Tabs; sonst die Formel, ggf. mit Wörterbuch
+    // Schnittpunkt-Block (Hawking) steht immer sichtbar über den Tabs; sonst die Formel (interaktiv, wenn es Daten in
+    // src/data/equations.js gibt), ggf. mit Wörterbuch
     if (exp.crossroads) h += U.crossroads.html(exp);
-    else if (exp.hall) h += heroHTML(exp) + U.crossroads.dictCompact(exp);
+    else if (hasHero(exp)) h += heroHTML(exp) + U.crossroads.dictCompact(exp);
     h += '<div class="tabs" role="tablist">' + tabs.map(([k, t]) => '<button role="tab" aria-selected="' + (S.tab === k) + '" data-tab="' + k + '" class="' + (S.tab === k ? 'on' : '') + '">' + t + '</button>').join('') + '</div>';
     h += '<div id="tabc"></div></div>';
     el.innerHTML = h;

@@ -2,8 +2,8 @@
    Physics Playground — Interaktive Gleichung
    Zeichnet eine Formel aus src/data/equations.js mit anklickbaren Symbolen,
    eine Legende und eine Karte zum ausgewählten Symbol. Benutzt vom
-   Schnittpunkt-Block der Hawking-Seite (crossroads.js) und vom Kopf der
-   übrigen Famous-Equations-Seiten (lab.js).
+   Schnittpunkt-Block der Hawking-Seite (crossroads.js) und vom Kopf aller
+   übrigen Experimentseiten (lab.js).
    · Auswahl: Zeigen (Maus), Fokus (Tastatur), Klick oder Antippen; je
      Gleichung gemerkt in S.xsel
    · Zahlen-Platzhalter: update() füllt sie nach jeder Rechnung aus
@@ -98,15 +98,20 @@
         C.src + (C.u > 0 ? ' · ' + T('relative Unsicherheit ', 'relative uncertainty ') + E.fmt(C.u / C.value, 2) : '')]);
       // Break-Modus: veränderter Wert – Symbole mit Live-Knöpfen zeigen ihn dort an
       if (!s.live && E.has(S.consts[set], s.c)) facts.push([T('Break-Modus', 'Break mode'), '<span class="xr-brk">= ' + esc(E.fmt(S.consts[set][s.c], 4) + (u ? ' ' + u : '')) + '</span>']);
+      // Ist die Konstante hier ein Regler (z. B. G bei der Newtonschen Gravitation), zählt der eingestellte Wert
+      const linked = M.formOf(exp, S.form).c.vars.find((d) => d.constant === s.c);
+      if (linked) facts.push([T('Hier eingestellt', 'Set here'), '≈ ' + slot({ var: linked.key })]);
       return { name: name || C.name, facts, meaning: s.meaning || PP.equations.meaning[s.c] };
     }
     if (s.n !== undefined) {
-      facts.push([T('Wert', 'Value'), esc(Number.isInteger(s.n) ? '= ' + s.n : '≈ ' + E.fmt(s.n, 4)), T('reine Zahl ohne Einheit', 'pure number without a unit')]);
+      const exact = Number(s.n.toPrecision(6)) === s.n; // ½ und −1 exakt, 8π gerundet
+      facts.push([T('Wert', 'Value'), esc((exact ? '= ' : '≈ ') + E.fmt(s.n, 4)), T('reine Zahl ohne Einheit', 'pure number without a unit')]);
       return { name, facts, meaning: s.meaning };
     }
     if (s.v) { const d = exp.vars[s.v]; name = name || d.name; dimv = d.dimv; src = src || [{ var: s.v }, { key: s.v }]; }
     else if (s.o) { const o = outputOf(exp, s.o); name = name || o.name; dimv = o.dimv; src = src || [{ key: s.o }, { var: s.o }]; }
     else if (s.s) dimv = E.dimParse(exp.symbols[s.s].dim);
+    else if (s.m) dimv = E.dimParse(s.dim || ''); // mathematische Funktion, meist dimensionslos
     // Eingabe nur in der aktiven Formel-Variante; sonst (z. B. A bei „aus der Masse“) wird die Größe berechnet
     const isInput = s.v && M.formOf(exp, S.form).c.vars.some((x) => x.key === s.v);
     if (src) facts.push([s.at || (isInput ? T('Eingestellt', 'Set to') : T('Berechnet', 'Computed')), '≈ ' + slot(src)]);
@@ -173,7 +178,7 @@
   }
   // tabindex: Nach dem Schließen bekommt die Karte den Fokus, damit er nicht verloren geht
   const card = (exp) => '<div class="' + cardClass(exp) + '" id="xr-card" tabindex="-1">' + cardInner(exp) + '</div>';
-  // Kopf der Famous-Equations-Seiten ohne Schnittpunkt-Block: Formel, darunter top (Dimension, Typ …), Legende, Hinweis; daneben die Karte
+  // Kopf der Experimentseiten ohne Schnittpunkt-Block: Formel, darunter top (Dimension, Typ …), Legende, Hinweis; daneben die Karte
   function hero(exp, top) {
     return '<div class="xr-top"><div class="xr-left"><div class="big">' + formula(exp) + '</div>' + top +
       legend(exp) + '<p class="xr-hint">' + esc(hint(exp)) + '</p></div>' + card(exp) + '</div>';
@@ -191,6 +196,11 @@
   }
   // Symbol, auf dem der Mauszeiger beim Schließen ruht: Es öffnet die Karte erst wieder, wenn der Zeiger es verlassen hat
   let quiet = null;
+  // Letzte echte Mausposition. Ein mouseover an genau dieser Stelle kommt nicht von der Maus, sondern davon, dass sich
+  // der Inhalt unter dem stillstehenden Zeiger verschoben hat (Mausrad, Neuzeichnen nach einem Live-Knopf) – das soll
+  // keine andere Karte öffnen. Der Browser meldet mouseover vor dem mousemove derselben Bewegung.
+  let lastMove = null;
+  if (typeof document !== 'undefined') document.addEventListener('mousemove', (e) => { lastMove = e.clientX + ',' + e.clientY; }, { capture: true, passive: true });
   // Karte schließen (×, Esc). Lag der Fokus in der Karte, geht er auf die Karte selbst – ihr Inhalt wird gleich ersetzt.
   function close(el) {
     const c = $('#xr-card', el), inCard = c && c.contains(document.activeElement);
@@ -223,7 +233,10 @@
     if (!of(S.exp)) return;
     const over = (e) => {
       const b = e.target.closest('[data-xs]'), k = b && el.contains(b) ? b.dataset.xs : null;
-      if (e.type === 'mouseover' && quiet !== null) { if (k === quiet) return; quiet = null; }
+      if (e.type === 'mouseover') {
+        if (lastMove === e.clientX + ',' + e.clientY) return;
+        if (quiet !== null) { if (k === quiet) return; quiet = null; }
+      }
       if (k) pick(el, k);
     };
     el.addEventListener('mouseover', over);
