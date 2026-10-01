@@ -3,7 +3,8 @@
    Zeichnet eine Formel aus src/data/equations.js mit anklickbaren Symbolen,
    eine Legende und eine Karte zum ausgewählten Symbol. Benutzt vom
    Schnittpunkt-Block der Hawking-Seite (crossroads.js) und vom Kopf aller
-   übrigen Experimentseiten (lab.js).
+   übrigen Experimentseiten (lab.js). Für die Kerngleichungen im Lesetext
+   der Grundlagen gibt es dieselbe Karte schwebend (inline, bindFloat).
    · Auswahl: Zeigen (Maus), Fokus (Tastatur), Klick oder Antippen; je
      Gleichung gemerkt in S.xsel
    · Zahlen-Platzhalter: update() füllt sie nach jeder Rechnung aus
@@ -99,7 +100,7 @@
       // Break-Modus: veränderter Wert – Symbole mit Live-Knöpfen zeigen ihn dort an
       if (!s.live && E.has(S.consts[set], s.c)) facts.push([T('Break-Modus', 'Break mode'), '<span class="xr-brk">= ' + esc(E.fmt(S.consts[set][s.c], 4) + (u ? ' ' + u : '')) + '</span>']);
       // Ist die Konstante hier ein Regler (z. B. G bei der Newtonschen Gravitation), zählt der eingestellte Wert
-      const linked = M.formOf(exp, S.form).c.vars.find((d) => d.constant === s.c);
+      const linked = exp && M.formOf(exp, S.form).c.vars.find((d) => d.constant === s.c);
       if (linked) facts.push([T('Hier eingestellt', 'Set here'), '≈ ' + slot({ var: linked.key })]);
       return { name: name || C.name, facts, meaning: s.meaning || PP.equations.meaning[s.c] };
     }
@@ -111,7 +112,8 @@
     if (s.v) { const d = exp.vars[s.v]; name = name || d.name; dimv = d.dimv; src = src || [{ var: s.v }, { key: s.v }]; }
     else if (s.o) { const o = outputOf(exp, s.o); name = name || o.name; dimv = o.dimv; src = src || [{ key: s.o }, { var: s.o }]; }
     else if (s.s) dimv = E.dimParse(exp.symbols[s.s].dim);
-    else if (s.m) dimv = E.dimParse(s.dim || ''); // mathematische Funktion, meist dimensionslos
+    else if (s.m) dimv = E.dimParse(s.dim || ''); // mathematische Funktion oder Operator, meist dimensionslos
+    else if (s.q !== undefined) dimv = E.dimParse(s.q); // Größe ohne Experiment (Grundlagen): nur ihre Dimension
     // Eingabe nur in der aktiven Formel-Variante; sonst (z. B. A bei „aus der Masse“) wird die Größe berechnet
     const isInput = s.v && M.formOf(exp, S.form).c.vars.some((x) => x.key === s.v);
     if (src) facts.push([s.at || (isInput ? T('Eingestellt', 'Set to') : T('Berechnet', 'Computed')), '≈ ' + slot(src)]);
@@ -159,18 +161,22 @@
     if (isC && !S.brk) h += '<span class="xr-live-note">' + T('schaltet „Break the Physics“ ein', 'turns on “Break the Physics”') + '</span>';
     return h + '</div>';
   }
-  function cardInner(exp) {
-    const eq = of(exp), k = sel(exp, eq), s = k ? eq.symbols[k] : null;
-    if (!s) return '<p class="xr-hint">' + esc(hint(exp)) + '</p>';
+  // Karteninhalt zu einem Symbol – für die feste Karte (exp: das Experiment) und die schwebende (exp: null).
+  // close: Attribut des ×-Knopfs
+  function cardBody(exp, s, close) {
     const d = info(exp, s);
     return '<div class="xr-card-h"><span class="math xc xc-' + s.color + '">' + texOf(symTex(exp, s)) + '</span>' +
       '<span class="xr-card-t"><b>' + esc(d.name) + '</b><small>' + esc(s.tag) + '</small></span>' +
-      '<button type="button" class="xr-x" data-xclose aria-label="' + T('Erklärung schließen', 'Close explanation') + '" title="' + T('Schließen (Esc)', 'Close (Esc)') + '">×</button></div>' +
+      '<button type="button" class="xr-x" ' + close + ' aria-label="' + T('Erklärung schließen', 'Close explanation') + '" title="' + T('Schließen (Esc)', 'Close (Esc)') + '">×</button></div>' +
       '<dl class="xr-facts">' + d.facts.map(([label, v, note]) => '<dt>' + esc(label) + '</dt><dd><span class="xr-fv">' + v + '</span>' + (note ? '<small>' + esc(note) + '</small>' : '') + '</dd>').join('') + '</dl>' +
       (d.meaning ? '<p class="xr-mean">' + esc(d.meaning) + '</p>' : '') +
       '<p class="xr-role"><b>' + T('In dieser Gleichung: ', 'In this equation: ') + '</b>' + esc(s.role) + '</p>' +
       (s.limit ? '<div class="xr-lim"><div class="xr-lim-f">' + U.tex(s.limit) + '</div><p>' + esc(s.limitText) + '</p></div>' : '') +
       (s.live ? liveHTML(s.live) : '');
+  }
+  function cardInner(exp) {
+    const eq = of(exp), k = sel(exp, eq), s = k ? eq.symbols[k] : null;
+    return s ? cardBody(exp, s, 'data-xclose') : '<p class="xr-hint">' + esc(hint(exp)) + '</p>';
   }
   function cardClass(exp) {
     const eq = of(exp), k = sel(exp, eq);
@@ -258,5 +264,137 @@
     return true;
   }
 
-  U.eqx = { of, formula, legend, hint, card, hero, bind, escape, slot, update, resolve };
+  /* ---------- Schwebende Karte: Formeln im Lesetext der Grundlagen ----------
+     Zeigen blendet die Karte unter dem Symbol ein, Klick oder Tippen hält sie fest; ×, Esc oder ein Klick daneben
+     schließt sie. Sie liegt über dem Text – der Lesetext verschiebt sich nie. Daten: PP.equations.theory. */
+  const theoryOf = (id) => (PP.equations && E.has(PP.equations.theory, id) ? PP.equations.theory[id] : null);
+  // Abgesetzte Formel (wie .th-eq) mit anklickbaren Symbolen; data-xq nennt den Eintrag in PP.equations.theory
+  function inline(id) {
+    const q = theoryOf(id);
+    if (!q) throw new Error('PP.equations.theory: ' + id + ' fehlt');
+    const btn = (key, inner) => {
+      const s = E.has(q.symbols, key) ? q.symbols[key] : null;
+      if (!s) return inner;
+      return '<button type="button" class="xsym xc-' + s.color + '" data-xs="' + key + '" aria-expanded="false" aria-controls="xpop" title="' + esc(s.tag) + '">' + inner + '</button>';
+    };
+    return '<div class="th-eq xq" data-xq="' + id + '"><span class="math mathd">' + PP.tex.render(q.tex, { sym: btn }) + '</span></div>';
+  }
+  let fl = null; // { root, pop, btn, pinned, timer, skipFocus }
+  const symIn = (t) => { const b = t && t.closest ? t.closest('[data-xq] [data-xs]') : null; return b && fl && fl.root.contains(b) ? b : null; };
+  // Hervorhebung: alle Vorkommen des Symbols in dieser Formel
+  function flMark(btn) {
+    fl.root.querySelectorAll('[data-xq] [data-xs][aria-expanded="true"]').forEach((b) => b.setAttribute('aria-expanded', 'false'));
+    if (btn) btn.closest('[data-xq]').querySelectorAll('[data-xs="' + btn.dataset.xs + '"]').forEach((b) => b.setAttribute('aria-expanded', 'true'));
+  }
+  // Unter das Symbol, waagerecht im Fenster; passt sie unten nicht ins Fenster, aber oben, dann darüber
+  function flPlace(btn) {
+    const p = fl.pop, r = btn.getBoundingClientRect(), vw = document.documentElement.clientWidth;
+    const w = Math.min(400, vw - 16);
+    p.style.width = w + 'px';
+    const left = Math.max(8, Math.min(r.left + r.width / 2 - w / 2, vw - w - 8));
+    const h = p.offsetHeight, below = r.bottom + 8;
+    const top = below + h > window.innerHeight - 8 && r.top - 8 - h > 8 ? r.top - 8 - h : below;
+    p.style.left = Math.round(left + window.scrollX) + 'px';
+    p.style.top = Math.round(top + window.scrollY) + 'px';
+  }
+  function flShow(btn, pinned) {
+    clearTimeout(fl.timer);
+    const p = fl.pop;
+    if (fl.btn !== btn || p.hidden) {
+      const s = theoryOf(btn.closest('[data-xq]').dataset.xq).symbols[btn.dataset.xs];
+      p.className = 'xr-card xpop xc-' + s.color;
+      p.innerHTML = cardBody(null, s, 'data-xpclose');
+      p.setAttribute('aria-label', p.querySelector('.xr-card-t b').textContent);
+      p.hidden = false;
+      fl.btn = btn;
+      flMark(btn);
+      flPlace(btn);
+    }
+    fl.pinned = pinned;
+  }
+  function flHide() {
+    if (!fl || fl.pop.hidden) return;
+    clearTimeout(fl.timer);
+    // Ruht der Zeiger auf einem Symbol, öffnet es die Karte erst wieder, wenn er es verlassen hat
+    const h = fl.root.querySelector('[data-xq] [data-xs]:hover');
+    quiet = h ? h.dataset.xs : null;
+    fl.pop.hidden = true;
+    flMark(null);
+    fl.btn = null;
+    fl.pinned = false;
+  }
+  // Fokus zurück aufs Symbol, ohne dass es die Karte gleich wieder öffnet
+  function flRefocus(btn) {
+    if (!btn) return;
+    fl.skipFocus = true;
+    btn.focus({ preventScroll: true });
+    fl.skipFocus = false;
+  }
+  // root: der Artikel eines Grundlagen-Abschnitts. Rückgabe: Abbau-Funktion (Listener am Dokument, Karte entfernen) oder null
+  function bindFloat(root) {
+    if (!root.querySelector('[data-xq]')) return null;
+    const pop = document.createElement('div');
+    pop.id = 'xpop';
+    pop.className = 'xr-card xpop';
+    pop.hidden = true;
+    pop.tabIndex = -1;
+    pop.setAttribute('role', 'dialog');
+    document.body.appendChild(pop);
+    fl = { root, pop, btn: null, pinned: false, timer: 0, skipFocus: false };
+    const later = () => { clearTimeout(fl.timer); fl.timer = setTimeout(() => { if (fl && !fl.pinned) flHide(); }, 250); };
+    root.addEventListener('mouseover', (e) => {
+      if (lastMove === e.clientX + ',' + e.clientY) return; // Inhalt hat sich unter dem Zeiger bewegt, nicht die Maus
+      const b = symIn(e.target);
+      if (quiet !== null) { if (b && b.dataset.xs === quiet) return; quiet = null; }
+      if (b && !fl.pinned) flShow(b, false);
+    });
+    root.addEventListener('mouseout', (e) => {
+      const b = symIn(e.target);
+      if (!b || b !== fl.btn || fl.pinned) return;
+      if (e.relatedTarget && (b.contains(e.relatedTarget) || pop.contains(e.relatedTarget))) return;
+      later();
+    });
+    pop.addEventListener('mouseenter', () => clearTimeout(fl.timer));
+    pop.addEventListener('mouseleave', () => { if (!fl.pinned) later(); });
+    root.addEventListener('click', (e) => {
+      const b = symIn(e.target);
+      if (!b) return;
+      if (fl.btn === b && fl.pinned) flHide(); else flShow(b, true);
+    });
+    root.addEventListener('focusin', (e) => { const b = symIn(e.target); if (b && !fl.skipFocus && !fl.pinned) flShow(b, false); });
+    root.addEventListener('focusout', (e) => {
+      const b = symIn(e.target);
+      if (!b || b !== fl.btn || fl.pinned || (e.relatedTarget && pop.contains(e.relatedTarget))) return;
+      flHide();
+    });
+    pop.addEventListener('click', (e) => {
+      if (!e.target.closest('[data-xpclose]')) return;
+      const b = fl.btn;
+      flHide();
+      flRefocus(b);
+    });
+    const onDown = (e) => { if (!pop.hidden && !pop.contains(e.target) && !symIn(e.target)) flHide(); };
+    const onKey = (e) => {
+      if (e.key !== 'Escape' || pop.hidden) return;
+      const b = pop.contains(document.activeElement) ? fl.btn : null;
+      flHide();
+      flRefocus(b);
+    };
+    // Nur bei geänderter Breite: Auf dem Handy feuert resize auch, wenn beim Scrollen die Adressleiste ein- und ausfährt
+    let width = window.innerWidth;
+    const onResize = () => { if (window.innerWidth !== width) { width = window.innerWidth; flHide(); } };
+    document.addEventListener('pointerdown', onDown, true);
+    document.addEventListener('keydown', onKey);
+    window.addEventListener('resize', onResize);
+    return () => {
+      document.removeEventListener('pointerdown', onDown, true);
+      document.removeEventListener('keydown', onKey);
+      window.removeEventListener('resize', onResize);
+      clearTimeout(fl && fl.timer);
+      pop.remove();
+      if (fl && fl.pop === pop) fl = null;
+    };
+  }
+
+  U.eqx = { of, formula, legend, hint, card, hero, bind, escape, slot, update, resolve, inline, bindFloat };
 })(globalThis.PP = globalThis.PP || {});

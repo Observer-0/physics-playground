@@ -2,6 +2,14 @@
 
 ## 2026-10-01
 
+**Grundlagen: Kerngleichungen interaktiv**
+
+- 18 Kerngleichungen in „Theorie kurz erklärt“ erklären ihre Symbole wie die Experimente: erstes Newtonsches Gesetz, träge Masse, Lorentz-Faktor, Feldgleichungen, Schrödinger-Gleichung, Unschärferelation, Kopplungsstärke der Gravitation, Poisson-Gleichung, Abstandsquadrat, Viererimpuls, Wirkung, Einstein-Hilbert-Wirkung sowie die Entropie nach Clausius, Boltzmann, Gibbs, Shannon, von Neumann und Bekenstein-Hawking.
+- Die Karte schwebt über dem Lesetext, damit der Text sich nie verschiebt: Zeigen blendet sie ein, Klick oder Tippen hält sie fest, ×, Esc oder ein Klick daneben schließt sie. Mit der Tastatur öffnet der Fokus auf einem Symbol die Karte.
+- Rechenwege und Zwischenschritte (Dimensionsherleitung, ausgeschriebenes Abstandsquadrat, ΔS des Balls, δS/δg = 0, S/ħ, Intervall im Geschichtsabschnitt) bleiben unverändert statisch. Der Formeltext aller Abschnitte ist gleich geblieben (Vergleich vorher/nachher).
+
+**Tests:** 93 → 96 (Marker und Symbole der Kerngleichungen in beiden Sprachen, jede Kerngleichung steht in einem Abschnitt, schwebende Karte öffnen, schließen und abbauen).
+
 **Jede Gleichung interaktiv**
 
 - Auch die neun übrigen Experimente (Gravitation, gleichmäßig beschleunigte Bewegung, freier Fall, Feder, Kreisbewegung, Fadenpendel, schiefer Wurf, Lorentz-Faktor, ideales Gas) zeigen ihre Formel jetzt groß mit anklickbaren Symbolen, Legende und Karte – wie die Famous Equations. Vorgewählt ist das Ergebnis; seine Karte erklärt den Aufbau der ganzen Formel (z. B. „Produkt der Massen, geteilt durch das Abstandsquadrat, mal G“). Die kleine Formel neben dem Titel entfällt dafür.

@@ -106,6 +106,9 @@
     'Jede Gleichung ist interaktiv und ohne Marker gesetzt genau ihre Formel exp.tex': 'Every equation is interactive and, typeset without markers, is exactly its formula exp.tex',
     'Jedes Symbol: eine Quelle, Farbe, Kurzlabel, Rolle und Bedeutung auf Deutsch und Englisch, je höchstens drei Sätze; Werte nur aus PP.model.C': 'Every symbol: one source, colour, short label, role and meaning in German and English, at most three sentences each; values only from PP.model.C',
     'Interaktive Gleichung: Zeigen und Klick wählen ein Symbol samt Karte, × und Esc schließen sie': 'Interactive equation: pointing and clicking select a symbol and its card, × and Esc close it',
+    'Grundlagen: Zu jedem Marker einer Kerngleichung gibt es ein Symbol und umgekehrt, auf Deutsch und Englisch': 'Foundations: every marker of a core equation has a symbol and vice versa, in German and English',
+    'Grundlagen: Jede Kerngleichung steht in einem Abschnitt, jedes ihrer Symbole ist ein Knopf': 'Foundations: every core equation appears in a section, and each of its symbols is a button',
+    'Grundlagen: Klick öffnet die schwebende Karte, × schließt sie, beim Abbau verschwindet sie': 'Foundations: a click opens the floating card, × closes it, and teardown removes it',
   };
   const pair = (de) => (Object.prototype.hasOwnProperty.call(EN, de) ? { de, en: EN[de] } : de);
   const test = (group, name, fn) => T.push(I.localize({ group: pair(group), name: pair(name), fn }));
@@ -669,17 +672,23 @@
   test('Interaktive Gleichungen', 'Jedes Symbol: eine Quelle, Farbe, Kurzlabel, Rolle und Bedeutung auf Deutsch und Englisch, je höchstens drei Sätze; Werte nur aus PP.model.C', () => {
     const sentences = (t) => t.split(/[.!?](?=\s+\S|\s*$)/).filter((x) => x.trim()).length;
     const bad = [];
-    for (const id of Object.keys(PP.equations.byId)) {
-      const exp = M.byId[id], eq = PP.equations.byId[id];
-      if (!exp) { bad.push(id + ': kein Experiment'); continue; }
+    // Experimente (byId) und Kerngleichungen der Grundlagen (theory, ohne Experiment)
+    const all = Object.keys(PP.equations.byId).map((id) => [id, M.byId[id], PP.equations.byId[id], true])
+      .concat(Object.keys(PP.equations.theory).map((id) => ['theory:' + id, null, PP.equations.theory[id], false]));
+    for (const [id, exp, eq, isExp] of all) {
+      if (isExp && !exp) { bad.push(id + ': kein Experiment'); continue; }
       for (const [k, s] of Object.entries(eq.symbols)) {
         const at = id + '.' + k;
-        const srcs = ['c', 'v', 'o', 's', 'm', 'n'].filter((x) => s[x] !== undefined);
+        const srcs = ['c', 'v', 'o', 's', 'q', 'm', 'n'].filter((x) => s[x] !== undefined);
         if (srcs.length !== 1) bad.push(at + ': Quellen ' + srcs.join(','));
+        if (!isExp && (s.v !== undefined || s.o !== undefined || s.s !== undefined)) bad.push(at + ': Verweis auf ein Experiment');
         if (s.c !== undefined && !E.has(M.C, s.c)) bad.push(at + ': Konstante ' + s.c);
-        if (s.v !== undefined && !exp.vars[s.v]) bad.push(at + ': Eingabe ' + s.v);
-        if (s.o !== undefined && !exp.forms.some((f) => f.c.outputs.some((o) => o.key === s.o))) bad.push(at + ': Ausgabe ' + s.o);
-        if (s.s !== undefined && !(exp.symbols && exp.symbols[s.s])) bad.push(at + ': Symbol ' + s.s);
+        if (isExp && s.v !== undefined && !exp.vars[s.v]) bad.push(at + ': Eingabe ' + s.v);
+        if (isExp && s.o !== undefined && !exp.forms.some((f) => f.c.outputs.some((o) => o.key === s.o))) bad.push(at + ': Ausgabe ' + s.o);
+        if (isExp && s.s !== undefined && !(exp.symbols && exp.symbols[s.s])) bad.push(at + ': Symbol ' + s.s);
+        for (const d of [s.q, s.dim]) if (d !== undefined) { try { E.dimParse(d); } catch (e) { bad.push(at + ': Dimension ' + d); } }
+        // Ohne Experiment gibt es keinen Namen aus einer Eingabe oder Ausgabe
+        if ((s.q !== undefined || s.m !== undefined || s.s !== undefined) && !I.with('de', () => s.name)) bad.push(at + ': Name fehlt');
         if (s.n !== undefined && !Number.isFinite(s.n)) bad.push(at + ': Zahl');
         if (s.m !== undefined && (typeof s.m !== 'string' || !s.tex)) bad.push(at + ': Funktion braucht Namen und tex');
         if ('value' in s) bad.push(at + ': eigener Zahlenwert – Konstanten kommen aus PP.model.C');
@@ -698,6 +707,42 @@
       }
     }
     ok(!bad.length, bad.slice(0, 4).join(' | '));
+  });
+  test('Interaktive Gleichungen', 'Grundlagen: Zu jedem Marker einer Kerngleichung gibt es ein Symbol und umgekehrt, auf Deutsch und Englisch', () => {
+    for (const [id, q] of Object.entries(PP.equations.theory)) for (const lang of ['de', 'en']) I.with(lang, () => {
+      const keys = new Set(xsKeys(q.tex)), sym = Object.keys(q.symbols);
+      ok(sym.every((k) => keys.has(k)) && [...keys].every((k) => sym.includes(k)), id + ' (' + lang + '): Symbole und Marker passen nicht zusammen');
+    });
+  });
+  test('UI (im Browser)', 'Grundlagen: Jede Kerngleichung steht in einem Abschnitt, jedes ihrer Symbole ist ein Knopf', () => {
+    if (!PP.ui || !PP.ui.theory || typeof document === 'undefined') return;
+    for (const lang of ['de', 'en']) I.with(lang, () => {
+      const div = document.createElement('div');
+      div.innerHTML = PP.ui.theory.sections.map((x) => x.body()).join('');
+      for (const [id, q] of Object.entries(PP.equations.theory)) {
+        const el = div.querySelector('[data-xq="' + id + '"]');
+        ok(el, id + ' steht in keinem Abschnitt (' + lang + ')');
+        const keys = new Set([...el.querySelectorAll('button[data-xs]')].map((b) => b.dataset.xs));
+        ok(Object.keys(q.symbols).every((k) => keys.has(k)), id + ': nicht jedes Symbol ist ein Knopf (' + lang + ')');
+      }
+    });
+  });
+  test('UI (im Browser)', 'Grundlagen: Klick öffnet die schwebende Karte, × schließt sie, beim Abbau verschwindet sie', () => {
+    if (!PP.ui || !PP.ui.eqx || typeof document === 'undefined') return;
+    const U = PP.ui, box = document.createElement('div');
+    box.innerHTML = U.eqx.inline('rel-gamma');
+    document.body.appendChild(box);
+    const down = U.eqx.bindFloat(box);
+    try {
+      const pop = () => document.getElementById('xpop');
+      const c = box.querySelector('[data-xs="c"]');
+      ok(pop() && pop().hidden, 'Karte fehlt oder ist schon offen');
+      c.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      ok(!pop().hidden && pop().textContent.includes(M.C.c.name) && c.getAttribute('aria-expanded') === 'true', 'Klick auf c öffnet nicht');
+      pop().querySelector('[data-xpclose]').dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      ok(pop().hidden && c.getAttribute('aria-expanded') === 'false', '× schließt nicht');
+    } finally { down(); box.remove(); }
+    ok(!document.getElementById('xpop'), 'Karte bleibt nach dem Abbau im Dokument');
   });
   test('UI (im Browser)', 'Interaktive Gleichung: Zeigen und Klick wählen ein Symbol samt Karte, × und Esc schließen sie', () => {
     if (!PP.ui || !PP.ui.eqx || typeof document === 'undefined') return;

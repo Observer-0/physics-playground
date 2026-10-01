@@ -665,5 +665,561 @@
     },
   };
 
-  PP.equations = PP.i18n.localize({ meaning, byId });
+  /* ===================== Grundlagen („Theorie kurz erklärt“) =====================
+     Die Kerngleichungen im Lesetext, gezeichnet von U.eqx.inline (schwebende Karte). Es gibt kein Experiment,
+     deshalb statt v/o/s die Symbolart q: Größe mit ihrer Dimension. tex darf ein Paar { de, en } sein, wenn die
+     Formel Text enthält. Ohne Marker gelesen ist tex genau die Formel, die vorher im Abschnitt stand. */
+  // Symbole einer Famous-Equations-Gleichung für die Grundlagen: Verweise aufs Experiment durch die Dimension ersetzen
+  const asTheory = (symbols, dims, extra) => Object.assign(Object.fromEntries(Object.entries(symbols).map(([k, x]) => {
+    const { s: ref, o, v, src, at, ...rest } = x; // eslint-disable-line no-unused-vars
+    return [k, ref !== undefined || o !== undefined || v !== undefined ? Object.assign(rest, { q: dims[k] }) : rest];
+  })), extra || {});
+  const RES = 'res', QTY = 'mass';
+  const ENERGY_Q = { de: 'Energie', en: 'Energy' }, PROB = { de: 'Wahrscheinlichkeit', en: 'Probability' }, MATH = { de: 'Mathematik', en: 'Mathematics' };
+  const ENTROPY_DIM = 'M L^2 T^-2 Θ^-1';
+  const KB_ENT = { c: 'k_B', tex: 'k_B', color: 'thermo', tag: THERMO,
+    role: { de: 'Rechnet die reine Zahl in eine Entropie mit der Einheit J/K um. Mehr steckt nicht darin – mit k_B = 1 wäre die Entropie dimensionslos.',
+      en: 'Converts the pure number into an entropy with the unit J/K. That is all it does – with k_B = 1 the entropy would be dimensionless.' } };
+  const LN_GIBBS = { m: 'ln', tex: '\\ln', color: 'geo', tag: MATH, name: { de: 'Natürlicher Logarithmus', en: 'Natural logarithm' },
+    meaning: { de: 'Die Umkehrung der Exponentialfunktion; er macht aus Produkten Summen.', en: 'The inverse of the exponential function; it turns products into sums.' },
+    role: { de: '−ln p_i misst die „Überraschung“ eines Mikrozustands: Seltene Zustände tragen viel bei, ein sicherer (p = 1) gar nichts.',
+      en: '−ln p_i measures the “surprise” of a microstate: rare states contribute a lot, a certain one (p = 1) nothing at all.' } };
+  const SUM_I = { m: 'sum', tex: '\\sum_i', color: 'geo', tag: MATH, name: { de: 'Summe über i', en: 'Sum over i' } };
+
+  const theory = {
+    /* 2 Inertialprinzip: erstes Newtonsches Gesetz */
+    'inertia-law': {
+      tex: { de: '\\xs{F}{\\sum \\vec{F}} = 0 \\;\\leftrightarrow\\; \\xs{v}{\\vec{v}} = \\text{konstant}', en: '\\xs{F}{\\sum \\vec{F}} = 0 \\;\\leftrightarrow\\; \\xs{v}{\\vec{v}} = \\text{constant}' },
+      symbols: {
+        F: {
+          q: 'M L T^-2', tex: '\\sum \\vec{F}', color: QTY, tag: { de: 'Kraft', en: 'Force' }, name: { de: 'Resultierende Kraft', en: 'Resultant force' },
+          meaning: { de: 'Die Vektorsumme aller Kräfte, die auf den Körper wirken. Heben sie sich gegenseitig auf, ist sie null – auch wenn die einzelnen Kräfte groß sind.',
+            en: 'The vector sum of all forces acting on the body. If they cancel each other out, it is zero – even if the individual forces are large.' },
+          role: { de: 'Links steht die Bedingung: keine resultierende Kraft. Der Doppelpfeil sagt, dass das in einem Inertialsystem genau dann gilt, wenn sich der Bewegungszustand nicht ändert.',
+            en: 'The left-hand side is the condition: no resultant force. The double arrow says that, in an inertial frame, this holds exactly when the state of motion does not change.' },
+        },
+        v: {
+          q: 'L T^-1', tex: '\\vec{v}', color: QTY, tag: { de: 'Bewegungszustand', en: 'State of motion' }, name: { de: 'Geschwindigkeit', en: 'Velocity' },
+          meaning: { de: 'Ein Vektor aus Betrag und Richtung der Bewegung. Konstant heißt: weder schneller noch langsamer und keine Kurve.',
+            en: 'A vector made of the magnitude and direction of the motion. Constant means: neither faster nor slower, and no turning.' },
+          role: { de: 'Rechts steht die Folge: v bleibt, wie es ist, Ruhe (v = 0) eingeschlossen. Bewegung selbst braucht keine Ursache, nur ihre Änderung.',
+            en: 'The right-hand side is the consequence: v stays as it is, rest (v = 0) included. Motion itself needs no cause, only a change of motion does.' },
+        },
+      },
+    },
+    /* 2 Träge Masse: zweites Newtonsches Gesetz */
+    'inertia-mass': {
+      tex: { de: '\\xs{m}{m_{\\text{träge}}} = \\frac{\\xs{F}{F}}{\\xs{a}{a}}', en: '\\xs{m}{m_{\\text{inertial}}} = \\frac{\\xs{F}{F}}{\\xs{a}{a}}' },
+      symbols: {
+        m: {
+          q: 'M', tex: { de: 'm_{\\text{träge}}', en: 'm_{\\text{inertial}}' }, color: RES, tag: { de: 'Trägheit', en: 'Inertia' }, name: { de: 'Träge Masse', en: 'Inertial mass' },
+          meaning: { de: 'Das Maß für den Widerstand eines Körpers gegen jede Änderung seiner Bewegung. Gemessen ist sie gleich der schweren Masse, die die Gravitation bestimmt – geprüft auf etwa 10⁻¹⁵.',
+            en: 'The measure of a body’s resistance to any change in its motion. As measured, it equals the gravitational mass that determines gravity – tested to about 10⁻¹⁵.' },
+          role: { de: 'Hier ist sie über das zweite Newtonsche Gesetz definiert: die Kraft geteilt durch die Beschleunigung, die diese Kraft bewirkt.',
+            en: 'Here it is defined through Newton’s second law: the force divided by the acceleration that this force produces.' },
+        },
+        F: {
+          q: 'M L T^-2', tex: 'F', color: QTY, tag: { de: 'Ursache', en: 'Cause' }, name: { de: 'Kraft', en: 'Force' },
+          meaning: { de: 'Die resultierende Kraft auf den Körper, gemessen in Newton (1 N = 1 kg·m/s²).',
+            en: 'The resultant force on the body, measured in newtons (1 N = 1 kg·m/s²).' },
+          role: { de: 'Steht im Zähler: Für dieselbe Beschleunigung braucht ein doppelt so träger Körper die doppelte Kraft.',
+            en: 'Appears in the numerator: for the same acceleration, a body with twice the inertia needs twice the force.' },
+        },
+        a: {
+          q: 'L T^-2', tex: 'a', color: QTY, tag: { de: 'Wirkung', en: 'Effect' }, name: { de: 'Beschleunigung', en: 'Acceleration' },
+          meaning: { de: 'Wie schnell sich die Geschwindigkeit ändert, nach Betrag oder Richtung.',
+            en: 'How fast the velocity changes, in magnitude or direction.' },
+          role: { de: 'Steht im Nenner: Dieselbe Kraft beschleunigt einen trägeren Körper weniger – einen Einkaufswagen kräftig, einen Lkw kaum.',
+            en: 'Appears in the denominator: the same force accelerates a body with more inertia less – a shopping trolley strongly, a lorry hardly at all.' },
+        },
+      },
+    },
+    /* 3 Lorentz-Faktor */
+    'rel-gamma': {
+      tex: '\\xs{gamma}{\\gamma} = \\frac{1}{\\sqrt{1 - \\xs{v}{v^{2}}/\\xs{c}{c^{2}}}}',
+      symbols: {
+        gamma: {
+          q: '', tex: '\\gamma', color: RES, tag: RESULT, name: { de: 'Lorentz-Faktor', en: 'Lorentz factor' },
+          meaning: { de: 'Gibt an, um wie viel bewegte Uhren langsamer gehen und bewegte Maßstäbe kürzer sind – jeweils vom ruhenden Beobachter aus gemessen.',
+            en: 'States by how much moving clocks run slow and moving rulers are shorter – each as measured by the observer at rest.' },
+          role: { de: 'Steuert alle Effekte der Speziellen Relativitätstheorie: Zeitdilatation Δt = γΔτ, Längenkontraktion L = L₀/γ, Energie E = γmc².',
+            en: 'Controls all the effects of special relativity: time dilation Δt = γΔτ, length contraction L = L₀/γ, energy E = γmc².' },
+        },
+        v: {
+          q: 'L T^-1', tex: 'v', color: QTY, tag: { de: 'Bewegung', en: 'Motion' }, name: { de: 'Relativgeschwindigkeit', en: 'Relative speed' },
+          meaning: { de: 'Die Geschwindigkeit, mit der sich zwei Beobachter gegeneinander bewegen.',
+            en: 'The speed at which two observers move relative to each other.' },
+          role: { de: 'Geht nur als Verhältnis v²/c² ein. Bei 0,8 c ist γ = 5/3, bei 0,99 c etwa 7,1.',
+            en: 'Enters only as the ratio v²/c². At 0.8 c, γ = 5/3; at 0.99 c it is about 7.1.' },
+        },
+        c: {
+          c: 'c', tex: 'c^2', color: 'rel', tag: REL,
+          role: { de: 'Ist für alle Beobachter gleich – die Ausgangsannahme der Theorie. Für v → c geht die Wurzel gegen null und γ gegen unendlich: Kein Körper mit Masse erreicht c.',
+            en: 'Is the same for all observers – the starting assumption of the theory. As v → c, the root goes to zero and γ to infinity: no body with mass reaches c.' },
+        },
+      },
+    },
+    /* 3 Feldgleichungen – Symboltexte wie bei den Famous Equations */
+    'rel-efe': {
+      tex: byId.efe.tex,
+      symbols: asTheory(byId.efe.symbols, { Gmn: 'L^-2', gmn: '', Tmn: 'M L^-1 T^-2' }),
+    },
+    /* 4 Schrödinger-Gleichung mit Hamilton-Operator */
+    'qm-schroedinger': {
+      tex: '\\xs{i}{i}\\xs{hbar}{\\hbar}\\,\\frac{\\xs{dt}{\\partial} \\xs{psi}{\\psi}}{\\xs{dt}{\\partial t}} = \\xs{H}{\\hat{H}}\\,\\xs{psi}{\\psi}',
+      symbols: asTheory({ psi: byId.schroedinger.symbols.psi, i: byId.schroedinger.symbols.i }, { psi: 'L^-3/2', i: '' }, {
+        hbar: {
+          c: 'hbar', color: 'q', tag: QM,
+          role: { de: 'Verknüpft die zeitliche Änderung mit der Energie: Auf einen Zustand fester Energie E wirkt iħ ∂/∂t wie die Multiplikation mit E (E = ħω).',
+            en: 'Links the rate of change with energy: on a state of definite energy E, iħ ∂/∂t acts like multiplication by E (E = ħω).' },
+        },
+        dt: asTheory({ dt: byId.schroedinger.symbols.dt }, { dt: 'T^-1' }).dt,
+        H: {
+          q: 'M L^2 T^-2', tex: '\\hat{H}', color: QTY, tag: ENERGY_Q, name: { de: 'Hamilton-Operator', en: 'Hamiltonian' },
+          meaning: { de: 'Der Operator der Gesamtenergie, kinetische plus potentielle Energie. Für ein Teilchen im Potential ist Ĥ = −ħ²∇²/(2m) + V.',
+            en: 'The operator of the total energy, kinetic plus potential. For a particle in a potential, Ĥ = −ħ²∇²/(2m) + V.' },
+          role: { de: 'Enthält die ganze Physik des Systems: welche Kräfte wirken, welche Teilchen beteiligt sind. Seine Eigenwerte sind die möglichen Messwerte der Energie.',
+            en: 'Contains all the physics of the system: which forces act, which particles are involved. Its eigenvalues are the possible measured values of the energy.' },
+        },
+      }),
+    },
+    /* 4 Unschärferelation */
+    'qm-uncertainty': {
+      tex: '\\xs{dx}{\\Delta x}\\,\\xs{dp}{\\Delta p} \\;\\geq\\; \\frac{\\xs{hbar}{\\hbar}}{\\xs{two}{2}}',
+      symbols: {
+        dx: {
+          q: 'L', tex: '\\Delta x', color: QTY, tag: { de: 'Ort', en: 'Position' }, name: { de: 'Ortsunschärfe', en: 'Position uncertainty' },
+          meaning: { de: 'Die Streuung der Ortswerte, die man an vielen gleich präparierten Systemen misst. Sie ist eine Eigenschaft des Zustands, keine Ungenauigkeit des Messgeräts.',
+            en: 'The spread of the position values measured on many identically prepared systems. It is a property of the state, not an inaccuracy of the instrument.' },
+          role: { de: 'Je schärfer der Ort festgelegt ist, desto größer muss Δp sein: Das Produkt kann ħ/2 nicht unterschreiten.',
+            en: 'The more sharply the position is fixed, the larger Δp has to be: the product cannot drop below ħ/2.' },
+        },
+        dp: {
+          q: 'M L T^-1', tex: '\\Delta p', color: QTY, tag: { de: 'Impuls', en: 'Momentum' }, name: { de: 'Impulsunschärfe', en: 'Momentum uncertainty' },
+          meaning: { de: 'Die Streuung der Impulswerte an vielen gleich präparierten Systemen.',
+            en: 'The spread of the momentum values on many identically prepared systems.' },
+          role: { de: 'Wird klein, wenn ψ eine gut bestimmte Wellenlänge hat (λ = h/p). Dann ist ψ aber räumlich ausgedehnt und Δx groß.',
+            en: 'Becomes small when ψ has a well-defined wavelength (λ = h/p). But then ψ is spread out in space and Δx is large.' },
+        },
+        hbar: {
+          c: 'hbar', color: 'q', tag: QM,
+          role: { de: 'Setzt die untere Grenze. Weil ħ so klein ist, spürt man die Unschärfe nur bei sehr kleinen Massen und Abständen.',
+            en: 'Sets the lower limit. Because ħ is so small, the uncertainty only matters for very small masses and distances.' },
+        },
+        two: {
+          n: 2, tex: '2', color: 'geo', tag: NUMBER, name: { de: 'Faktor 2 im Nenner', en: 'Factor 2 in the denominator' },
+          role: { de: 'Die Schranke ħ/2 ist scharf: Ein Gaußsches Wellenpaket erreicht sie genau, alle anderen Zustände liegen darüber.',
+            en: 'The bound ħ/2 is sharp: a Gaussian wave packet reaches it exactly, all other states lie above it.' },
+        },
+      },
+    },
+    /* 10 Warum nicht vereint: dimensionslose Stärke der Gravitation */
+    'gap-coupling': {
+      tex: '\\xs{aG}{\\alpha_G} \\sim \\frac{\\xs{G}{G}\\,\\xs{E}{E^{2}}}{\\xs{hbar}{\\hbar}\\, \\xs{c}{c^{5}}} = \\left(\\frac{\\xs{E}{E}}{\\xs{EP}{E_P}}\\right)^{2}',
+      symbols: {
+        aG: {
+          q: '', tex: '\\alpha_G', color: RES, tag: RESULT, name: { de: 'Gravitative Kopplungsstärke', en: 'Gravitational coupling strength' },
+          meaning: { de: 'Eine reine Zahl dafür, wie stark die Gravitation zwischen zwei Teilchen der Energie E im Vergleich zur Quantenskala ist. Für zwei ruhende Protonen (E = m_p c²) ist sie etwa 6 × 10⁻³⁹.',
+            en: 'A pure number for how strong gravity is between two particles of energy E compared with the quantum scale. For two protons at rest (E = m_p c²) it is about 6 × 10⁻³⁹.' },
+          role: { de: 'Das Zeichen ∼ heißt: nur die Größenordnung. α_G wächst mit dem Quadrat der Energie; bei E ≈ E_P wird es von der Größenordnung 1, und die quantisierte Gravitation verliert ihre Vorhersagekraft.',
+            en: 'The symbol ∼ means: order of magnitude only. α_G grows with the square of the energy; at E ≈ E_P it reaches order 1, and quantised gravity loses its predictive power.' },
+        },
+        G: {
+          c: 'G', color: 'grav', tag: GRAV,
+          role: { de: 'G hat eine Dimension. Erst zusammen mit ħ und c entsteht eine reine Zahl – und die hängt dann von der Energie ab. Daran scheitert die Renormierung.',
+            en: 'G has a dimension. Only together with ħ and c does it form a pure number – and that number then depends on the energy. This is where renormalisation fails.' },
+        },
+        E: {
+          q: 'M L^2 T^-2', tex: 'E', color: QTY, tag: ENERGY_Q, name: { de: 'Energie der Teilchen', en: 'Energy of the particles' },
+          meaning: { de: 'Die Energie der beteiligten Teilchen, etwa in einem Beschleuniger oder kurz nach dem Urknall.',
+            en: 'The energy of the particles involved, for example in an accelerator or shortly after the Big Bang.' },
+          role: { de: 'Steht im Quadrat: zehnfache Energie, hundertfache Kopplung. Bei den Energien heutiger Beschleuniger (rund 10⁴ GeV) liegt α_G noch etwa 30 Größenordnungen unter 1.',
+            en: 'Appears squared: ten times the energy, a hundred times the coupling. At the energies of today’s accelerators (around 10⁴ GeV), α_G is still about 30 orders of magnitude below 1.' },
+        },
+        hbar: {
+          c: 'hbar', color: 'q', tag: QM,
+          role: { de: 'Steht im Nenner: Zusammen mit c macht ħ aus G eine Energieskala, die Planck-Energie. Gravitation zwischen Quanten wird erst relevant, wenn G E² mit ħ c⁵ vergleichbar ist.',
+            en: 'Appears in the denominator: together with c, ħ turns G into an energy scale, the Planck energy. Gravity between quanta only matters when G E² is comparable to ħ c⁵.' },
+        },
+        c: {
+          c: 'c', tex: 'c^5', color: 'rel', tag: REL,
+          role: { de: 'Fünfte Potenz im Nenner, damit G E²/(ħ c⁵) dimensionslos wird.',
+            en: 'Fifth power in the denominator, so that G E²/(ħ c⁵) is dimensionless.' },
+        },
+        EP: {
+          q: 'M L^2 T^-2', tex: 'E_P', color: QTY, tag: { de: 'Planck-Skala', en: 'Planck scale' }, name: { de: 'Planck-Energie', en: 'Planck energy' },
+          meaning: { de: 'E_P = √(ħc⁵/G) ≈ 1,2 × 10¹⁹ GeV ≈ 2 × 10⁹ J – die Energie, die sich allein aus ħ, c und G bilden lässt.',
+            en: 'E_P = √(ħc⁵/G) ≈ 1.2 × 10¹⁹ GeV ≈ 2 × 10⁹ J – the energy that can be built from ħ, c and G alone.' },
+          role: { de: 'Die zweite Form zeigt: α_G ist einfach (E/E_P)². Bei E = E_P ist die Kopplung von der Größenordnung 1.',
+            en: 'The second form shows that α_G is simply (E/E_P)². At E = E_P the coupling is of order 1.' },
+        },
+      },
+    },
+    /* 5 Indizes: 00-Komponente der Feldgleichungen = Newton in Feldform */
+    'idx-poisson': {
+      tex: '\\xs{lap}{\\nabla^{2}}\\xs{Phi}{\\Phi} = \\xs{four}{4\\pi} \\xs{G}{G} \\xs{rho}{\\rho}',
+      symbols: {
+        lap: {
+          m: 'laplace', dim: 'L^-2', tex: '\\nabla^2', color: 'geo', tag: { de: 'Ortsableitung', en: 'Spatial derivative' }, name: { de: 'Laplace-Operator', en: 'Laplace operator' },
+          meaning: { de: 'Die Summe der zweiten Ableitungen nach x, y und z. Er misst, wie stark Φ an einem Punkt vom Mittel seiner Umgebung abweicht.',
+            en: 'The sum of the second derivatives with respect to x, y and z. It measures how much Φ at a point differs from the average of its surroundings.' },
+          role: { de: 'Macht aus der Gravitation eine Feldgleichung: Hier steht nicht die Kraft zwischen zwei Körpern, sondern wie sich das Potential von Punkt zu Punkt ändert.',
+            en: 'Turns gravity into a field equation: what appears here is not the force between two bodies, but how the potential changes from point to point.' },
+        },
+        Phi: {
+          q: 'L^2 T^-2', tex: '\\Phi', color: RES, tag: { de: 'Feld', en: 'Field' }, name: { de: 'Gravitationspotential', en: 'Gravitational potential' },
+          meaning: { de: 'Die potentielle Energie pro Masse an jedem Ort. Ihr Gefälle ist die Fallbeschleunigung: g = −∇Φ.',
+            en: 'The potential energy per mass at each point. Its gradient gives the gravitational acceleration: g = −∇Φ.' },
+          role: { de: 'In der ART steckt Φ in der Metrik, für schwache Felder ist g₀₀ ≈ −(1 + 2Φ/c²). So wird die 00-Komponente der Feldgleichungen zu dieser Gleichung.',
+            en: 'In general relativity, Φ sits in the metric: for weak fields, g₀₀ ≈ −(1 + 2Φ/c²). That is how the 00 component of the field equations becomes this equation.' },
+        },
+        four: {
+          n: 4 * Math.PI, tex: '4\\pi', color: 'geo', tag: NUMBER, name: { de: 'Faktor 4π', en: 'Factor 4π' },
+          role: { de: '4π ist die Oberfläche der Einheitskugel. Mit diesem Faktor ergibt sich für eine kugelförmige Masse genau Newtons 1/r²-Gesetz.',
+            en: '4π is the surface area of the unit sphere. With this factor, a spherical mass gives exactly Newton’s 1/r² law.' },
+        },
+        G: {
+          c: 'G', color: 'grav', tag: GRAV,
+          role: { de: 'Koppelt die Masse an das Potential – dieselbe Konstante wie in Newtons Kraftgesetz.',
+            en: 'Couples mass to the potential – the same constant as in Newton’s force law.' },
+        },
+        rho: {
+          q: 'M L^-3', tex: '\\rho', color: QTY, tag: { de: 'Quelle', en: 'Source' }, name: { de: 'Massendichte', en: 'Mass density' },
+          meaning: { de: 'Die Masse pro Volumen am betrachteten Ort.',
+            en: 'The mass per volume at the point considered.' },
+          role: { de: 'Die Quelle des Feldes. In der ART steht an dieser Stelle T₀₀ = ρc², die Energiedichte.',
+            en: 'The source of the field. In general relativity, T₀₀ = ρc², the energy density, takes its place.' },
+        },
+      },
+    },
+    /* 5 Indizes: Abstandsquadrat mit Summenkonvention */
+    'idx-interval': {
+      tex: '\\xs{ds}{ds^{2}} = \\xs{eta}{\\eta_{\\mu\\nu}}\\, \\xs{dx}{dx^{\\mu}}\\, \\xs{dx}{dx^{\\nu}}',
+      symbols: {
+        ds: {
+          q: 'L^2', tex: 'ds^2', color: RES, tag: RESULT, name: { de: 'Abstandsquadrat in der Raumzeit', en: 'Squared spacetime interval' },
+          meaning: { de: 'Das Quadrat des Abstands zweier benachbarter Ereignisse in der Raumzeit. Alle Beobachter messen dafür denselben Wert, auch wenn sie Zeit- und Ortsabstände verschieden messen.',
+            en: 'The square of the separation of two neighbouring events in spacetime. All observers measure the same value for it, even though they measure time and space separations differently.' },
+          role: { de: 'Steht hier in Kurzschrift: Über μ und ν wird nach der Summenkonvention summiert, das sind 16 Summanden.',
+            en: 'Written here in shorthand: μ and ν are summed over by the summation convention, which makes 16 terms.' },
+        },
+        eta: {
+          q: '', tex: '\\eta_{\\mu\\nu}', color: QTY, tag: { de: 'Metrik', en: 'Metric' }, name: { de: 'Minkowski-Metrik', en: 'Minkowski metric' },
+          unitNote: { de: 'wenn alle Koordinaten Längen sind (x⁰ = ct)', en: 'if all coordinates are lengths (x⁰ = ct)' },
+          meaning: { de: 'Die Metrik der flachen Raumzeit ohne Gravitation: eine 4×4-Tabelle mit −1, 1, 1, 1 auf der Diagonale und sonst Nullen.',
+            en: 'The metric of flat spacetime without gravity: a 4×4 table with −1, 1, 1, 1 on the diagonal and zeros elsewhere.' },
+          role: { de: 'Legt fest, wie die Komponenten verrechnet werden. Der eine negative Eintrag ist der Unterschied zwischen Zeit und Raum; in der ART wird aus η_μν die gekrümmte g_μν.',
+            en: 'Determines how the components are combined. The one negative entry is the difference between time and space; in general relativity, η_μν becomes the curved g_μν.' },
+        },
+        dx: {
+          q: 'L', tex: 'dx^{\\mu}', color: QTY, tag: { de: 'Verschiebung', en: 'Displacement' }, name: { de: 'Koordinatendifferenz', en: 'Coordinate difference' },
+          meaning: { de: 'Die vier kleinen Abstände zwischen den beiden Ereignissen: c·dt, dx, dy, dz.',
+            en: 'The four small separations between the two events: c·dt, dx, dy, dz.' },
+          role: { de: 'Kommt zweimal vor, einmal mit μ, einmal mit ν. Der Index steht oben, bei η_μν unten – so wird über ihn summiert.',
+            en: 'Appears twice, once with μ and once with ν. The index is up here and down on η_μν – that is how it gets summed over.' },
+        },
+      },
+    },
+    /* 6 Tensor-Aufbau: Viererimpuls */
+    'tensor-momentum': {
+      tex: '\\xs{p}{p_{\\mu}}\\, \\xs{p}{p^{\\mu}} = -\\frac{\\xs{E}{E^{2}}}{\\xs{c}{c^{2}}} + \\xs{pv}{|\\vec{p}\\,|^{2}} = -\\xs{m}{m^{2}}\\xs{c}{c^{2}}',
+      symbols: {
+        p: {
+          q: 'M L T^-1', tex: 'p^{\\mu}', color: RES, tag: { de: 'Vierervektor', en: 'Four-vector' }, name: { de: 'Viererimpuls', en: 'Four-momentum' },
+          meaning: { de: 'Fasst Energie und Impuls zusammen: p^μ = (E/c, p_x, p_y, p_z). Mit unterem Index, p_μ, ist das Vorzeichen der Zeitkomponente umgedreht.',
+            en: 'Combines energy and momentum: p^μ = (E/c, p_x, p_y, p_z). With a lower index, p_μ, the sign of the time component is flipped.' },
+          role: { de: 'p_μ p^μ ist die „Länge zum Quadrat“ dieses Vektors, summiert über μ. Weil ein oberer mit einem unteren Index zusammentrifft, ist das Ergebnis für alle Beobachter gleich.',
+            en: 'p_μ p^μ is the “squared length” of this vector, summed over μ. Because an upper index meets a lower one, the result is the same for all observers.' },
+        },
+        E: {
+          q: 'M L^2 T^-2', tex: 'E', color: QTY, tag: { de: 'Zeitkomponente', en: 'Time component' }, name: { de: 'Energie', en: 'Energy' },
+          meaning: { de: 'Die Gesamtenergie des Teilchens, einschließlich seiner Ruheenergie.',
+            en: 'The total energy of the particle, including its rest energy.' },
+          role: { de: 'Liefert die Zeitkomponente, mit Minuszeichen – dasselbe Minus wie vor c²dt² im Abstandsquadrat.',
+            en: 'Supplies the time component, with a minus sign – the same minus as in front of c²dt² in the squared interval.' },
+        },
+        c: {
+          c: 'c', tex: 'c^2', color: 'rel', tag: REL,
+          role: { de: 'Rechnet zwischen Energie und Impuls um: E/c hat die Einheit eines Impulses, mc die einer Masse mal Geschwindigkeit.',
+            en: 'Converts between energy and momentum: E/c has the unit of a momentum, and so does mc.' },
+        },
+        pv: {
+          q: 'M L T^-1', tex: '|\\vec{p}\\,|', color: QTY, tag: { de: 'Raumkomponenten', en: 'Space components' }, name: { de: 'Betrag des Impulses', en: 'Magnitude of the momentum' },
+          meaning: { de: 'Der Betrag des gewöhnlichen, dreidimensionalen Impulses.',
+            en: 'The magnitude of the ordinary three-dimensional momentum.' },
+          role: { de: 'Die drei Raumkomponenten zählen positiv. Für ein ruhendes Teilchen ist |p| = 0, und es folgt E = mc².',
+            en: 'The three space components count positively. For a particle at rest |p| = 0, and E = mc² follows.' },
+        },
+        m: {
+          q: 'M', tex: 'm', color: QTY, tag: { de: 'Invariante', en: 'Invariant' }, name: { de: 'Ruhemasse', en: 'Rest mass' },
+          meaning: { de: 'Die Masse im Ruhesystem des Teilchens; sie ist für alle Beobachter gleich.',
+            en: 'The mass in the rest frame of the particle; it is the same for all observers.' },
+          role: { de: 'Die rechte Seite hängt nur von m ab. Daraus folgt E² = (mc²)² + (pc)², für Photonen mit m = 0 also E = pc.',
+            en: 'The right-hand side depends only on m. From this follows E² = (mc²)² + (pc)², so for photons with m = 0, E = pc.' },
+        },
+      },
+    },
+    /* 7 Wirkung in der Mechanik */
+    'action-mechanics': {
+      tex: '\\xs{S}{S} = \\xs{int}{\\int} \\left(\\xs{Ek}{E_{\\text{kin}}} - \\xs{Ep}{E_{\\text{pot}}}\\right) \\xs{int}{dt}',
+      symbols: {
+        S: {
+          q: 'M L^2 T^-1', tex: 'S', color: RES, tag: RESULT, name: { de: 'Wirkung', en: 'Action' },
+          meaning: { de: 'Eine Zahl, die jedem denkbaren Weg eines Systems zugeordnet wird. Ihre Einheit J·s ist dieselbe wie die von ħ.',
+            en: 'A number assigned to every conceivable path of a system. Its unit J·s is the same as that of ħ.' },
+          role: { de: 'Die Natur wählt den Weg, auf dem S stationär ist: Kleine Änderungen des Weges ändern S in erster Ordnung nicht.',
+            en: 'Nature picks the path on which S is stationary: small changes to the path do not change S to first order.' },
+        },
+        int: {
+          m: 'integral', dim: 'T', tex: '\\int dt', color: 'geo', tag: MATH, name: { de: 'Integral über die Zeit', en: 'Integral over time' },
+          meaning: { de: 'Summiert die Größe in der Klammer über die ganze Dauer des Weges auf.',
+            en: 'Adds up the quantity in brackets over the whole duration of the path.' },
+          role: { de: 'Deshalb hat S die Einheit Energie mal Zeit. Das Prinzip bewertet den Weg als Ganzes, nicht einzelne Augenblicke.',
+            en: 'That is why S has the unit energy times time. The principle judges the path as a whole, not individual moments.' },
+        },
+        Ek: {
+          q: 'M L^2 T^-2', tex: 'E_{\\text{kin}}', color: QTY, tag: ENERGY_Q, name: { de: 'Bewegungsenergie', en: 'Kinetic energy' },
+          meaning: { de: 'Die Energie der Bewegung, für einen Massepunkt ½ m v².',
+            en: 'The energy of motion, ½ m v² for a point mass.' },
+          role: { de: 'Geht mit Pluszeichen ein: Schnelle Umwege kosten Wirkung.',
+            en: 'Enters with a plus sign: fast detours cost action.' },
+        },
+        Ep: {
+          q: 'M L^2 T^-2', tex: 'E_{\\text{pot}}', color: QTY, tag: ENERGY_Q, name: { de: 'Lageenergie', en: 'Potential energy' },
+          meaning: { de: 'Die Energie der Lage in einem Kraftfeld, im Schwerefeld m g h.',
+            en: 'The energy of position in a force field, m g h in a gravitational field.' },
+          role: { de: 'Geht mit Minuszeichen ein. Gerade die Differenz statt der Summe sorgt dafür, dass aus der Forderung „stationär“ genau F = ma folgt.',
+            en: 'Enters with a minus sign. It is precisely the difference rather than the sum that makes F = ma follow from the requirement “stationary”.' },
+        },
+      },
+    },
+    /* 7 Einstein-Hilbert-Wirkung */
+    'action-eh': {
+      tex: { de: '\\xs{S}{S} = \\frac{\\xs{c}{c^{3}}}{\\xs{n16}{16\\pi} \\xs{G}{G}}\\xs{int}{\\int} \\xs{R}{R}\\,\\xs{g}{\\sqrt{-g}}\\;\\xs{int}{d^{4}x} \\;+\\; \\xs{SM}{S_{\\text{Materie}}}',
+        en: '\\xs{S}{S} = \\frac{\\xs{c}{c^{3}}}{\\xs{n16}{16\\pi} \\xs{G}{G}}\\xs{int}{\\int} \\xs{R}{R}\\,\\xs{g}{\\sqrt{-g}}\\;\\xs{int}{d^{4}x} \\;+\\; \\xs{SM}{S_{\\text{matter}}}' },
+      symbols: {
+        S: {
+          q: 'M L^2 T^-1', tex: 'S', color: RES, tag: RESULT, name: { de: 'Einstein-Hilbert-Wirkung', en: 'Einstein–Hilbert action' },
+          meaning: { de: 'Die Wirkung der Raumzeit samt Materie. Sie ordnet jeder denkbaren Geometrie eine Zahl zu.',
+            en: 'The action of spacetime together with matter. It assigns a number to every conceivable geometry.' },
+          role: { de: 'Verlangt man, dass S stationär ist, wenn man die Metrik ein wenig verändert, folgen daraus die Feldgleichungen.',
+            en: 'Requiring S to be stationary when the metric is changed slightly yields the field equations.' },
+        },
+        c: {
+          c: 'c', tex: 'c^3', color: 'rel', tag: REL,
+          role: { de: 'Bildet mit G den Vorfaktor c³/(16πG) mit der Dimension Masse pro Zeit; zusammen mit dem Integral ergibt das die Einheit einer Wirkung, J·s.',
+            en: 'Forms the prefactor c³/(16πG) with G, with the dimension mass per time; together with the integral this gives the unit of an action, J·s.' },
+        },
+        n16: {
+          n: 16 * Math.PI, tex: '16\\pi', color: 'geo', tag: NUMBER, name: { de: 'Faktor 16π', en: 'Factor 16π' },
+          role: { de: 'So gewählt, dass die Variation genau 8πG/c⁴ vor T_μν ergibt – und damit im Grenzfall Newtons Gesetz.',
+            en: 'Chosen so that the variation gives exactly 8πG/c⁴ in front of T_μν – and therefore Newton’s law in the limit.' },
+        },
+        G: {
+          c: 'G', color: 'grav', tag: GRAV,
+          role: { de: 'Steht im Nenner des Vorfaktors: Je kleiner G, desto mehr Wirkung „kostet“ Krümmung – und desto weniger krümmt dieselbe Materie die Raumzeit.',
+            en: 'Appears in the denominator of the prefactor: the smaller G, the more action curvature “costs” – and the less the same matter curves spacetime.' },
+        },
+        int: {
+          m: 'integral', dim: 'L^4', tex: '\\int d^4x', color: 'geo', tag: MATH, name: { de: 'Integral über die Raumzeit', en: 'Integral over spacetime' },
+          unitNote: { de: 'mit x⁰ = ct ist d⁴x = c·dt·dx·dy·dz ein Raumzeit-Volumen', en: 'with x⁰ = ct, d⁴x = c·dt·dx·dy·dz is a spacetime volume' },
+          meaning: { de: 'Summiert über alle Punkte der Raumzeit, über Raum und Zeit zugleich.',
+            en: 'Adds up over all points of spacetime, over space and time at once.' },
+          role: { de: 'Wie beim Ball das Integral über die Zeit – nur bewertet es jetzt die ganze Geschichte der Geometrie.',
+            en: 'Like the integral over time for the ball – except that it now judges the whole history of the geometry.' },
+        },
+        R: {
+          q: 'L^-2', tex: 'R', color: QTY, tag: { de: 'Krümmung', en: 'Curvature' }, name: { de: 'Ricci-Skalar', en: 'Ricci scalar' },
+          meaning: { de: 'Die einfachste Zahl, die sich aus der Krümmung der Raumzeit an einem Punkt bilden lässt. In flacher Raumzeit ist R = 0.',
+            en: 'The simplest number that can be formed from the curvature of spacetime at a point. In flat spacetime R = 0.' },
+          role: { de: 'Der Anteil der Geometrie an der Wirkung. Lovelock zeigte: In vier Dimensionen führt nur diese Wahl (plus Λ) auf Gleichungen mit höchstens zweiten Ableitungen der Metrik.',
+            en: 'The geometry’s contribution to the action. Lovelock showed that in four dimensions only this choice (plus Λ) leads to equations with at most second derivatives of the metric.' },
+        },
+        g: {
+          q: '', tex: '\\sqrt{-g}', color: QTY, tag: { de: 'Metrik', en: 'Metric' }, name: { de: 'Volumenfaktor √−g', en: 'Volume factor √−g' },
+          meaning: { de: 'g ist die Determinante der Metrik g_μν. √−g macht aus d⁴x ein Volumen, das nicht von der Wahl der Koordinaten abhängt.',
+            en: 'g is the determinant of the metric g_μν. √−g turns d⁴x into a volume that does not depend on the choice of coordinates.' },
+          role: { de: 'Sorgt dafür, dass alle Beobachter dieselbe Wirkung berechnen. Das Minus steht da, weil g in der Raumzeit negativ ist.',
+            en: 'Makes sure all observers compute the same action. The minus sign is there because g is negative in spacetime.' },
+        },
+        SM: {
+          q: 'M L^2 T^-1', tex: { de: 'S_{\\text{Materie}}', en: 'S_{\\text{matter}}' }, color: QTY, tag: { de: 'Materie', en: 'Matter' }, name: { de: 'Wirkung der Materie', en: 'Matter action' },
+          meaning: { de: 'Die Wirkung aller Felder und Teilchen in der Raumzeit, etwa des elektromagnetischen Feldes.',
+            en: 'The action of all fields and particles in spacetime, for example the electromagnetic field.' },
+          role: { de: 'Ihre Variation nach der Metrik liefert die rechte Seite der Feldgleichungen – so ist T_μν eigentlich definiert.',
+            en: 'Its variation with respect to the metric gives the right-hand side of the field equations – that is how T_μν is actually defined.' },
+        },
+      },
+    },
+    /* 9 Entropie: Clausius */
+    'entropy-clausius': {
+      tex: '\\xs{dS}{dS} = \\frac{\\xs{dQ}{\\delta Q_{\\text{rev}}}}{\\xs{T}{T}} \\qquad [S] = \\mathrm{J/K}',
+      symbols: {
+        dS: {
+          q: ENTROPY_DIM, tex: 'dS', color: RES, tag: RESULT, name: { de: 'Änderung der Entropie', en: 'Change in entropy' },
+          meaning: { de: 'Um wie viel die Entropie bei einem kleinen Schritt zunimmt. Clausius definierte nur Änderungen, keinen absoluten Wert.',
+            en: 'How much the entropy increases in a small step. Clausius defined only changes, not an absolute value.' },
+          role: { de: 'In einem abgeschlossenen System nimmt S nie ab (zweiter Hauptsatz). Daraus folgt, dass Wärme von selbst nur vom Warmen zum Kalten fließt.',
+            en: 'In an isolated system, S never decreases (second law). It follows that heat flows by itself only from warm to cold.' },
+        },
+        dQ: {
+          q: 'M L^2 T^-2', tex: '\\delta Q_{\\text{rev}}', color: QTY, tag: { de: 'Wärme', en: 'Heat' }, name: { de: 'Umkehrbar zugeführte Wärme', en: 'Heat supplied reversibly' },
+          meaning: { de: 'Eine kleine Wärmemenge, die auf umkehrbarem Weg zugeführt wird – so langsam, dass das System dabei stets im Gleichgewicht bleibt.',
+            en: 'A small amount of heat supplied reversibly – so slowly that the system stays in equilibrium throughout.' },
+          role: { de: 'Das δ statt d zeigt: Wärme ist keine Zustandsgröße, sie hängt vom Weg ab. Erst geteilt durch T entsteht mit dS eine Zustandsgröße.',
+            en: 'The δ instead of d shows that heat is not a state variable; it depends on the path. Only after dividing by T does dS become one.' },
+        },
+        T: {
+          q: 'Θ', tex: 'T', color: QTY, tag: { de: 'Temperatur', en: 'Temperature' }, name: { de: 'Absolute Temperatur', en: 'Absolute temperature' },
+          meaning: { de: 'Die Temperatur in Kelvin, bei der die Wärme zugeführt wird.',
+            en: 'The temperature in kelvin at which the heat is supplied.' },
+          role: { de: 'Steht im Nenner: Dieselbe Wärme erhöht die Entropie bei tiefer Temperatur stärker. Deshalb wächst die Gesamtentropie, wenn Wärme vom Warmen zum Kalten fließt.',
+            en: 'Appears in the denominator: the same heat raises the entropy more at a low temperature. That is why the total entropy grows when heat flows from warm to cold.' },
+        },
+      },
+    },
+    /* 9 Entropie: Boltzmann */
+    'entropy-boltzmann': {
+      tex: '\\xs{S}{S} = \\xs{kB}{k_B} \\xs{ln}{\\ln} \\xs{Om}{\\Omega}',
+      symbols: {
+        S: {
+          q: ENTROPY_DIM, tex: 'S', color: RES, tag: RESULT, name: { de: 'Entropie (Boltzmann)', en: 'Entropy (Boltzmann)' },
+          meaning: { de: 'Die Entropie eines Makrozustands, berechnet aus seinen Mikrozuständen.',
+            en: 'The entropy of a macrostate, calculated from its microstates.' },
+          role: { de: 'Verbindet die makroskopische Entropie von Clausius mit dem Abzählen von Anordnungen: Mehr Möglichkeiten heißt mehr Entropie.',
+            en: 'Connects Clausius’s macroscopic entropy with counting arrangements: more possibilities mean more entropy.' },
+        },
+        kB: KB_ENT,
+        ln: {
+          m: 'ln', tex: '\\ln', color: 'geo', tag: MATH, name: { de: 'Natürlicher Logarithmus', en: 'Natural logarithm' },
+          meaning: { de: 'Die Umkehrung der Exponentialfunktion; er macht aus Produkten Summen.', en: 'The inverse of the exponential function; it turns products into sums.' },
+          role: { de: 'Macht die Entropie additiv: Zwei unabhängige Systeme haben Ω₁·Ω₂ Mikrozustände, der Logarithmus macht daraus S₁ + S₂. Außerdem bändigt er riesige Zahlen.',
+            en: 'Makes entropy additive: two independent systems have Ω₁·Ω₂ microstates, and the logarithm turns this into S₁ + S₂. It also tames huge numbers.' },
+        },
+        Om: {
+          q: '', tex: '\\Omega', color: QTY, tag: { de: 'Abzählen', en: 'Counting' }, name: { de: 'Zahl der Mikrozustände', en: 'Number of microstates' },
+          meaning: { de: 'Auf wie viele verschiedene Arten sich ein Makrozustand mikroskopisch verwirklichen lässt. Das Modell oben auf der Seite zählt genau diese Zahl.',
+            en: 'In how many different ways a macrostate can be realised microscopically. The model at the top of the page counts exactly this number.' },
+          role: { de: 'Steht im Logarithmus. Die Formel setzt voraus, dass alle Mikrozustände gleich wahrscheinlich sind.',
+            en: 'Sits inside the logarithm. The formula assumes that all microstates are equally likely.' },
+        },
+      },
+    },
+    /* 9 Entropie: Gibbs */
+    'entropy-gibbs': {
+      tex: '\\xs{S}{S} = -\\xs{kB}{k_B} \\xs{sum}{\\sum_{i}} \\xs{p}{p_i} \\xs{ln}{\\ln} \\xs{p}{p_i}',
+      symbols: {
+        S: {
+          q: ENTROPY_DIM, tex: 'S', color: RES, tag: RESULT, name: { de: 'Entropie (Gibbs)', en: 'Entropy (Gibbs)' },
+          meaning: { de: 'Die Entropie, wenn die Mikrozustände verschieden wahrscheinlich sind.',
+            en: 'The entropy when the microstates have different probabilities.' },
+          role: { de: 'Verallgemeinert Boltzmann: Sind alle Ω Mikrozustände gleich wahrscheinlich (p_i = 1/Ω), ergibt sich wieder S = k_B ln Ω.',
+            en: 'Generalises Boltzmann: if all Ω microstates are equally likely (p_i = 1/Ω), S = k_B ln Ω comes out again.' },
+        },
+        kB: KB_ENT,
+        sum: Object.assign({}, SUM_I, {
+          meaning: { de: 'Addiert die Beiträge aller Mikrozustände i.', en: 'Adds up the contributions of all microstates i.' },
+          role: { de: 'Jeder Mikrozustand trägt −p_i ln p_i bei. S ist damit der Mittelwert von −k_B ln p.',
+            en: 'Each microstate contributes −p_i ln p_i. S is therefore the average of −k_B ln p.' },
+        }),
+        p: {
+          q: '', tex: 'p_i', color: QTY, tag: PROB, name: { de: 'Wahrscheinlichkeit des Mikrozustands i', en: 'Probability of microstate i' },
+          meaning: { de: 'Mit welcher Wahrscheinlichkeit sich das System im Mikrozustand i befindet; alle p_i zusammen ergeben 1.',
+            en: 'The probability that the system is in microstate i; all p_i add up to 1.' },
+          role: { de: 'Kommt zweimal vor: als Gewicht und im Logarithmus. Weil ln p_i ≤ 0 ist, macht das Minuszeichen vorn die Entropie positiv.',
+            en: 'Appears twice: as a weight and inside the logarithm. Because ln p_i ≤ 0, the minus sign in front makes the entropy positive.' },
+        },
+        ln: LN_GIBBS,
+      },
+    },
+    /* 9 Entropie: Shannon */
+    'entropy-shannon': {
+      tex: '\\xs{H}{H} = -\\xs{sum}{\\sum_{i}} \\xs{p}{p_i} \\xs{log}{\\log_{2}} \\xs{p}{p_i} \\qquad [H] = \\text{bit}',
+      symbols: {
+        H: {
+          q: '', tex: 'H', color: RES, tag: RESULT, name: { de: 'Shannon-Entropie', en: 'Shannon entropy' },
+          unitNote: { de: 'gezählt in bit (Logarithmus zur Basis 2)', en: 'counted in bits (logarithm to base 2)' },
+          meaning: { de: 'Wie viel Information eine Nachricht im Mittel trägt – oder wie überrascht man im Schnitt ist, wenn man sie liest.',
+            en: 'How much information a message carries on average – or how surprised you are on average when you read it.' },
+          role: { de: 'Dieselbe Form wie bei Gibbs, nur ohne k_B und mit log₂. Eine faire Münze hat 1 bit, eine, die immer gleich fällt, 0 bit.',
+            en: 'The same form as Gibbs’s, only without k_B and with log₂. A fair coin has 1 bit, one that always lands the same way 0 bits.' },
+        },
+        sum: Object.assign({}, SUM_I, {
+          meaning: { de: 'Addiert über alle möglichen Zeichen oder Nachrichten i.', en: 'Adds up over all possible symbols or messages i.' },
+          role: { de: 'Mittelt die Überraschung −log₂ p_i, gewichtet mit der Häufigkeit des Zeichens.',
+            en: 'Averages the surprise −log₂ p_i, weighted by how often each symbol occurs.' },
+        }),
+        p: {
+          q: '', tex: 'p_i', color: QTY, tag: PROB, name: { de: 'Wahrscheinlichkeit des Zeichens i', en: 'Probability of symbol i' },
+          meaning: { de: 'Wie häufig das Zeichen oder die Nachricht i vorkommt.',
+            en: 'How often the symbol or message i occurs.' },
+          role: { de: 'Gleich wahrscheinliche Zeichen geben die größte Entropie: Bei n gleichen Möglichkeiten ist H = log₂ n.',
+            en: 'Equally likely symbols give the largest entropy: with n equal possibilities, H = log₂ n.' },
+        },
+        log: {
+          m: 'log2', tex: '\\log_2', color: 'geo', tag: MATH, name: { de: 'Logarithmus zur Basis 2', en: 'Logarithm to base 2' },
+          meaning: { de: 'log₂ x gibt an, wie oft man 2 mit sich selbst multiplizieren muss, um x zu erhalten.',
+            en: 'log₂ x states how many times you have to multiply 2 by itself to get x.' },
+          role: { de: 'Die Basis 2 macht bit zur Einheit: Eine Ja-Nein-Entscheidung ist 1 bit. Mit ln statt log₂ und mal k_B wird daraus die Gibbs-Entropie – 1 bit entspricht k_B ln 2.',
+            en: 'Base 2 makes the bit the unit: one yes/no decision is 1 bit. With ln instead of log₂ and times k_B, it becomes the Gibbs entropy – 1 bit corresponds to k_B ln 2.' },
+        },
+      },
+    },
+    /* 9 Entropie: von Neumann */
+    'entropy-vonneumann': {
+      tex: '\\xs{S}{S} = -\\xs{kB}{k_B}\\, \\xs{Tr}{\\mathrm{Tr}}\\left(\\xs{rho}{\\rho} \\xs{ln}{\\ln} \\xs{rho}{\\rho}\\right)',
+      symbols: {
+        S: {
+          q: ENTROPY_DIM, tex: 'S', color: RES, tag: RESULT, name: { de: 'Von-Neumann-Entropie', en: 'Von Neumann entropy' },
+          meaning: { de: 'Die Entropie eines Quantenzustands. Ein vollständig bekannter, reiner Zustand hat S = 0.',
+            en: 'The entropy of a quantum state. A completely known, pure state has S = 0.' },
+          role: { de: 'Die Quantenfassung der Gibbs-Formel: Statt einer Liste von Wahrscheinlichkeiten steht die Dichtematrix da. In ihrer Eigenbasis wird daraus wieder −k_B Σ p_i ln p_i.',
+            en: 'The quantum version of the Gibbs formula: the density matrix replaces the list of probabilities. In its eigenbasis it becomes −k_B Σ p_i ln p_i again.' },
+        },
+        kB: KB_ENT,
+        Tr: {
+          m: 'trace', tex: '\\mathrm{Tr}', color: 'geo', tag: MATH, name: { de: 'Spur', en: 'Trace' },
+          meaning: { de: 'Die Summe der Diagonaleinträge einer Matrix. Sie hängt nicht von der gewählten Basis ab.',
+            en: 'The sum of the diagonal entries of a matrix. It does not depend on the chosen basis.' },
+          role: { de: 'Ersetzt die Summe Σ_i der Gibbs-Formel. Weil die Spur basisunabhängig ist, ist es auch die Entropie.',
+            en: 'Replaces the sum Σ_i of the Gibbs formula. Because the trace is independent of the basis, so is the entropy.' },
+        },
+        rho: {
+          q: '', tex: '\\rho', color: QTY, tag: { de: 'Zustand', en: 'State' }, name: { de: 'Dichtematrix', en: 'Density matrix' },
+          meaning: { de: 'Beschreibt einen Quantenzustand einschließlich klassischer Unkenntnis darüber, welcher Zustand vorliegt. Ihre Eigenwerte sind Wahrscheinlichkeiten.',
+            en: 'Describes a quantum state, including classical ignorance about which state is present. Its eigenvalues are probabilities.' },
+          role: { de: 'Kommt zweimal vor, wie p_i bei Gibbs. Bei einem reinen Zustand hat ρ einen Eigenwert 1 und sonst nur 0 – dann ist S = 0.',
+            en: 'Appears twice, like p_i in Gibbs’s formula. For a pure state, ρ has one eigenvalue 1 and otherwise only 0 – then S = 0.' },
+        },
+        ln: {
+          m: 'ln', tex: '\\ln', color: 'geo', tag: MATH, name: { de: 'Logarithmus einer Matrix', en: 'Matrix logarithm' },
+          meaning: { de: 'In der Eigenbasis der Matrix wird einfach jeder Eigenwert logarithmiert.',
+            en: 'In the eigenbasis of the matrix, each eigenvalue is simply replaced by its logarithm.' },
+          role: { de: 'Spielt dieselbe Rolle wie ln p_i bei Gibbs: Er misst die Überraschung.',
+            en: 'Plays the same role as ln p_i in Gibbs’s formula: it measures the surprise.' },
+        },
+      },
+    },
+    /* 9 Entropie: Bekenstein-Hawking – Symboltexte wie bei den Famous Equations, dazu die Planck-Fläche */
+    'entropy-bh': {
+      tex: '\\xs{S}{S_{BH}} = \\frac{\\xs{k_B}{k_B}\\, \\xs{c}{c^{3}} \\xs{A}{A}}{\\xs{four}{4} \\xs{G}{G} \\xs{hbar}{\\hbar}} = \\xs{k_B}{k_B}\\,\\frac{\\xs{A}{A}}{\\xs{four}{4}\\, \\xs{lP}{l_P^{2}}}',
+      symbols: asTheory(byId['bh-entropy'].symbols, { S: ENTROPY_DIM, A: 'L^2' }, {
+        lP: {
+          q: 'L^2', tex: 'l_P^2', color: QTY, tag: { de: 'Planck-Skala', en: 'Planck scale' }, name: { de: 'Planck-Fläche', en: 'Planck area' },
+          meaning: { de: 'l_P² = ħG/c³ ≈ 2,6 × 10⁻⁷⁰ m², das Quadrat der Planck-Länge.',
+            en: 'l_P² = ħG/c³ ≈ 2.6 × 10⁻⁷⁰ m², the square of the Planck length.' },
+          role: { de: 'Die zweite Form zeigt: Die Entropie zählt die Horizontfläche in Planck-Flächen – ein Viertel k_B pro Planck-Fläche.',
+            en: 'The second form shows that the entropy counts the horizon area in Planck areas – a quarter of k_B per Planck area.' },
+        },
+      }),
+    },
+  };
+  // Symbole, deren tex und Name bei den Famous Equations aus dem Experiment kamen
+  theory['entropy-bh'].symbols.S.tex = 'S_{\\mathrm{BH}}';
+  theory['entropy-bh'].symbols.A.tex = 'A';
+  theory['entropy-bh'].symbols.S.name = { de: 'Bekenstein-Hawking-Entropie', en: 'Bekenstein–Hawking entropy' };
+  theory['entropy-bh'].symbols.A.name = { de: 'Horizontfläche', en: 'Horizon area' };
+  theory['qm-schroedinger'].symbols.psi.unitNote = { de: 'in drei Dimensionen, damit ∫|ψ|² d³x = 1 ist', en: 'in three dimensions, so that ∫|ψ|² d³x = 1' };
+
+  PP.equations = PP.i18n.localize({ meaning, byId, theory });
 })(globalThis.PP = globalThis.PP || {});

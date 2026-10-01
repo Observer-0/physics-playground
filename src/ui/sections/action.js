@@ -12,6 +12,7 @@
   const R = String.raw;
   const t = (s) => U.tex(s);
   const d = (s) => '<div class="th-eq">' + U.tex(s, true) + '</div>';
+  const xq = (id) => U.eqx.inline(id); // Kerngleichung mit anklickbaren Symbolen (src/data/equations.js, theory)
   const exp = (id, label) => '<a href="#exp=' + id + '">' + esc(label) + '</a>';
   const sec = (id, label) => '<a href="#view=theorie&amp;sec=' + id + '">' + esc(label) + '</a>';
 
@@ -192,7 +193,7 @@
         '<p>Die Feldgleichungen kann man auch ganz anders gewinnen: nicht als Gleichung, die man aufstellt, sondern als Folge eines einzigen Prinzips. Es ist dasselbe Prinzip, das die gesamte Physik durchzieht.</p>' +
         '<h3 class="th-h3">Das Prinzip der kleinsten Wirkung</h3>' +
         '<p>Man ordnet jedem denkbaren Weg eines Systems eine Zahl zu, die <b>Wirkung</b> ' + t('S') + '. In der Mechanik ist das die über die Zeit aufsummierte Differenz aus Bewegungs- und Lageenergie:</p>' +
-        d(R`S = \int \left(E_{\text{kin}} - E_{\text{pot}}\right) dt`) +
+        xq('action-mechanics') +
         '<p>Die Natur wählt den Weg, bei dem ' + t('S') + ' <b>stationär</b> ist – kleine Änderungen am Weg ändern ' + t('S') + ' in erster Ordnung nicht. Meist ist das ein Minimum. Aus dieser einen Forderung folgt ' + t('F = ma') + ', ohne dass man Kräfte als Pfeile zeichnen muss. Probier es mit einem geworfenen Ball: Jede Verformung der echten Bahn macht die Wirkung größer.</p>' +
         actHTML() +
         '<p>Das Diagramm daneben zeigt die Wirkung in Abhängigkeit von der Beule ' + t(R`\varepsilon_1`) + '. Die Kurve hat ihr Minimum genau bei null, also bei der echten Wurfparabel. Die Welle hebt die ganze Kurve zusätzlich an – jede Abweichung kostet.</p>' +
@@ -202,7 +203,7 @@
         '<p>Dass die Natur einem solchen Prinzip folgt, ist kein Zufall der Mechanik. Licht nimmt den Weg kürzester Laufzeit (Fermat), Felder gehorchen Wirkungsprinzipien, und in der Quantenmechanik summiert Feynman über <i>alle</i> Wege, jeweils gewichtet mit ' + t(R`e^{iS/\hbar}`) + '. Der klassische Weg ist der, bei dem sich die Nachbarwege nicht gegenseitig auslöschen.</p>' +
         '<h3 class="th-h3">Die Wirkung der Raumzeit</h3>' +
         '<p>1915 fragte David Hilbert: Welche Wirkung hat die Geometrie selbst? Seine Antwort, die <b>Einstein-Hilbert-Wirkung</b>:</p>' +
-        d(R`S = \frac{c^{3}}{16\pi G}\int R\,\sqrt{-g}\;d^{4}x \;+\; S_{\text{Materie}}`) +
+        xq('action-eh') +
         '<div class="th-scroll"><table class="t th-cmp"><tbody>' + EH_ROWS() + '</tbody></table></div>' +
         '<p>Man verlangt nun, dass ' + t('S') + ' stationär ist, wenn man die Metrik ' + t(R`g_{\mu\nu}`) + ' ein klein wenig verändert – genau wie beim Ball, nur dass jetzt statt einer Bahn die Geometrie selbst „verbogen“ wird. Heraus kommen die Feldgleichungen:</p>' +
         d(R`\frac{\delta S}{\delta g^{\mu\nu}} = 0 \quad\Rightarrow\quad G_{\mu\nu} = \frac{8\pi G}{c^{4}}\, T_{\mu\nu}`) +
@@ -218,7 +219,7 @@
         '<p>The field equations can also be obtained in a completely different way: not as an equation you write down, but as the consequence of a single principle. It is the same principle that runs through all of physics.</p>' +
         '<h3 class="th-h3">The principle of least action</h3>' +
         '<p>You assign every conceivable path of a system a number, the <b>action</b> ' + t('S') + '. In mechanics it is the difference between kinetic and potential energy, added up over time:</p>' +
-        d(R`S = \int \left(E_{\text{kin}} - E_{\text{pot}}\right) dt`) +
+        xq('action-mechanics') +
         '<p>Nature chooses the path for which ' + t('S') + ' is <b>stationary</b> – small changes to the path do not change ' + t('S') + ' to first order. Usually this is a minimum. From this single requirement follows ' + t('F = ma') + ', without drawing forces as arrows. Try it with a thrown ball: every deformation of the true path makes the action larger.</p>' +
         actHTML() +
         '<p>The diagram next to it shows the action as a function of the bump ' + t(R`\varepsilon_1`) + '. The curve has its minimum exactly at zero, i.e. at the true parabolic trajectory. The wave lifts the whole curve on top of that – every deviation costs something.</p>' +
@@ -228,7 +229,7 @@
         '<p>That nature follows such a principle is no quirk of mechanics. Light takes the path of shortest travel time (Fermat), fields obey action principles, and in quantum mechanics Feynman sums over <i>all</i> paths, each weighted with ' + t(R`e^{iS/\hbar}`) + '. The classical path is the one for which neighbouring paths do not cancel each other out.</p>' +
         '<h3 class="th-h3">The action of spacetime</h3>' +
         '<p>In 1915 David Hilbert asked: what is the action of geometry itself? His answer, the <b>Einstein–Hilbert action</b>:</p>' +
-        d(R`S = \frac{c^{3}}{16\pi G}\int R\,\sqrt{-g}\;d^{4}x \;+\; S_{\text{matter}}`) +
+        xq('action-eh') +
         '<div class="th-scroll"><table class="t th-cmp"><tbody>' + EH_ROWS() + '</tbody></table></div>' +
         '<p>Now you demand that ' + t('S') + ' be stationary when the metric ' + t(R`g_{\mu\nu}`) + ' is changed ever so slightly – just like with the ball, except that now it is the geometry itself that gets “bent” instead of a path. Out come the field equations:</p>' +
         d(R`\frac{\delta S}{\delta g^{\mu\nu}} = 0 \quad\Rightarrow\quad G_{\mu\nu} = \frac{8\pi G}{c^{4}}\, T_{\mu\nu}`) +

@@ -422,6 +422,12 @@ input[type=range]:focus-visible { outline: 1px dashed var(--accent); outline-off
 .xr-brk { color: var(--red); }
 .xr-mean { color: var(--ink); }
 .xr-role b { font-weight: 600; color: var(--ink); }
+/* Schwebende Karte über dem Lesetext der Grundlagen: liegt über dem Text, verschiebt ihn nicht */
+.xpop { position: absolute; z-index: 60; min-height: 0; background: var(--panel); box-shadow: 0 14px 36px -10px rgba(0, 0, 0, .6); }
+.xpop[hidden] { display: none; }
+[data-theme="light"] .xpop { box-shadow: 0 12px 30px -10px rgba(20, 30, 40, .28); }
+.xsym[aria-expanded="true"] { background: var(--panel2); outline: none; box-shadow: 0 0 0 .035em var(--xc); }
+.th-eq.xq { padding: 2px 0; }
 .xr-hint { color: var(--ink3); font-size: 12.5px; text-align: center; margin: 6px 0 0; }
 .xr-lim { border-left: 2px solid var(--line2); padding: 2px 0 0 10px; margin: 10px 0 6px; }
 .xr-lim-f { font-size: 18px; color: var(--ink); margin-bottom: 4px; }

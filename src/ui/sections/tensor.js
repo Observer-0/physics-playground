@@ -12,6 +12,7 @@
   const R = String.raw;
   const t = (s) => U.tex(s);
   const d = (s) => '<div class="th-eq">' + U.tex(s, true) + '</div>';
+  const xq = (id) => U.eqx.inline(id); // Kerngleichung mit anklickbaren Symbolen (src/data/equations.js, theory)
   const exp = (id, label) => '<a href="#exp=' + id + '">' + esc(label) + '</a>';
   const sec = (id, label) => '<a href="#view=theorie&amp;sec=' + id + '">' + esc(label) + '</a>';
 
@@ -298,11 +299,11 @@
         '<p>' + t(R`G_{\mu\nu}`) + ', ' + t(R`T_{\mu\nu}`) + ' und ' + t(R`g_{\mu\nu}`) + ' sind <b>symmetrisch</b>: Der Eintrag in Zeile 1, Spalte 2 ist derselbe wie in Zeile 2, Spalte 1. Unabhängig sind nur die 4 Einträge auf der Diagonale plus die 6 darüber. Die Feldgleichungen sind deshalb in Wahrheit <b>10 gekoppelte Gleichungen</b>, eine pro Tabellenplatz: Krümmung in Richtung ' + t(R`\mu\nu`) + ' gleich Materie in Richtung ' + t(R`\mu\nu`) + '. ' + exp('efe', 'Zu den Feldgleichungen') + '.</p>' +
         '<h3 class="th-h3 th-deep">Die 00-Komponente ist Newton</h3>' +
         '<p>Bei langsam bewegter Materie und schwachen Feldern überwiegt ' + t(R`T_{00} = \rho c^{2}`) + ' alle anderen Einträge bei Weitem. Dann wird die 00-Komponente der Feldgleichungen zu</p>' +
-        d(R`\nabla^{2}\Phi = 4\pi G \rho`) +
+        xq('idx-poisson') +
         '<p>– das ist Newtons Gravitationsgesetz in Feldform. Die Allgemeine Relativitätstheorie enthält Newton als Grenzfall, als einen einzigen Eintrag der Tabelle. ' + exp('newton-gravity', 'Zu Newton') + '.</p>' +
         '<h3 class="th-h3">Einsteinsche Summenkonvention</h3>' +
         '<p>Kommt derselbe Index einmal oben und einmal unten vor, wird automatisch über alle vier Werte summiert. Das Summenzeichen lässt man einfach weg. Das Abstandsquadrat in der Raumzeit</p>' +
-        d(R`ds^{2} = \eta_{\mu\nu}\, dx^{\mu}\, dx^{\nu}`) +
+        xq('idx-interval') +
         '<p>steht also für 16 Summanden. In der flachen Raumzeit sind 12 davon null, übrig bleibt</p>' +
         d(R`ds^{2} = -c^{2}dt^{2} + dx^{2} + dy^{2} + dz^{2}`) +
         '<p>Mit einem Plus vor ' + t(R`c^{2}dt^{2}`) + ' wäre das der Satz des Pythagoras in vier Dimensionen. Das eine Minuszeichen ist der ganze Unterschied zwischen Raum und Zeit. Im nächsten Abschnitt sieht man, was es anrichtet.</p>' +
@@ -316,11 +317,11 @@
         '<p>' + t(R`G_{\mu\nu}`) + ', ' + t(R`T_{\mu\nu}`) + ' and ' + t(R`g_{\mu\nu}`) + ' are <b>symmetric</b>: the entry in row 1, column 2 is the same as in row 2, column 1. Only the 4 entries on the diagonal plus the 6 above it are independent. The field equations are therefore really <b>10 coupled equations</b>, one per slot in the table: curvature in the ' + t(R`\mu\nu`) + ' direction equals matter in the ' + t(R`\mu\nu`) + ' direction. ' + exp('efe', 'To the field equations') + '.</p>' +
         '<h3 class="th-h3 th-deep">The 00 component is Newton</h3>' +
         '<p>For slowly moving matter and weak fields, ' + t(R`T_{00} = \rho c^{2}`) + ' outweighs all other entries by far. The 00 component of the field equations then becomes</p>' +
-        d(R`\nabla^{2}\Phi = 4\pi G \rho`) +
+        xq('idx-poisson') +
         '<p>– which is Newton’s law of gravitation in field form. General relativity contains Newton as a limiting case, as a single entry of the table. ' + exp('newton-gravity', 'To Newton') + '.</p>' +
         '<h3 class="th-h3">Einstein summation convention</h3>' +
         '<p>If the same index appears once up and once down, it is automatically summed over all four values. The summation sign is simply left out. The squared interval in spacetime</p>' +
-        d(R`ds^{2} = \eta_{\mu\nu}\, dx^{\mu}\, dx^{\nu}`) +
+        xq('idx-interval') +
         '<p>therefore stands for 16 terms. In flat spacetime 12 of them are zero, leaving</p>' +
         d(R`ds^{2} = -c^{2}dt^{2} + dx^{2} + dy^{2} + dz^{2}`) +
         '<p>With a plus in front of ' + t(R`c^{2}dt^{2}`) + ' this would be Pythagoras’ theorem in four dimensions. That one minus sign is the whole difference between space and time. The next section shows what it does.</p>' +
@@ -350,7 +351,7 @@
         '<div class="callout"><b>Warum Physiker Tensoren lieben:</b> Ist ein Tensor in einem Koordinatensystem null, dann ist er in jedem null. Eine Gleichung zwischen Tensoren gilt deshalb für alle Beobachter zugleich. Das Relativitätsprinzip aus ' + sec('inertia', 'Abschnitt 2') + ' und ' + sec('rel', '3') + ' bekommt man so mathematisch geschenkt. Deshalb schrieb Einstein die Physik in Tensoren.</div>' +
         '<h3 class="th-h3 th-deep">Indizes oben und unten</h3>' +
         '<p>Die Position des Index trägt Information. Obere Indizes (<i>kontravariant</i>) gehören zu Größen wie Verschiebungen ' + t(R`dx^{\mu}`) + ', untere (<i>kovariant</i>) zu Größen wie Gradienten. Die Metrik übersetzt zwischen beiden: ' + t(R`v_{\mu} = g_{\mu\nu}\, v^{\nu}`) + ' (mit Summenkonvention). In der flachen Raumzeit dreht das nur das Vorzeichen der Zeitkomponente um. Kombiniert man einen oberen mit einem unteren Index, entsteht ein Skalar, auf den sich alle Beobachter einigen, zum Beispiel beim Viererimpuls:</p>' +
-        d(R`p_{\mu}\, p^{\mu} = -\frac{E^{2}}{c^{2}} + |\vec{p}\,|^{2} = -m^{2}c^{2}`) +
+        xq('tensor-momentum') +
         '<p>Für ein ruhendes Teilchen (' + t(R`\vec{p} = 0`) + ') steht da ' + t(R`E = mc^{2}`) + '. Die berühmteste Formel der Physik ist also die Aussage, dass die „Länge“ des Viererimpulses für alle gleich ist.</p>' +
         '<h3 class="th-h3 th-deep">Von der Metrik zur Krümmung</h3>' +
         '<p>In der ART beginnt alles mit der Metrik ' + t(R`g_{\mu\nu}`) + ', dem Lineal, das an jedem Punkt festlegt, wie Abstände und Zeiten gemessen werden. Die Tabelle oben zeigt sie unter „Metrik Schwarzes Loch“. Aus ihr baut man Schritt für Schritt die linke Seite der Feldgleichungen:</p>' +
@@ -379,7 +380,7 @@
         '<div class="callout"><b>Why physicists love tensors:</b> if a tensor is zero in one coordinate system, it is zero in every one. An equation between tensors therefore holds for all observers at once. The principle of relativity from ' + sec('inertia', 'section 2') + ' and ' + sec('rel', '3') + ' comes for free mathematically. That is why Einstein wrote physics in tensors.</div>' +
         '<h3 class="th-h3 th-deep">Upper and lower indices</h3>' +
         '<p>The position of an index carries information. Upper indices (<i>contravariant</i>) belong to quantities like displacements ' + t(R`dx^{\mu}`) + ', lower ones (<i>covariant</i>) to quantities like gradients. The metric translates between the two: ' + t(R`v_{\mu} = g_{\mu\nu}\, v^{\nu}`) + ' (with the summation convention). In flat spacetime this only flips the sign of the time component. Combining an upper with a lower index gives a scalar that all observers agree on – for the four-momentum, for example:</p>' +
-        d(R`p_{\mu}\, p^{\mu} = -\frac{E^{2}}{c^{2}} + |\vec{p}\,|^{2} = -m^{2}c^{2}`) +
+        xq('tensor-momentum') +
         '<p>For a particle at rest (' + t(R`\vec{p} = 0`) + ') this reads ' + t(R`E = mc^{2}`) + '. So the most famous formula in physics is the statement that the “length” of the four-momentum is the same for everyone.</p>' +
         '<h3 class="th-h3 th-deep">From the metric to curvature</h3>' +
         '<p>In general relativity, everything starts with the metric ' + t(R`g_{\mu\nu}`) + ', the ruler that fixes at every point how distances and times are measured. The table above shows it under “Black hole metric”. From it you build the left-hand side of the field equations step by step:</p>' +
