@@ -1,191 +1,324 @@
-# Roadmap: Offene Fragen
+# Roadmap: Open Questions
 
-Stand 24.09.2026. Plan für die nächste Ausbaustufe – nichts davon ist umgesetzt.
+**Status: September 24, 2026.** Planned features only. Nothing has been implemented yet.
 
-Ein neuer Bereich „Offene Fragen“ (engl. „Open questions“) zeigt Stellen, an denen allgemeine Relativitätstheorie (ART) und Quantentheorie an ihre Grenze kommen oder sich widersprechen. Die App soll dort dasselbe leisten wie überall: zeigen, was gesichert ist, was eine Annahme ist und wo genau die offene Stelle liegt – mit Zahlen aus derselben Engine.
+Add a new section, **Open Questions**, exploring where general relativity (GR) and quantum theory reach their limits or leave important questions unanswered.
 
-## Leitlinien
+The goal is simple: show what we know, what we assume, and what remains open. All numerical results must come from the existing physics engine.
 
-Es gelten die Regeln aus README und CHANGELOG:
+## 1. Rules
 
-- Experimente sind reine Daten in `src/data/experiments.js`.
-- Texte immer als `{ de, en }`; der Test auf deutsche Reste in englischen Texten bleibt grün.
-- Zahlen kommen nur aus der Engine; die Oberfläche rechnet keine Formel nach.
-- Epistemische Linie: Mathematik, Modell, Näherung, Messung und Annahme getrennt benennen.
+Existing README and CHANGELOG conventions remain in force:
 
-Neu für diesen Bereich: **theoriefrei jenseits von ART und Quantentheorie.**
+* Experiments are pure data in `src/data/experiments.js`.
+* All text uses `{ de, en }`. Existing language tests must pass.
+* The UI never calculates physics formulas. All numerical results come from the engine.
+* Clearly distinguish mathematical results, models, approximations, measurements, and assumptions.
 
-- Grundlage ist nur, was ART und Quantentheorie selbst sagen – QM, Quantenfeldtheorie (auch auf gekrümmter Raumzeit, also semiklassisch), Thermodynamik und Statistik – plus Messungen.
-- Methoden der semiklassischen Gravitation gehören dazu (Hawkings Rechnung, euklidisches Pfadintegral, Wald-Entropie).
-- Keine Querverweise auf Kandidaten einer Quantengravitation (Stringtheorie, Schleifenquantengravitation, asymptotische Sicherheit, kausale Mengen …) und keine Erweiterungen der QM (etwa Kollapsmodelle). Auch nicht als Ausblick, in Fußnoten oder in den Quellen.
-- Eine offene Frage bleibt eine Frage. Keine Antwort aus einem Kandidaten, keine Namen von Auflösungsvorschlägen. Wo etwas offen ist, steht „offen“.
+**Scope restriction:** Use only GR, quantum mechanics, quantum field theory (including semiclassical gravity), thermodynamics, statistical mechanics, and experimental evidence.
 
-Zur Entscheidung: Abschnitt 10 der Grundlagen („Warum beide Theorien (noch) nicht zusammenpassen“) nennt unter „Lösungsansätze“ bereits Stringtheorie und Schleifenquantengravitation, als Hypothese markiert. Der neue Bereich verlinkt nicht auf diesen Absatz. Ob er so bleibt, ist eine eigene Entscheidung.
+No quantum-gravity candidates or extensions of quantum mechanics. No references to them in explanations, footnotes, or sources.
 
-## Form
+If something is unresolved, say **open**. No speculative solutions.
 
-- **Themenfeld:** eigener Eintrag `open` in `U.FIELDS` mit Icon und Farbe, in der Seitenleiste zwischen Grundlagen und Werkzeuge. Keine Datenfarbe: Orange ist das Hauptergebnis, Rot die Warnung, Cyan der Bezug, Grün „in Ordnung“.
-- **Seiten:** eine Übersicht (das Anforderungsprofil, Punkt 5) und eine Seite je Frage, nach dem Muster der Grundlagen: Lesespalte, breite Widgets, Inhaltsverzeichnis, `h3.th-deep` für Vertiefungen, „Weiter zu“ am Ende.
-- **Steckbrief**, gleich für jede Frage:
-  1. Die Frage in einem Satz
-  2. Was gesichert ist, mit Epistemik-Tag
-  3. Wo genau es offen ist
-  4. Was es entscheiden würde: Messung, Rechnung oder Konsistenz
-  5. Live in der App: Experiment oder Widget, Zahlen aus der Engine
-- **Status je Frage**, zusätzlich zu den Epistemik-Tags: *offen* · *teilweise verstanden* · *semiklassisch geklärt*.
-- **Querverweise** dorthin, wo die Fragen schon vorkommen:
+One separate decision remains: Foundations Section 10 already mentions string theory and loop quantum gravity. The new section will not link to that passage. Whether the existing text stays is a separate question.
 
-  | Stelle in der App | Frage |
-  | --- | --- |
-  | Hawking-Temperatur | Informationsparadoxon |
-  | BH-Entropie | Warum 1/4 |
-  | Feldgleichungen, Konstante Λ | Λ-Problem |
-  | Grundlagen 8 | Messproblem |
-  | Grundlagen 10 | Anforderungsprofil |
+## 2. Structure
 
-## Themen, in dieser Reihenfolge
+### Navigation
 
-Die Punkte 1 und 2 zuerst. Beide lassen sich vollständig mit der Engine zeigen und bauen auf Vorhandenem auf. Beide haben eine klare Pointe: Die 1/4 sieht aus wie eine Konvention und ist erzwungen. Die „120 Größenordnungen“ sehen aus wie ein Ergebnis und hängen an einer Annahme.
+Add `open` to `U.FIELDS`, with its own icon and color. Place it between Foundations and Tools.
 
-### 1. Warum genau 1/4 in S = k_B A/(4 l_P²)?
+Keep existing color semantics:
 
-**Frage:** Woher kommt der Faktor 1/4 – und was zählt diese Entropie?
+* Orange: main result.
+* Red: warning.
+* Cyan: connection.
+* Green: consistent result.
 
-**Gesichert (semiklassisch):**
+### Pages
 
-- Mit Hawkings Temperatur T_H und dem ersten Hauptsatz dE = T dS (E = Mc²) ist der Vorfaktor festgelegt: Nur 1/4 ist konsistent. Bekenstein hatte das Flächengesetz vorher, konnte den Vorfaktor aber nur abschätzen.
-- Die 1/4 hängt an 8π = 4 · 2π aus dem Hawking-Block, also an der 2π der Quantenperiodizität.
-- Ein zweiter, unabhängiger Weg innerhalb der semiklassischen ART liefert denselben Wert: das euklidische Pfadintegral (Gibbons und Hawking 1977). Wald (1993) erhält ihn als Noether-Ladung; das steht schon im Abschnitt Entropie.
+Create one overview page and one page per question.
 
-**Offen:** Welche Mikrozustände S_BH zählt. Die App nennt dafür keine Kandidaten.
+Follow the existing Foundations layout, reusing `sectionPage`, `foldDeep`, and `charBar` from `src/ui/theory.js`. Generalize the existing pattern where practical instead of duplicating it.
 
-**Live:**
+Each question page follows the same structure:
 
-- Datenexperiment mit freiem Vorfaktor η in S_η = η k_B A/l_P².
-- Die Engine rechnet T_H · (dS_η/dM)/c² als Formel in den Daten. Analytisch ist das 4η; die UI rechnet es nicht nach.
-- Nur bei η = 1/4 ist dE = T dS erfüllt; sonst meldet ein Check, dass der erste Hauptsatz verletzt ist.
-- Voreinstellungen: 1/4, 1/2, 1 und Bekensteins Schätzung von 1973. Deren Wert vor der Aufnahme an der Originalarbeit prüfen.
+1. **The question**
+2. **What is established**
+3. **What remains open**
+4. **What would settle it**
+5. **Live in the app**
 
-**Epistemik:** Konsistenzargument (Mathematik plus die Annahme, dass T_H gilt), kein Beweis der Mikrophysik.
+Each page also gets a status: **Open**, **Partially understood**, or **Semiclassically resolved**.
 
-**Tests:**
+Status describes the overall question; epistemic tags describe individual claims. Don't confuse the two.
 
-- η = 1/4 ergibt Verhältnis 1, η = 1/2 ergibt 2.
-- Das Verhältnis ist dimensionslos.
+### Existing connections
 
-### 2. Λ: Warum ist die kosmologische Konstante so klein?
+| Existing content       | Open question                    |
+| ---------------------- | -------------------------------- |
+| Hawking temperature    | Information paradox              |
+| Black hole entropy     | Why 1/4?                         |
+| Field equations and Λ  | Cosmological constant problem    |
+| Foundations Section 8  | Measurement problem              |
+| Foundations Section 10 | Requirements for quantum gravity |
 
-**Frage:** Warum ist die gemessene Energiedichte des Vakuums so viel kleiner als die Beiträge, die die Quantenfeldtheorie abschätzt?
+## 3. Question 1: Why Exactly 1/4?
 
-**Gesichert:**
+**Question:** Where does the factor of 1/4 in
 
-- Gemessen: Λ ≈ 1,1 × 10⁻⁵² m⁻², ein Planck-2018-Wert aus dem ΛCDM-Modell. Er ist modellabhängig; so steht er schon in den Konstanten.
-- Daraus folgt die Energiedichte ρ_Λc² = Λc⁴/(8πG) ≈ 5 × 10⁻¹⁰ J/m³. Die zugehörige Energieskala (ρ_Λc² · (ħc)³)^(1/4) liegt bei rund 2 meV.
-- In der Quantenfeldtheorie tragen Nullpunktsenergien zur Vakuumenergie bei. Vakuumenergie gravitiert wie Λ.
+$$
+S_{\mathrm{BH}}=\frac{k_B A}{4l_P^2}
+$$
 
-**Offen, und die Pointe:**
+come from, and what does this entropy count?
 
-- Die berühmten „120 Größenordnungen“ sind keine Vorhersage. Sie folgen aus einer Annahme: Man schneidet die Nullpunktsenergie bei der Planck-Energie ab, ρ_vac ~ E_c⁴/(ħc)³.
-- Mit 1 TeV als Grenze sind es etwa 59 Größenordnungen, andere Rechenwege liefern wieder andere Zahlen.
-- Robust ist nur: Beiträge bekannter Teilchen liegen je nach Rechenweg viele Größenordnungen über dem gemessenen Wert und müssten sich fast vollständig wegheben. Das eigentliche Problem ist diese Feinabstimmung.
+### Established
 
-**Live:**
+For a Schwarzschild black hole,
 
-- Regler für die Abschneide-Energie E_c, logarithmisch von meV bis zur Planck-Energie.
-- Die Engine rechnet ρ_vac ≈ E_c⁴/(ħc)³ und ρ_Λc² aus Λ der Registry, dazu log₁₀ des Verhältnisses.
-- Voreinstellungen: Λ-Skala (≈ 2 meV), Elektronmasse, 1 TeV, Planck-Energie.
-- Der Vorfaktor der Abschätzung (etwa 1/(16π²)) ist Konvention; als Näherung markieren. Er verschiebt das Ergebnis um rund zwei von 120 Größenordnungen.
+$$
+T_H=\frac{\hbar c^3}{8\pi GMk_B},
+\qquad
+A=\frac{16\pi G^2M^2}{c^4}.
+$$
 
-**Epistemik:**
+Combining Hawking's temperature with the first law,
 
-- Λ ist gemessen, aber modellabhängig.
-- ρ_vac ist eine Abschätzung.
-- Die Abschneide-Energie ist eine Annahme.
-- Kein Lösungsvorschlag.
+$$
+dE=T_H\,dS,\qquad dE=c^2dM,
+$$
 
-**Tests:**
+fixes the coefficient at \(1/4\).
 
-- E_c = E_P ergibt ein Verhältnis zwischen 10¹²⁰ und 10¹²⁴.
-- E_c auf der Λ-Skala ergibt ein Verhältnis nahe 1.
-- Das Verhältnis ist dimensionslos.
+The Euclidean path-integral approach (Gibbons and Hawking, 1977) and Wald's Noether-charge derivation (1993) provide independent semiclassical results.
 
-### 3. Informationsparadoxon
+The factor is not arbitrary within this framework. However, the numerical identity \(8\pi=4\times2\pi\) is not, by itself, an explanation of its physical origin.
 
-**Frage:** Geht Information verloren, wenn ein Schwarzes Loch vollständig verdampft?
+### Open
 
-**Gesichert (semiklassisch):** Hawkings Rechnung ergibt thermische Strahlung, deren Entropie bis zum Ende wächst. Ein reiner Anfangszustand wäre am Ende gemischt – im Widerspruch zur Unitarität der Quantenmechanik.
+The microscopic interpretation of black hole entropy: **which states does it count?**
 
-**Erwartung bei Unitarität:** die Page-Kurve (Page 1993). Die Entropie der Strahlung steigt, kippt etwa dann, wenn das Loch die Hälfte seiner Entropie abgegeben hat (Page-Zeit), und fällt bis zum Ende auf null.
+The coefficient is fixed by semiclassical consistency; the microscopic explanation remains open.
 
-**Stand:** Neuere semiklassische Rechnungen (seit 2019) reproduzieren die Page-Kurve. Wie die Information physikalisch herauskommt, ist offen. Beobachtet ist nichts davon, denn T_H astrophysikalischer Löcher liegt weit unter der Temperatur der Hintergrundstrahlung.
+### Live experiment
 
-**Live:** ein Graph über t/t_evap, mit t_evap aus dem Hawking-Experiment (Ausgabe `tev`, dort schon als grobe Abschätzung markiert):
+Add a free coefficient \(\eta\):
 
-- S_BH(t) = S₀ (1 − t/t_evap)^(2/3).
-- Hawking-Kurve: S_rad = S₀ − S_BH. Das ist eine Vereinfachung, weil die Entropie der Strahlung in Wahrheit etwas größer ist als die Entropie, die das Loch verliert. Als Näherung markieren.
-- Page-Kurve: min(S_rad, S_BH).
-- Die Engine rechnet die Page-Zeit als Schnittpunkt, in dieser Vereinfachung t = (1 − 2^(−3/2)) t_evap ≈ 0,65 t_evap.
-- Jede Kurve trägt ihren eigenen Status: berechnet (semiklassisch), erwartet (Unitarität), in Rechnungen reproduziert mit offenem Mechanismus.
+$$
+S_\eta=\eta\frac{k_B A}{l_P^2}.
+$$
 
-### 4. Messproblem
+The engine calculates the consistency ratio
 
-**Frage:** Warum liefert eine Messung genau ein Ergebnis, obwohl die Schrödinger-Gleichung Überlagerungen linear weiterentwickelt?
+$$
+R_\eta=\frac{T_H}{c^2}\frac{dS_\eta}{dM}=4\eta.
+$$
 
-**Gesichert:**
+Presets: \(\eta=1/4,\;1/2,\;1\).
 
-- Die Born-Regel sagt die Häufigkeiten in allen Tests richtig vorher.
-- Dekohärenz ist gemessen: Wechselwirkung mit der Umgebung löscht Interferenz, etwa bei Fullerenen, die Wärmestrahlung abgeben. Sie erklärt, warum man keine Überlagerungen sieht, aber nicht, warum ein bestimmtes Ergebnis eintritt.
-- Interferenz ist bis zu Molekülen mit über 25 000 u nachgewiesen (2019). Eine Grenze für Überlagerungen wurde bisher nicht gefunden.
+* \(1/4\) produces a ratio of 1.
+* \(1/2\) produces a ratio of 2.
+* Only \(1/4\) satisfies the first law under the stated assumptions.
 
-**Offen:** Was genau eine Messung ist und warum ein Ergebnis eintritt.
+The formula belongs in the experiment data, not the UI.
 
-**Deutungen:** Abschnitt 8 nennt sie bereits, mit dem Hinweis, dass sie dieselben Vorhersagen machen. Dabei bleibt es; keine Modelle, die die QM abändern.
+Include Bekenstein's 1973 estimate as an additional preset only after verifying its exact value against the original paper.
 
-**Live:**
+**Status:** Partially understood.
 
-- Eher Text mit einer Vergleichstabelle: was die QM sagt, was gemessen ist, was offen ist.
-- Optional ein Widget: Sichtbarkeit der Interferenz bei wachsender Kopplung an die Umgebung. Das ist ein Modell mit einem Parameter und so zu markieren.
+**Tests:** Verify the expected ratios and dimensional consistency.
 
-**Brücke zur Gravitation:** Frage 1 in Abschnitt 10, „Welche Geometrie hat eine Überlagerung?“.
+## 4. Question 2: Why Is the Cosmological Constant So Small?
 
-### 5. Anforderungsprofil: Was muss eine Quantengravitation leisten?
+**Question:** Why is the observed vacuum energy density so much smaller than estimates of quantum-field contributions?
 
-Die Übersichtsseite des Bereichs. Sie listet Anforderungen und bewertet keine Ansätze; es gibt also keine Tabelle „welcher Kandidat erfüllt was“. Jeder Punkt verlinkt die Stelle in der App, an der er schon vorkommt.
+### Established
 
-1. Bei kleinen Energien und Krümmungen die ART reproduzieren.
-2. In nahezu flacher Raumzeit die Quantenfeldtheorie reproduzieren.
-3. Vorhersagekraft auch bei der Planck-Energie, wo die Kopplung α_G ~ (E/E_P)² aus Abschnitt 10 die Größenordnung 1 erreicht.
-4. S_BH = k_B A/(4 l_P²) mikroskopisch erklären, mit der 1/4 (Frage 1).
-5. Unitarität erhalten (Frage 3).
-6. Etwas über die Singularitäten sagen: Urknall und das Innere Schwarzer Löcher.
-7. Das Problem der Zeit lösen (Abschnitt 10).
-8. Nichts verletzen, was gemessen ist, zum Beispiel:
-   - keine energieabhängige Lichtgeschwindigkeit bis über die Planck-Energie (Gammablitz GRB 090510, Fermi 2009),
-   - Äquivalenzprinzip auf etwa 10⁻¹⁵ (MICROSCOPE),
-   - Gravitationswellen laufen mit c, auf etwa 10⁻¹⁵ genau (GW170817).
-9. Möglichst testbar sein. Vorgeschlagen, noch nicht durchgeführt: Kann Gravitation zwei Massen verschränken?
+The Planck 2018 ΛCDM value is approximately
 
-Nicht zwingend, aber an derselben Schnittstelle: Λ (Frage 2). Ob eine Quantengravitation Λ erklären muss, ist selbst offen.
+$$
+\Lambda\approx1.1\times10^{-52}\,\mathrm{m}^{-2}.
+$$
 
-## Technik
+It corresponds to
 
-- **Seiten:** `sectionPage`, `foldDeep` und `charBar` in `src/ui/theory.js` sind das Vorbild. Für ein zweites Themenfeld mit Seiten lohnt es sich, das Muster zu verallgemeinern statt es zu kopieren.
-- **Experimente:**
-  - reine Daten; neue Größen wie das Verhältnis in Frage 1 sind Formeln in den Daten;
-  - Hilfsgrößen mit `aux`;
-  - Modellgrenzen mit `why` und `on`, damit Schraffuren ihren Grund nennen;
-  - Standardbereiche über `graph.view`.
-- **Symbolkarten:** Der Schnittpunkt-Block (`src/ui/crossroads.js`) passt auch für andere Formeln, etwa ρ_Λ = Λc²/(8πG).
-- **Prüfung:** Tests je Frage (siehe oben) in `tests/tests.js`, neue Seiten in `scripts/check-ui.js`.
-- **Quellen:** im Tab „Quellen“, jede DOI über Crossref geprüft. Kandidaten:
-  - Bekenstein 1973, Hawking 1975, Gibbons und Hawking 1977;
-  - Page 1993, Wald 1993;
-  - Planck 2018;
-  - Fermi zu GRB 090510, LIGO/Virgo zu GW170817;
-  - Molekül-Interferenz 2019.
+$$
+\rho_\Lambda c^2=\frac{\Lambda c^4}{8\pi G}
+\approx5\times10^{-10}\,\mathrm{J/m^3},
+$$
 
-## Kleinere offene Punkte
+with an associated energy scale of roughly \(2\,\mathrm{meV}\).
 
-- Der Hawking-Block ist auf dem Handy sehr hoch.
-- Tabs „Formel & Variablen“ und „Physik & Grenzen“: Fließtext bis 760 px breit, bei 14 px Schrift rund 110 Zeichen je Zeile. Auf breiten Bildschirmen bleibt rechts Fläche frei. Bei der Breiten-Anpassung bewusst nicht angefasst, weil die Spalte mit der Tab-Leiste fluchtet.
-- Die Testseite ist eine lange, einspaltige Liste.
+The quoted Λ value is model-dependent.
+
+### The actual problem
+
+The famous discrepancy of approximately 120 orders of magnitude comes from comparing the observed vacuum energy with a particular zero-point energy estimate using the Planck energy as a cutoff:
+
+$$
+\rho_{\mathrm{vac}}\sim\frac{E_c^4}{(\hbar c)^3}.
+$$
+
+It is **not a unique prediction of quantum field theory**.
+
+Using a cutoff of \(1\,\mathrm{TeV}\) gives a discrepancy of roughly 59 orders of magnitude. The exact result depends on the cutoff and numerical conventions.
+
+The deeper problem remains: why is the observed cosmological constant so small compared with the contributions estimated from known quantum fields?
+
+### Live experiment
+
+Add a logarithmic slider for \(E_c\), ranging from the meV scale to the Planck energy.
+
+The engine calculates:
+
+* The estimated vacuum energy density.
+* The observed density derived from Λ in the constants registry.
+* Their dimensionless ratio and its base-10 logarithm.
+
+Presets: Λ energy scale, electron mass, 1 TeV, Planck energy.
+
+Mark the cutoff as an **assumption** and the vacuum energy calculation as an **estimate**. Any numerical prefactor, such as \(1/(16\pi^2)\), must be documented.
+
+**Status:** Open.
+
+**Tests:** Planck-scale ratio between \(10^{120}\) and \(10^{124}\); ratio near 1 at the Λ energy scale; dimensionless output.
+
+## 5. Question 3: The Information Paradox
+
+**Question:** Is information lost when a black hole completely evaporates?
+
+### Established
+
+Hawking's semiclassical calculation predicts thermal radiation.
+
+The paradox arises when a pure initial state, complete evaporation, no remaining information-bearing system, and the original thermal-radiation result are combined. The resulting mixed state conflicts with unitary evolution.
+
+Under unitarity, the expected radiation entropy follows a Page curve: it rises, reaches a maximum, then falls toward zero.
+
+Semiclassical calculations since 2019 have reproduced Page-curve behavior in specific theoretical settings. This is not an experimental observation of an astrophysical black hole's complete evaporation.
+
+**The physical mechanism remains open.**
+
+### Live experiment
+
+Plot normalized time \(t/t_{\mathrm{evap}}\), using `tev` from the existing Hawking experiment. Keep its rough-estimate warning visible.
+
+Use the simplified model:
+
+$$
+S_{\mathrm{BH}}(t)=S_0
+\left(1-\frac{t}{t_{\mathrm{evap}}}\right)^{2/3},
+$$
+
+$$
+S_{\mathrm{rad}}=S_0-S_{\mathrm{BH}},
+$$
+
+$$
+S_{\mathrm{Page}}=\min(S_{\mathrm{rad}},S_{\mathrm{BH}}).
+$$
+
+The Page curve is illustrative, not a universal formula. Label the entropy balance as an approximation.
+
+The engine calculates the intersection:
+
+$$
+t_{\mathrm{Page}}
+=\left(1-2^{-3/2}\right)t_{\mathrm{evap}}
+\approx0.6464\,t_{\mathrm{evap}}.
+$$
+
+Label each curve as a semiclassical calculation, an expectation under unitarity, or behavior reproduced in specific theoretical calculations.
+
+**Status:** Open.
+
+## 6. Question 4: The Measurement Problem
+
+**Question:** Why does a measurement produce a definite result when the Schrödinger equation evolves superpositions linearly?
+
+### Established
+
+The Born rule agrees with experimental results within the tested domains.
+
+Decoherence suppresses observable interference through interactions with the environment. It explains why interference becomes inaccessible in many situations, but does not by itself explain why a particular outcome occurs.
+
+Molecular interference has been demonstrated with molecules exceeding 25,000 atomic mass units (2019). No universal experimental boundary for quantum superpositions has been established.
+
+### Open
+
+What constitutes a measurement, and why does a particular outcome occur?
+
+### Implementation
+
+Primarily a text page with a comparison table:
+
+* What quantum theory predicts.
+* What experiments establish.
+* What remains open.
+
+An optional widget may illustrate interference visibility as environmental coupling increases. Label it as a model.
+
+Keep existing interpretations in Foundations Section 8. Do not introduce modifications of quantum mechanics.
+
+Link to Section 10: **What geometry does a superposition have?**
+
+**Status:** Open.
+
+## 7. Overview: Requirements for Quantum Gravity
+
+This page lists requirements without evaluating or ranking candidate theories.
+
+Each item links to relevant content already in the app.
+
+1. **Recover GR:** Reproduce general relativity at low energies and small curvature.
+2. **Recover QFT:** Reproduce quantum field theory in approximately flat spacetime.
+3. **Remain predictive at the Planck scale:** The gravitational coupling \(\alpha_G\sim(E/E_P)^2\) becomes order unity.
+4. **Explain black hole entropy:** Account for \(S_{\mathrm{BH}}=k_B A/(4l_P^2)\), including the factor of 1/4.
+5. **Address unitarity:** Resolve the information paradox.
+6. **Address singularities:** Explain the limits of the classical descriptions of the Big Bang and black hole interiors.
+7. **Address the problem of time:** See Foundations Section 10.
+8. **Respect experimental constraints:**
+
+   * GRB 090510: constrain specific models of linear energy-dependent photon propagation; the bound is model-dependent and does not mean photons above the Planck energy were directly tested.
+   * MICROSCOPE: tests the universality of free fall to approximately \(10^{-15}\) in terms of the Eötvös parameter.
+   * GW170817: constrains the difference between gravitational-wave and light propagation speeds to approximately the \(10^{-15}\) level.
+9. **Be testable:** For example, experiments investigating whether gravitational interactions can entangle two masses. This is a proposed test, not an established experimental result.
+
+Verify numerical bounds against the original publications before implementation.
+
+**Related open question:** Must a theory of quantum gravity explain the observed cosmological constant? This remains undecided and should not be presented as a settled requirement.
+
+## 8. Technical Implementation
+
+* **Pages:** Reuse and generalize components from `src/ui/theory.js`.
+* **Experiments:** Keep definitions in `src/data/experiments.js`; use `aux` for helper quantities, `why` and `on` for model limitations, and `graph.view` for default ranges.
+* **Formula cards:** Consider reusing the intersection block from `src/ui/crossroads.js` for formulas such as \(\rho_\Lambda=\Lambda c^2/(8\pi G)\).
+* **Tests:** Add numerical tests to `tests/tests.js` and page checks to `scripts/check-ui.js`.
+* **Sources:** Verify DOIs through Crossref and check numerical claims against original publications.
+
+Initial sources: Bekenstein (1973), Hawking (1975), Gibbons and Hawking (1977), Page (1993), Wald (1993), Planck (2018), Fermi/GRB 090510, LIGO/Virgo/GW170817, the 2019 molecular-interference experiment, MICROSCOPE's final results, and relevant semiclassical Page-curve calculations.
+
+No sources about excluded candidate theories or modifications of quantum mechanics.
+
+## 9. Smaller UI Issues
+
+These are separate from the new section:
+
+- The Hawking block is too tall on mobile.
+- The *Formula & Variables* and *Physics & Limitations* tabs use a text width of up to 760 px. Preserve alignment with the tab bar when adjusting the layout.
+- The test page is a long, single-column list and could use better navigation.
+- Smaller Changes in Design planned.
+- Small fixes in Translations and wording.
+
+
+---
+
+## Guiding Principle
+
+**A correct calculation is not automatically a complete physical explanation.**
+
+Show what is established, expose the assumptions, label approximations, and leave unresolved questions unresolved.
+
+No artificial certainty. No speculative answers. Just physics, numbers, and honest limits.
