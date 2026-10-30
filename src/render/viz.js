@@ -1018,5 +1018,43 @@
     note(ctx, tr('Zehnerpotenzen in ' + sc.unit + ' · Vergleichswerte gerundet', 'Powers of ten in ' + sc.unit + ' · reference values rounded'), W, H, col);
   };
 
+  /* ---------- Vorfaktor η: erster Hauptsatz als Waage zweier Balken ----------
+     Oben die zugeführte Energie c² dM (Bezug, Länge 1), darunter T_H dS_η = R_η · c² dM.
+     Gleich lang heißt: dE = T dS ist erfüllt. R_η kommt aus der Engine. */
+  V.firstlaw = (ctx, W, H, S) => {
+    const { col } = S;
+    grid(ctx, W, H, col);
+    const r = S.o('R');
+    if (!isFinite(r)) return invalid(ctx, W, H, col, tr('R_η ist hier nicht definiert', 'R_η is not defined here'));
+    const narrow = W < 520, ok = Math.abs(r - 1) < 1e-6;
+    const main = ok ? col.green : col.accent;
+    label(ctx, 'R_η = 4η = ' + S.fo('R'), 16, 26, col, { mono: true, size: narrow ? 13 : 15, color: main });
+    label(ctx, 'η = ' + E.fmt(S.v.eta, 4), W - 16, 26, col, { mono: true, size: narrow ? 12 : 13, align: 'right', color: col.ink2 });
+    // Balken: gemeinsamer Maßstab, damit „gleich lang“ sichtbar wird
+    const x0 = narrow ? 16 : 150, x1 = W - 24, top = narrow ? 64 : 70, bh = narrow ? 22 : 26, gap = narrow ? 44 : 52;
+    const vmax = Math.max(1, r) * 1.08, X = (x) => x0 + (clamp(x, 0, vmax) / vmax) * (x1 - x0);
+    const rows = [
+      [tr('Energie c² dM', 'Energy c² dM'), 1, col.ink2],
+      ['T_H · dS_η', r, main],
+    ];
+    rows.forEach(([name, val, c], i) => {
+      const y = top + i * gap;
+      if (narrow) label(ctx, name, x0, y - 6, col, { size: 12, color: col.ink2 });
+      else label(ctx, name, x0 - 12, y + bh / 2, col, { size: 13, align: 'right', base: 'middle', color: col.ink2 });
+      ctx.fillStyle = col.panel2; ctx.fillRect(x0, y, x1 - x0, bh);
+      ctx.fillStyle = c; ctx.globalAlpha = i === 0 ? 0.55 : 0.9; ctx.fillRect(x0, y, X(val) - x0, bh); ctx.globalAlpha = 1;
+    });
+    // Bezugslinie bei 1
+    const xr = X(1);
+    ctx.strokeStyle = col.cyan; ctx.setLineDash([4, 4]); ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.moveTo(xr + 0.5, top - 10); ctx.lineTo(xr + 0.5, top + gap + bh + 10); ctx.stroke(); ctx.setLineDash([]);
+    label(ctx, tr('gleich lang: dE = T_H dS', 'equal length: dE = T_H dS'), Math.min(xr, x1 - 2), top + gap + bh + 26, col, { size: 12, align: xr > W * 0.6 ? 'right' : 'left', color: col.cyan });
+    // Aussage
+    const yt = top + gap + bh + (narrow ? 56 : 62);
+    label(ctx, ok ? tr('Erster Hauptsatz erfüllt – η = 1/4', 'First law holds – η = 1/4') : tr('Erster Hauptsatz verletzt: T_H dS = ' + S.fo('R') + ' × c² dM', 'First law violated: T_H dS = ' + S.fo('R') + ' × c² dM'), 16, yt, col, { size: narrow ? 13 : 14, color: ok ? col.green : col.ink });
+    segs(ctx, [['T_H = ', col.ink2], [S.fo('TH') + ' K', col.ink], [narrow ? '' : '   S_η/k_B = ', col.ink2], [narrow ? '' : S.fo('SkB'), col.ink]], 16, yt + 22, col, { mono: true, size: 12 });
+    note(ctx, tr('Schematisch: Balken in Vielfachen von c² dM, Werte aus der Engine', 'Schematic: bars in multiples of c² dM, values from the engine'), W, H, col);
+  };
+
   PP.viz = V;
 })(globalThis.PP = globalThis.PP || {});

@@ -1,5 +1,18 @@
 # Änderungen
 
+## 2026-10-31
+
+**Offene Fragen: Grundgerüst und Frage 1 „Warum genau 1/4?“**
+
+- Neues Themenfeld „Offene Fragen“ in der Seitenleiste zwischen Grundlagen und Werkzeuge, mit eigenem Icon und eigener Farbe (Sand – keine Datenfarbe). Übersicht unter `#view=offen`: die Regeln der Rubrik, die drei Status (offen, teilweise verstanden, semiklassisch geklärt) und eine Karte je Frage.
+- Jede Frage hat eine eigene Seite (`#view=offen&sec=…`) mit fünf Teilen: die Frage, was gesichert ist, was offen ist, was es entscheiden würde, live in der App. Einzelne Aussagen tragen Etiketten (Mathematik, semiklassisch, Messung, offen, Quantenfeldtheorie), die Frage als Ganzes ihren Status. Am Ende stehen die Quellen.
+- Frage 1 „Warum genau 1/4?“ (Status: teilweise verstanden): Herleitung des Faktors aus T_H und dem ersten Hauptsatz, die Wege über das euklidische Pfadintegral (Gibbons–Hawking) und die Noether-Ladung (Wald), offen die mikroskopische Deutung, als Vertiefung die Flächenskalierung der Verschränkungsentropie in der QFT, dazu die Tests des Flächensatzes mit GW150914 und GW250114.
+- Neues Experiment „Vorfaktor η“: S_η = η k_B A/l_P² mit η als Regler. Die Engine rechnet R_η = T_H · dS_η/dM / c² aus T_H und der Ableitung – heraus kommt 4η, für jede Masse. Presets η = 1/4, 1/2, 1 und 1/4 bei M87*. Eigene Visualisierung: zwei Balken, c² dM und T_H dS_η, die bei η = 1/4 gleich lang sind. Interaktive Gleichung, zwei Aufgaben, neun Quellen (DOIs geprüft).
+- Die Seiten der Grundlagen und der Offenen Fragen teilen sich `U.sectionPage` (vorher nur in `src/ui/theory.js`). Experimente einer Frage zeigen über dem Titel den Rückweg zu ihr. Die Quellenliste ist als `U.sourceList` wiederverwendbar.
+- `npm run check:ui` zählt auf der Testseite nur noch die Zeile „n / m bestanden“ – „1/4“ in der Seitenleiste wurde sonst als Testergebnis gelesen.
+
+**Tests:** 96 → 99 (R_η = 4η bei jeder Masse und ohne Messunsicherheit, S_η(1/4) = S_BH; keine Kandidaten für eine Quantengravitation im Experiment, in seinen Quellen oder auf den Seiten; jede Frage mit Status, fünf Teilen und Direktlink). `npm run check:ui` prüft zusätzlich die Übersicht und die Seite der Frage und alle Tabs des neuen Experiments.
+
 ## 2026-10-01
 
 **Grundlagen: Kerngleichungen interaktiv**

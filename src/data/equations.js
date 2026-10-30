@@ -179,6 +179,74 @@
       },
     },
 
+    /* Offene Fragen, Frage 1: Vorfaktor η als Regler, R_η prüft den ersten Hauptsatz */
+    'bh-eta': {
+      tex: '\\xs{S}{S_\\eta} = \\xs{eta}{\\eta}\\,\\frac{\\xs{k_B}{k_{\\mathrm{B}}}\\, \\xs{A}{A}}{\\xs{lP2}{l_{\\mathrm{P}}^2}} \\qquad \\xs{R}{R_\\eta} = \\frac{\\xs{TH}{T_{\\mathrm{H}}}}{\\xs{c}{c^2}}\\,\\xs{dSdM}{\\frac{\\mathrm{d}S_\\eta}{\\mathrm{d}M}}',
+      pre: 'eta',
+      hint: { de: 'Zeig auf ein Symbol oder tippe es an. Stell η so ein, dass R_η = 1 wird.', en: 'Point at a symbol or tap it. Set η so that R_η = 1.' },
+      symbols: {
+        S: {
+          o: 'S', color: 'thermo', tag: { de: 'Ansatz', en: 'Ansatz' },
+          meaning: { de: 'Eine Entropie, die wie die Bekenstein-Hawking-Entropie mit der Horizontfläche wächst, deren Vorfaktor aber frei ist. Mit η = 1/4 ist sie genau S_BH.',
+            en: 'An entropy that grows with the horizon area like the Bekenstein–Hawking entropy, but whose prefactor is free. With η = 1/4 it is exactly S_BH.' },
+          role: { de: 'Der Ansatz, den die zweite Gleichung prüft. Für sich allein ist jeder Vorfaktor dimensional einwandfrei.',
+            en: 'The ansatz that the second equation tests. On its own, every prefactor is dimensionally flawless.' },
+        },
+        eta: {
+          v: 'eta', color: 'mass', tag: { de: 'Regler', en: 'Slider' },
+          meaning: { de: 'Eine reine Zahl: wie viel Entropie (in Einheiten von k_B) auf eine Planck-Fläche des Horizonts kommt.',
+            en: 'A pure number: how much entropy (in units of k_B) each Planck area of the horizon carries.' },
+          role: { de: 'Die Größe, die du hier wählst. Die Dimensionsanalyse kann sie nicht festlegen – erst der erste Hauptsatz tut das.',
+            en: 'The quantity you choose here. Dimensional analysis cannot fix it – only the first law does.' },
+        },
+        k_B: {
+          c: 'k_B', color: 'thermo', tag: THERMO,
+          role: { de: 'Gibt der Entropie ihre Einheit J/K. In R_η kürzt sich k_B heraus.',
+            en: 'Gives the entropy its unit J/K. In R_η, k_B cancels out.' },
+        },
+        A: {
+          o: 'A', color: 'mass', tag: BH,
+          meaning: { de: 'Die Fläche des Ereignishorizonts, A = 4π r_s² mit r_s = 2GM/c². Sie wächst mit dem Quadrat der Masse.',
+            en: 'The area of the event horizon, A = 4π r_s² with r_s = 2GM/c². It grows with the square of the mass.' },
+          role: { de: 'Weil A ∝ M², ist auch S_η ∝ M² – für jedes η. Das legt fest, wie schnell die Entropie mit der Masse wächst.',
+            en: 'Because A ∝ M², S_η ∝ M² as well – for every η. This fixes how fast the entropy grows with the mass.' },
+        },
+        lP2: {
+          o: 'lP2', color: 'mass', tag: { de: 'Planck-Skala', en: 'Planck scale' },
+          meaning: { de: 'l_P² = ħG/c³ ≈ 2,6 × 10⁻⁷⁰ m², das Quadrat der Planck-Länge.',
+            en: 'l_P² = ħG/c³ ≈ 2.6 × 10⁻⁷⁰ m², the square of the Planck length.' },
+          role: { de: 'Die Einheit, in der die Horizontfläche gezählt wird. Hier steckt ħ: Ohne Quantentheorie gäbe es keine natürliche Flächeneinheit.',
+            en: 'The unit in which the horizon area is counted. This is where ħ enters: without quantum theory there would be no natural unit of area.' },
+        },
+        R: {
+          o: 'R', color: 'res', tag: RESULT,
+          meaning: { de: 'Das Verhältnis T_H dS / (c² dM). Der erste Hauptsatz dE = T dS mit dE = c² dM verlangt R_η = 1.',
+            en: 'The ratio T_H dS / (c² dM). The first law dE = T dS with dE = c² dM requires R_η = 1.' },
+          role: { de: 'Die Engine rechnet R_η aus T_H und dS_η/dM. Heraus kommt 4η – unabhängig von der Masse.',
+            en: 'The engine calculates R_η from T_H and dS_η/dM. The result is 4η – independent of the mass.' },
+        },
+        TH: {
+          o: 'TH', color: 'q', tag: { de: 'Semiklassisch', en: 'Semiclassical' },
+          meaning: { de: 'Die Hawking-Temperatur T_H = ħc³/(8πGMk_B), berechnet mit Quantenfeldern auf der gekrümmten Raumzeit eines Schwarzen Lochs.',
+            en: 'The Hawking temperature T_H = ħc³/(8πGMk_B), calculated with quantum fields on the curved spacetime of a black hole.' },
+          role: { de: 'Sie ist unabhängig von jeder Entropie-Formel bekannt. Deshalb kann sie den Vorfaktor prüfen.',
+            en: 'It is known independently of any entropy formula. That is why it can test the prefactor.' },
+        },
+        c: {
+          c: 'c', tex: 'c^2', color: 'rel', tag: REL,
+          role: { de: 'Rechnet die Masse in Energie um: dE = c² dM.',
+            en: 'Converts the mass into energy: dE = c² dM.' },
+        },
+        dSdM: {
+          o: 'dSdM', color: 'geo', tag: { de: 'Ableitung', en: 'Derivative' }, tex: '\\mathrm{d}S_\\eta/\\mathrm{d}M',
+          meaning: { de: 'Wie stark die Entropie wächst, wenn die Masse zunimmt: dS_η/dM = η · 32πGk_B M/(ħc).',
+            en: 'How strongly the entropy grows as the mass increases: dS_η/dM = η · 32πGk_B M/(ħc).' },
+          role: { de: 'Wächst wie M, während T_H wie 1/M fällt. Im Produkt kürzt sich die Masse heraus.',
+            en: 'Grows like M, while T_H falls like 1/M. In the product, the mass cancels out.' },
+        },
+      },
+    },
+
     /* Einsteinsche Feldgleichungen */
     efe: {
       tex: '\\xs{Gmn}{G_{\\mu\\nu}} + \\xs{Lambda}{\\Lambda}\\, \\xs{gmn}{g_{\\mu\\nu}} = \\frac{\\xs{8pi}{8\\pi} \\xs{G}{G}}{\\xs{c}{c^4}}\\, \\xs{Tmn}{T_{\\mu\\nu}}',

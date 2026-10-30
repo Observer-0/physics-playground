@@ -1,6 +1,6 @@
 # Roadmap: Open Questions
 
-**Status: September 24, 2026.** Planned features only. Nothing has been implemented yet.
+**Status: October 31, 2026.** Section 2 (structure) and Question 1 (Why exactly 1/4?) are implemented; Questions 2–4 and the overview of requirements are planned.
 
 Add a new section, **Open Questions**, exploring where general relativity (GR) and quantum theory reach their limits or leave important questions unanswered.
 
@@ -127,6 +127,8 @@ The formula belongs in the experiment data, not the UI.
 Include Bekenstein's 1973 estimate as an additional preset only after verifying its exact value against the original paper.
 
 **Status:** Partially understood.
+
+**Implemented (October 31, 2026):** experiment `bh-eta` (presets 1/4, 1/2, 1 and 1/4 at M87* mass; R_η is computed from T_H and dS_η/dM, not from 4η), page `#view=offen&sec=quarter`, sources (Bekenstein 1973, Hawking 1975, Gibbons–Hawking 1977, Wald 1993, Bombelli et al. 1986, Srednicki 1993, Hawking 1971, Isi et al. 2021, GW250114 2025). Still open: the Bekenstein 1973 preset (value not yet verified against the paper).
 
 **Tests:** Verify the expected ratios and dimensional consistency.
 

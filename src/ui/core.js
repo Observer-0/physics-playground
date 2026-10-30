@@ -188,7 +188,8 @@
       if (vo) q.set('vo', vo);
     } else {
       q.set('view', S.view);
-      if (S.view === 'theorie' && S.theorySec) q.set('sec', S.theorySec);
+      // Ansichten mit Unterseiten (Grundlagen, Offene Fragen): #view=…&sec=…
+      if (E.has(U.views, S.view) && U.views[S.view].sections && S.theorySec) q.set('sec', S.theorySec);
       if (S.view === 'custom') {
         q.set('eq', S.custom.src);
         const d = Object.keys(S.custom.dims).map((k) => k + ':' + S.custom.dims[k]).join(';');
@@ -224,7 +225,7 @@
     const v = q.get('view');
     if (v && E.has(U.views, v)) {
       S.view = v;
-      if (v === 'theorie') S.theorySec = /^[a-z]+$/.test(q.get('sec') || '') ? q.get('sec') : null;
+      if (U.views[v].sections) S.theorySec = /^[a-z]+$/.test(q.get('sec') || '') ? q.get('sec') : null;
       if (v === 'custom' && q.get('eq')) {
         S.custom.src = q.get('eq');
         S.custom.dims = {};
@@ -275,6 +276,7 @@
     thermo: svg('<path d="M6.5 9.3V3a1.5 1.5 0 0 1 3 0v6.3"/><circle cx="8" cy="11.5" r="2.6"/><path d="M8 5v5"/>'),
     famous: svg('<path d="M8 1.8l1.9 3.9 4.3.6-3.1 3 .7 4.3L8 11.6l-3.8 2 .7-4.3-3.1-3 4.3-.6z"/>'),
     found: svg('<path d="M8 4.2C6.6 3 4.5 2.6 2 2.8v9.6c2.5-.2 4.6.2 6 1.4 1.4-1.2 3.5-1.6 6-1.4V2.8c-2.5-.2-4.6.2-6 1.4zM8 4.2v9.6"/>'),
+    open: svg('<circle cx="8" cy="8" r="6.3"/><path d="M6.1 6.3a2 2 0 1 1 2.7 1.9c-.5.2-.8.6-.8 1.1v.5"/><path d="M8 11.7v.1"/>'),
     tools: svg('<path d="M10.2 2.2a3.3 3.3 0 0 0-3.8 4.4L2.2 10.8a1.4 1.4 0 0 0 2 2l4.2-4.2a3.3 3.3 0 0 0 4.4-3.8l-2 2-1.8-.4-.4-1.8z"/>'),
   };
   U.FIELDS = I.localize({
@@ -283,6 +285,7 @@
     thermo: { name: { de: 'Thermodynamik', en: 'Thermodynamics' } },
     famous: { name: 'Famous Equations' },
     found: { name: { de: 'Grundlagen', en: 'Foundations' } },
+    open: { name: { de: 'Offene Fragen', en: 'Open questions' } },
     tools: { name: { de: 'Werkzeuge', en: 'Tools' } },
   });
   U.fieldIcon = (key) => ICON[key] || '';
@@ -302,9 +305,10 @@
 
   function navHTML() {
     const cur = S.view === 'exp' && S.exp ? S.exp.id : null;
-    // Gruppen nach Themenfeld; Experimente ohne bekanntes Feld bilden eine eigene Gruppe mit ihrem group-Namen
+    // Gruppen nach Themenfeld; Experimente ohne bekanntes Feld bilden eine eigene Gruppe mit ihrem group-Namen.
+    // Experimente der Offenen Fragen stehen nicht hier, sondern bei ihrer Frage (src/ui/open.js).
     const groups = new Map();
-    M.registry.filter((e) => !e.hall).forEach((e) => {
+    M.registry.filter((e) => !e.hall && U.fieldOf(e) !== 'open').forEach((e) => {
       const f = U.fieldOf(e), k = f || 'g:' + e.group;
       if (!groups.has(k)) groups.set(k, { f, label: e.group, items: [] });
       groups.get(k).items.push(e);
@@ -318,6 +322,7 @@
       PP.hallOrder.map((id) => { const e = M.byId[id]; return '<a href="#exp=' + id + '" class="hall ' + (cur === id ? 'on' : '') + '">' + U.esc(e.short) + '</a>'; }).join('') +
       '<a href="#view=custom" class="hall ' + (S.view === 'custom' ? 'on' : '') + '">' + T('Eigene Gleichung prüfen', 'Check your own equation') + '</a>');
     h += block('found', '', U.theoryNav ? U.theoryNav() : '<a href="#view=theorie" class="' + (S.view === 'theorie' ? 'on' : '') + '">' + T('Theorie kurz erklärt', 'Theory in brief') + '</a>');
+    if (U.openNav) h += block('open', '', U.openNav());
     const n = U.saved.list().length;
     h += block('tools', '', [['constants', T('Konstanten', 'Constants'), M.registry.length ? Object.keys(M.C).length : ''], ['saved', T('Gespeichert', 'Saved'), n || ''], ['tests', 'Tests', PP.tests ? PP.tests.list.length : ''], ['about', T('Über', 'About'), '']].map(([v, t, c]) =>
       '<a href="#view=' + v + '" class="' + (S.view === v ? 'on' : '') + '">' + t + (c !== '' ? '<small>' + c + '</small>' : '') + '</a>').join(''));
