@@ -781,6 +781,85 @@
     },
   });
 
+  /* ========================= OFFENE FRAGEN ========================= */
+  /* Frage 1 „Warum genau 1/4?“ (src/ui/open.js): Der Vorfaktor der Entropie als Regler.
+     R_η = T_H · dS_η/dM / c² prüft den ersten Hauptsatz dE = T dS mit dE = c² dM. Analytisch ist R_η = 4η;
+     die Engine rechnet es aus T_H und dS_η/dM nach, ohne diese Abkürzung zu kennen. */
+  const OPEN_Q = { de: 'Offene Fragen', en: 'Open questions' };
+  const S_ETA = { de: 'Entropie mit Vorfaktor η', en: 'Entropy with prefactor η' };
+
+  define({
+    id: 'bh-eta', group: OPEN_Q, field: 'open', title: { de: 'Vorfaktor η der Entropie Schwarzer Löcher', en: 'Prefactor η of black hole entropy' }, short: { de: 'Vorfaktor η', en: 'Prefactor η' },
+    subtitle: { de: 'Welcher Vorfaktor ist mit dem ersten Hauptsatz und der Hawking-Temperatur verträglich?', en: 'Which prefactor is compatible with the first law and the Hawking temperature?' },
+    tex: 'S_\\eta = \\eta\\,\\frac{k_{\\mathrm{B}}\\, A}{l_{\\mathrm{P}}^2} \\qquad R_\\eta = \\frac{T_{\\mathrm{H}}}{c^2}\\,\\frac{\\mathrm{d}S_\\eta}{\\mathrm{d}M}',
+    meta: { mathType: SCALAR, mainDim: { de: 'dimensionslos', en: 'dimensionless' }, domain: BH_THERMO, status: { de: 'Konsistenzprüfung im Rahmen der semiklassischen Gravitation', en: 'consistency check within semiclassical gravity' } },
+    vars: {
+      eta: { label: 'η', tex: '\\eta', name: { de: 'Vorfaktor der Entropie', en: 'Entropy prefactor' }, dim: '', default: 1, min: 0.01, max: 2, scale: 'lin', positive: true,
+        negNote: { de: 'S = k_B ln Ω ist nie negativ; η ≤ 0 hätte keine statistische Deutung.', en: 'S = k_B ln Ω is never negative; η ≤ 0 would have no statistical interpretation.' } },
+      M: { label: 'M', tex: 'M', name: { de: 'Masse des Schwarzen Lochs', en: 'Mass of the black hole' }, dim: 'M', default: MS, min: 1e8, max: 1e42, scale: 'log', positive: true },
+    },
+    outputs: [
+      { key: 'rs', sym: 'r_s', tex: 'r_{\\mathrm{s}}', name: SCHW_R, expr: '2*G*M/c^2', dim: 'L' },
+      { key: 'A', sym: 'A', tex: 'A', name: HORIZON, expr: '4*pi*rs^2', dim: 'L^2' },
+      { key: 'lP2', sym: 'l_P²', tex: 'l_{\\mathrm{P}}^2', name: { de: 'Planck-Fläche ħG/c³', en: 'Planck area ħG/c³' }, expr: 'hbar*G/c^3', dim: 'L^2', aux: true },
+      { key: 'dAdM', sym: 'dA/dM', tex: '\\mathrm{d}A/\\mathrm{d}M', name: { de: 'Änderung der Horizontfläche mit der Masse: 32πG²M/c⁴', en: 'Change of the horizon area with the mass: 32πG²M/c⁴' }, expr: '32*pi*G^2*M/c^4', dim: 'L^2 M^-1', aux: true },
+      { key: 'TH', sym: 'T_H', tex: 'T_{\\mathrm{H}}', name: { de: 'Hawking-Temperatur', en: 'Hawking temperature' }, expr: 'hbar*c^3/(8*pi*G*M*k_B)', dim: 'Θ' },
+      { key: 'S', sym: 'S_η', tex: 'S_\\eta', name: S_ETA, expr: 'eta*k_B*A/lP2', dim: 'M L^2 T^-2 Θ^-1' },
+      { key: 'SkB', sym: 'S_η/k_B', tex: 'S_\\eta/k_{\\mathrm{B}}', name: DIMLESS_S, expr: 'S/k_B', dim: '' },
+      { key: 'dSdM', sym: 'dS_η/dM', tex: '\\mathrm{d}S_\\eta/\\mathrm{d}M', name: { de: 'Änderung der Entropie mit der Masse', en: 'Change of the entropy with the mass' }, expr: 'eta*k_B*dAdM/lP2', dim: 'L^2 T^-2 Θ^-1' },
+      { key: 'R', sym: 'R_η', tex: 'R_\\eta', name: { de: 'Konsistenzverhältnis T_H dS_η / (c² dM)', en: 'Consistency ratio T_H dS_η / (c² dM)' }, expr: 'TH*dSdM/c^2', dim: '', primary: true },
+    ],
+    equations: [
+      { label: S_ETA, eq: 'S_eta = eta*k_B*A/l_P^2' },
+      { label: { de: 'Horizontfläche (Schwarzschild)', en: 'Horizon area (Schwarzschild)' }, eq: 'A = 4*pi*r_s^2' },
+      { label: SCHW_R, eq: 'r_s = 2*G*M/c^2' },
+      { label: { de: 'Planck-Länge', en: 'Planck length' }, eq: 'l_P = sqrt(hbar*G/c^3)' },
+      { label: { de: 'Hawking-Temperatur', en: 'Hawking temperature' }, eq: 'T_H = hbar*c^3/(8*pi*G*M*k_B)' },
+      { label: { de: 'Ableitung von S_η nach M', en: 'Derivative of S_η with respect to M' }, eq: 'dS_dM = eta*k_B*32*pi*G^2*M/(c^4*l_P^2)' },
+      { label: { de: 'Erster Hauptsatz als Verhältnis: T_H dS = R · c² dM', en: 'First law as a ratio: T_H dS = R · c² dM' }, eq: 'R_eta = T_H*dS_dM/c^2' },
+    ],
+    symbols: { S_eta: { dim: 'M L^2 T^-2 Θ^-1' }, A: { dim: 'L^2' }, r_s: { dim: 'L' }, l_P: { dim: 'L' }, T_H: { dim: 'Θ' }, dS_dM: { dim: 'L^2 T^-2 Θ^-1' }, R_eta: { dim: '' } },
+    checks({ v, o, issues, fmt }) {
+      const r = o('R');
+      if (isFinite(r) && r > 0) {
+        if (Math.abs(r - 1) < 1e-9) issues.push({ cat: 'info', msg: T('R_η = 1: Mit η = 1/4 ist der erste Hauptsatz dE = T_H dS erfüllt – das ist der Wert der Bekenstein-Hawking-Entropie.', 'R_η = 1: with η = 1/4 the first law dE = T_H dS holds – this is the value of the Bekenstein–Hawking entropy.') });
+        else issues.push({ cat: 'info', msg: T('R_η = ' + fmt(r, 4) + ' ≠ 1: Mit dieser Entropie wäre T_H dS das ' + fmt(r, 4) + '-Fache von c² dM – der erste Hauptsatz wäre verletzt. Erfüllt ist er nur bei η = 1/4.',
+          'R_η = ' + fmt(r, 4) + ' ≠ 1: with this entropy, T_H dS would be ' + fmt(r, 4) + ' times c² dM – the first law would be violated. It only holds for η = 1/4.') });
+      }
+      if (v.M > 0 && v.M < 1e-6) issues.push({ cat: 'model', why: T('nahe der Planck-Masse', 'near the Planck mass'), msg: T('Nahe der Planck-Masse (≈ 2,2 × 10⁻⁸ kg) versagt die semiklassische Rechnung, aus der T_H stammt.', 'Near the Planck mass (≈ 2.2 × 10⁻⁸ kg) the semiclassical calculation that T_H comes from breaks down.') });
+      issues.push({ cat: 'assume', msg: T('Schwarzschild-Loch (ungeladen, nicht rotierend); T_H aus der semiklassischen Rechnung (Hawking 1975); E = Mc²; S(M = 0) = 0.', 'Schwarzschild black hole (uncharged, non-rotating); T_H from the semiclassical calculation (Hawking 1975); E = Mc²; S(M = 0) = 0.') });
+    },
+    presets: [
+      { name: 'η = 1/4', note: { de: 'Bekenstein-Hawking-Entropie: R = 1', en: 'Bekenstein–Hawking entropy: R = 1' }, values: { eta: 0.25, M: MS } },
+      { name: 'η = 1/2', note: { de: 'doppelte Entropie: R = 2', en: 'twice the entropy: R = 2' }, values: { eta: 0.5, M: MS } },
+      { name: 'η = 1', note: { de: 'ein k_B pro Planck-Fläche: R = 4', en: 'one k_B per Planck area: R = 4' }, values: { eta: 1, M: MS } },
+      { name: { de: 'η = 1/4, M87*', en: 'η = 1/4, M87*' }, note: { de: '≈ 6,5 × 10⁹ M☉: R bleibt 1 – die Masse kürzt sich heraus', en: '≈ 6.5 × 10⁹ M☉: R stays 1 – the mass cancels out' }, values: { eta: 0.25, M: 6.5e9 * MS } },
+    ],
+    graph: { x: 'eta', y: 'R', xlog: false, ylog: false, refs: [{ y: 'R', value: 1, label: { de: 'R = 1: erster Hauptsatz erfüllt', en: 'R = 1: first law holds' } }] },
+    viz: 'firstlaw',
+    explain: {
+      intuition: {
+        de: 'Die Entropie eines Schwarzen Lochs ist proportional zur Horizontfläche – aber mit welchem Vorfaktor? Hier ist er frei wählbar. Der erste Hauptsatz und die Hawking-Temperatur lassen nur einen einzigen Wert zu: ein Viertel.',
+        en: 'The entropy of a black hole is proportional to the horizon area – but with what prefactor? Here you can choose it freely. The first law and the Hawking temperature allow only a single value: one quarter.',
+      },
+      math: [
+        { t: { de: 'Entropie mit freiem Vorfaktor', en: 'Entropy with a free prefactor' }, tex: 'S_\\eta = \\eta\\,\\frac{k_{\\mathrm{B}} A}{l_{\\mathrm{P}}^2} = \\eta\\,\\frac{16\\pi G k_{\\mathrm{B}}}{\\hbar c}\\, M^2' },
+        { t: { de: 'Ableitung nach der Masse', en: 'Derivative with respect to the mass' }, tex: '\\frac{\\mathrm{d}S_\\eta}{\\mathrm{d}M} = \\eta\\,\\frac{32\\pi G k_{\\mathrm{B}}}{\\hbar c}\\, M' },
+        { t: { de: 'Konsistenzverhältnis', en: 'Consistency ratio' }, tex: 'R_\\eta = \\frac{T_{\\mathrm{H}}\\,\\mathrm{d}S_\\eta}{c^2\\,\\mathrm{d}M} = \\frac{\\hbar c^3}{8\\pi G M k_{\\mathrm{B}}\\,c^2}\\cdot\\eta\\,\\frac{32\\pi G k_{\\mathrm{B}} M}{\\hbar c} = 4\\eta' },
+        { t: { de: 'Erster Hauptsatz erfüllt', en: 'First law satisfied' }, tex: 'R_\\eta = 1 \\;\\Rightarrow\\; \\eta = \\tfrac{1}{4}' },
+      ],
+      physics: {
+        de: 'Für ein Schwarzschild-Loch ist die Energie E = Mc². Der erste Hauptsatz dE = T dS verknüpft dann die Hawking-Temperatur mit der Entropie: dS/dM = c²/T_H. Weil T_H ∝ 1/M ist, wächst S wie M², also wie die Fläche – und der Vorfaktor ist damit festgelegt. Das ist eine Konsistenzprüfung innerhalb der semiklassischen Gravitation. Was die Entropie mikroskopisch zählt, beantwortet sie nicht.',
+        en: 'For a Schwarzschild black hole the energy is E = Mc². The first law dE = T dS then links the Hawking temperature with the entropy: dS/dM = c²/T_H. Because T_H ∝ 1/M, S grows like M², i.e. like the area – and this fixes the prefactor. This is a consistency check within semiclassical gravity. It does not answer what the entropy counts microscopically.',
+      },
+      epistemics: [
+        { type: 'math', text: { de: 'R_η = 4η folgt exakt aus den Formeln; die Masse und alle Naturkonstanten kürzen sich heraus.', en: 'R_η = 4η follows exactly from the formulas; the mass and all constants of nature cancel out.' } },
+        { type: 'assume', text: { de: 'T_H ist eine theoretische Vorhersage der semiklassischen Gravitation (Hawking 1975), nicht gemessen.', en: 'T_H is a theoretical prediction of semiclassical gravity (Hawking 1975), not measured.' } },
+        { type: 'model', text: { de: 'Schwarzschild-Loch; für rotierende oder geladene Löcher kommen im ersten Hauptsatz weitere Terme hinzu, der Vorfaktor 1/4 bleibt.', en: 'Schwarzschild black hole; for rotating or charged holes the first law gains further terms, the prefactor 1/4 remains.' } },
+      ],
+    },
+  });
+
   define({
     id: 'efe', group: 'Famous Equations', field: 'famous', hall: true, title: { de: 'Einsteinsche Feldgleichungen', en: 'Einstein field equations' }, short: { de: 'Feldgleichungen', en: 'Field equations' },
     tex: 'G_{\\mu\\nu} + \\Lambda\\, g_{\\mu\\nu} = \\frac{8\\pi G}{c^4}\\, T_{\\mu\\nu}',

@@ -32,7 +32,7 @@ in a browser, and publishes `dist/` to GitHub Pages
 Development requires Node.js ≥ 18. `npm install` installs ESLint only.
 
 ``` bash
-npm test         # 90 tests in Node (the 7 UI tests run fully only in a browser)
+npm test         # 99 tests in Node (the 11 UI tests run fully only in a browser)
 npm run lint     # ESLint
 npm run build    # bundles everything into dist/index.html
 npm run check:ui # opens every page in both languages in headless Chrome/Edge and checks it,
@@ -85,6 +85,14 @@ The file loading order is defined only in `src/index.html`;
                                       to Wald, with a microstate demo) ·
                                       Why the two theories do not (yet)
                                       fit together
+
+  Open Questions                      Where GR and quantum theory reach
+                                      their limits, with a status per
+                                      question: Why exactly 1/4? (black
+                                      hole entropy prefactor η as a
+                                      slider, first-law check
+                                      R_η = 4η). More questions in
+                                      `ROADMAP.md`
 
   Tools                               Check your own or incorrect
                                       equations · Constants · Saved
@@ -329,7 +337,23 @@ in `src/index.html`.
                                       sticky table of contents and "Next
                                       up"; subsections in the sidebar;
                                       and a "Character of the theory"
-                                      comparison bar
+                                      comparison bar. `U.sectionPage`
+                                      builds these pages and is shared
+                                      with Open Questions
+
+  `src/ui/open.js`                    Open Questions: overview
+                                      (`#view=offen`) and one page per
+                                      question (`#view=offen&sec=quarter`)
+                                      with the five parts question /
+                                      established / open / what would
+                                      settle it / live in the app, a
+                                      status (open, partially
+                                      understood, semiclassically
+                                      resolved), epistemic labels per
+                                      statement and the sources of the
+                                      question's experiment. Experiments
+                                      with `field: 'open'` appear under
+                                      their question in the sidebar
   -----------------------------------------------------------------------
 
 ### Adding a New Experiment
@@ -466,17 +490,17 @@ browser tests use an existing Chrome or Edge installation.
 
 ## Future Development
 
-An optional **Open Questions** section is planned to explore unresolved problems in physics, 
-including the black hole entropy coefficient, the cosmological constant, the information paradox, 
-the measurement problem, and the requirements for quantum gravity.
+The **Open Questions** section explores unresolved problems in physics. The first question –
+the black hole entropy coefficient – is live; the cosmological constant, the information paradox,
+the measurement problem, and the requirements for quantum gravity are planned.
 
 The core application remains theory-neutral beyond General Relativity (GR) and quantum mechanics.
 Open Questions is a separate exploratory space: 
 Established results, competing interpretations, and speculative proposals must be clearly distinguished. 
 No alternative theory is assumed to be correct or incorporated into the application's core framework.
 
-Access may be unlocked by activating **Break the Physics Mode**, 
-connecting dimensional analysis and consistency checks with deeper questions about the limits of our current theories.
+The section is always visible in the sidebar, between Foundations and Tools (as in `ROADMAP.md`).
+It connects dimensional analysis and consistency checks with deeper questions about the limits of our current theories.
 
 **Exception — Hawking Temperature**
 

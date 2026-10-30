@@ -91,6 +91,10 @@
     'Jeder Test hat einen englischen Namen': 'Every test has an English name',
     'Keine deutschen Reste in den englischen Beschriftungen der Visualisierungen': 'No German left in the English labels of the visualisations',
     'Hawking-Temperatur': 'Hawking temperature',
+    'Offene Fragen': 'Open questions',
+    'Warum 1/4: R_η = 4η bei jeder Masse, nur η = 1/4 erfüllt den ersten Hauptsatz, S_η(1/4) = S_BH, R ohne Messunsicherheit': 'Why 1/4: R_η = 4η for every mass, only η = 1/4 satisfies the first law, S_η(1/4) = S_BH, R without measurement uncertainty',
+    'Keine Kandidaten für eine Quantengravitation – weder im Experiment noch in seinen Quellen noch auf den Seiten': 'No quantum-gravity candidates – not in the experiment, its sources or the pages',
+    'Offene Fragen: jede Frage hat Status, Kurztitel, die fünf Abschnitte und ein Experiment im Feld „open“; der Direktlink #view=offen&sec=… bleibt im Zustand': 'Open questions: every question has a status, a short title, the five sections and an experiment in the “open” field; the direct link #view=offen&sec=… stays in the state',
     'Graph': 'Graph',
     'Grundlagen: jeder Abschnitt hat Kurztitel und Kurzbeschreibung, der Direktlink #view=theorie&sec=… bleibt im Zustand': 'Foundations: every section has a short title and a one-line summary, the direct link #view=theorie&sec=… stays in the state',
     'Schraffur je Größe: „nach der Landung“ betrifft y(t) und x(t), aber nicht R und H': 'Hatching per quantity: “after landing” affects y(t) and x(t), but not R and H',
@@ -654,6 +658,58 @@
       const bad = draw('hawking', {}, { consts }).find((x) => /NaN|undefined|Infinity/.test(x));
       ok(!bad, JSON.stringify(consts) + ': „' + bad + '“');
     }
+  });
+
+  /* --- Offene Fragen (src/ui/open.js, Experimente mit field: 'open') --- */
+  test('Offene Fragen', 'Warum 1/4: R_η = 4η bei jeder Masse, nur η = 1/4 erfüllt den ersten Hauptsatz, S_η(1/4) = S_BH, R ohne Messunsicherheit', () => {
+    const MS = M.C.M_sun.value, exp = M.byId['bh-eta'];
+    for (const eta of [0.25, 0.5, 1]) for (const Mx of [1e8, MS, 6.5e9 * MS]) close(val(run('bh-eta', { eta, M: Mx }), 'R'), 4 * eta, 1e-12, 'η = ' + eta + ', M = ' + Mx + ':');
+    ok(exp.presets.map((p) => Math.round(val(run('bh-eta', p.values), 'R') * 1e9) / 1e9).join() === '1,2,4,1', 'Presets');
+    close(val(run('bh-eta', { eta: 0.25, M: MS }), 'S'), val(run('bh-entropy', { M: MS }, 'mass'), 'S'), 1e-12, 'S_η(1/4) gegen S_BH:');
+    ok(exp.forms[0].c.outputs.find((o) => o.key === 'R').dim === '', 'R hat eine Dimension');
+    const u = M.uncertainty(exp, 'main', M.defaults(exp), 'R');
+    ok(u && u.rel < 1e-9, 'R hängt von G ab: ' + JSON.stringify(u));
+    const msgs = (eta) => run('bh-eta', { eta }).issues.map((i) => i.msg).join(' | ');
+    ok(/R_η = 1: Mit η = 1\/4/.test(msgs(0.25)) && !/verletzt/.test(msgs(0.25)), msgs(0.25));
+    ok(/≠ 1/.test(msgs(0.5)) && /verletzt/.test(msgs(0.5)), msgs(0.5));
+  });
+  test('Offene Fragen', 'Keine Kandidaten für eine Quantengravitation – weder im Experiment noch in seinen Quellen noch auf den Seiten', () => {
+    const banned = /string|schleifenquant|loop quantum|asymptoti\w* (sicherheit|safety)|kausale menge|causal set|holograph|AdS\/CFT|M-theor/i;
+    const bad = [], seen = new WeakSet();
+    const walk = (o, path) => {
+      if (!o || typeof o !== 'object' || seen.has(o)) return;
+      seen.add(o);
+      for (const k of Object.keys(o)) { const v = o[k]; if (typeof v === 'string') { if (banned.test(v)) bad.push(path + '.' + k + ': ' + v.slice(0, 60)); } else walk(v, path + '.' + k); }
+    };
+    for (const lang of ['de', 'en']) I.with(lang, () => {
+      M.registry.filter((e) => e.field === 'open').forEach((e) => {
+        walk(e, e.id);
+        if (PP.sources && PP.sources.byId[e.id]) walk(PP.sources.byId[e.id], 'sources.' + e.id);
+        if (PP.equations && PP.equations.byId[e.id]) walk(PP.equations.byId[e.id], 'equations.' + e.id);
+      });
+      if (PP.ui && PP.ui.open) PP.ui.open.questions.forEach((q) => { const x = q.body().replace(/<[^>]+>/g, ' '); if (banned.test(x)) bad.push(q.id + ' (' + lang + '): ' + x.match(banned)[0]); });
+    });
+    ok(M.registry.some((e) => e.field === 'open'), 'kein Experiment im Feld open');
+    ok(!bad.length, bad.slice(0, 3).join(' | '));
+  });
+  test('UI (im Browser)', 'Offene Fragen: jede Frage hat Status, Kurztitel, die fünf Abschnitte und ein Experiment im Feld „open“; der Direktlink #view=offen&sec=… bleibt im Zustand', () => {
+    if (!PP.ui || !PP.ui.open || !PP.ui.stateString) return;
+    const U = PP.ui;
+    const heads = { de: ['Die Frage', 'Was gesichert ist', 'Was offen ist', 'Was es entscheiden würde', 'Live in der App'], en: ['The question', 'What is established', 'What remains open', 'What would settle it', 'Live in the app'] };
+    for (const lang of ['de', 'en']) I.with(lang, () => U.open.questions.forEach((q) => {
+      const m = U.open.meta(q);
+      ok(m.short && m.teaser, lang + ': ' + q.id);
+      ok(U.open.STATUS[q.status], q.id + ': Status ' + q.status);
+      ok(!q.exp || (M.byId[q.exp] && M.byId[q.exp].field === 'open'), q.id + ': Experiment ' + q.exp);
+      const h3 = [...q.body().matchAll(/<h3 class="th-h3">([^<]*)<\/h3>/g)].map((x) => x[1]);
+      ok(heads[lang].every((x) => h3.includes(x)), q.id + ' (' + lang + '): ' + h3.join(', '));
+      if (q.exp) ok(U.backLink(M.byId[q.exp]).href.endsWith('sec=' + q.id), q.id + ': Rückweg');
+    }));
+    const prev = { view: U.S.view, sec: U.S.theorySec };
+    try {
+      U.S.view = 'offen'; U.S.theorySec = 'quarter';
+      ok(/view=offen&sec=quarter/.test(U.stateString()), U.stateString());
+    } finally { U.S.view = prev.view; U.S.theorySec = prev.sec; }
   });
 
   /* --- Interaktive Gleichungen (src/data/equations.js, src/ui/eqx.js) --- */

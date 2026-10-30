@@ -268,14 +268,17 @@
     });
   }
 
-  function sectionPage(el, i) {
-    const s = SECTIONS[i], prev = SECTIONS[i - 1], next = SECTIONS[i + 1];
-    let h = '<header class="xhead th-head">' + U.fieldBanner('found') + '<div><a class="th-back" href="#view=theorie">← ' + esc(TITLE()) + '</a><h1>' + (i + 1) + '. ' + esc(s.title) + '</h1><div class="sub">' + esc(meta(s).teaser) + (s.mount ? ' ' + badge() : '') + '</div></div></header>';
+  /* Eine Abschnittsseite – gemeinsam für die Grundlagen und die Offenen Fragen (src/ui/open.js).
+     cfg: { list, meta(s) → { short, teaser }, title(), field, view, sub?(s) → zusätzliches HTML im Untertitel } */
+  U.sectionPage = (el, cfg, i) => {
+    const s = cfg.list[i], prev = cfg.list[i - 1], next = cfg.list[i + 1];
+    const href = (id) => '#view=' + cfg.view + '&amp;sec=' + id, home = '#view=' + cfg.view, title = cfg.title();
+    let h = '<header class="xhead th-head">' + U.fieldBanner(cfg.field) + '<div><a class="th-back" href="' + home + '">← ' + esc(title) + '</a><h1>' + (i + 1) + '. ' + esc(s.title) + '</h1><div class="sub">' + esc(cfg.meta(s).teaser) + (s.mount ? ' ' + badge() : '') + (cfg.sub ? cfg.sub(s) : '') + '</div></div></header>';
     h += '<div class="th-page"><article class="prose th th-article" id="th-' + s.id + '">' + s.body() + '</article>' +
       '<aside class="th-side"><nav class="th-stoc" aria-label="' + T('Auf dieser Seite', 'On this page') + '"><div class="th-stoc-h">' + T('Auf dieser Seite', 'On this page') + '</div><ol id="th-stoc"></ol></nav></aside></div>';
     h += '<nav class="th-foot" aria-label="' + T('Weitere Abschnitte', 'More sections') + '">' +
-      (prev ? '<a class="th-prev" href="' + secHref(prev.id) + '"><small>← ' + T('Zurück', 'Back') + '</small>' + (i) + '. ' + esc(meta(prev).short) + '</a>' : '<a class="th-prev" href="#view=theorie"><small>← ' + T('Übersicht', 'Overview') + '</small>' + esc(TITLE()) + '</a>') +
-      (next ? '<a class="th-next" href="' + secHref(next.id) + '"><small>' + T('Weiter zu', 'Continue to') + ' →</small>' + (i + 2) + '. ' + esc(meta(next).short) + '</a>' : '<a class="th-next" href="#view=theorie"><small>' + T('Weiter zu', 'Continue to') + ' →</small>' + T('Übersicht', 'Overview') + '</a>') + '</nav>';
+      (prev ? '<a class="th-prev" href="' + href(prev.id) + '"><small>← ' + T('Zurück', 'Back') + '</small>' + (i) + '. ' + esc(cfg.meta(prev).short) + '</a>' : '<a class="th-prev" href="' + home + '"><small>← ' + T('Übersicht', 'Overview') + '</small>' + esc(title) + '</a>') +
+      (next ? '<a class="th-next" href="' + href(next.id) + '"><small>' + T('Weiter zu', 'Continue to') + ' →</small>' + (i + 2) + '. ' + esc(cfg.meta(next).short) + '</a>' : '<a class="th-next" href="' + home + '"><small>' + T('Weiter zu', 'Continue to') + ' →</small>' + T('Übersicht', 'Overview') + '</a>') + '</nav>';
     el.innerHTML = h;
     const art = el.querySelector('.th-article');
     foldDeep(art);
@@ -309,14 +312,15 @@
       downs.push(() => io.disconnect());
     }
     if (downs.length) U.teardown = () => downs.forEach((f) => f());
-  }
+  };
+  const CFG = { list: SECTIONS, meta, title: TITLE, field: 'found', view: 'theorie' };
 
   function render(el) {
     const i = SECTIONS.findIndex((s) => s.id === S.theorySec);
-    if (i < 0) { S.theorySec = null; overview(el); } else sectionPage(el, i);
+    if (i < 0) { S.theorySec = null; overview(el); } else U.sectionPage(el, CFG, i);
   }
 
   U.theory = { sections: SECTIONS, meta };
-  // Seitentitel folgt dem Abschnitt
-  U.views.theorie = { get title() { const s = SECTIONS.find((x) => x.id === S.theorySec); return s ? meta(s).short + ' · ' + TITLE() : TITLE(); }, render };
+  // Seitentitel folgt dem Abschnitt; sections: Unterseiten über &sec=… (src/ui/core.js)
+  U.views.theorie = { sections: true, get title() { const s = SECTIONS.find((x) => x.id === S.theorySec); return s ? meta(s).short + ' · ' + TITLE() : TITLE(); }, render };
 })(globalThis.PP = globalThis.PP || {});

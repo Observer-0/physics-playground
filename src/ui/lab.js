@@ -95,6 +95,8 @@
   function headerHTML(exp) {
     const hasVars = exp.forms.some((f) => f.vars.length);
     return '<header class="xhead">' + U.fieldBanner(U.fieldOf(exp), exp.group) +
+      // Rückweg, wenn das Experiment zu einer Seite gehört (exp.question → src/ui/open.js)
+      (U.backLink && U.backLink(exp) ? '<a class="x-back" href="' + U.backLink(exp).href + '">← ' + esc(U.backLink(exp).label) + '</a>' : '') +
       '<div><h1>' + esc(exp.title) + '</h1>' + (exp.subtitle ? '<div class="sub">' + esc(exp.subtitle) + '</div>' : '') + '</div>' +
       // Die Formel steht groß im Kopfblock darunter (Famous Equations, interaktive Gleichungen), sonst klein neben dem Titel
       (hasHero(exp) ? '' : '<div class="eq">' + U.tex(exp.tex) + '</div>') +
@@ -193,13 +195,17 @@
   // Quellen: Originalarbeiten, Messungen, Referenzwerte – DOIs verlinkt
   function sourcesHTML() {
     const list = (PP.sources && PP.sources.byId[S.exp.id]) || [];
-    const link = (href, text) => ' <a href="' + esc(href) + '" target="_blank" rel="noopener">' + esc(text) + '</a>';
     return '<p class="muted srcintro">' + T('Originalarbeiten, Messungen und Referenzwerte zu diesem Experiment. DOI-Links führen zur Seite des Verlags.', 'Original papers, measurements and reference values for this experiment. DOI links lead to the publisher’s page.') + '</p>' +
-      '<ol class="srcs">' + list.map((s) => '<li><span class="tag src-' + s.kind + '">' + esc(PP.sources.KIND[s.kind]) + '</span><div>' +
+      U.sourceList(list);
+  }
+  // Quellenliste – auch auf den Seiten der Offenen Fragen (src/ui/open.js)
+  U.sourceList = (list) => {
+    const link = (href, text) => ' <a href="' + esc(href) + '" target="_blank" rel="noopener">' + esc(text) + '</a>';
+    return '<ol class="srcs">' + list.map((s) => '<li><span class="tag src-' + s.kind + '">' + esc(PP.sources.KIND[s.kind]) + '</span><div>' +
         '<b>' + esc(s.who) + '</b> (' + s.year + '): <span' + (s.lang ? ' lang="' + s.lang + '"' : '') + '><i>' + esc(s.title) + '</i>. ' + esc(s.where) + '.</span>' +
         (s.doi ? link('https://doi.org/' + s.doi, 'doi:' + s.doi) : '') + (s.url ? link(s.url, s.url.replace(/^https?:\/\//, '')) : '') +
         '<div class="faint">' + esc(s.note) + '</div></div></li>').join('') + '</ol>';
-  }
+  };
   function bindPage(el) {
     el.addEventListener('click', (e) => {
       const t = e.target.closest('button');

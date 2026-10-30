@@ -147,6 +147,16 @@
         done: (x) => x.form === 'mass' && dex(x.o('A'), 7140, 0.02),
         demo: { form: 'mass', vals: { M: 1.605e28 } } },
     ],
+    'bh-eta': [
+      { q: { de: 'Stell η so ein, dass der erste Hauptsatz erfüllt ist (R_η = 1).', en: 'Set η so that the first law holds (R_η = 1).' },
+        hint: { de: 'R_η = 4η. Du kannst die Zahl auch direkt ins Eingabefeld tippen.', en: 'R_η = 4η. You can also type the number straight into the input field.' },
+        done: (x) => near(x.o('R'), 1, 1e-3),
+        demo: { vals: { eta: 0.25 } } },
+      { q: { de: 'Behalte η = 1/4 und ändere die Masse um mindestens den Faktor 1000. Was passiert mit R_η?', en: 'Keep η = 1/4 and change the mass by a factor of at least 1000. What happens to R_η?' },
+        hint: { de: 'T_H ∝ 1/M und dS_η/dM ∝ M: Die Masse kürzt sich heraus.', en: 'T_H ∝ 1/M and dS_η/dM ∝ M: the mass cancels out.' },
+        done: (x) => near(x.o('R'), 1, 1e-3) && x.b && !(Math.abs(Math.log10(x.v.M / x.b.M)) < 3),
+        demo: { base: { eta: 0.25, M: MS }, vals: { eta: 0.25, M: 1e3 * MS } } },
+    ],
     efe: [
       { q: { de: 'Bei welcher Energiedichte ist die Krümmungsskala ℓ genau so groß wie die Erdbahn (1 au)?', en: 'At what energy density is the curvature scale ℓ exactly as large as the Earth’s orbit (1 au)?' },
         hint: { de: 'Wasser liegt bei ℓ ≈ 1,5 au. ℓ ∝ 1/√u.', en: 'Water gives ℓ ≈ 1.5 au. ℓ ∝ 1/√u.' },
