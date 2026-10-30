@@ -492,20 +492,24 @@
   };
 
   /* ---------- Fadenpendel: Näherung und exakte Lösung nebeneinander ----------
-     Beide Pendel laufen im selben Zeitmaßstab; ihre Periodendauern kommen aus der Engine.
-     Gezeichnet wird die Bewegung als Kosinus – bei großen Amplituden ist die echte Form flacher. */
+     Beide Winkel kommen aus der Engine (Form „motion“): exakt θ(t) = 2 arcsin(k · sn(K(k) − ω₀t, k)),
+     Näherung θ₀ cos ω₀t. Bei großen Amplituden verweilt das exakte Pendel länger an den Umkehrpunkten.
+     Form „Periodendauer“: Das Bild läuft frei, im Zeitraffer bzw. in Zeitlupe, sodass eine exakte Schwingung 1,5 … 4 s dauert.
+     Form „Bewegung θ(t)“: Das Bild zeigt den Zustand zur Zeit t des Reglers; „Zeit laufen lassen“ bewegt es in Echtzeit. */
   V.pendulum = (ctx, W, H, S) => {
-    const { v, col, t } = S;
+    const { v, col } = S;
     grid(ctx, W, H, col);
     const T = S.o('T'), T0 = S.o('T0');
     if (!(T > 0) || !isFinite(T) || !(T0 > 0) || !isFinite(T0)) return invalid(ctx, W, H, col, tr('T ist hier nicht definiert (θ₀ = 180° oder ungültige Werte)', 'T is not defined here (θ₀ = 180° or invalid values)'));
-    const narrow = W < 520;
+    const narrow = W < 520, motion = S.form === 'motion';
+    const k = clamp(T, 1.5, 4) / T;              // Bildsekunden je physikalische Sekunde
+    const tau = motion ? v.t : S.t / k;          // physikalische Zeit seit dem Loslassen
+    const at = S.at(Object.assign({}, v, { t: tau }), S.exp.id, 'motion');
     const th0 = (Math.abs(v.th) * Math.PI) / 180;
-    const k = clamp(T, 1.5, 4) / T;
     const Lp = Math.min(H * 0.3, W * (narrow ? 0.2 : 0.17));
-    const py = Math.max(H * 0.44, 44 + Lp);
-    [[W * 0.3, T0, col.cyan, tr('Näherung', 'approximation'), 'T₀ = ' + S.fo('T0') + ' s'], [W * 0.7, T, col.accent, tr('exakt', 'exact'), 'T = ' + S.fo('T') + ' s']].forEach(([px, per, c, name, val]) => {
-      const ang = th0 * Math.cos((2 * Math.PI * t) / (per * k));
+    const py = Math.max(H * 0.44, (motion ? 64 : 44) + Lp);   // in „Bewegung θ(t)“ steht oben eine Zeile mehr
+    [[W * 0.3, at.o('tha'), col.cyan, tr('Näherung', 'approximation'), 'T₀ = ' + S.fo('T0') + ' s'], [W * 0.7, at.o('thx'), col.accent, tr('exakt', 'exact'), 'T = ' + S.fo('T') + ' s']].forEach(([px, deg, c, name, val]) => {
+      const ang = isFinite(deg) ? (deg * Math.PI) / 180 : 0;
       ctx.fillStyle = col.ink3; ctx.fillRect(px - 22, py - 4, 44, 4);
       ctx.strokeStyle = col.ink3; ctx.setLineDash([3, 4]); ctx.lineWidth = 1;
       if (th0 > 0) { ctx.beginPath(); ctx.arc(px, py, Lp, Math.PI / 2 - th0, Math.PI / 2 + th0); ctx.stroke(); }
@@ -521,7 +525,9 @@
     const lag = d > T * 1e-9 ? tr('Nach ≈ ' + E.fmt((0.5 * T0) / d, 2) + ' Schwingungen schwingen beide gegenläufig.', 'After ≈ ' + E.fmt((0.5 * T0) / d, 2) + ' swings the two move in opposite directions.') : tr('Beide Periodendauern sind gleich.', 'Both periods are equal.');
     segs(ctx, [['θ₀ = ' + E.fmt(v.th, 3) + '°   ', col.ink], [tr('Näherung zu kurz um ', 'approximation too short by ') + S.fo('err') + ' %', S.o('err') >= 1 ? col.red : col.ink2]], 16, 20, col, { mono: true, size: narrow ? 11 : 12 });
     label(ctx, lag, 16, 37, col, { size: 11, color: col.ink2 });
-    if (!narrow) note(ctx, tr('Bewegung als Kosinus gezeichnet · Periodendauern aus der Engine', 'Motion drawn as a cosine · periods from the engine'), W, H - 44, col);
+    if (motion) segs(ctx, [['t = ' + E.fmt(tau, 3) + ' s   ', col.ink], ['θ = ' + at.fo('thx') + '°', col.accent], ['   θₐ = ' + at.fo('tha') + '°', col.cyan]], 16, 54, col, { mono: true, size: narrow ? 11 : 12 });
+    const speed = Math.abs(k - 1) < 0.01 ? tr('Echtzeit', 'real time') : k < 1 ? tr('Zeitraffer ×', 'time-lapse ×') + E.fmt(1 / k, 2) : tr('Zeitlupe ×', 'slow motion ×') + E.fmt(k, 2);
+    if (!narrow) note(ctx, motion ? tr('Zeit t aus dem Regler · Winkel aus der Engine', 'Time t from the slider · angles from the engine') : tr('Exakt mit Jacobi-sn, Näherung als Kosinus · ', 'Exact with Jacobi sn, approximation as a cosine · ') + speed, W, H - 44, col);
   };
 
   /* ---------- Schiefer Wurf: Bahn, Geschwindigkeit in Komponenten, Komplementwinkel ---------- */
@@ -1032,7 +1038,8 @@
     label(ctx, 'η = ' + E.fmt(S.v.eta, 4), W - 16, 26, col, { mono: true, size: narrow ? 12 : 13, align: 'right', color: col.ink2 });
     // Balken: gemeinsamer Maßstab, damit „gleich lang“ sichtbar wird
     const x0 = narrow ? 16 : 150, x1 = W - 24, top = narrow ? 64 : 70, bh = narrow ? 22 : 26, gap = narrow ? 44 : 52;
-    const vmax = Math.max(1, r) * 1.08, X = (x) => x0 + (clamp(x, 0, vmax) / vmax) * (x1 - x0);
+    // fester Maßstab bis R = 4 (η = 1), damit beim Pendeln von η nur der untere Balken wandert
+    const vmax = Math.max(4, r) * 1.08, X = (x) => x0 + (clamp(x, 0, vmax) / vmax) * (x1 - x0);
     const rows = [
       [tr('Energie c² dM', 'Energy c² dM'), 1, col.ink2],
       ['T_H · dS_η', r, main],

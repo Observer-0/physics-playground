@@ -301,6 +301,14 @@
     },
   });
 
+  // Größen, die beide Formen des Fadenpendels brauchen (je Form ein eigenes Objekt)
+  const PEND = {
+    T: (primary) => ({ key: 'T', sym: 'T', tex: 'T', name: { de: 'Periodendauer (exakt)', en: 'Period (exact)' }, expr: '4*sqrt(L/g)*ellipk(sin(th*pi/360))', dim: 'T', primary }),
+    T0: () => ({ key: 'T0', sym: 'T₀', tex: 'T_0', name: { de: 'Periodendauer (Kleinwinkelnäherung)', en: 'Period (small-angle approximation)' }, expr: '2*pi*sqrt(L/g)', dim: 'T' }),
+    q: () => ({ key: 'q', sym: 'T/T₀', tex: 'T/T_0', name: { de: 'Verhältnis exakt zu Näherung', en: 'Ratio of exact to approximate' }, expr: 'T/T0', dim: '', digits: 8 }),
+    err: () => ({ key: 'err', sym: { de: 'Fehler / %', en: 'error / %' }, tex: '\\Delta T/T', name: { de: 'Fehler der Näherung in Prozent', en: 'Error of the approximation in per cent' }, expr: '(T - T0)/T*100', dim: '' }),
+  };
+
   define({
     id: 'pendulum', group: MECH, field: 'mech', title: { de: 'Fadenpendel: Näherung und exakte Lösung', en: 'Simple pendulum: approximation and exact solution' }, short: { de: 'Fadenpendel', en: 'Pendulum' },
     tex: 'T = 4\\sqrt{\\frac{L}{g}}\\;K\\left(\\sin\\frac{\\theta_0}{2}\\right)',
@@ -308,24 +316,45 @@
       L: { label: 'L', tex: 'L', name: { de: 'Fadenlänge', en: 'Length of the string' }, dim: 'L', default: 1, min: 0.01, max: 100, scale: 'log', positive: true },
       g: { label: 'g', tex: 'g', name: { de: 'Fallbeschleunigung', en: 'Gravitational acceleration' }, dim: 'L T^-2', default: C.g_n.value, min: 0.1, max: 30, scale: 'lin', positive: true },
       th: { label: 'θ₀', tex: '\\theta_0', name: { de: 'Amplitude (Startwinkel in Grad)', en: 'Amplitude (starting angle in degrees)' }, dim: '', default: 10, min: 0, max: 179, scale: 'lin' },
+      t: { label: 't', tex: 't', name: { de: 'Zeit seit dem Loslassen', en: 'Time since release' }, dim: 'T', default: 0, min: 0, max: 20, scale: 'lin' },
     },
-    outputs: [
-      { key: 'T', sym: 'T', tex: 'T', name: { de: 'Periodendauer (exakt)', en: 'Period (exact)' }, expr: '4*sqrt(L/g)*ellipk(sin(th*pi/360))', dim: 'T', primary: true },
-      { key: 'T0', sym: 'T₀', tex: 'T_0', name: { de: 'Periodendauer (Kleinwinkelnäherung)', en: 'Period (small-angle approximation)' }, expr: '2*pi*sqrt(L/g)', dim: 'T' },
-      { key: 'q', sym: 'T/T₀', tex: 'T/T_0', name: { de: 'Verhältnis exakt zu Näherung', en: 'Ratio of exact to approximate' }, expr: 'T/T0', dim: '', digits: 8 },
-      { key: 'err', sym: { de: 'Fehler / %', en: 'error / %' }, tex: '\\Delta T/T', name: { de: 'Fehler der Näherung in Prozent', en: 'Error of the approximation in per cent' }, expr: '(T - T0)/T*100', dim: '' },
-      { key: 'vmax', sym: 'v_max', tex: 'v_{\\max}', name: { de: 'Geschwindigkeit am tiefsten Punkt', en: 'Speed at the lowest point' }, expr: 'sqrt(2*g*L*(1 - cos(th*pi/180)))', dim: 'L T^-1' },
+    /* Zwei Formen: die Periodendauer (wie bisher) und die Bewegung θ(t). Die Visualisierung rechnet in beiden
+       mit der Form „motion“ – das exakte Pendel über die Jacobi-Funktion sn, die Näherung als Kosinus. */
+    forms: [
+      {
+        id: 'period', label: { de: 'Periodendauer', en: 'Period' }, vars: ['L', 'g', 'th'],
+        outputs: [PEND.T(true), PEND.T0(), PEND.q(), PEND.err(),
+          { key: 'vmax', sym: 'v_max', tex: 'v_{\\max}', name: { de: 'Geschwindigkeit am tiefsten Punkt', en: 'Speed at the lowest point' }, expr: 'sqrt(2*g*L*(1 - cos(th*pi/180)))', dim: 'L T^-1' }],
+        equations: [
+          { label: { de: 'Kleinwinkelnäherung', en: 'Small-angle approximation' }, eq: 'T0 = 2*pi*sqrt(L/g)' },
+          { label: { de: 'Exakte Periodendauer', en: 'Exact period' }, eq: 'T = 4*sqrt(L/g)*ellipk(sin(th*pi/360))' },
+          { label: { de: 'Energieerhaltung', en: 'Conservation of energy' }, eq: 'v_max = sqrt(2*g*L*(1 - cos(th*pi/180)))' },
+        ],
+      },
+      {
+        id: 'motion', label: { de: 'Bewegung θ(t)', en: 'Motion θ(t)' }, vars: ['L', 'g', 'th', 't'],
+        outputs: [PEND.T(false), PEND.T0(), PEND.err(),
+          { key: 'km', sym: 'k', tex: 'k', name: { de: 'Modul k = sin(θ₀/2)', en: 'Modulus k = sin(θ₀/2)' }, expr: 'sin(th*pi/360)', dim: '', aux: true },
+          { key: 'w0', sym: 'ω₀', tex: '\\omega_0', name: { de: 'Kreisfrequenz der Näherung √(g/L)', en: 'Angular frequency of the approximation √(g/L)' }, expr: 'sqrt(g/L)', dim: 'T^-1' },
+          { key: 'thx', sym: 'θ(t)', tex: '\\theta(t)', name: { de: 'Winkel zur Zeit t, exakt (in Grad)', en: 'Angle at time t, exact (in degrees)' }, expr: '360/pi*asin(km*sn(ellipk(km) - w0*t, km))', dim: '', primary: true },
+          { key: 'tha', sym: 'θₐ(t)', tex: '\\theta_{\\mathrm{a}}(t)', name: { de: 'Winkel zur Zeit t, Kleinwinkelnäherung (in Grad)', en: 'Angle at time t, small-angle approximation (in degrees)' }, expr: 'th*cos(w0*t)', dim: '' },
+          { key: 'dth', sym: 'θ − θₐ', tex: '\\theta - \\theta_{\\mathrm{a}}', name: { de: 'Abstand zwischen exakt und Näherung (in Grad)', en: 'Difference between exact and approximation (in degrees)' }, expr: 'thx - tha', dim: '' },
+        ],
+        equations: [
+          { label: { de: 'Exakte Bewegung (Jacobi-Funktion sn), Winkel in Grad', en: 'Exact motion (Jacobi function sn), angle in degrees' }, eq: 'theta = 360/pi*asin(k*sn(ellipk(k) - sqrt(g/L)*t, k))' },
+          { label: { de: 'Kleinwinkelnäherung, Winkel in Grad', en: 'Small-angle approximation, angle in degrees' }, eq: 'theta_a = th*cos(sqrt(g/L)*t)' },
+          { label: { de: 'Modul aus der Amplitude', en: 'Modulus from the amplitude' }, eq: 'k = sin(th*pi/360)' },
+          { label: { de: 'Exakte Periodendauer', en: 'Exact period' }, eq: 'T = 4*sqrt(L/g)*ellipk(sin(th*pi/360))' },
+        ],
+        graph: { x: 't', y: 'thx', also: ['tha'], xlog: false, ylog: false, view: { to: 'T', f: 2 } },
+      },
     ],
-    equations: [
-      { label: { de: 'Kleinwinkelnäherung', en: 'Small-angle approximation' }, eq: 'T0 = 2*pi*sqrt(L/g)' },
-      { label: { de: 'Exakte Periodendauer', en: 'Exact period' }, eq: 'T = 4*sqrt(L/g)*ellipk(sin(th*pi/360))' },
-      { label: { de: 'Energieerhaltung', en: 'Conservation of energy' }, eq: 'v_max = sqrt(2*g*L*(1 - cos(th*pi/180)))' },
-    ],
-    symbols: { v_max: { dim: 'L T^-1' } },
+    animateVar: 't',
+    symbols: { v_max: { dim: 'L T^-1' }, theta: { dim: '' }, theta_a: { dim: '' }, k: { dim: '' } },
     checks({ v, o, issues, fmt }) {
       const err = o('err');
       if (v.th < 0) issues.push({ cat: 'info', msg: T('Negativer Winkel heißt nur: zur anderen Seite ausgelenkt. T hängt von |θ₀| ab.', 'A negative angle just means a swing to the other side. T depends on |θ₀|.') });
-      if (isFinite(err) && err >= 1) issues.push({ cat: 'model', why: T('Kleinwinkelnäherung ≥ 1 % daneben', 'small-angle approximation off by ≥ 1 %'), on: ['T0'], msg: T('Die Kleinwinkelnäherung sin θ ≈ θ liegt hier um ' + fmt(err, 2) + ' % daneben: T₀ ist zu kurz. Die exakte Periodendauer T bleibt gültig.', 'The small-angle approximation sin θ ≈ θ is off by ' + fmt(err, 2) + ' % here: T₀ is too short. The exact period T remains valid.') });
+      if (isFinite(err) && err >= 1) issues.push({ cat: 'model', why: T('Kleinwinkelnäherung ≥ 1 % daneben', 'small-angle approximation off by ≥ 1 %'), on: ['T0', 'tha'], msg: T('Die Kleinwinkelnäherung sin θ ≈ θ liegt hier um ' + fmt(err, 2) + ' % daneben: T₀ ist zu kurz. Die exakte Periodendauer T bleibt gültig.', 'The small-angle approximation sin θ ≈ θ is off by ' + fmt(err, 2) + ' % here: T₀ is too short. The exact period T remains valid.') });
       else if (isFinite(err) && err >= 0.1) issues.push({ cat: 'info', msg: T('Die Kleinwinkelnäherung weicht um ' + fmt(err, 2) + ' % ab – für eine Pendeluhr schon viel.', 'The small-angle approximation is off by ' + fmt(err, 2) + ' % – already a lot for a pendulum clock.') });
       if (Math.abs(v.th) > 90) issues.push({ cat: 'model', why: T('über 90°: Faden schlaff', 'beyond 90°: string goes slack'), msg: T('Über 90° würde ein Faden anfangs schlaff: Das Modell gilt dann nur für eine starre Stange.', 'Beyond 90° a string would go slack at first: the model then only applies to a rigid rod.') });
       issues.push({ cat: 'assume', msg: T('Punktmasse an masseloser, starrer Aufhängung; keine Reibung; konstantes g.', 'Point mass on a massless, rigid suspension; no friction; constant g.') });
@@ -835,6 +864,8 @@
       { name: 'η = 1', note: { de: 'ein k_B pro Planck-Fläche: R = 4', en: 'one k_B per Planck area: R = 4' }, values: { eta: 1, M: MS } },
       { name: { de: 'η = 1/4, M87*', en: 'η = 1/4, M87*' }, note: { de: '≈ 6,5 × 10⁹ M☉: R bleibt 1 – die Masse kürzt sich heraus', en: '≈ 6.5 × 10⁹ M☉: R stays 1 – the mass cancels out' }, values: { eta: 0.25, M: 6.5e9 * MS } },
     ],
+    // Pendeln um η = 1/4 mit Faktor 4: η läuft zwischen 1/16 und 1, R_η zwischen 1/4 und 4 – und durch 1
+    sweep: { key: 'eta', center: 0.25, span: 4, period: 6, label: { de: 'η pendeln lassen', en: 'Oscillate η' } },
     graph: { x: 'eta', y: 'R', xlog: false, ylog: false, refs: [{ y: 'R', value: 1, label: { de: 'R = 1: erster Hauptsatz erfüllt', en: 'R = 1: first law holds' } }] },
     viz: 'firstlaw',
     explain: {

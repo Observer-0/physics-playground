@@ -2,6 +2,16 @@
 
 ## 2026-10-31
 
+**Animationen: exaktes Fadenpendel und η pendeln**
+
+- Fadenpendel: Das exakte Pendel bewegt sich jetzt wirklich exakt. Bisher war seine Bewegung als Kosinus gezeichnet (bekannte Einschränkung in der README); jetzt kommt der Winkel aus der Engine: θ(t) = 2 arcsin(k · sn(K(k) − ω₀t, k)) mit k = sin(θ₀/2). Bei großen Amplituden verweilt das Pendel sichtbar an den Umkehrpunkten. Die Näherung θ₀ cos ω₀t kommt ebenfalls aus der Engine. Das Bild nennt den Zeitmaßstab (Echtzeit, Zeitraffer oder Zeitlupe).
+- Fadenpendel, neue Form „Bewegung θ(t)“: mit der Zeit t als Regler und „Zeit laufen lassen“ in Echtzeit. Der Graph zeigt θ(t) und θₐ(t) über zwei Perioden – bei 170° bleibt die exakte Kurve oben flach, während der Kosinus schon zurückschwingt. Neue Ausgaben θ(t), θₐ(t), θ − θₐ und ω₀; neue Aufgabe zu 170°. Die Form „Periodendauer“ ist unverändert.
+- Engine: Funktionen können mehrere Argumente haben. Neu sind die Jacobi-Funktion `sn(u, k)` (über das arithmetisch-geometrische Mittel, NIST DLMF 22.20) und `asin`. Geprüft gegen eine numerische Integration der Pendelgleichung (RK4): Abweichung unter 10⁻⁷ Grad, auch bei 170°.
+- Vorfaktor η: neuer Knopf „η pendeln lassen“. η schwingt um 1/4 zwischen 1/16 und 1, R_η läuft zwischen 1/4 und 4 und dabei durch 1. Die Balken haben dafür einen festen Maßstab bis R = 4. Pendeln kann jetzt um einen festen Wert (`sweep.center`) und beginnt ohne Sprung beim aktuellen Wert. Während ein Wert pendelt, gilt keine Aufgabe als gelöst.
+- Graph-Vorgaben gibt es jetzt auch je Form (`forms[].graph`).
+
+**Tests:** 99 → 105 (sn-Identitäten und Grenzfälle k = 0 und k = 1, arcsin; zwei Argumente und Dimensionen; θ(t) gegen RK4 bei 10°, 90° und 170°; θ an den Viertelperioden; Pendelbild in beiden Formen; Pendeln um einen festen Wert bleibt im Regler-Bereich). Der Test zum Standardbereich prüft auch die Graph-Vorgaben der Formen.
+
 **Offene Fragen: Grundgerüst und Frage 1 „Warum genau 1/4?“**
 
 - Neues Themenfeld „Offene Fragen“ in der Seitenleiste zwischen Grundlagen und Werkzeuge, mit eigenem Icon und eigener Farbe (Sand – keine Datenfarbe). Übersicht unter `#view=offen`: die Regeln der Rubrik, die drei Status (offen, teilweise verstanden, semiklassisch geklärt) und eine Karte je Frage.

@@ -32,7 +32,7 @@ in a browser, and publishes `dist/` to GitHub Pages
 Development requires Node.js ≥ 18. `npm install` installs ESLint only.
 
 ``` bash
-npm test         # 99 tests in Node (the 11 UI tests run fully only in a browser)
+npm test         # 105 tests in Node (the 11 UI tests run fully only in a browser)
 npm run lint     # ESLint
 npm run build    # bundles everything into dist/index.html
 npm run check:ui # opens every page in both languages in headless Chrome/Edge and checks it,
@@ -52,7 +52,8 @@ The file loading order is defined only in `src/index.html`;
                                       · Free fall · Spring oscillator ·
                                       Circular motion · Pendulum
                                       (small-angle approximation
-                                      vs. exact solution) · Projectile
+                                      vs. exact solution, period and
+                                      exact motion θ(t)) · Projectile
                                       motion
 
   Relativity                          Lorentz factor (time dilation,
@@ -176,10 +177,14 @@ in `src/index.html`.
                                       position; TeX output and
                                       formatting; `sqrt`, `abs`, `exp`,
                                       `ln`, `log10`, `sin`, `cos`, `tan`,
-                                      and the complete elliptic integral
-                                      `ellipk` (via the
+                                      `asin`, the complete elliptic
+                                      integral `ellipk` (via the
                                       arithmetic--geometric mean, for the
-                                      pendulum)
+                                      pendulum) and the Jacobi function
+                                      `sn(u, k)` (two arguments, also via
+                                      the AGM, for the exact pendulum
+                                      motion). Each function declares
+                                      its number of arguments
 
   `src/core/model.js`                 Constants registry with type (exact
                                       / measured / convention /
@@ -423,7 +428,15 @@ Values must always come from `S.o('key')` or
 visualization header (the value is available in `S.opts`). Add
 `sweep: { key, span, period, label }` to give the visualization a
 control that oscillates a value around its initial value (by a factor of
-`span` in both directions).
+`span` in both directions). With `center`, it oscillates around that
+value instead and starts without a jump from the current value (the
+`bh-eta` experiment sweeps η around 1/4). While a value is oscillating,
+no task counts as solved.
+
+An experiment with several `forms` can give a form its own `graph`
+defaults (the pendulum's "Motion θ(t)" form plots θ over t). If a form
+contains the experiment's `animateVar`, the visualization follows that
+slider ("Let time run") instead of its free-running clock.
 
 ## Warning Categories
 
@@ -485,8 +498,6 @@ browser tests use an existing Chrome or Edge installation.
     not structurally
 -   Saved states and completed tasks are stored only in the local
     browser; share a state code to pass them to someone else
--   For the pendulum, the periods are exact, but the motion is drawn as
-    a cosine; at large amplitudes, the real oscillation is flatter
 
 ## Future Development
 

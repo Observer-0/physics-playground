@@ -15,6 +15,9 @@
   });
   const CAT_ORDER = ['math', 'numeric', 'unreal', 'model', 'info', 'assume'];
   const ANIM = new Set(['spring', 'circular', 'wavefunction', 'relativity', 'blackhole', 'horizon', 'spacetime', 'pendulum', 'gas']);
+  // Läuft das Bild frei mit der Uhr? Nicht, wenn die aktuelle Form die Zeit als Regler hat (animateVar) – dann
+  // zeigt das Bild den Zustand zu diesem Zeitpunkt, und „Zeit laufen lassen“ bewegt es (Fadenpendel, Form „Bewegung θ(t)“).
+  const freeAnim = () => ANIM.has(S.exp.viz) && !(S.exp.animateVar && M.formOf(S.exp, S.form).c.vars.some((v) => v.key === S.exp.animateVar));
   const VIZ_CATS = ['math', 'numeric', 'unreal', 'model'];
   const form = () => M.formOf(S.exp, S.form);
 
@@ -139,7 +142,7 @@
     const showGraph = !!S.graph && hasVars;
     const vc = (exp.vizControls || []).map((c) => (c.options ? vizSeg(c) : '<label class="switch plain"><input type="checkbox" data-vo="' + c.key + '"' + (S.vizOpts[c.key] ? ' checked' : '') + '><span>' + esc(c.label) + '</span></label>')).join('') +
       (exp.sweep ? '<button class="btn sm" data-v="sweep"></button>' : '') +
-      (ANIM.has(exp.viz) ? '<button class="btn sm" data-v="pause"></button>' : '');
+      (freeAnim() ? '<button class="btn sm" data-v="pause"></button>' : '');
     const forms = exp.forms.length > 1
       ? '<div class="seg" role="group" aria-label="' + T('Formel-Variante', 'Formula variant') + '">' + exp.forms.map((x) => '<button data-form="' + x.id + '" class="' + (x.id === S.form ? 'on' : '') + '">' + esc(x.label) + '</button>').join('') + '</div>' : '';
     const ab = S.cmp ? '<div class="seg" role="group" aria-label="' + T('Parametersatz bearbeiten', 'Edit parameter set') + '"><button data-edit="A" class="' + (S.edit === 'A' ? 'on' : '') + '">' + T('Satz A', 'Set A') + '</button><button data-edit="B" class="' + (S.edit === 'B' ? 'on' : '') + '">' + T('Satz B', 'Set B') + '</button></div>' : '';
@@ -325,13 +328,13 @@
     if (S.sweep) {
       const sw = S.sweep, cfg = sw.cfg;
       sw.ph += dt;
-      sw.vals[sw.key] = Number((sw.base * Math.pow(cfg.span, Math.sin((2 * Math.PI * sw.ph) / cfg.period))).toPrecision(6));
-      if (!S.paused && !S.vizFrozen && ANIM.has(S.exp.viz)) S.clock += dt;
+      sw.vals[sw.key] = Number((sw.center * Math.pow(cfg.span, Math.sin((2 * Math.PI * sw.ph) / cfg.period))).toPrecision(6));
+      if (!S.paused && !S.vizFrozen && freeAnim()) S.clock += dt;
       update();
       return;
     }
     if (pauseShown !== S.paused) syncVizButtons();
-    if (!S.paused && !S.vizFrozen && ANIM.has(S.exp.viz)) { S.clock += dt; drawViz(); }
+    if (!S.paused && !S.vizFrozen && freeAnim()) { S.clock += dt; drawViz(); }
   }
 
   /* ---------- Knöpfe der Visualisierung: Anhalten, Pendeln ---------- */
@@ -351,12 +354,14 @@
       s.setAttribute('aria-pressed', String(!!S.sweep));
     }
   }
-  // Pendeln: der Wert schwingt um seinen Ausgangswert (Faktor span hoch ±1), alles andere rechnet live mit
+  // Pendeln: der Wert schwingt um seinen Ausgangswert – oder um sweep.center – mit Faktor span hoch ±1, alles andere
+  // rechnet live mit. Die Startphase ist so gewählt, dass es beim aktuellen Wert ohne Sprung losgeht.
   function startSweep() {
-    const k = S.exp.sweep.key, x = S.vals[S.edit][k];
+    const cfg = S.exp.sweep, k = cfg.key, x = S.vals[S.edit][k];
     if (!(x > 0) || !isFinite(x)) { U.toast(T('Pendeln geht nur mit einem positiven Wert', 'Oscillating only works with a positive value')); return; }
     S.playing = false;
-    S.sweep = { set: S.edit, vals: S.vals[S.edit], key: k, base: x, ph: 0, cfg: S.exp.sweep };
+    const center = cfg.center || x, s0 = Math.max(-1, Math.min(1, Math.log(x / center) / Math.log(cfg.span)));
+    S.sweep = { set: S.edit, vals: S.vals[S.edit], key: k, base: x, center, ph: (Math.asin(s0) * cfg.period) / (2 * Math.PI), cfg };
   }
   function stopSweep(restore) {
     if (!S.sweep) return;
@@ -752,6 +757,8 @@
     const box = $('#tasks');
     if (!box) return;
     const st = taskStates();
+    // Beim Pendeln treibt die Animation den Wert, nicht du – dabei gilt keine Aufgabe als gelöst
+    if (S.sweep) st.forEach((s) => { s.now = false; });
     st.forEach((s) => {
       if (!s.now || solved.has(s.key)) return;
       solved.add(s.key);
@@ -869,8 +876,8 @@
   // Standardbereich der x-Achse (graph.view), damit der gültige Bereich das Bild bestimmt:
   // { to: Ausgabe, f } → bis f × Engine-Wert (z. B. kurz nach dem Aufprall), { range: [a, b] } → fest
   function defaultView(g, dom, sets) {
-    const gv = S.exp.graph && S.exp.graph.view;
-    if (!gv || g.x !== S.exp.graph.x) return null;
+    const gc = M.graphOf(S.exp, S.form), gv = gc && gc.view;
+    if (!gv || g.x !== gc.x) return null;
     let v = null;
     if (gv.range) v = gv.range.slice();
     else if (gv.to) {
@@ -940,7 +947,7 @@
         sampleKey: skey,
         xdom: dom, view0, xlog, ylog: spec.ylog, series,
         samples: xv.integer ? 200 : 320,
-        refs: ((exp.graph && exp.graph.refs) || []).filter((r) => r.y === y0).map((r) => ({ value: r.value, label: r.label, color: PP.colors().cyan })),
+        refs: ((M.graphOf(exp, S.form) || {}).refs || []).filter((r) => r.y === y0).map((r) => ({ value: r.value, label: r.label, color: PP.colors().cyan })),
         marker: { x: S.vals[S.edit][g.x], y: U.num(cur) },
         zones: zonesFor(pts, outs),
         xlabel: xv.label + (xunit ? ' [' + xunit + ']' : ''), xsym: xv.label, xunit,

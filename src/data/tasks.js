@@ -84,6 +84,10 @@
         hint: { de: 'T₀ = 2π√(L/g), also L = g·(T/2π)².', en: 'T₀ = 2π√(L/g), so L = g·(T/2π)².' },
         done: (x) => Math.abs(x.v.th) <= 5 && near(x.v.g, C.g_n.value, 1e-3) && near(x.o('T'), 2, 0.002),
         demo: { vals: { L: 0.9935, th: 3, g: C.g_n.value } } },
+      { q: { de: 'Wechsle zu „Bewegung θ(t)“ und lass das Pendel bei 170° los: Wann liegt die Näherung zum ersten Mal 90° daneben?', en: 'Switch to “Motion θ(t)” and release the pendulum at 170°: when is the approximation off by 90° for the first time?' },
+        hint: { de: 'Beobachte θ − θₐ, während die Zeit läuft, oder lies es im Graphen von θ(t) und θₐ(t) ab. Das exakte Pendel verweilt oben, die Näherung schwingt schon zurück – es dauert keine halbe Sekunde.', en: 'Watch θ − θₐ while time runs, or read it off the graph of θ(t) and θₐ(t). The exact pendulum lingers at the top while the approximation is already swinging back – it takes less than half a second.' },
+        done: (x) => x.form === 'motion' && Math.abs(Math.abs(x.v.th) - 170) <= 1 && Math.abs(x.o('dth')) >= 90 && Math.abs(x.o('dth')) < 110 && x.v.t < x.o('T0') / 2,
+        demo: { form: 'motion', vals: { th: 170, t: 0.37 } } },
     ],
     projectile: [
       { q: { de: 'Finde den Winkel mit der größten Weite.', en: 'Find the angle with the greatest range.' },

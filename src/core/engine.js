@@ -245,7 +245,8 @@
           const args = [parseExpr()];
           while (isOp(',')) { p++; args.push(parseExpr()); }
           const close = eat(')');
-          if (args.length !== 1) throw parseError(t.v + T('(…) erwartet genau ein Argument, bekommt aber ', '(…) takes exactly one argument but got ') + args.length, t.s, close.e);
+          const ar = FUNCS[t.v].args || 1;
+          if (args.length !== ar) throw parseError(t.v + (ar === 1 ? T('(…) erwartet genau ein Argument, bekommt aber ', '(…) takes exactly one argument but got ') : T('(…) erwartet genau ' + ar + ' Argumente, bekommt aber ', '(…) takes exactly ' + ar + ' arguments but got ')) + args.length, t.s, close.e);
           return node('call', { name: t.v, args }, t.s, close.e);
         }
         return node('var', { name: t.v }, t.s, t.e);
@@ -394,6 +395,28 @@
       for (let i = 0; i < 60 && Math.abs(x - y) > 1e-15 * x; i++) [x, y] = [(x + y) / 2, Math.sqrt(x * y)];
       return mk(Math.PI / (x + y));
     } },
+    asin: { dim: 'less', f: (a, n) => {
+      const x = finiteArg(a, 'asin', n);
+      if (Math.abs(x) > 1 + 1e-12) throw mathError(T('arcsin(x) ist nur für |x| ≤ 1 reell', 'arcsin(x) is only real for |x| ≤ 1'), n);
+      return mk(Math.asin(Math.max(-1, Math.min(1, x))));
+    } },
+    // Jacobi-Funktion sn(u, k) mit Modul k (wie bei ellipk), zwei Argumente. Über das arithmetisch-geometrische
+    // Mittel, NIST DLMF 22.20(ii): a₀ = 1, b₀ = √(1 − k²); φ_N = 2^N a_N u; φ_{n−1} = (φ_n + arcsin(c_n sin φ_n / a_n)) / 2; sn = sin φ₀.
+    // Fadenpendel: θ(t) = 2 arcsin(k · sn(K(k) − ω₀t, k)) mit k = sin(θ₀/2)
+    sn: { dim: 'less', args: 2, f: (a, b, n) => {
+      const u = finiteArg(a, 'sn', n), k = Math.abs(finiteArg(b, 'sn', n));
+      if (k > 1) throw mathError(T('sn(u, k) ist hier nur für |k| ≤ 1 definiert', 'sn(u, k) is only defined here for |k| ≤ 1'), n);
+      if (k === 1) return mk(Math.tanh(u));
+      const A = [1], Cn = [k];
+      let bb = Math.sqrt((1 - k) * (1 + k));
+      while (Math.abs(Cn[Cn.length - 1]) > 1e-16 * A[A.length - 1] && A.length < 40) {
+        const a0 = A[A.length - 1];
+        A.push((a0 + bb) / 2); Cn.push((a0 - bb) / 2); bb = Math.sqrt(a0 * bb);
+      }
+      let phi = Math.pow(2, A.length - 1) * A[A.length - 1] * u;
+      for (let i = A.length - 1; i > 0; i--) phi = (phi + Math.asin((Cn[i] / A[i]) * Math.sin(phi))) / 2;
+      return mk(Math.sin(phi));
+    } },
   });
 
   function evalNode(n, env) {
@@ -412,7 +435,7 @@
       case 'call': {
         const F = has(FUNCS, n.name) ? FUNCS[n.name] : null;
         if (!F) throw mathError(T('Unbekannte Funktion ', 'Unknown function ') + n.name, n);
-        return F.f(evalNode(n.args[0], env), n);
+        return F.f(...n.args.map((x) => evalNode(x, env)), n);
       }
     }
     throw mathError(T('Unbekannter Knoten ', 'Unknown node ') + n.type, n);
@@ -477,11 +500,11 @@
         }
         case 'call': {
           const F = has(FUNCS, n.name) ? FUNCS[n.name] : null;
-          const a = go(n.args[0]);
+          const ds = n.args.map(go), a = ds[0];
           if (!F) { errors.push({ node: n, msg: T('Unbekannte Funktion ', 'Unknown function ') + n.name }); return dimless(); }
           if (F.dim === 'half') return dimPow(a, R(1, 2));
           if (F.dim === 'same') return a;
-          if (!dimIsless(a)) errors.push({ node: n, msg: n.name + T('(…) braucht ein dimensionsloses Argument, bekommt aber [', '(…) needs a dimensionless argument, but got [') + dimStr(a) + ']' });
+          ds.forEach((d, i) => { if (!dimIsless(d)) errors.push({ node: ds.length > 1 ? n.args[i] : n, msg: n.name + T('(…) braucht ein dimensionsloses Argument, bekommt aber [', '(…) needs a dimensionless argument, but got [') + dimStr(d) + ']' }); });
           return dimless();
         }
       }
@@ -608,7 +631,7 @@
       }
       case 'call':
         if (n.name === 'sqrt') return '\\sqrt{' + T(n.args[0]) + '}';
-        return '\\operatorname{' + n.name + '}\\left(' + n.args.map(T).join(', ') + '\\right)';
+        return '\\operatorname{' + (n.name === 'asin' ? 'arcsin' : n.name) + '}\\left(' + n.args.map(T).join(', ') + '\\right)';
     }
     return '?';
   }
