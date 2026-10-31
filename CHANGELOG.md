@@ -2,6 +2,14 @@
 
 ## 2026-10-31
 
+**Offene Fragen, Frage 2: 1/Länge² verbindet Geometrie und Quantentheorie – die Entropie von Horizonten**
+
+- Neuer Absatz auf der Seite „Warum ist die kosmologische Konstante so klein?“: In Λ l_P² stehen zwei Größen mit 1/Länge² – Λ aus der Geometrie, 1/l_P² = c³/(ħG) mit dem Wirkungsquantum. Die Bekenstein-Schranke S ≤ 2πk_B ER/(ħc) enthält ħ, aber kein G (präzise Fassung in der Quantenfeldtheorie: Casini 2008). Mit E ≤ Rc⁴/(2G) wird daraus k_B πR²/l_P² = k_B A/(4 l_P²), die Bekenstein-Hawking-Entropie – Schwarze Löcher erreichen die Schranke. Gibbons und Hawking (1977): Auch der Λ-Horizont hat Temperatur und Entropie, S_dS = 3π k_B/(Λ l_P²) ≈ 3,3 × 10¹²² k_B bei T_dS ≈ 2 × 10⁻³⁰ K. Die kleine Zahl ist also der Kehrwert einer Entropie: Λ l_P² = 3π k_B/S_dS. Offen bleibt, was S_dS zählt – und die Umrechnung erklärt Λ nicht.
+- Experiment: neue Ausgaben S_dS/k_B = π r_dS²/l_P² und T_dS = ħc/(2πk_B r_dS). Dritte Ansicht „Horizonte S ∝ r²“: oben der Radius eines Horizonts, unten seine Entropie. Schwarze Löcher (1 M☉, Sgr A*, M87* – Werte aus dem Experiment „Bekenstein-Hawking-Entropie“) und der Λ-Horizont liegen auf denselben Achsen; aus 61 Größenordnungen im Radius werden 122 in der Entropie. Eine neue Aufgabe, drei neue Quellen (Bekenstein 1981, Casini 2008, Gibbons und Hawking 1977; DOIs geprüft).
+- Ansicht „Λ = 1/ℓ²“ nennt die Herkunft der beiden Krümmungen (Λ aus der Geometrie, 1/l_P² = c³/(ħG) mit ħ). Kopf- und Fußzeilen der Λ-Ansichten werden kleiner gesetzt, wenn sie sonst nicht ins Bild passen.
+
+**Tests:** 111 → 112 (S_dS = 3π k_B/(Λ l_P²), T_dS = ħH/(2πk_B), S_dS ∝ 1/Λ; Bekenstein-Schranke Schwarzer Löcher gleich S_BH; beide Horizonte mit S = k_B πr²/l_P²). Der Ansichten-Test prüft auch „Horizonte“, `npm run check:ui` die dritte Ansicht.
+
 **Offene Fragen, Frage 2: „Warum ist die kosmologische Konstante so klein?“ – Λ als Krümmung, 1/Länge²**
 
 - Neue Seite `#view=offen&sec=lambda` (Status: offen), in der Reihenfolge der Roadmap an zweiter Stelle; „Geht Information verloren?“ ist jetzt Frage 3. Gesichert: die beschleunigte Expansion (Supernovae 1998/99) und Λ ≈ 1,1 × 10⁻⁵² m⁻² im ΛCDM-Modell. Als eigener Absatz die Dimension: Λ steht neben dem Einstein-Tensor und ist eine Krümmung, 1/Länge². Daraus folgen die Länge ℓ_Λ = 1/√Λ ≈ 10 Milliarden Lichtjahre, die reine Zahl Λ l_P² ≈ 3 × 10⁻¹²² und – als Energiedichte gelesen – u_Λ = Λc⁴/(8πG), dreieinhalb Protonenmassen pro Kubikmeter. Eine Tabelle zeigt dieselbe Lücke in vier Dimensionen: Länge 60,8, Krümmung 121,5, Energie 30,7, Energiedichte 122,9 Größenordnungen.

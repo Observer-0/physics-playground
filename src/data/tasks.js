@@ -172,8 +172,12 @@
         demo: { vals: { Ec: 1.9561e8 } } },
       { q: { de: 'Ansicht „Λ = 1/ℓ²“: Mach Λ 100-mal größer. Um welchen Faktor ändert sich ℓ_Λ?', en: 'View “Λ = 1/ℓ²”: make Λ 100 times larger. By what factor does ℓ_Λ change?' },
         hint: { de: 'Λ ist eine Krümmung: ℓ_Λ = 1/√Λ.', en: 'Λ is a curvature: ℓ_Λ = 1/√Λ.' },
-        done: (x) => x.opts.view !== 'rho' && x.b && near(x.v.Lambda / x.b.Lambda, 100, 0.02),
+        done: (x) => x.opts.view !== 'rho' && x.opts.view !== 'hor' && x.b && near(x.v.Lambda / x.b.Lambda, 100, 0.02),
         demo: { vals: { Lambda: 100 * C.Lambda.value } } },
+      { q: { de: 'Ansicht „Horizonte“: Mach Λ 100-mal kleiner. Was passiert mit dem Radius und der Entropie des Λ-Horizonts?', en: 'View “Horizons”: make Λ 100 times smaller. What happens to the radius and the entropy of the Λ horizon?' },
+        hint: { de: 'r_dS = √(3/Λ) und S ∝ r²: zehnmal so weit, hundertmal so viel Entropie.', en: 'r_dS = √(3/Λ) and S ∝ r²: ten times as far, a hundred times the entropy.' },
+        done: (x) => x.opts.view === 'hor' && x.b && near(x.v.Lambda / x.b.Lambda, 0.01, 0.02),
+        demo: { vals: { Lambda: C.Lambda.value / 100 }, opts: { view: 'hor' } } },
     ],
     'bh-page': [
       { q: { de: 'Finde die Page-Zeit: Wann ist die Page-Kurve am höchsten?', en: 'Find the Page time: when is the Page curve at its highest?' },

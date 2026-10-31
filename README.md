@@ -96,9 +96,12 @@ The file loading order is defined only in `src/index.html`;
                                       cosmological constant so small?
                                       (Λ as a curvature, 1/length²: a
                                       length axis coupled to a
-                                      curvature axis, and the cutoff
+                                      curvature axis, the cutoff
                                       estimate of the vacuum energy
-                                      ∝ E⁴ against u_Λ) · Is
+                                      ∝ E⁴ against u_Λ, and horizons:
+                                      Bekenstein bound and the entropy
+                                      of the Λ horizon,
+                                      S = 3π k_B/(Λ l_P²)) · Is
                                       information lost? (evaporation in
                                       time-lapse with the Page curve,
                                       Page time from the engine). More
