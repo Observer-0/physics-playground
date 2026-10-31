@@ -307,6 +307,110 @@
         },
       },
     },
+    /* ------------------------------------------------------------ */
+    {
+      id: 'mess', status: 'open', exp: 'decoherence', title: { de: 'Das Messproblem', en: 'The measurement problem' },
+      body: {
+        de: () => {
+          const MATH = 'Mathematik', QM = 'Quantenmechanik', OPEN = 'offen', MEAS = 'Messung';
+          return '<h3 class="th-h3">Die Frage</h3>' +
+            '<p>Ein Teilchen fliegt durch ein Interferometer mit zwei Wegen. Die Quantenmechanik beschreibt es als Überlagerung ' + t(R`|\psi\rangle = a\,|1\rangle + b\,|2\rangle`) + ' – nicht als Teilchen auf Weg 1 oder auf Weg 2. Auf dem Schirm landet es trotzdem an genau einer Stelle. Erst viele Teilchen zusammen zeichnen Streifen, und die entstehen nur, wenn beide Wege beteiligt waren.</p>' +
+            '<p>Die Schrödinger-Gleichung ist linear. Misst ein Gerät den Weg, wird es nach ihr selbst Teil der Überlagerung (von Neumann 1932):</p>' +
+            d(R`|\psi\rangle|M_0\rangle \;\rightarrow\; a\,|1\rangle|M_1\rangle + b\,|2\rangle|M_2\rangle`) +
+            '<p>Abgelesen wird aber immer genau eine Zeigerstellung, ' + t('M_1') + ' oder ' + t('M_2') + ', mit den Wahrscheinlichkeiten ' + t(R`|a|^{2}`) + ' und ' + t(R`|b|^{2}`) + '. Wie wird aus dem „und“ der Gleichung das „oder“ der Messung?</p>' +
+            '<h3 class="th-h3">Was gesichert ist</h3>' +
+            '<p>' + kind(QM) + ' Die Wahrscheinlichkeiten folgen aus den Amplituden, ' + t(R`p_1 = |a|^{2}`) + ' und ' + t(R`p_2 = |b|^{2}`) + ' (Born 1926). In der Standardformulierung ist diese Born-Regel ein Postulat, und sie ist genau geprüft: Bei drei Spalten gibt es nach ihr nur Interferenz zwischen Paaren von Wegen. Ein Anteil, an dem alle drei zugleich beteiligt wären, ist kleiner als ein Hundertstel der gewöhnlichen Interferenz (Sinha u. a. 2010).</p>' +
+            '<p>' + kind(MEAS) + ' Überlagerungen sind nicht auf kleine Teilchen beschränkt: Moleküle mit bis zu 2000 Atomen und mehr als 25 000 u zeigen Interferenz (Fein u. a. 2019). Eine Grenze, ab der die Quantenmechanik nicht mehr gilt, hat kein Experiment gefunden.</p>' +
+            '<p>' + kind(QM) + ' Kein Teilchen ist ganz isoliert. Stößt ein Gasmolekül oder ein Wärmephoton an, hängt dessen Zustand danach davon ab, welchen Weg das Teilchen nahm – die Umgebung wird zum Messgerät:</p>' +
+            d(R`|\Psi\rangle = a\,|1\rangle|E_1\rangle + b\,|2\rangle|E_2\rangle`) +
+            '<p>' + kind(MATH) + ' Wer nur auf das Teilchen schaut, findet Streifen mit der Sichtbarkeit</p>' +
+            d(R`V = 2\sqrt{p_1 p_2}\,\left|\langle E_1 | E_2 \rangle\right|`) +
+            '<p>Sind die Zustände der Umgebung gleich, bleiben die Streifen. Sind sie verschieden – die Umgebung „weiß“, welchen Weg das Teilchen nahm –, verschwinden sie. Das ist <b>Dekohärenz</b> (Zeh 1970). Zur Sichtbarkeit gehört die Weginformation ' + t('D') + ': wie gut sich der Weg vorhersagen oder an der Umgebung ablesen lässt. Ist der Gesamtzustand rein, gilt genau (Englert 1996)</p>' +
+            d(R`V^{2} + D^{2} = 1`) +
+            '<p>' + kind(MEAS) + ' Dekohärenz ist gemessen. Haroche und seine Gruppe sahen 1996, wie eine Überlagerung zweier Feldzustände in einem Resonator nach und nach zur Mischung wurde (Brune u. a. 1996). Bei Fullerenen fällt die Sichtbarkeit exponentiell mit dem Gasdruck (Hornberger u. a. 2003) und verschwindet, wenn die Moleküle heiß genug sind, um Wärmephotonen abzustrahlen (Hackermüller u. a. 2004).</p>' +
+            '<div class="honest"><b>Einordnung:</b> Dekohärenz erklärt, warum man an Alltagsgegenständen keine Interferenz sieht und warum ein Zeiger stabil „hier“ oder „dort“ steht: Die Umgebung bevorzugt die Zustände, die sie nicht zerstört (Zurek 2003). Sie erklärt nicht, warum genau ein Ergebnis eintritt. Der Gesamtzustand bleibt eine Überlagerung – das „oder“ der Mischung ist ein „und“, das man nur nicht mehr sieht.</div>' +
+            '<p>Zusammengefasst:</p>' +
+            '<div class="th-scroll"><table class="t th-cmp"><thead><tr><th>Die Theorie sagt</th><th>Experimente zeigen</th><th>Offen ist</th></tr></thead><tbody>' +
+            '<tr><td><b>Überlagerung:</b> lineare Zeitentwicklung, auch für Messgeräte</td><td>Interferenz bis über 25 000 u (2019)</td><td>warum nie eine Überlagerung von Zeigerstellungen abgelesen wird</td></tr>' +
+            '<tr><td><b>Wahrscheinlichkeiten:</b> Born-Regel, ' + t(R`p = |a|^{2}`) + '</td><td>bestätigt; Interferenz dritter Ordnung unter einem Hundertstel (2010)</td><td>ob die Born-Regel aus den übrigen Annahmen folgt</td></tr>' +
+            '<tr><td><b>Dekohärenz:</b> Die Sichtbarkeit fällt mit dem Überlapp der Umgebungszustände</td><td>gemessen im Resonator (1996) und an Fullerenen (2003, 2004)</td><td>warum genau ein Ergebnis eintritt</td></tr>' +
+            '<tr><td><b>Gravitation:</b> Die Feldgleichungen brauchen einen bestimmten Wert für ' + t(R`T_{\mu\nu}`) + '</td><td>noch kein Experiment mit Massen in Überlagerung, das ihre Gravitation misst; Tests vorgeschlagen (2017)</td><td>wie eine Überlagerung gravitiert</td></tr>' +
+            '</tbody></table></div>' +
+            '<h3 class="th-h3">Was offen ist</h3>' +
+            '<p>' + kind(OPEN) + ' Das einzelne Ergebnis: Warum zeigt eine Messung genau eines, wenn die Schrödinger-Gleichung nur Überlagerungen liefert? Dekohärenz trennt die Möglichkeiten so, dass sie sich nicht mehr stören – eine auswählen tut sie nicht.</p>' +
+            '<p>' + kind(OPEN) + ' Die Wahrscheinlichkeiten: Ob die Born-Regel aus den übrigen Grundannahmen folgt oder ein eigenes Postulat bleiben muss, ist umstritten.</p>' +
+            '<p>' + kind(OPEN) + ' Was eine Messung physikalisch ist. Die Interpretationen der Quantenmechanik beantworten das verschieden und machen für alle bisherigen Experimente dieselben Vorhersagen (siehe ' + sec('qm', 'Quantenmechanik – die Idee') + '). Welche zutrifft, ist offen.</p>' +
+            '<p>' + kind(OPEN) + ' Wie eine Masse in Überlagerung gravitiert. Die Feldgleichungen brauchen einen bestimmten Wert für ' + t(R`T_{\mu\nu}`) + ' (siehe ' + sec('gap', 'Welche Geometrie hat eine Überlagerung?') + '). Ob die Gravitation zwei Massen verschränken kann, ist experimentell nicht entschieden.</p>' +
+            '<h3 class="th-h3 th-deep">Warum die Streifen exponentiell verschwinden</h3>' +
+            '<p>' + kind(MATH) + ' Jeder Stoß hinterlässt die Umgebung in einem von zwei Zuständen, je nach Weg; ihr Überlapp sei ' + t(R`\gamma`) + '. Nach ' + t('k') + ' Stößen multiplizieren sich die Überlappe zu ' + t(R`\gamma^{k}`) + '. Ist die Zahl der Stöße Poisson-verteilt mit dem Mittelwert ' + t('N') + ', ist der Überlapp ' + t(R`\left|\langle E_1 | E_2 \rangle\right|`) + ' im Mittel</p>' +
+            d(R`\sum_{k=0}^{\infty} \frac{N^{k} e^{-N}}{k!}\,\gamma^{k} = e^{-N(1-\gamma)}`) +
+            '<p>' + t('N') + ' wächst mit dem Gasdruck – daher der exponentielle Abfall, den Hornberger u. a. 2003 gemessen haben. Es zählt nur ' + t(R`N(1-\gamma)`) + ': Viele Stöße, die wenig verraten, wirken wie wenige, die viel verraten. Bei ' + t(R`\gamma = 0`) + ' verrät jeder Stoß den Weg ganz. Streifen kommen dann nur noch von den Teilchen, die gar nicht gestoßen wurden – im Mittel der Anteil ' + t(R`e^{-N}`) + '.</p>' +
+            '<h3 class="th-h3 th-deep">Mischung oder Überlagerung?</h3>' +
+            '<p>' + kind(QM) + ' Das Teilchen allein beschreibt eine Dichtematrix ' + t(R`\rho`) + '. Auf ihrer Diagonale stehen die Wahrscheinlichkeiten ' + t('p_1') + ' und ' + t('p_2') + ', außerhalb die Kohärenz</p>' +
+            d(R`|\rho_{12}| = \sqrt{p_1 p_2}\,\left|\langle E_1 | E_2 \rangle\right|`) +
+            '<p>Dekohärenz löscht nur die Kohärenz. Danach sieht ' + t(R`\rho`) + ' genauso aus wie bei einem Teilchen, das mit der Wahrscheinlichkeit ' + t('p_1') + ' den einen und mit ' + t('p_2') + ' den anderen Weg nahm – für jede Messung am Teilchen allein. Dasselbe ist es trotzdem nicht: Hier steht kein Weg fest, den man nur nicht kennt. Teilchen und Umgebung zusammen sind weiter in einer Überlagerung, ihr gemeinsamer Zustand bleibt rein.</p>' +
+            '<h3 class="th-h3">Was es entscheiden würde</h3>' +
+            '<p>Theoretisch: eine Herleitung, warum eine Messung genau ein Ergebnis liefert, und zwar mit den Wahrscheinlichkeiten der Born-Regel – ohne die Vorhersagen zu ändern, die so genau bestätigt sind. Solange alle Interpretationen dieselben Vorhersagen machen, kann kein Experiment zwischen ihnen entscheiden.</p>' +
+            '<p>' + kind(MEAS) + ' Prüfen lässt sich, ob Überlagerungen bei immer größeren Massen bestehen bleiben. Eine Abweichung, die sich nicht durch Dekohärenz erklären lässt, wäre ein Hinweis, dass die Quantenmechanik dort nicht mehr gilt. Bisher gibt es keine.</p>' +
+            '<p>' + kind(MEAS) + ' Vorgeschlagen sind Tischexperimente, in denen sich zwei Massen nur über ihre Gravitation verschränken sollen (Bose u. a. 2017; Marletto und Vedral 2017). Gelänge das, hätte die Gravitation Quanteneigenschaften. Dafür müssten Teilchen von etwa ' + t(R`10^{-14}\,\mathrm{kg}`) + ' rund eine Sekunde lang in einer Überlagerung bleiben, deren Teile Hunderte Mikrometer auseinanderliegen – rund acht Größenordnungen schwerer als die schwersten Moleküle, die bisher interferiert haben. Durchgeführt ist es noch nicht.</p>' +
+            '<h3 class="th-h3">Live in der App</h3>' +
+            '<p>Das Experiment schickt Teilchen einzeln durch ein Interferometer mit zwei Wegen. Mit ' + t('p_1') + ' stellst du die Gewichte der Wege ein, mit ' + t('N') + ' und ' + t(R`\gamma`) + ' die Umgebung. Die Engine rechnet die Sichtbarkeit ' + t('V') + ', die Weginformation ' + t('D') + ' und den Zustand des Teilchens aus. Zwei Ansichten:</p>' +
+            '<ul><li><b>Schirm</b> ' + kind(QM) + ' Jeder Punkt ist ein einzelnes Ergebnis, die Kurve die Verteilung ' + t(R`|\psi|^{2}`) + ' aus der Engine. Erst viele Punkte zeigen die Streifen. Welcher Punkt als Nächstes kommt, entscheidet im Bild ein Zufallsgenerator – die Theorie sagt nur die Verteilung voraus.</li>' +
+            '<li><b>Wegzustand ρ</b> ' + kind(QM) + ' die Dichtematrix des Teilchens: Mit der Umgebung verschwindet die Kohärenz, die Wahrscheinlichkeiten bleiben. Daneben ' + t(R`V^{2} + D^{2} = 1`) + ' als Balken.</li></ul>' +
+            '<p>„Teilchen schicken“ lässt 50 Teilchen pro Sekunde los. Die Presets zeigen ein Interferometer ohne Umgebung, viele schwache Stöße wie im Gas, einen Welcher-Weg-Detektor und ungleich gewichtete Wege. Der Schirm ist schematisch; die Formeln für ' + t('V') + ', ' + t('D') + ' und ' + t(R`\rho`) + ' gelten für jedes Interferometer mit zwei Wegen, das Stoßmodell ist eine Vereinfachung.</p>' +
+            '<p><a class="btn oq-live" href="#exp=decoherence">Zum Experiment: Schirm →</a> <a class="btn oq-live" href="#exp=decoherence&amp;vo=view:state">Wegzustand ρ →</a></p>' + srcs('decoherence');
+        },
+        en: () => {
+          const MATH = 'mathematics', QM = 'quantum mechanics', OPEN = 'open', MEAS = 'measurement';
+          return '<h3 class="th-h3">The question</h3>' +
+            '<p>A particle flies through an interferometer with two paths. Quantum mechanics describes it as a superposition ' + t(R`|\psi\rangle = a\,|1\rangle + b\,|2\rangle`) + ' – not as a particle on path 1 or on path 2. Yet it lands at exactly one place on the screen. Only many particles together draw fringes, and these arise only if both paths were involved.</p>' +
+            '<p>The Schrödinger equation is linear. If a device measures the path, according to the equation the device itself becomes part of the superposition (von Neumann 1932):</p>' +
+            d(R`|\psi\rangle|M_0\rangle \;\rightarrow\; a\,|1\rangle|M_1\rangle + b\,|2\rangle|M_2\rangle`) +
+            '<p>Yet what is read off is always exactly one pointer position, ' + t('M_1') + ' or ' + t('M_2') + ', with the probabilities ' + t(R`|a|^{2}`) + ' and ' + t(R`|b|^{2}`) + '. How does the “and” of the equation become the “or” of the measurement?</p>' +
+            '<h3 class="th-h3">What is established</h3>' +
+            '<p>' + kind(QM) + ' The probabilities follow from the amplitudes, ' + t(R`p_1 = |a|^{2}`) + ' and ' + t(R`p_2 = |b|^{2}`) + ' (Born 1926). In the standard formulation this Born rule is a postulate, and it has been tested precisely: with three slits, it allows interference only between pairs of paths. A contribution involving all three at once is smaller than one hundredth of the ordinary interference (Sinha et al. 2010).</p>' +
+            '<p>' + kind(MEAS) + ' Superpositions are not limited to small particles: molecules with up to 2000 atoms and more than 25,000 u show interference (Fein et al. 2019). No experiment has found a limit beyond which quantum mechanics no longer holds.</p>' +
+            '<p>' + kind(QM) + ' No particle is completely isolated. If a gas molecule or a thermal photon bumps into it, the state of that molecule or photon afterwards depends on which path the particle took – the environment becomes a measuring device:</p>' +
+            d(R`|\Psi\rangle = a\,|1\rangle|E_1\rangle + b\,|2\rangle|E_2\rangle`) +
+            '<p>' + kind(MATH) + ' Looking at the particle alone, you find fringes with the visibility</p>' +
+            d(R`V = 2\sqrt{p_1 p_2}\,\left|\langle E_1 | E_2 \rangle\right|`) +
+            '<p>If the states of the environment are the same, the fringes remain. If they differ – the environment “knows” which path the particle took – they disappear. That is <b>decoherence</b> (Zeh 1970). Visibility comes with the which-path information ' + t('D') + ': how well the path can be predicted or read off from the environment. If the total state is pure, exactly (Englert 1996)</p>' +
+            d(R`V^{2} + D^{2} = 1`) +
+            '<p>' + kind(MEAS) + ' Decoherence has been measured. In 1996 Haroche and his group watched a superposition of two field states in a cavity gradually turn into a mixture (Brune et al. 1996). With fullerenes, the visibility falls exponentially with the gas pressure (Hornberger et al. 2003) and disappears when the molecules are hot enough to emit thermal photons (Hackermüller et al. 2004).</p>' +
+            '<div class="honest"><b>Perspective:</b> decoherence explains why no interference is seen with everyday objects and why a pointer stays stably “here” or “there”: the environment favours the states it does not destroy (Zurek 2003). It does not explain why exactly one outcome occurs. The total state remains a superposition – the “or” of the mixture is an “and” that can no longer be seen.</div>' +
+            '<p>In summary:</p>' +
+            '<div class="th-scroll"><table class="t th-cmp"><thead><tr><th>Theory says</th><th>Experiments show</th><th>Open</th></tr></thead><tbody>' +
+            '<tr><td><b>Superposition:</b> linear time evolution, also for measuring devices</td><td>interference up to more than 25,000 u (2019)</td><td>why a superposition of pointer positions is never read off</td></tr>' +
+            '<tr><td><b>Probabilities:</b> Born rule, ' + t(R`p = |a|^{2}`) + '</td><td>confirmed; third-order interference below one hundredth (2010)</td><td>whether the Born rule follows from the other assumptions</td></tr>' +
+            '<tr><td><b>Decoherence:</b> the visibility falls with the overlap of the environment states</td><td>measured in a cavity (1996) and with fullerenes (2003, 2004)</td><td>why exactly one outcome occurs</td></tr>' +
+            '<tr><td><b>Gravity:</b> the field equations need a definite value for ' + t(R`T_{\mu\nu}`) + '</td><td>no experiment yet that measures the gravity of masses in superposition; tests proposed (2017)</td><td>how a superposition gravitates</td></tr>' +
+            '</tbody></table></div>' +
+            '<h3 class="th-h3">What remains open</h3>' +
+            '<p>' + kind(OPEN) + ' The single outcome: why does a measurement show exactly one, if the Schrödinger equation only yields superpositions? Decoherence separates the possibilities so that they no longer interfere – it does not pick one.</p>' +
+            '<p>' + kind(OPEN) + ' The probabilities: whether the Born rule follows from the other basic assumptions or has to remain a postulate of its own is disputed.</p>' +
+            '<p>' + kind(OPEN) + ' What a measurement physically is. The interpretations of quantum mechanics answer this differently and make the same predictions for all experiments so far (see ' + sec('qm', 'Quantum mechanics – the idea') + '). Which one is right is open.</p>' +
+            '<p>' + kind(OPEN) + ' How a mass in superposition gravitates. The field equations need a definite value for ' + t(R`T_{\mu\nu}`) + ' (see ' + sec('gap', 'What geometry does a superposition have?') + '). Whether gravity can entangle two masses has not been decided experimentally.</p>' +
+            '<h3 class="th-h3 th-deep">Why the fringes disappear exponentially</h3>' +
+            '<p>' + kind(MATH) + ' Each collision leaves the environment in one of two states, depending on the path; let their overlap be ' + t(R`\gamma`) + '. After ' + t('k') + ' collisions the overlaps multiply to ' + t(R`\gamma^{k}`) + '. If the number of collisions is Poisson-distributed with mean ' + t('N') + ', the overlap ' + t(R`\left|\langle E_1 | E_2 \rangle\right|`) + ' is on average</p>' +
+            d(R`\sum_{k=0}^{\infty} \frac{N^{k} e^{-N}}{k!}\,\gamma^{k} = e^{-N(1-\gamma)}`) +
+            '<p>' + t('N') + ' grows with the gas pressure – hence the exponential decrease that Hornberger et al. measured in 2003. Only ' + t(R`N(1-\gamma)`) + ' counts: many collisions that reveal little act like a few that reveal a lot. At ' + t(R`\gamma = 0`) + ' every collision reveals the path completely. The fringes then come only from the particles that were not hit at all – on average the fraction ' + t(R`e^{-N}`) + '.</p>' +
+            '<h3 class="th-h3 th-deep">Mixture or superposition?</h3>' +
+            '<p>' + kind(QM) + ' The particle on its own is described by a density matrix ' + t(R`\rho`) + '. Its diagonal holds the probabilities ' + t('p_1') + ' and ' + t('p_2') + ', the off-diagonal the coherence</p>' +
+            d(R`|\rho_{12}| = \sqrt{p_1 p_2}\,\left|\langle E_1 | E_2 \rangle\right|`) +
+            '<p>Decoherence erases only the coherence. Afterwards ' + t(R`\rho`) + ' looks exactly like that of a particle that took one path with probability ' + t('p_1') + ' and the other with ' + t('p_2') + ' – for every measurement on the particle alone. Still, it is not the same: here no path is fixed that is merely unknown. Particle and environment together are still in a superposition; their joint state remains pure.</p>' +
+            '<h3 class="th-h3">What would settle it</h3>' +
+            '<p>Theoretically: a derivation of why a measurement yields exactly one outcome, and with the probabilities of the Born rule – without changing the predictions that are so precisely confirmed. As long as all interpretations make the same predictions, no experiment can decide between them.</p>' +
+            '<p>' + kind(MEAS) + ' What can be tested is whether superpositions persist for ever larger masses. A deviation that decoherence cannot explain would be a sign that quantum mechanics no longer holds there. So far there is none.</p>' +
+            '<p>' + kind(MEAS) + ' Tabletop experiments have been proposed in which two masses are to become entangled only through their gravity (Bose et al. 2017; Marletto and Vedral 2017). If that succeeded, gravity would have quantum properties. It would require particles of about ' + t(R`10^{-14}\,\mathrm{kg}`) + ' to stay for around a second in a superposition whose parts are hundreds of micrometres apart – some eight orders of magnitude heavier than the heaviest molecules that have shown interference so far. It has not been carried out yet.</p>' +
+            '<h3 class="th-h3">Live in the app</h3>' +
+            '<p>The experiment sends particles one at a time through an interferometer with two paths. ' + t('p_1') + ' sets the weights of the paths, ' + t('N') + ' and ' + t(R`\gamma`) + ' the environment. The engine calculates the visibility ' + t('V') + ', the which-path information ' + t('D') + ' and the state of the particle. Two views:</p>' +
+            '<ul><li><b>Screen</b> ' + kind(QM) + ' each dot is a single outcome, the curve the distribution ' + t(R`|\psi|^{2}`) + ' from the engine. Only many dots show the fringes. Which dot comes next is decided in the picture by a random number generator – the theory only predicts the distribution.</li>' +
+            '<li><b>Path state ρ</b> ' + kind(QM) + ' the density matrix of the particle: with the environment, the coherence disappears while the probabilities remain. Next to it, ' + t(R`V^{2} + D^{2} = 1`) + ' as a bar.</li></ul>' +
+            '<p>“Send particles” releases 50 particles per second. The presets show an interferometer without an environment, many weak collisions as in a gas, a which-path detector and unequally weighted paths. The screen is schematic; the formulas for ' + t('V') + ', ' + t('D') + ' and ' + t(R`\rho`) + ' hold for every interferometer with two paths, the collision model is a simplification.</p>' +
+            '<p><a class="btn oq-live" href="#exp=decoherence">To the experiment: screen →</a> <a class="btn oq-live" href="#exp=decoherence&amp;vo=view:state">Path state ρ →</a></p>' + srcs('decoherence');
+        },
+      },
+    },
   ]);
 
   const TITLE = () => T('Offene Fragen', 'Open questions');
@@ -314,6 +418,7 @@
     quarter: { short: { de: 'Warum genau 1/4?', en: 'Why exactly 1/4?' }, teaser: { de: 'Der Vorfaktor der Entropie Schwarzer Löcher ist festgelegt – was sie zählt, ist offen.', en: 'The prefactor of black hole entropy is fixed – what it counts is open.' } },
     lambda: { short: { de: 'Warum ist Λ so klein?', en: 'Why is Λ so small?' }, teaser: { de: 'Λ ist eine Krümmung, 1/Länge². In Planck-Einheiten ist sie 10⁻¹²² – weit kleiner als jede Abschätzung der Vakuumenergie.', en: 'Λ is a curvature, 1/length². In Planck units it is 10⁻¹²² – far smaller than any estimate of the vacuum energy.' } },
     info: { short: { de: 'Geht Information verloren?', en: 'Is information lost?' }, teaser: { de: 'Ein Schwarzes Loch verdampft. Steckt die Information über seinen Anfang am Ende in der Strahlung?', en: 'A black hole evaporates. Does the information about its beginning end up in the radiation?' } },
+    mess: { short: { de: 'Das Messproblem', en: 'The measurement problem' }, teaser: { de: 'Die Schrödinger-Gleichung kennt nur Überlagerungen. Warum liefert eine Messung genau ein Ergebnis?', en: 'The Schrödinger equation knows only superpositions. Why does a measurement give exactly one result?' } },
   });
   const meta = (q) => META[q.id] || { short: q.title, teaser: '' };
   const href = (id) => '#view=offen&amp;sec=' + id;
@@ -341,8 +446,8 @@
       '<p class="faint">' + T('Der Status beschreibt die Frage als Ganzes. Die Etiketten im Text – Mathematik, semiklassisch, Abschätzung, Messung, offen – kennzeichnen einzelne Aussagen.',
         'The status describes the question as a whole. The labels in the text – mathematics, semiclassical, estimate, measurement, open – mark individual statements.') + '</p></div>';
     h += '<div class="th-cards">' + QUESTIONS.map((q, i) => '<a class="th-card" href="' + href(q.id) + '"><span class="th-card-n">' + (i + 1) + '</span><div><h3>' + esc(q.title) + '</h3><p>' + esc(meta(q).teaser) + '</p>' + chip(q.status) + '</div></a>').join('') + '</div>';
-    h += '<p class="oq-next">' + T('In Vorbereitung: das Messproblem und die Anforderungen an eine Quantengravitation.',
-      'In preparation: the measurement problem and the requirements for quantum gravity.') + '</p>';
+    h += '<p class="oq-next">' + T('In Vorbereitung: die Anforderungen an eine Quantengravitation.',
+      'In preparation: the requirements for quantum gravity.') + '</p>';
     el.innerHTML = h;
   }
 

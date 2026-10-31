@@ -304,6 +304,62 @@
       },
     },
 
+    /* Offene Fragen, Frage 4: Messproblem – Sichtbarkeit der Streifen und Überlapp der Umgebungszustände */
+    decoherence: {
+      tex: '\\xs{V}{V} = \\xs{two}{2}\\sqrt{\\xs{p1}{p_1} \\xs{p2}{p_2}}\\,\\xs{ov}{\\left|\\langle E_1 | E_2 \\rangle\\right|} \\qquad \\xs{ov}{\\left|\\langle E_1 | E_2 \\rangle\\right|} = e^{-\\xs{N}{N}(1 - \\xs{g}{\\gamma})}',
+      pre: 'ov',
+      hint: { de: 'Zeig auf ein Symbol oder tippe es an. Links steht, wie deutlich die Streifen sind, rechts, wie die Umgebung sie mit jedem Stoß verringert.', en: 'Point at a symbol or tap it. On the left is how clear the fringes are, on the right how the environment reduces them with every collision.' },
+      symbols: {
+        V: {
+          o: 'V', color: 'res', tag: { de: 'Ergebnis: messbar', en: 'Result: measurable' },
+          meaning: { de: 'Die Sichtbarkeit der Streifen, (I_max − I_min)/(I_max + I_min). Bei 1 gehen die Minima auf null, bei 0 bleibt nur der glatte Untergrund.',
+            en: 'The visibility of the fringes, (I_max − I_min)/(I_max + I_min). At 1 the minima go down to zero, at 0 only the smooth background remains.' },
+          role: { de: 'Das, was ein Interferenzexperiment misst. Die Formel zerlegt es in zwei Faktoren: die Gewichte der beiden Wege und den Überlapp der Umgebungszustände.',
+            en: 'What an interference experiment measures. The formula splits it into two factors: the weights of the two paths and the overlap of the environment states.' },
+        },
+        two: {
+          n: 2, tex: '2', color: 'geo', tag: NUMBER, name: { de: 'Faktor 2', en: 'Factor 2' },
+          role: { de: 'Mit ihm ist 2√(p₁p₂) höchstens 1 – genau dann, wenn beide Wege gleich wahrscheinlich sind.',
+            en: 'With it, 2√(p₁p₂) is at most 1 – exactly when both paths are equally likely.' },
+        },
+        p1: {
+          v: 'p1', color: 'q', tag: { de: 'Born-Regel', en: 'Born rule' },
+          meaning: { de: 'Die Wahrscheinlichkeit, das Teilchen auf Weg 1 zu finden, wenn man nachsieht: p₁ = |a|². Dass Wahrscheinlichkeiten so aus Amplituden folgen, ist die Born-Regel.',
+            en: 'The probability of finding the particle on path 1 if you look: p₁ = |a|². That probabilities follow from amplitudes in this way is the Born rule.' },
+          role: { de: 'Steht unter der Wurzel. Sind die Wege ungleich gewichtet, bleiben die Streifen auch ohne Umgebung schwächer – dafür ist der Weg zum Teil vorhersagbar.',
+            en: 'Stands under the square root. If the paths are weighted unequally, the fringes stay weaker even without an environment – in return the path is partly predictable.' },
+        },
+        p2: {
+          o: 'p2', color: 'q', tag: { de: 'Born-Regel', en: 'Born rule' },
+          meaning: { de: 'Die Wahrscheinlichkeit für Weg 2, p₂ = |b|² = 1 − p₁. Das Teilchen ist sicher auf einem der beiden Wege, wenn man nachsieht.',
+            en: 'The probability of path 2, p₂ = |b|² = 1 − p₁. If you look, the particle is certainly on one of the two paths.' },
+          role: { de: 'Das Produkt p₁p₂ ist am größten, wenn beide Wege gleich wahrscheinlich sind. Ist ein Weg sicher, gibt es nichts zu überlagern.',
+            en: 'The product p₁p₂ is largest when both paths are equally likely. If one path is certain, there is nothing to superpose.' },
+        },
+        ov: {
+          o: 'D', color: 'thermo', tag: { de: 'Umgebung', en: 'Environment' },
+          meaning: { de: 'Wie ähnlich sich die Zustände der Umgebung sind, je nachdem, welchen Weg das Teilchen nahm. Bei 1 weiß die Umgebung nichts über den Weg, bei 0 kennt sie ihn genau.',
+            en: 'How similar the states of the environment are, depending on which path the particle took. At 1 the environment knows nothing about the path, at 0 it knows it exactly.' },
+          role: { de: 'Steht zweimal da: links als Faktor der Sichtbarkeit, rechts ausgerechnet für Poisson-verteilte Stöße. Der Gesamtzustand bleibt dabei eine Überlagerung – nur das Teilchen allein zeigt keine Streifen mehr.',
+            en: 'Appears twice: on the left as a factor of the visibility, on the right worked out for Poisson-distributed collisions. The total state remains a superposition – only the particle on its own no longer shows fringes.' },
+        },
+        N: {
+          v: 'N', color: 'mass', tag: { de: 'Umgebung', en: 'Environment' },
+          meaning: { de: 'Die mittlere Zahl der Stöße mit Teilchen der Umgebung, etwa Gasmolekülen oder Wärmephotonen.',
+            en: 'The mean number of collisions with particles of the environment, for example gas molecules or thermal photons.' },
+          role: { de: 'Steht im Exponenten: Jeder weitere Stoß verringert den Überlapp im Mittel um denselben Faktor. Deshalb fällt die Sichtbarkeit exponentiell mit dem Gasdruck, wie 2003 an Fullerenen gemessen.',
+            en: 'Stands in the exponent: every further collision reduces the overlap by the same factor on average. That is why the visibility falls exponentially with the gas pressure, as measured with fullerenes in 2003.' },
+        },
+        g: {
+          v: 'g', color: 'mass', tag: { de: 'Stoß', en: 'Collision' },
+          meaning: { de: 'Wie viel ein einzelner Stoß über den Weg verrät: γ ist der Überlapp der beiden Umgebungszustände nach einem Stoß. Bei γ = 1 verrät er nichts, bei γ = 0 alles.',
+            en: 'How much a single collision reveals about the path: γ is the overlap of the two environment states after one collision. At γ = 1 it reveals nothing, at γ = 0 everything.' },
+          role: { de: 'Nur 1 − γ zählt: Viele schwache Stöße wirken wie wenige starke. Bei γ = 0 kommen die Streifen nur noch von Teilchen, die gar nicht gestoßen wurden – im Mittel der Anteil e⁻ᴺ.',
+            en: 'Only 1 − γ counts: many weak collisions act like a few strong ones. At γ = 0 the fringes come only from particles that were not hit at all – on average the fraction e⁻ᴺ.' },
+        },
+      },
+    },
+
     /* Offene Fragen, Frage 3: Page-Kurve – die Entropien in Einheiten von k_B */
     'bh-page': {
       tex: '\\xs{SP}{S_{\\mathrm{Page}}} = \\xs{min}{\\min}\\left(\\xs{SR}{S_{\\mathrm{rad}}},\\, \\xs{SB}{S_{\\mathrm{BH}}}\\right) \\qquad \\xs{SB}{S_{\\mathrm{BH}}} = \\xs{S0}{S_0}\\,(1 - \\xs{tau}{\\tau})^{2/3}',

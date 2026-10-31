@@ -402,7 +402,7 @@
       extra += '<button class="btn sm" data-op="neg" data-k="' + d.key + '" title="' + T('Vorzeichen umkehren', 'Flip sign') + '">±</button><button class="btn sm" data-op="div" data-k="' + d.key + '">÷10</button><button class="btn sm" data-op="mul" data-k="' + d.key + '">×10</button>';
     }
     if (S.exp.animateVar === d.key) {
-      extra += '<button class="btn sm' + (S.playing ? ' on' : '') + '" data-op="play" data-k="' + d.key + '">' + (S.playing ? T('Anhalten', 'Pause') : T('Zeit laufen lassen', 'Let time run')) + '</button>';
+      extra += '<button class="btn sm' + (S.playing ? ' on' : '') + '" data-op="play" data-k="' + d.key + '">' + (S.playing ? T('Anhalten', 'Pause') : S.exp.animateLabel || T('Zeit laufen lassen', 'Let time run')) + '</button>';
     }
     if (off && !locked) extra += '<span style="color:var(--red)">' + T('außerhalb des Slider-Bereichs', 'outside the slider range') + '</span>';
     return '<div class="prm' + (locked ? ' locked' : '') + (off ? ' off' : '') + '" data-k="' + d.key + '">' +

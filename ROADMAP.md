@@ -1,6 +1,6 @@
 # Roadmap: Open Questions
 
-**Status: October 31, 2026.** Section 2 (structure), Question 1 (Why exactly 1/4?), Question 2 (cosmological constant) and Question 3 (information paradox) are implemented; Question 4 and the overview of requirements are planned.
+**Status: October 31, 2026.** Section 2 (structure), Question 1 (Why exactly 1/4?), Question 2 (cosmological constant), Question 3 (information paradox) and Question 4 (measurement problem) are implemented; the overview of requirements is planned.
 
 Add a new section, **Open Questions**, exploring where general relativity (GR) and quantum theory reach their limits or leave important questions unanswered.
 
@@ -273,6 +273,8 @@ Keep existing interpretations in Foundations Section 8. Do not introduce modific
 Link to Section 10: **What geometry does a superposition have?**
 
 **Status:** Open.
+
+**Implemented (October 31, 2026):** experiment `decoherence` (labelled as a model): a two-path interferometer whose path state a|1⟩ + b|2⟩ couples to an environment. The number of collisions is Poisson-distributed with mean N, each collision multiplies the overlap of the environment states by γ, so |⟨E₁|E₂⟩| = exp(−N(1 − γ)) – exponential in N, as measured against gas pressure (Hornberger et al. 2003). The engine computes the visibility V = 2√(p₁p₂)|⟨E₁|E₂⟩|, Englert's which-path information D with V² + D² = 1, the coherence |ρ₁₂| and the purity Tr ρ² of the path state. Two views: "Screen" (particles one at a time; "Send particles" releases 50 per second; the hits are drawn from |ψ|² with a seeded random number generator, which the picture says, and stay put as new ones arrive) and "Path state ρ" (density matrix and V² + D² as a bar). Page `#view=offen&sec=mess` with the comparison table (theory / experiments / open), interpretations left to Foundations Section 8, no modifications of quantum mechanics, link to Section 10; gravitationally induced entanglement (Bose et al. 2017, Marletto and Vedral 2017) appears as a proposal, not a result. Sources: Born 1926, von Neumann 1932, Zeh 1970, Zurek 2003, Englert 1996, Brune et al. 1996, Hornberger et al. 2003, Hackermüller et al. 2004, Sinha et al. 2010, Fein et al. 2019, Bose et al. 2017, Marletto and Vedral 2017.
 
 ## 7. Overview: Requirements for Quantum Gravity
 
