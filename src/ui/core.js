@@ -127,7 +127,7 @@
   };
 
   U.defaultGraph = (exp, formId) => {
-    const g = exp.graph;
+    const g = M.graphOf(exp, formId);
     if (!g) return null;
     const form = M.formOf(exp, formId);
     const vars = form.c.vars;

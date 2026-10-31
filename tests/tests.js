@@ -92,6 +92,12 @@
     'Keine deutschen Reste in den englischen Beschriftungen der Visualisierungen': 'No German left in the English labels of the visualisations',
     'Hawking-Temperatur': 'Hawking temperature',
     'Offene Fragen': 'Open questions',
+    'Jacobi-Funktion: sn(K) = 1, sn(K/2) = 1/√(1 + k′), sn(3K) = −1, k = 0 → sin, k = 1 → tanh': 'Jacobi function: sn(K) = 1, sn(K/2) = 1/√(1 + k′), sn(3K) = −1, k = 0 → sin, k = 1 → tanh',
+    'sn braucht genau zwei Argumente, beide dimensionslos; arcsin außerhalb von [−1, 1] und |k| > 1 sind math-Issues': 'sn takes exactly two arguments, both dimensionless; arcsin outside [−1, 1] and |k| > 1 are math issues',
+    'Fadenpendel: θ(t) aus Jacobi-sn stimmt mit einer numerischen Integration (RK4) auf 10⁻⁷ Grad überein – bei 10°, 90° und 170°': 'Pendulum: θ(t) from Jacobi sn agrees with a numerical integration (RK4) to 10⁻⁷ degrees – at 10°, 90° and 170°',
+    'Fadenpendel: θ(0) = θ₀, θ(T/4) = 0, θ(T/2) = −θ₀, θ(T) = θ₀; bei 2° weicht die Näherung höchstens 0,001° ab, bei 170° um mehr als 100°': 'Pendulum: θ(0) = θ₀, θ(T/4) = 0, θ(T/2) = −θ₀, θ(T) = θ₀; at 2° the approximation is off by at most 0.001°, at 170° by more than 100°',
+    'Fadenpendel: Das Bild zeigt in „Bewegung θ(t)“ t, θ und θₐ aus der Engine, in „Periodendauer“ den Zeitmaßstab': 'Pendulum: in “Motion θ(t)” the picture shows t, θ and θₐ from the engine, in “Period” the time scale',
+    'Pendeln um einen festen Wert (sweep.center) bleibt im Regler-Bereich': 'Oscillating around a fixed value (sweep.center) stays within the slider range',
     'Warum 1/4: R_η = 4η bei jeder Masse, nur η = 1/4 erfüllt den ersten Hauptsatz, S_η(1/4) = S_BH, R ohne Messunsicherheit': 'Why 1/4: R_η = 4η for every mass, only η = 1/4 satisfies the first law, S_η(1/4) = S_BH, R without measurement uncertainty',
     'Keine Kandidaten für eine Quantengravitation – weder im Experiment noch in seinen Quellen noch auf den Seiten': 'No quantum-gravity candidates – not in the experiment, its sources or the pages',
     'Offene Fragen: jede Frage hat Status, Kurztitel, die fünf Abschnitte und ein Experiment im Feld „open“; der Direktlink #view=offen&sec=… bleibt im Zustand': 'Open questions: every question has a status, a short title, the five sections and an experiment in the “open” field; the direct link #view=offen&sec=… stays in the state',
@@ -461,12 +467,61 @@
       ok(!x.ok && x.issues[0].cat === 'math', 'k = ' + k);
     }
   });
+  /* --- Erweiterung der Engine: Jacobi-Funktion sn(u, k) und arcsin – für die Bewegung des Fadenpendels --- */
+  test('Numerik', 'Jacobi-Funktion: sn(K) = 1, sn(K/2) = 1/√(1 + k′), sn(3K) = −1, k = 0 → sin, k = 1 → tanh', () => {
+    const ev = (src, env) => E.toDouble(E.evaluate(E.parse(src), env));
+    for (const k of [0, 0.3, 0.5, 0.9, 0.99, 0.99996]) {
+      const K = ev('ellipk(k)', { k }), kp = Math.sqrt(1 - k * k);
+      close(ev('sn(K, k)', { K, k }), 1, 1e-14, 'sn(K), k = ' + k + ':');
+      close(ev('sn(K/2, k)', { K, k }), 1 / Math.sqrt(1 + kp), 1e-13, 'sn(K/2), k = ' + k + ':');
+      close(ev('sn(3*K, k)', { K, k }), -1, 1e-13, 'sn(3K), k = ' + k + ':');
+      close(ev('sn(0.4, -k)', { k }) || 1e-300, ev('sn(0.4, k)', { k }) || 1e-300, 1e-15, 'sn(u, −k) = sn(u, k):');
+    }
+    close(ev('sn(0.7, 0)', {}), Math.sin(0.7), 1e-15, 'k = 0:');
+    close(ev('sn(0.7, 1)', {}), Math.tanh(0.7), 1e-15, 'k = 1:');
+    close(ev('asin(0.5)', {}), Math.PI / 6, 1e-15, 'arcsin(0,5):');
+  });
+  test('Parser', 'sn braucht genau zwei Argumente, beide dimensionslos; arcsin außerhalb von [−1, 1] und |k| > 1 sind math-Issues', () => {
+    let msg = '';
+    try { E.parse('sn(1)'); } catch (e) { msg = e.message; }
+    ok(/genau 2 Argumente/.test(msg), msg || 'sn(1) wurde akzeptiert');
+    ok(!E.dimAnalyze(E.parse('sn(x, 0.5)'), { x: D('L') }).ok && !E.dimAnalyze(E.parse('sn(0.5, x)'), { x: D('L') }).ok && E.dimAnalyze(E.parse('sn(x, y)'), { x: D(''), y: D('') }).ok, 'Dimensionen');
+    for (const src of ['asin(1.5)', 'sn(1, 1.2)']) { const x = E.evaluate(E.parse(src), {}); ok(!x.ok && x.issues[0].cat === 'math', src); }
+    ok(/arcsin/.test(E.toTex(E.parse('asin(x)'))) && /operatorname\{sn\}.*, /.test(E.toTex(E.parse('sn(u, k)'))), E.toTex(E.parse('sn(u, k)')));
+  });
   test('Dimensionsanalyse', 'ellipk(Länge) wird abgelehnt', () => {
     ok(!E.dimAnalyze(E.parse('ellipk(x)'), { x: D('L') }).ok && E.dimAnalyze(E.parse('ellipk(x)'), { x: D('') }).ok);
   });
   test('Referenzwerte', 'Fadenpendel: T/T₀ bei 90° ≈ 1,1803406', () => {
     close(val(run('pendulum', { th: 90 }), 'q'), 1.1803405990160962, 1e-12);
     close(val(run('pendulum', { L: 1, g: 9.80665, th: 0 }), 'T'), 2 * Math.PI * Math.sqrt(1 / 9.80665), 1e-14, 'θ₀ = 0');
+  });
+  // θ(t) über die Engine (Form „motion“), in Grad
+  const swing = (vals, t) => val(M.compute(M.byId.pendulum, 'motion', Object.assign(M.defaults(M.byId.pendulum), vals, { t }), { skipChecks: true }), 'thx');
+  test('Referenzwerte', 'Fadenpendel: θ(t) aus Jacobi-sn stimmt mit einer numerischen Integration (RK4) auf 10⁻⁷ Grad überein – bei 10°, 90° und 170°', () => {
+    const L = 1, g = 9.80665, h = 2e-4, f = (x) => -(g / L) * Math.sin(x);
+    for (const th of [10, 90, 170]) {
+      let x = (th * Math.PI) / 180, w = 0, worst = 0;
+      for (let i = 0; i <= 15000; i++) {   // 3 s, verglichen alle 0,1 s
+        if (i % 500 === 0) worst = Math.max(worst, Math.abs(swing({ L, g, th }, i * h) - (x * 180) / Math.PI));
+        const k1x = w, k1w = f(x), k2x = w + (h / 2) * k1w, k2w = f(x + (h / 2) * k1x), k3x = w + (h / 2) * k2w, k3w = f(x + (h / 2) * k2x), k4x = w + h * k3w, k4w = f(x + h * k3x);
+        x += (h / 6) * (k1x + 2 * k2x + 2 * k3x + k4x); w += (h / 6) * (k1w + 2 * k2w + 2 * k3w + k4w);
+      }
+      ok(worst < 1e-7, th + '°: Abweichung ' + worst + '°');
+    }
+  });
+  test('Referenzwerte', 'Fadenpendel: θ(0) = θ₀, θ(T/4) = 0, θ(T/2) = −θ₀, θ(T) = θ₀; bei 2° weicht die Näherung höchstens 0,001° ab, bei 170° um mehr als 100°', () => {
+    for (const th of [2, 90, 170]) {
+      const T = val(run('pendulum', { th }), 'T');
+      close(swing({ th }, 0), th, 1e-12, th + '°, t = 0:');
+      ok(Math.abs(swing({ th }, T / 4)) < 1e-9 * th, th + '°, t = T/4: ' + swing({ th }, T / 4));
+      close(swing({ th }, T / 2), -th, 1e-12, th + '°, t = T/2:');
+      close(swing({ th }, T), th, 1e-12, th + '°, t = T:');
+    }
+    const r2 = run('pendulum', { th: 2, t: 0.3 }, 'motion');
+    ok(Math.abs(val(r2, 'dth')) < 1e-3, '2°: ' + val(r2, 'dth'));
+    const T170 = val(run('pendulum', { th: 170 }), 'T0');
+    ok(Math.abs(val(run('pendulum', { th: 170, t: T170 / 2 }, 'motion'), 'dth')) > 100, '170°: Näherung sollte weit daneben liegen');
   });
   test('Referenzwerte', 'Ideales Gas: 1 mol bei 273,15 K in 22,414 l → 101,325 kPa', () => {
     close(val(run('ideal-gas', { N: M.C.N_A.value, T: 273.15, V: 0.022414 }), 'p'), 101325, 2e-5);
@@ -551,6 +606,25 @@
         ok(!bad, exp.id + ': „' + bad + '“');
       }
     }
+  });
+  test('Visualisierung', 'Fadenpendel: Das Bild zeigt in „Bewegung θ(t)“ t, θ und θₐ aus der Engine, in „Periodendauer“ den Zeitmaßstab', () => {
+    if (!PP.viz) return;
+    const r = run('pendulum', { th: 90, t: 0.5 }, 'motion'), fo = (k) => fmtOut(r, k);
+    const m = draw('pendulum', { th: 90, t: 0.5 }, { form: 'motion' });
+    ok(m.some((x) => x.includes('t = 0.5 s') || x.includes('t = 0,5 s')), m.join(' | '));
+    ok(m.some((x) => x.includes('θ = ' + fo('thx'))) && m.some((x) => x.includes('θₐ = ' + fo('tha'))), m.join(' | '));
+    const p = draw('pendulum', { th: 90 });
+    ok(p.some((x) => /Jacobi/.test(x)), p.join(' | '));
+    ok(!m.concat(p).some((x) => /NaN|undefined|Infinity/.test(x)), 'NaN im Bild');
+  });
+  test('Visualisierung', 'Pendeln um einen festen Wert (sweep.center) bleibt im Regler-Bereich', () => {
+    for (const exp of M.registry) {
+      const sw = exp.sweep;
+      if (!sw || !sw.center) continue;
+      const d = exp.vars[sw.key];
+      ok(d && sw.center / sw.span >= d.min && sw.center * sw.span <= d.max && sw.span > 1, exp.id + ': ' + sw.center + ' ×/÷ ' + sw.span);
+    }
+    ok(M.byId['bh-eta'].sweep && M.byId['bh-eta'].sweep.center === 0.25, 'bh-eta pendelt nicht um 1/4');
   });
   test('Visualisierung', 'β = 1: Die Visualisierung zeigt γ als nicht definiert statt einer Zahl', () => {
     if (!PP.viz) return;
@@ -862,11 +936,12 @@
     ok(!bad.length, [...new Set(bad)].slice(0, 4).join(' | '));
   });
   test('Graph', 'Standardbereich: verweist auf vorhandene Ausgaben und liegt im Regler-Bereich; freier Fall endet kurz nach dem Aufprall', () => {
-    for (const exp of M.registry) {
-      const gv = exp.graph && exp.graph.view;
+    for (const exp of M.registry) for (const f of exp.forms) {
+      const gc = M.graphOf(exp, f.id), gv = gc && gc.view;
       if (!gv) continue;
-      const xv = exp.vars[exp.graph.x];
-      if (gv.to) ok(exp.forms[0].c.outputs.some((o) => o.key === gv.to), exp.id + ': ' + gv.to);
+      const xv = exp.vars[gc.x];
+      ok(f.c.vars.some((v) => v.key === gc.x), exp.id + ' (' + f.id + '): x = ' + gc.x);
+      if (gv.to) ok(f.c.outputs.some((o) => o.key === gv.to), exp.id + ' (' + f.id + '): ' + gv.to);
       if (gv.range) ok(gv.range[0] >= xv.min && gv.range[1] <= xv.max && gv.range[0] < gv.range[1], exp.id + ': ' + gv.range);
     }
     const tf = val(run('free-fall'), 'tf'), gv = M.byId['free-fall'].graph.view;

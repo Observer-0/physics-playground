@@ -91,6 +91,8 @@
     for (const f of exp.forms) compileForm(exp, f);
   }
   const formOf = (exp, id) => exp.forms.find((f) => f.id === id) || exp.forms[0];
+  // Graph-Vorgaben: eine Form kann eigene haben (z. B. θ über t beim Fadenpendel), sonst die des Experiments
+  const graphOf = (exp, id) => formOf(exp, id).graph || exp.graph || null;
 
   function defaults(exp) {
     const v = {};
@@ -222,5 +224,5 @@
     return parts.length ? { rel: Math.sqrt(sum), parts } : { rel: 0, parts: [] };
   }
 
-  PP.model = { C, CONST_ENV, KIND_LABEL, registry, byId, define, compute, defaults, uncertainty, formOf, affects };
+  PP.model = { C, CONST_ENV, KIND_LABEL, registry, byId, define, compute, defaults, uncertainty, formOf, graphOf, affects };
 })(globalThis.PP = globalThis.PP || {});
