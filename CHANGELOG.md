@@ -2,6 +2,16 @@
 
 ## 2026-10-31
 
+**Grundlagen §10: Anforderungen an eine Quantengravitation statt Kandidaten**
+
+- Die Namen von Kandidaten für eine Quantengravitation sind aus der ganzen App verschwunden: der Absatz „Lösungsansätze“ in §10, die Erwähnung bei der Entropie Schwarzer Löcher und der Name eines Prinzips im Abschnitt Entropie (die Vermutung selbst bleibt, als unbewiesen gekennzeichnet).
+- Neu in §10: „Anforderungen an eine Quantengravitation“ – neun Punkte, die jede Kandidatin erfüllen muss, ohne einen Ansatz zu bewerten: ART und Quantenfeldtheorie wiedergeben, bei der Planck-Skala vorhersagekräftig bleiben, die Entropie Schwarzer Löcher samt 1/4 erklären, die Unitarität klären, die Singularitäten erklären, das Problem der Zeit lösen, die Messgrenzen einhalten, testbar sein. Jeder Punkt verweist auf Inhalte der App, darunter alle vier Offenen Fragen. Ob eine Quantengravitation auch Λ erklären muss, steht als offen da, nicht als Anforderung.
+- Messgrenzen mit geprüften Zahlen und Quellen: GRB 090510 – eine linear von der Energie abhängige Lichtgeschwindigkeit erst oberhalb von 1,2 E_P (Abdo u. a. 2009, modellabhängig); MICROSCOPE – η = (−1,5 ± 2,3 ± 1,5) × 10⁻¹⁵ (Touboul u. a. 2022); GW170817 – relativer Unterschied der Geschwindigkeiten von Gravitation und Licht zwischen −3 × 10⁻¹⁵ und +7 × 10⁻¹⁶ (Abbott u. a. 2017). §10 hat dafür eine eigene Quellenliste.
+- Die Übersicht der Offenen Fragen verweist auf die Anforderungen statt „In Vorbereitung“.
+- Formelsatz: Ein Vorzeichen steht ohne den Abstand eines Rechenzeichens – „(−1,5 ± 2,3)“ und „10⁻¹⁵“ statt „( − 1,5 …)“, überall in der App.
+
+**Tests:** 115 → 116 (§10: neun Anforderungen, Verweise auf die vier Fragen, Messgrenzen mit Quellen, Verweis aus der Übersicht). Der Kandidaten-Test prüft jetzt auch alle Experimente, Gleichungskarten und die Grundlagen, der Quellen-Test auch die Liste der Grundlagen, der Formelsatz-Test das Vorzeichen.
+
 **Formulierungen und Layout: Aussagen statt Fragesätze, Experiment-Seiten neu geordnet**
 
 - Offene Fragen: Jede Seite beginnt mit einer kurzen Einleitung statt mit dem Abschnitt „Die Frage“. Fragesätze im Text sind Aussagen geworden – Fragen sind nur noch die Titel. Die Vertiefungen heißen „Woher das Minimum kommt“ und „Mischung ohne festen Weg“, die Kurztexte der Übersicht sind Aussagen.

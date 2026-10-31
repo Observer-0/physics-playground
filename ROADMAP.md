@@ -1,6 +1,6 @@
 # Roadmap: Open Questions
 
-**Status: October 31, 2026.** Section 2 (structure), Question 1 (Why exactly 1/4?), Question 2 (cosmological constant), Question 3 (information paradox) and Question 4 (measurement problem) are implemented; the overview of requirements is planned.
+**Status: October 31, 2026.** Section 2 (structure), Question 1 (Why exactly 1/4?), Question 2 (cosmological constant), Question 3 (information paradox) and Question 4 (measurement problem) are implemented. The requirements for quantum gravity (Section 7) are implemented in Foundations Section 10, which no longer names candidate theories.
 
 Add a new section, **Open Questions**, exploring where general relativity (GR) and quantum theory reach their limits or leave important questions unanswered.
 
@@ -21,7 +21,7 @@ No quantum-gravity candidates or extensions of quantum mechanics. No references 
 
 If something is unresolved, say **open**. No speculative solutions.
 
-One separate decision remains: Foundations Section 10 already mentions string theory and loop quantum gravity. The new section will not link to that passage. Whether the existing text stays is a separate question.
+Decided on October 31, 2026: the candidate theories are gone from the whole app, Foundations Section 10 included. In their place, Section 10 lists the requirements for quantum gravity (Section 7 below). The rule above therefore applies everywhere; a test checks experiments, sources, equation cards, Open Questions and Foundations.
 
 ## 2. Structure
 
@@ -276,6 +276,8 @@ Link to Section 10: **The geometry of a superposition** (heading as of October 3
 **Implemented (October 31, 2026):** experiment `decoherence` (labelled as a model): a two-path interferometer whose path state a|1⟩ + b|2⟩ couples to an environment. The number of collisions is Poisson-distributed with mean N, each collision multiplies the overlap of the environment states by γ, so |⟨E₁|E₂⟩| = exp(−N(1 − γ)) – exponential in N, as measured against gas pressure (Hornberger et al. 2003). The engine computes the visibility V = 2√(p₁p₂)|⟨E₁|E₂⟩|, Englert's which-path information D with V² + D² = 1, the coherence |ρ₁₂| and the purity Tr ρ² of the path state. Two views: "Screen" (particles one at a time; "Send particles" releases 50 per second; the hits are drawn from |ψ|² with a seeded random number generator, which the picture says, and stay put as new ones arrive) and "Path state ρ" (density matrix and V² + D² as a bar). Page `#view=offen&sec=mess` with the comparison table (theory / experiments / open), interpretations left to Foundations Section 8, no modifications of quantum mechanics, link to Section 10; gravitationally induced entanglement (Bose et al. 2017, Marletto and Vedral 2017) appears as a proposal, not a result. Sources: Born 1926, von Neumann 1932, Zeh 1970, Zurek 2003, Englert 1996, Brune et al. 1996, Hornberger et al. 2003, Hackermüller et al. 2004, Sinha et al. 2010, Fein et al. 2019, Bose et al. 2017, Marletto and Vedral 2017.
 
 ## 7. Overview: Requirements for Quantum Gravity
+
+**Implemented (October 31, 2026)** as the subsection "Requirements for quantum gravity" in Foundations Section 10 (`#view=theorie&sec=gap`), replacing the former list of candidate approaches; the Open Questions overview links to it. All nine items link to existing content (Foundations Sections 2, 3 and 8, the field-equation and Planck-unit experiments, the four question pages). The measured bounds were checked against the original publications: GRB 090510, linear energy dependence only above 1.2 E_P (Abdo et al. 2009, model-dependent); MICROSCOPE, η(Ti, Pt) = [−1.5 ± 2.3 (stat) ± 1.5 (syst)] × 10⁻¹⁵ (Touboul et al. 2022); GW170817, relative speed difference between −3 × 10⁻¹⁵ and +7 × 10⁻¹⁶ (Abbott et al. 2017). Whether quantum gravity has to explain the observed Λ is stated as open, not as a requirement.
 
 This page lists requirements without evaluating or ranking candidate theories.
 

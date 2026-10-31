@@ -83,7 +83,7 @@
     'Fadenpendel: T/T₀ bei 90° ≈ 1,1803406': 'Pendulum: T/T₀ at 90° ≈ 1.1803406',
     'Ideales Gas: 1 mol bei 273,15 K in 22,414 l → 101,325 kPa': 'Ideal gas: 1 mol at 273.15 K in 22.414 l → 101.325 kPa',
     'Schiefer Wurf: 30° und 60° fliegen gleich weit, 45° am weitesten': 'Projectile: 30° and 60° fly equally far, 45° furthest',
-    'Quellen: jedes Experiment hat Quellen, DOIs sind gültig geformt, englische Notizen ohne deutsche Reste': 'Sources: every experiment has sources, DOIs are well-formed, English notes contain no German',
+    'Quellen: jedes Experiment hat Quellen, DOIs sind gültig geformt, englische Notizen ohne deutsche Reste – auch in den Grundlagen': 'Sources: every experiment has sources, DOIs are well-formed, English notes contain no German – in the Foundations too',
     'Jede „Probier mal“-Aufgabe ist ein Auftrag ohne Fragesatz, mit den Reglern lösbar und am Anfang noch offen': 'Every “Try this” task is an instruction without a question, can be solved with the sliders and is still open at the start',
     'Engine-Meldungen und Dimensionsnamen gibt es auf Deutsch und Englisch': 'Engine messages and dimension names exist in German and English',
     'Umschalten wirkt auch auf die kompilierten Kopien der Experimente': 'Switching also affects the compiled copies of the experiments',
@@ -109,7 +109,8 @@
     'Dekohärenz: V = 2√(p₁p₂)·e^(−N(1−γ)) ist die Poisson-Summe Σ Pois(k; N)·γ^k; V² + D² = 1 und Tr ρ² = 1 − 2p₁p₂(1 − |⟨E₁|E₂⟩|²) bei allen Einstellungen': 'Decoherence: V = 2√(p₁p₂)·e^(−N(1−γ)) is the Poisson sum Σ Pois(k; N)·γ^k; V² + D² = 1 and Tr ρ² = 1 − 2p₁p₂(1 − |⟨E₁|E₂⟩|²) for all settings',
     'Dekohärenz: Presets V = 1, e⁻², e⁻¹⁰ und 0,6 mit P = D = 0,8; I(x) hat bei V = 1 Nullstellen; p₁ oder γ außerhalb von 0 bis 1 und N < 0 sind „unreal“': 'Decoherence: presets V = 1, e⁻², e⁻¹⁰ and 0.6 with P = D = 0.8; I(x) has zeros at V = 1; p₁ or γ outside 0 to 1 and N < 0 are “unreal”',
     'Dekohärenz: Schirm und Wegzustand zeigen V, D und die Matrixeinträge aus der Engine; ein Treffer bleibt liegen, wenn neue dazukommen': 'Decoherence: screen and path state show V, D and the matrix entries from the engine; a hit stays put when new ones arrive',
-    'Keine Kandidaten für eine Quantengravitation – weder im Experiment noch in seinen Quellen noch auf den Seiten': 'No quantum-gravity candidates – not in the experiment, its sources or the pages',
+    'Keine Kandidaten für eine Quantengravitation – weder in den Experimenten und Quellen noch auf den Seiten der Offenen Fragen und der Grundlagen': 'No quantum-gravity candidates – not in the experiments and sources, nor on the pages of the open questions and the Foundations',
+    'Grundlagen §10: neun Anforderungen an eine Quantengravitation mit Verweisen auf die vier Offenen Fragen, Messgrenzen mit Quellen; die Übersicht der Offenen Fragen verweist darauf': 'Foundations §10: nine requirements for quantum gravity with links to the four open questions, measured bounds with sources; the open-questions overview links to it',
     'Offene Fragen: jede Frage hat Status, Kurztitel, eine Einleitung, die vier Abschnitte, keine Fragesätze im Text und ein Experiment im Feld „open“; der Direktlink #view=offen&sec=… bleibt im Zustand': 'Open questions: every question has a status, a short title, an introduction, the four sections, no questions in the text and an experiment in the “open” field; the direct link #view=offen&sec=… stays in the state',
     'Graph': 'Graph',
     'Grundlagen: jeder Abschnitt hat Kurztitel und Kurzbeschreibung, der Direktlink #view=theorie&sec=… bleibt im Zustand': 'Foundations: every section has a short title and a one-line summary, the direct link #view=theorie&sec=… stays in the state',
@@ -117,7 +118,7 @@
     'Schraffur je Größe: Die Kleinwinkelnäherung betrifft T₀, nicht die exakte Periodendauer T': 'Hatching per quantity: the small-angle approximation affects T₀, not the exact period T',
     'Jede Modellgrenze aus einem Check hat einen kurzen Grund, auf Englisch ohne deutsche Reste': 'Every model limit from a check has a short reason, in English without German',
     'Standardbereich: verweist auf vorhandene Ausgaben und liegt im Regler-Bereich; freier Fall endet kurz nach dem Aufprall': 'Default range: refers to existing outputs and lies within the slider range; free fall ends shortly after impact',
-    'Formelsatz: tfrac12 ist der Bruch ½, frac{12}{3} bleibt zweistellig, circ und ddot werden gesetzt, {,} ist ein Dezimalkomma ohne Abstand': 'Typesetting: tfrac12 is the fraction ½, frac{12}{3} keeps two digits, circ and ddot are typeset, {,} is a decimal comma without a gap',
+    'Formelsatz: tfrac12 ist der Bruch ½, frac{12}{3} bleibt zweistellig, circ und ddot werden gesetzt, {,} ist ein Dezimalkomma ohne Abstand, ein Vorzeichen steht ohne Abstand': 'Typesetting: tfrac12 is the fraction ½, frac{12}{3} keeps two digits, circ and ddot are typeset, {,} is a decimal comma without a gap, a sign has no gap',
     'Drei Wege, ein Wert: ħc³/(8πGMk_B) = ħκ/(2πck_B) = T_P·m_P/(8πM), κ = c⁴/(4GM)': 'Three routes, one value: ħc³/(8πGMk_B) = ħκ/(2πck_B) = T_P·m_P/(8πM), κ = c⁴/(4GM)',
     'Grenzfälle im Break-Modus: G → 0 „außerhalb des Modells“, G = 0 undefiniert, ħ = 0 ergibt T_H = 0, k_B·T_H bleibt bei k_B ÷ 1000': 'Limits in Break mode: G → 0 “outside the model”, G = 0 undefined, ħ = 0 gives T_H = 0, k_B·T_H is unchanged for k_B ÷ 1000',
     'Schnittpunkt-Block: Symbole, Kette, Aha-Kasten und Wörterbuch verweisen nur auf vorhandene Engine-Größen': 'Crossroads block: symbols, chain, aha box and dictionary only refer to existing engine quantities',
@@ -581,11 +582,12 @@
     ok(!bad.length, bad.join(' | '));
   });
 
-  test('Aufgaben', 'Quellen: jedes Experiment hat Quellen, DOIs sind gültig geformt, englische Notizen ohne deutsche Reste', () => {
+  test('Aufgaben', 'Quellen: jedes Experiment hat Quellen, DOIs sind gültig geformt, englische Notizen ohne deutsche Reste – auch in den Grundlagen', () => {
     if (!PP.sources) return;
     const bad = [];
-    for (const exp of M.registry) {
-      const list = PP.sources.byId[exp.id];
+    const lists = M.registry.map((exp) => [exp.id, PP.sources.byId[exp.id]]).concat(Object.keys(PP.sources.theory || {}).map((k) => ['theorie:' + k, PP.sources.theory[k]]));
+    for (const [id, list] of lists) {
+      const exp = { id };
       if (!list || !list.length) { bad.push(exp.id + ': keine Quellen'); continue; }
       list.forEach((s) => {
         if (!s.who || !s.title || !s.where || !(s.year > 1600 && s.year < 2100)) bad.push(exp.id + ': unvollständig – ' + s.title);
@@ -919,7 +921,7 @@
     const a = dots(10), b = dots(11);
     ok(a.length === 10 && b.length === 11 && a.every((x, i) => x === b[i]), a.length + ' / ' + b.length + ' Treffer');
   });
-  test('Offene Fragen', 'Keine Kandidaten für eine Quantengravitation – weder im Experiment noch in seinen Quellen noch auf den Seiten', () => {
+  test('Offene Fragen', 'Keine Kandidaten für eine Quantengravitation – weder in den Experimenten und Quellen noch auf den Seiten der Offenen Fragen und der Grundlagen', () => {
     const banned = /string|schleifenquant|loop quantum|asymptoti\w* (sicherheit|safety)|kausale menge|causal set|holograph|AdS\/CFT|M-theor/i;
     const bad = [], seen = new WeakSet();
     const walk = (o, path) => {
@@ -934,9 +936,35 @@
         if (PP.equations && PP.equations.byId[e.id]) walk(PP.equations.byId[e.id], 'equations.' + e.id);
       });
       if (PP.ui && PP.ui.open) PP.ui.open.questions.forEach((q) => { const x = q.body().replace(/<[^>]+>/g, ' '); if (banned.test(x)) bad.push(q.id + ' (' + lang + '): ' + x.match(banned)[0]); });
+      // Überall sonst: dieselben Namen, aber ohne das bloße „string“ (Fadenpendel: „length of the string“)
+      const named = /stringtheor|string theor|superstring|schleifenquant|loop quantum|asymptoti\w* (sicherheit|safety)|kausale menge|causal set|holograph|AdS\/CFT|M-theor/i;
+      const seen2 = new WeakSet();
+      const walk2 = (o, path) => {
+        if (!o || typeof o !== 'object' || seen2.has(o)) return;
+        seen2.add(o);
+        for (const k of Object.keys(o)) { const v = o[k]; if (typeof v === 'string') { if (named.test(v)) bad.push(path + '.' + k + ': ' + v.match(named)[0]); } else walk2(v, path + '.' + k); }
+      };
+      M.registry.forEach((e) => { walk2(e, e.id); if (PP.sources && PP.sources.byId[e.id]) walk2(PP.sources.byId[e.id], 'sources.' + e.id); });
+      if (PP.equations) walk2(PP.equations, 'equations');
+      if (PP.ui && PP.ui.theory) PP.ui.theory.sections.forEach((x) => { const t = x.body().replace(/<[^>]+>/g, ' '); if (named.test(t)) bad.push('theorie:' + x.id + ' (' + lang + '): ' + t.match(named)[0]); });
     });
     ok(M.registry.some((e) => e.field === 'open'), 'kein Experiment im Feld open');
     ok(!bad.length, bad.slice(0, 3).join(' | '));
+  });
+  test('UI (im Browser)', 'Grundlagen §10: neun Anforderungen an eine Quantengravitation mit Verweisen auf die vier Offenen Fragen, Messgrenzen mit Quellen; die Übersicht der Offenen Fragen verweist darauf', () => {
+    if (!PP.ui || !PP.ui.theory || !PP.ui.open || typeof document === 'undefined') return;
+    for (const lang of ['de', 'en']) I.with(lang, () => {
+      const html = PP.ui.theory.sections.find((x) => x.id === 'gap').body();
+      const i0 = html.indexOf('<ol class="th-req">'), ol = i0 < 0 ? '' : html.slice(i0, html.indexOf('</ol>', i0));
+      const n = (ol.match(/<li><b>/g) || []).length;
+      ok(n === 9, lang + ': ' + n + ' Anforderungen');
+      for (const q of ['quarter', 'lambda', 'info', 'mess']) ok(html.includes('#view=offen&amp;sec=' + q), lang + ': Verweis auf ' + q);
+      for (const k of ['GRB 090510', 'MICROSCOPE', 'GW170817']) ok(ol.includes(k), lang + ': ' + k);
+      ok(PP.sources.theory.gap.every((x) => x.doi) && /class="srcs"/.test(html), lang + ': Quellen');
+    });
+    const box = document.createElement('div'), prev = PP.ui.S.theorySec;
+    try { PP.ui.S.theorySec = null; PP.ui.views.offen.render(box); } finally { PP.ui.S.theorySec = prev; }
+    ok(box.querySelector('.oq-next a[href="#view=theorie&sec=gap"]'), 'Übersicht: Verweis fehlt');
   });
   test('UI (im Browser)', 'Offene Fragen: jede Frage hat Status, Kurztitel, eine Einleitung, die vier Abschnitte, keine Fragesätze im Text und ein Experiment im Feld „open“; der Direktlink #view=offen&sec=… bleibt im Zustand', () => {
     if (!PP.ui || !PP.ui.open || !PP.ui.stateString) return;
@@ -1136,13 +1164,15 @@
     const tf = val(run('free-fall'), 'tf'), gv = M.byId['free-fall'].graph.view;
     ok(tf * gv.f < M.byId['free-fall'].vars.t.max / 2, 'Standardbereich des freien Falls ist kaum kürzer als der Regler-Bereich');
   });
-  test('Formatierung', 'Formelsatz: tfrac12 ist der Bruch ½, frac{12}{3} bleibt zweistellig, circ und ddot werden gesetzt, {,} ist ein Dezimalkomma ohne Abstand', () => {
+  test('Formatierung', 'Formelsatz: tfrac12 ist der Bruch ½, frac{12}{3} bleibt zweistellig, circ und ddot werden gesetzt, {,} ist ein Dezimalkomma ohne Abstand, ein Vorzeichen steht ohne Abstand', () => {
     if (!PP.tex) return;
     const r = PP.tex.render, R = String.raw;
     ok(/<span class="mnu"><span class="mn">1<\/span><\/span><span class="mde"><span class="mn">2<\/span><\/span>/.test(r(R`h_0 - \tfrac12\, g t^2`)), '½ falsch gesetzt');
     ok(/<span class="mnu"><span class="mn">12<\/span><\/span>/.test(r(R`\frac{12}{3}`)), '12/3 falsch gesetzt');
     ok(!/circ|ddot/.test(r(R`\ddot\theta = 45^{\circ}`).replace(/<[^>]+>/g, '')), 'Befehlsname im Text');
     ok(r(R`0{,}646`).includes('<span class="mn">0</span><span class="mn">,</span><span class="mn">646</span>') && r('f(a, b)').includes('<span class="mp">,</span>'), 'Dezimalkomma');
+    const sign = (x) => (r(x).match(/class="mo( msign)?">[−+]/g) || []).map((m) => (m.includes('msign') ? 'V' : 'O')).join('');
+    ok(sign(R`-3`) === 'V' && sign(R`(-1{,}5 \pm 2)`) === 'V' && sign(R`10^{-15}`) === 'V' && sign(R`a = -b + c`) === 'VO' && sign(R`a - b`) === 'O' && sign(R`e^{-N(1 - \gamma)}`) === 'VO' && sign(R`x \times -2`) === 'V', 'Vorzeichen');
   });
 
   test('Sprache', 'Engine-Meldungen und Dimensionsnamen gibt es auf Deutsch und Englisch', () => {

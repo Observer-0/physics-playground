@@ -85,7 +85,9 @@ The file loading order is defined only in `src/index.html`;
                                       mechanics · Entropy (from Clausius
                                       to Wald, with a microstate demo) ·
                                       Why the two theories do not (yet)
-                                      fit together
+                                      fit together, with the
+                                      requirements every theory of
+                                      quantum gravity has to meet
 
   Open Questions                      Where GR and quantum theory reach
                                       their limits, with a status per
@@ -535,7 +537,8 @@ browser tests use an existing Chrome or Edge installation.
 
 The **Open Questions** section explores unresolved problems in physics. Four questions are live –
 the black hole entropy coefficient, the cosmological constant, the information paradox and the
-measurement problem; the overview of requirements for quantum gravity is planned.
+measurement problem. The requirements for quantum gravity are in Foundations Section 10, which
+names no candidate theories.
 
 The core application remains theory-neutral beyond General Relativity (GR) and quantum mechanics.
 Open Questions is a separate exploratory space: 

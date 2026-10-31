@@ -809,8 +809,8 @@
         { t: { de: 'Dimensionslos', en: 'Dimensionless' }, tex: '\\frac{S_{\\mathrm{BH}}}{k_{\\mathrm{B}}} = \\frac{A}{4\\,l_{\\mathrm{P}}^2}\\;\\in\\; \\mathbb{R}' },
       ],
       physics: {
-        de: 'S/k_B ist eine reine Zahl: k_B hat genau die Dimension einer Entropie (J/K) und kürzt sie heraus. In der statistischen Physik wäre S/k_B = ln Ω, der Logarithmus der Anzahl von Mikrozuständen. Welche Mikrozustände ein Schwarzes Loch hat, ist offene Forschung; für spezielle (etwa extremale) Löcher liefern Stringtheorie und andere Ansätze Herleitungen.',
-        en: 'S/k_B is a pure number: k_B has exactly the dimension of an entropy (J/K) and cancels it out. In statistical physics, S/k_B = ln Ω, the logarithm of the number of microstates. Which microstates a black hole has is an open research question; for special (e.g. extremal) holes, string theory and other approaches provide derivations.',
+        de: 'S/k_B ist eine reine Zahl: k_B hat genau die Dimension einer Entropie (J/K) und kürzt sie heraus. In der statistischen Physik wäre S/k_B = ln Ω, der Logarithmus der Anzahl von Mikrozuständen. Welche Mikrozustände ein Schwarzes Loch hat, ist offen; für spezielle (etwa extremale) Löcher gibt es Herleitungen in einzelnen Ansätzen zur Quantengravitation, experimentell geprüft ist keine.',
+        en: 'S/k_B is a pure number: k_B has exactly the dimension of an entropy (J/K) and cancels it out. In statistical physics, S/k_B = ln Ω, the logarithm of the number of microstates. Which microstates a black hole has is open; for special (e.g. extremal) holes there are derivations within individual approaches to quantum gravity, none of them tested experimentally.',
       },
       epistemics: [
         { type: 'assume', text: { de: 'Theoretisches Ergebnis (Bekenstein 1972/73, Hawking 1975); nicht direkt gemessen.', en: 'Theoretical result (Bekenstein 1972/73, Hawking 1975); not measured directly.' } },

@@ -118,8 +118,14 @@
           while (p < toks.length && toks[p].k === 'ch' && /[0-9.]/.test(toks[p].v)) s += toks[p++].v;
           return { html: '<span class="mn">' + s + '</span>' };
         }
-        if (c === '-') return { html: '<span class="mo">−</span>' };
-        if (c === '+' || c === '=' || c === '<' || c === '>') return { html: '<span class="mo">' + esc(c) + '</span>' };
+        // Vorzeichen statt Rechenzeichen – am Anfang, nach einer öffnenden Klammer, nach =, einem Operator oder im
+        // Exponenten: ohne den Abstand eines Operators („(−1,5)“, „10⁻¹⁵“ statt „( − 1,5)“)
+        if (c === '-' || c === '+') {
+          const prev = toks[p - 2];
+          const sign = !prev || (prev.k === 'ch' && '([{=+-,<>^_'.includes(prev.v)) || (prev.k === 'cmd' && (Object.prototype.hasOwnProperty.call(OPS, prev.v) || prev.v === 'left'));
+          return { html: '<span class="mo' + (sign ? ' msign' : '') + '">' + (c === '-' ? '−' : '+') + '</span>' };
+        }
+        if (c === '=' || c === '<' || c === '>') return { html: '<span class="mo">' + esc(c) + '</span>' };
         if (c === ',') return { html: '<span class="mp">,</span>' };
         if (c === '/') return { html: '<span class="msl">/</span>' };
         if (c === '(' || c === ')' || c === '[' || c === ']' || c === '|') return { html: '<span class="md">' + c + '</span>' };
