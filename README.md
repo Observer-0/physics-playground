@@ -104,8 +104,13 @@ The file loading order is defined only in `src/index.html`;
                                       S = 3π k_B/(Λ l_P²)) · Is
                                       information lost? (evaporation in
                                       time-lapse with the Page curve,
-                                      Page time from the engine). More
-                                      questions in `ROADMAP.md`
+                                      Page time from the engine) · The
+                                      measurement problem (decoherence:
+                                      particles one at a time on a
+                                      screen, visibility and which-path
+                                      information with V² + D² = 1, the
+                                      path state as a density matrix).
+                                      More in `ROADMAP.md`
 
   Tools                               Check your own or incorrect
                                       equations · Constants · Saved
@@ -451,6 +456,8 @@ moment does.
 `animateVar` names the slider that "Let time run" advances; it moves by
 one unit per second unless `animateRate` says otherwise (the Page curve
 runs τ = t/t_evap from 0 to 1 at `animateRate: 0.1`, i.e. in 10 s).
+`animateLabel` renames the button where the slider is not a time (the
+decoherence experiment "sends particles", 50 per second).
 
 An experiment with several `forms` can give a form its own `graph`
 defaults (the pendulum's "Motion θ(t)" form plots θ over t). If a form
@@ -520,9 +527,9 @@ browser tests use an existing Chrome or Edge installation.
 
 ## Future Development
 
-The **Open Questions** section explores unresolved problems in physics. The first question –
-the black hole entropy coefficient – is live; the cosmological constant, the information paradox,
-the measurement problem, and the requirements for quantum gravity are planned.
+The **Open Questions** section explores unresolved problems in physics. Four questions are live –
+the black hole entropy coefficient, the cosmological constant, the information paradox and the
+measurement problem; the overview of requirements for quantum gravity is planned.
 
 The core application remains theory-neutral beyond General Relativity (GR) and quantum mechanics.
 Open Questions is a separate exploratory space: 

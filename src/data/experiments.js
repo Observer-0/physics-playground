@@ -1109,6 +1109,96 @@
     },
   });
 
+  /* Frage 4 „Das Messproblem“ (src/ui/open.js): Dekohärenz in einem Interferometer mit zwei Wegen.
+     Der Wegzustand a|1⟩ + b|2⟩ (p₁ = |a|², p₂ = |b|²) koppelt an eine Umgebung. Die Zahl der Stöße ist Poisson-verteilt
+     mit Mittelwert N, jeder Stoß multipliziert den Überlapp der Umgebungszustände mit γ: gemittelt
+     |⟨E₁|E₂⟩| = Σ Pois(k; N) γ^k = exp(−N(1 − γ)) – exponentiell in N, wie mit dem Gasdruck gemessen (Hornberger u. a. 2003).
+     Sichtbarkeit V = 2√(p₁p₂)·|⟨E₁|E₂⟩|; Weginformation D = √(P² + V₀²K²) mit V² + D² = 1 (Englert 1996, Gesamtzustand rein).
+     Der Schirm ist schematisch: Gaußsches Strahlprofil mal (1 + V cos 2πx). Die einzelnen Treffer zieht die Visualisierung
+     zufällig aus dieser Verteilung – welcher Punkt kommt, sagt die Theorie nicht. */
+  define({
+    id: 'decoherence', group: OPEN_Q, field: 'open', title: { de: 'Dekohärenz: Weginformation und Interferenz', en: 'Decoherence: which-path information and interference' }, short: { de: 'Dekohärenz', en: 'Decoherence' },
+    subtitle: { de: 'Je mehr die Umgebung über den Weg erfährt, desto schwächer die Streifen. Jedes Teilchen landet trotzdem an genau einer Stelle.', en: 'The more the environment learns about the path, the weaker the fringes. Each particle still lands at exactly one place.' },
+    tex: 'V = 2\\sqrt{p_1 p_2}\\,\\left|\\langle E_1 | E_2 \\rangle\\right| \\qquad \\left|\\langle E_1 | E_2 \\rangle\\right| = e^{-N(1 - \\gamma)}',
+    meta: { mathType: SCALAR, mainDim: { de: 'dimensionslos', en: 'dimensionless' }, domain: { de: 'Quantenmechanik: Messung und Dekohärenz', en: 'Quantum mechanics: measurement and decoherence' }, status: { de: 'Modell mit zwei Wegen; Dekohärenz ist gemessen, das einzelne Ergebnis bleibt offen', en: 'model with two paths; decoherence is measured, the single outcome remains open' } },
+    vars: {
+      p1: { label: 'p₁', tex: 'p_1', name: { de: 'Wahrscheinlichkeit für Weg 1, |a|²', en: 'Probability of path 1, |a|²' }, dim: '', default: 0.5, min: 0, max: 1, scale: 'lin' },
+      N: { label: 'N', tex: 'N', name: { de: 'Mittlere Zahl der Stöße mit der Umgebung', en: 'Mean number of collisions with the environment' }, dim: '', default: 0, min: 0, max: 60, scale: 'lin' },
+      g: { label: 'γ', tex: '\\gamma', name: { de: 'Überlapp je Stoß: 1 = keine, 0 = volle Weginformation', en: 'Overlap per collision: 1 = no, 0 = full which-path information' }, dim: '', default: 0.9, min: 0, max: 1, scale: 'lin' },
+      x: { label: 'x', tex: 'x', name: { de: 'Ort auf dem Schirm in Streifenabständen', en: 'Position on the screen in fringe spacings' }, dim: '', default: 0, min: -4, max: 4, scale: 'lin' },
+      n: { label: 'n', tex: 'n', name: { de: 'Zahl der nachgewiesenen Teilchen', en: 'Number of detected particles' }, dim: '', default: 0, min: 0, max: 2000, scale: 'lin' },
+    },
+    // „Teilchen schicken“: 50 Teilchen je Sekunde, nach 40 s sind alle 2000 da
+    animateVar: 'n', animateRate: 50, animateLabel: { de: 'Teilchen schicken', en: 'Send particles' },
+    outputs: [
+      { key: 'p2', sym: 'p₂', tex: 'p_2', name: { de: 'Wahrscheinlichkeit für Weg 2, 1 − p₁', en: 'Probability of path 2, 1 − p₁' }, expr: '1 - p1', dim: '' },
+      { key: 'V0', sym: 'V₀', tex: 'V_0', name: { de: 'Sichtbarkeit ohne Umgebung, 2√(p₁p₂)', en: 'Visibility without environment, 2√(p₁p₂)' }, expr: '2*sqrt(p1*p2)', dim: '' },
+      { key: 'D', sym: '|⟨E₁|E₂⟩|', tex: '\\left|\\langle E_1 | E_2 \\rangle\\right|', name: { de: 'Überlapp der Umgebungszustände', en: 'Overlap of the environment states' }, expr: 'exp(-N*(1 - g))', dim: '' },
+      { key: 'V', sym: 'V', tex: 'V', name: { de: 'Sichtbarkeit der Streifen', en: 'Fringe visibility' }, expr: 'V0*D', dim: '', primary: true },
+      { key: 'P', sym: 'P', tex: 'P', name: { de: 'Vorhersagbarkeit des Weges aus den Gewichten, |p₁ − p₂|', en: 'Predictability of the path from the weights, |p₁ − p₂|' }, expr: 'abs(p1 - p2)', dim: '' },
+      { key: 'K', sym: 'K', tex: 'K', name: { de: 'Unterscheidbarkeit der Umgebungszustände, √(1 − |⟨E₁|E₂⟩|²)', en: 'Distinguishability of the environment states, √(1 − |⟨E₁|E₂⟩|²)' }, expr: 'sqrt(1 - D^2)', dim: '', aux: true },
+      { key: 'DE', sym: 'D', tex: 'D', name: { de: 'Weginformation insgesamt (Englert)', en: 'Total which-path information (Englert)' }, expr: 'sqrt(P^2 + V0^2*K^2)', dim: '' },
+      { key: 'VD', sym: 'V² + D²', tex: 'V^2 + D^2', name: { de: 'Komplementarität: Sichtbarkeit² + Weginformation²', en: 'Complementarity: visibility² + which-path information²' }, expr: 'V^2 + DE^2', dim: '' },
+      { key: 'r12', sym: '|ρ₁₂|', tex: '|\\rho_{12}|', name: { de: 'Kohärenz des Wegzustands (außerhalb der Diagonale)', en: 'Coherence of the path state (off-diagonal)' }, expr: 'sqrt(p1*p2)*D', dim: '' },
+      { key: 'pur', sym: 'Tr ρ²', tex: '\\mathrm{Tr}\\,\\rho^2', name: { de: 'Reinheit des Wegzustands', en: 'Purity of the path state' }, expr: 'p1^2 + p2^2 + 2*r12^2', dim: '' },
+      { key: 'I', sym: 'I(x)', tex: 'I(x)', name: { de: 'Intensität auf dem Schirm (schematisch)', en: 'Intensity on the screen (schematic)' }, expr: 'exp(-x^2/8)*(1 + V*cos(2*pi*x))', dim: '',
+        note: { de: 'Gaußsches Strahlprofil mal Interferenzterm – nur die Form', en: 'Gaussian beam profile times interference term – shape only' } },
+    ],
+    equations: [
+      { label: { de: 'Born-Regel: Wahrscheinlichkeiten der beiden Wege', en: 'Born rule: probabilities of the two paths' }, eq: 'p2 = 1 - p1' },
+      { label: { de: 'Sichtbarkeit ohne Umgebung', en: 'Visibility without environment' }, eq: 'V0 = 2*sqrt(p1*p2)' },
+      { label: { de: 'Überlapp nach Poisson-verteilten Stößen', en: 'Overlap after Poisson-distributed collisions' }, eq: 'D = exp(-N*(1 - g))' },
+      { label: { de: 'Sichtbarkeit der Streifen', en: 'Fringe visibility' }, eq: 'V = V0*D' },
+      { label: { de: 'Weginformation (Englert 1996)', en: 'Which-path information (Englert 1996)' }, eq: 'DE = sqrt(P^2 + V0^2*(1 - D^2))' },
+      { label: { de: 'Komplementarität', en: 'Complementarity' }, eq: 'VD = V^2 + DE^2' },
+      { label: { de: 'Reinheit des Wegzustands', en: 'Purity of the path state' }, eq: 'pur = p1^2 + p2^2 + 2*r12^2' },
+    ],
+    checks({ v, o, issues }) {
+      if (v.p1 < 0 || v.p1 > 1) issues.push({ cat: 'unreal', why: T('p₁ außerhalb von 0 bis 1', 'p₁ outside 0 to 1'), msg: T('Eine Wahrscheinlichkeit liegt zwischen 0 und 1.', 'A probability lies between 0 and 1.') });
+      if (v.g < 0 || v.g > 1) issues.push({ cat: 'unreal', why: T('γ außerhalb von 0 bis 1', 'γ outside 0 to 1'), msg: T('γ ist der Überlapp zweier Zustände: 0 ≤ γ ≤ 1.', 'γ is the overlap of two states: 0 ≤ γ ≤ 1.') });
+      if (v.N < 0) issues.push({ cat: 'unreal', why: 'N < 0', msg: T('Eine mittlere Zahl von Stößen ist nicht negativ.', 'A mean number of collisions is not negative.') });
+      const V = o('V');
+      if (isFinite(V) && V < 0.01) issues.push({ cat: 'info', msg: T('Keine Streifen mehr (V < 0,01): Die Umgebung kennt den Weg. Jedes Teilchen landet trotzdem an genau einer Stelle – an welcher, sagt die Theorie nicht.', 'No fringes left (V < 0.01): the environment knows the path. Each particle still lands at exactly one place – which one, the theory does not say.') });
+      else if (o('D') > 0.999) issues.push({ cat: 'info', msg: T('Die Umgebung weiß nichts über den Weg: Die Streifen sind so deutlich, wie die Gewichte p₁ und p₂ es zulassen.', 'The environment knows nothing about the path: the fringes are as clear as the weights p₁ and p₂ allow.') });
+      issues.push({ cat: 'assume', msg: T('Modell: zwei Wege; die Zahl der Stöße ist Poisson-verteilt mit Mittelwert N, jeder Stoß multipliziert den Überlapp der Umgebungszustände mit γ. Gemittelt ist |⟨E₁|E₂⟩| = exp(−N(1 − γ)).', 'Model: two paths; the number of collisions is Poisson-distributed with mean N, and each collision multiplies the overlap of the environment states by γ. On average |⟨E₁|E₂⟩| = exp(−N(1 − γ)).') });
+      issues.push({ cat: 'assume', msg: T('Der Schirm ist schematisch (Gaußsches Strahlprofil). Die einzelnen Treffer zieht die Visualisierung mit einem Zufallsgenerator aus |ψ|² – die Theorie sagt nur die Verteilung voraus.', 'The screen is schematic (Gaussian beam profile). The visualisation draws the individual hits from |ψ|² with a random number generator – the theory only predicts the distribution.') });
+    },
+    presets: [
+      { name: { de: 'Ohne Umgebung', en: 'No environment' }, note: { de: 'N = 0: volle Streifen, V = 1', en: 'N = 0: full fringes, V = 1' }, values: { p1: 0.5, N: 0, g: 0.9 } },
+      { name: { de: 'Viele schwache Stöße', en: 'Many weak collisions' }, note: { de: 'Jeder Stoß verrät wenig (γ = 0,95), zusammen viel: V = e⁻² ≈ 0,14 – wie Gasstöße an Fullerenen (Hornberger u. a. 2003)', en: 'each collision reveals little (γ = 0.95), together a lot: V = e⁻² ≈ 0.14 – like gas collisions with fullerenes (Hornberger et al. 2003)' }, values: { p1: 0.5, N: 40, g: 0.95 } },
+      { name: { de: 'Welcher-Weg-Detektor', en: 'Which-path detector' }, note: { de: 'Jeder Stoß verrät den Weg ganz (γ = 0): V ≈ 5 × 10⁻⁵, keine Streifen', en: 'each collision reveals the path completely (γ = 0): V ≈ 5 × 10⁻⁵, no fringes' }, values: { p1: 0.5, N: 10, g: 0 } },
+      { name: { de: 'Ungleiche Wege', en: 'Unequal paths' }, note: { de: 'p₁ = 0,9 ohne Umgebung: V = 0,6 und P = 0,8 – V² + P² = 1', en: 'p₁ = 0.9 without environment: V = 0.6 and P = 0.8 – V² + P² = 1' }, values: { p1: 0.9, N: 0, g: 0.9 } },
+    ],
+    graph: { x: 'x', y: 'I', xlog: false, ylog: false },
+    viz: 'decoherence',
+    vizControls: [{ key: 'view', label: { de: 'Ansicht', en: 'View' }, options: [
+      { v: 'screen', label: { de: 'Schirm', en: 'Screen' } }, { v: 'state', label: { de: 'Wegzustand ρ', en: 'Path state ρ' } },
+    ] }],
+    explain: {
+      intuition: {
+        de: 'Ein Teilchen kann zwei Wege zugleich nehmen – dann entstehen auf dem Schirm Streifen. Erfährt die Umgebung, welchen Weg es nahm, verschwinden die Streifen. Doch auch dann trifft jedes einzelne Teilchen an genau einer Stelle auf: Die Theorie sagt die Verteilung voraus, nicht den einzelnen Treffer.',
+        en: 'A particle can take two paths at once – then fringes appear on the screen. If the environment learns which path it took, the fringes disappear. Yet even then each individual particle arrives at exactly one place: the theory predicts the distribution, not the individual hit.',
+      },
+      math: [
+        { t: { de: 'Teilchen, Weg und Umgebung nach dem Durchgang', en: 'Particle, path and environment after passing through' }, tex: '|\\Psi\\rangle = a\\,|1\\rangle|E_1\\rangle + b\\,|2\\rangle|E_2\\rangle' },
+        { t: { de: 'Born-Regel', en: 'Born rule' }, tex: 'p_1 = |a|^2, \\quad p_2 = |b|^2' },
+        { t: { de: 'Sichtbarkeit der Streifen', en: 'Fringe visibility' }, tex: 'V = 2\\sqrt{p_1 p_2}\\,\\left|\\langle E_1 | E_2 \\rangle\\right|' },
+        { t: { de: 'Poisson-verteilte Stöße mit Mittelwert N', en: 'Poisson-distributed collisions with mean N' }, tex: '\\left|\\langle E_1 | E_2 \\rangle\\right| = \\sum_{k=0}^{\\infty} \\frac{N^{k} e^{-N}}{k!}\\,\\gamma^{k} = e^{-N(1-\\gamma)}' },
+        { t: { de: 'Komplementarität (Englert 1996)', en: 'Complementarity (Englert 1996)' }, tex: 'V^2 + D^2 = 1' },
+      ],
+      physics: {
+        de: 'Die Schrödinger-Gleichung ist linear: Zusammen mit Messgerät und Umgebung macht sie aus a|1⟩ + b|2⟩ eine größere Überlagerung, a|1⟩|E₁⟩ + b|2⟩|E₂⟩ – nie eines der beiden Ergebnisse. Schaut man nur auf das Teilchen, verschwindet die Interferenz, sobald die Umgebungszustände unterscheidbar werden: Das ist Dekohärenz. Sie ist vielfach gemessen, etwa an Fullerenen, die durch Gasstöße oder Wärmestrahlung ihre Interferenz verlieren. Der Gesamtzustand bleibt dabei eine Überlagerung. Warum eine Messung ein bestimmtes Ergebnis liefert, erklärt Dekohärenz nicht – das ist das Messproblem.',
+        en: 'The Schrödinger equation is linear: together with the measuring device and the environment, it turns a|1⟩ + b|2⟩ into a larger superposition, a|1⟩|E₁⟩ + b|2⟩|E₂⟩ – never into one of the two outcomes. Looking at the particle alone, the interference disappears as soon as the environment states become distinguishable: that is decoherence. It has been measured many times, for example with fullerenes that lose their interference through gas collisions or thermal radiation. The total state remains a superposition. Why a measurement gives a definite outcome is not explained by decoherence – that is the measurement problem.',
+      },
+      epistemics: [
+        { type: 'measured', text: { de: 'Dekohärenz ist gemessen: an Feldzuständen in einem Resonator (Brune u. a. 1996), an Fullerenen durch Gasstöße (Hornberger u. a. 2003) und durch Wärmestrahlung (Hackermüller u. a. 2004).', en: 'Decoherence has been measured: with field states in a cavity (Brune et al. 1996), with fullerenes through gas collisions (Hornberger et al. 2003) and through thermal radiation (Hackermüller et al. 2004).' } },
+        { type: 'math', text: { de: 'V² + D² = 1 gilt exakt, solange der Gesamtzustand aus Teilchen und Umgebung rein ist (Englert 1996).', en: 'V² + D² = 1 holds exactly as long as the total state of particle and environment is pure (Englert 1996).' } },
+        { type: 'model', text: { de: 'Zwei Wege, Poisson-verteilte unabhängige Stöße mit gleichem Überlapp γ; das Schirmbild ist schematisch.', en: 'Two paths, Poisson-distributed independent collisions with the same overlap γ; the screen picture is schematic.' } },
+        { type: 'assume', text: { de: 'Die Born-Regel ist in der Standardformulierung ein Postulat. Welcher einzelne Treffer eintritt, sagt die Theorie nicht – im Bild entscheidet ein Zufallsgenerator.', en: 'In the standard formulation, the Born rule is a postulate. Which individual hit occurs, the theory does not say – in the picture a random number generator decides.' } },
+      ],
+    },
+  });
+
   define({
     id: 'efe', group: 'Famous Equations', field: 'famous', hall: true, title: { de: 'Einsteinsche Feldgleichungen', en: 'Einstein field equations' }, short: { de: 'Feldgleichungen', en: 'Field equations' },
     tex: 'G_{\\mu\\nu} + \\Lambda\\, g_{\\mu\\nu} = \\frac{8\\pi G}{c^4}\\, T_{\\mu\\nu}',

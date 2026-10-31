@@ -142,7 +142,7 @@
           '<h3 class="th-h3">Die Kernideen</h3>' +
           '<p><b>Zustand statt Bahn.</b> Ein Teilchen wird nicht durch Ort und Geschwindigkeit beschrieben, sondern durch eine Wellenfunktion ' + t(R`\psi`) + '. Sie entwickelt sich völlig deterministisch nach der Schrödinger-Gleichung:</p>' +
           xq('qm-schroedinger') +
-          '<p><b>Wahrscheinlichkeit bei der Messung.</b> Was man misst, sagt ' + t(R`\psi`) + ' nur statistisch voraus: ' + t(R`|\psi|^{2}`) + ' ist die Wahrscheinlichkeitsdichte, den Messwert zu finden (Bornsche Regel). Das ist keine Messungenauigkeit, sondern Teil der Theorie.</p>' +
+          '<p><b>Wahrscheinlichkeit bei der Messung.</b> Was man misst, sagt ' + t(R`\psi`) + ' nur statistisch voraus: ' + t(R`|\psi|^{2}`) + ' ist die Wahrscheinlichkeitsdichte, den Messwert zu finden (Bornsche Regel). Das ist keine Messungenauigkeit, sondern Teil der Theorie. Warum eine Messung überhaupt genau ein Ergebnis liefert, ist offen: <a href="#view=offen&amp;sec=mess">Das Messproblem, mit Dekohärenz im Experiment →</a></p>' +
           '<p><b>Superposition und Verschränkung.</b> Ein System kann sich in einer Überlagerung mehrerer Zustände befinden, und mehrere Teilchen können so verschränkt sein, dass sich ihr gemeinsamer Zustand nicht in Einzelzustände zerlegen lässt.</p>' +
           '<p><b>Unschärfe.</b> Ort und Impuls sind nicht gleichzeitig beliebig scharf festgelegt:</p>' +
           xq('qm-uncertainty') +
@@ -154,7 +154,7 @@
           '<h3 class="th-h3">The core ideas</h3>' +
           '<p><b>A state instead of a trajectory.</b> A particle is not described by position and velocity but by a wave function ' + t(R`\psi`) + '. It evolves completely deterministically according to the Schrödinger equation:</p>' +
           xq('qm-schroedinger') +
-          '<p><b>Probability upon measurement.</b> ' + t(R`\psi`) + ' only predicts what you will measure statistically: ' + t(R`|\psi|^{2}`) + ' is the probability density of finding a given result (the Born rule). This is not measurement inaccuracy; it is part of the theory.</p>' +
+          '<p><b>Probability upon measurement.</b> ' + t(R`\psi`) + ' only predicts what you will measure statistically: ' + t(R`|\psi|^{2}`) + ' is the probability density of finding a given result (the Born rule). This is not measurement inaccuracy; it is part of the theory. Why a measurement yields exactly one result at all is open: <a href="#view=offen&amp;sec=mess">The measurement problem, with decoherence in the experiment →</a></p>' +
           '<p><b>Superposition and entanglement.</b> A system can be in a superposition of several states, and several particles can be entangled in such a way that their joint state cannot be split into individual states.</p>' +
           '<p><b>Uncertainty.</b> Position and momentum cannot both be arbitrarily sharp at the same time:</p>' +
           xq('qm-uncertainty') +

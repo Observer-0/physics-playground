@@ -106,6 +106,9 @@
     'Kosmologische Konstante: ℓ_Λ = 1/√Λ ≈ 10¹⁰ Lichtjahre, Λ l_P² ≈ 2,9 × 10⁻¹²², lg(ℓ_Λ/l_P) = −lg(Λ l_P²)/2; ħc/E_Λ ist bis auf (8π)^¼ das geometrische Mittel von l_P und ℓ_Λ; die Zahlen der Seite stimmen mit der Engine': 'Cosmological constant: ℓ_Λ = 1/√Λ ≈ 10¹⁰ light years, Λ l_P² ≈ 2.9 × 10⁻¹²², lg(ℓ_Λ/l_P) = −lg(Λ l_P²)/2; up to (8π)^¼, ħc/E_Λ is the geometric mean of l_P and ℓ_Λ; the numbers on the page agree with the engine',
     'Kosmologische Konstante: über der Planck-Energie „außerhalb des Modells“, ein verändertes Λ weicht vom „beobachteten“ Wert ab; alle drei Ansichten zeigen Werte aus der Engine': 'Cosmological constant: above the Planck energy “outside the model”, a changed Λ differs from the “observed” value; all three views show values from the engine',
     'Λ-Horizont: S_dS = 3π k_B/(Λ l_P²) ≈ 3,3 × 10¹²² k_B, T_dS ≈ 2,2 × 10⁻³⁰ K; Schwarze Löcher erreichen die Bekenstein-Schranke 2πk_B ER/(ħc); beide Horizonte folgen S = k_B πr²/l_P²': 'Λ horizon: S_dS = 3π k_B/(Λ l_P²) ≈ 3.3 × 10¹²² k_B, T_dS ≈ 2.2 × 10⁻³⁰ K; black holes attain the Bekenstein bound 2πk_B ER/(ħc); both horizons follow S = k_B πr²/l_P²',
+    'Dekohärenz: V = 2√(p₁p₂)·e^(−N(1−γ)) ist die Poisson-Summe Σ Pois(k; N)·γ^k; V² + D² = 1 und Tr ρ² = 1 − 2p₁p₂(1 − |⟨E₁|E₂⟩|²) bei allen Einstellungen': 'Decoherence: V = 2√(p₁p₂)·e^(−N(1−γ)) is the Poisson sum Σ Pois(k; N)·γ^k; V² + D² = 1 and Tr ρ² = 1 − 2p₁p₂(1 − |⟨E₁|E₂⟩|²) for all settings',
+    'Dekohärenz: Presets V = 1, e⁻², e⁻¹⁰ und 0,6 mit P = D = 0,8; I(x) hat bei V = 1 Nullstellen; p₁ oder γ außerhalb von 0 bis 1 und N < 0 sind „unreal“': 'Decoherence: presets V = 1, e⁻², e⁻¹⁰ and 0.6 with P = D = 0.8; I(x) has zeros at V = 1; p₁ or γ outside 0 to 1 and N < 0 are “unreal”',
+    'Dekohärenz: Schirm und Wegzustand zeigen V, D und die Matrixeinträge aus der Engine; ein Treffer bleibt liegen, wenn neue dazukommen': 'Decoherence: screen and path state show V, D and the matrix entries from the engine; a hit stays put when new ones arrive',
     'Keine Kandidaten für eine Quantengravitation – weder im Experiment noch in seinen Quellen noch auf den Seiten': 'No quantum-gravity candidates – not in the experiment, its sources or the pages',
     'Offene Fragen: jede Frage hat Status, Kurztitel, die fünf Abschnitte und ein Experiment im Feld „open“; der Direktlink #view=offen&sec=… bleibt im Zustand': 'Open questions: every question has a status, a short title, the five sections and an experiment in the “open” field; the direct link #view=offen&sec=… stays in the state',
     'Graph': 'Graph',
@@ -868,6 +871,52 @@
       close(val(bh, 'SkB'), Math.PI * rs * rs / lP2, 1e-12, 'Schwarzes Loch: S = πr²/l_P²:');
     }
   });
+  test('Offene Fragen', 'Dekohärenz: V = 2√(p₁p₂)·e^(−N(1−γ)) ist die Poisson-Summe Σ Pois(k; N)·γ^k; V² + D² = 1 und Tr ρ² = 1 − 2p₁p₂(1 − |⟨E₁|E₂⟩|²) bei allen Einstellungen', () => {
+    // unabhängig gerechnet: Mittel von γ^k über die Poisson-Verteilung
+    const pois = (N, g) => { let s = 0, t = Math.exp(-N); for (let k = 0; k < 400; k++) { s += t * Math.pow(g, k); t *= N / (k + 1); } return s; };
+    for (const p1 of [0, 0.1, 0.5, 0.9, 1]) for (const N of [0, 1, 7.5, 40]) for (const g of [0, 0.3, 0.95, 1]) {
+      const r = run('decoherence', { p1, N, g }), at = 'p₁ = ' + p1 + ', N = ' + N + ', γ = ' + g + ':', p2 = 1 - p1, ov = val(r, 'D');
+      ok(Math.abs(ov - pois(N, g)) < 1e-12, at + ' Überlapp ' + ov + ' statt ' + pois(N, g));
+      ok(Math.abs(val(r, 'V') - 2 * Math.sqrt(p1 * p2) * Math.exp(-N * (1 - g))) < 1e-12, at + ' V = ' + val(r, 'V'));
+      ok(Math.abs(val(r, 'VD') - 1) < 1e-12, at + ' V² + D² = ' + val(r, 'VD'));
+      ok(Math.abs(val(r, 'pur') - (1 - 2 * p1 * p2 * (1 - ov * ov))) < 1e-12, at + ' Tr ρ² = ' + val(r, 'pur'));
+      ok(val(r, 'pur') >= 0.5 - 1e-12 && val(r, 'pur') <= 1 + 1e-12, at + ' Tr ρ² außerhalb von ½ bis 1');
+    }
+  });
+  test('Offene Fragen', 'Dekohärenz: Presets V = 1, e⁻², e⁻¹⁰ und 0,6 mit P = D = 0,8; I(x) hat bei V = 1 Nullstellen; p₁ oder γ außerhalb von 0 bis 1 und N < 0 sind „unreal“', () => {
+    const r = M.byId.decoherence.presets.map((p) => run('decoherence', p.values));
+    close(val(r[0], 'V'), 1, 1e-12, 'ohne Umgebung:');
+    close(val(r[1], 'V'), Math.exp(-2), 1e-12, 'viele schwache Stöße:');
+    close(val(r[2], 'V'), Math.exp(-10), 1e-12, 'Welcher-Weg-Detektor:');
+    close(val(r[3], 'V'), 0.6, 1e-12, 'ungleiche Wege, V:'); close(val(r[3], 'P'), 0.8, 1e-12, 'ungleiche Wege, P:'); close(val(r[3], 'DE'), 0.8, 1e-12, 'ungleiche Wege, D:');
+    const I = (x) => val(run('decoherence', { x }), 'I');
+    ok(Math.abs(I(0.5)) < 1e-12 && Math.abs(I(-1.5)) < 1e-12, 'Minima bei V = 1: ' + I(0.5) + ', ' + I(-1.5));
+    close(I(0), 2, 1e-12, 'Maximum bei x = 0:');
+    const cats = (v) => new Set(run('decoherence', v).issues.map((i) => i.cat));
+    ok(cats({ p1: 1.2 }).has('unreal') && cats({ g: 1.5 }).has('unreal') && cats({ N: -1 }).has('unreal'), '„unreal“ fehlt');
+    ok(!cats({}).has('unreal') && cats({ N: 10, g: 0 }).has('info'), 'Hinweise');
+  });
+  test('Offene Fragen', 'Dekohärenz: Schirm und Wegzustand zeigen V, D und die Matrixeinträge aus der Engine; ein Treffer bleibt liegen, wenn neue dazukommen', () => {
+    if (!PP.viz) return;
+    const r = run('decoherence', { N: 10, g: 0.5 });
+    for (const W of [640, 360]) {
+      const H = W < 400 ? 260 : 330, s = draw('decoherence', { N: 10, g: 0.5, n: 600 }, { W, H });
+      ok(s.includes(fmtOut(r, 'V')) && s.includes(fmtOut(r, 'DE')) && s.includes('n = 600'), W + ' px: ' + s.slice(0, 6).join(' | '));
+      ok(s.some((x) => /Treffer zufällig aus \|ψ\|²/.test(x)), W + ' px: Hinweis auf den Zufallsgenerator fehlt');
+      const st = draw('decoherence', { N: 10, g: 0.5 }, { W, H, opts: { view: 'state' } });
+      ok(st.includes(fmtOut(r, 'pur')) && st.includes(E.fmt(val(r, 'r12'), 2)) && st.filter((x) => x === '0.5').length >= 2, W + ' px: ' + st.slice(0, 10).join(' | '));
+    }
+    // Fester Startwert: Die ersten n Treffer liegen an derselben Stelle, wenn einer dazukommt
+    const exp = M.byId.decoherence;
+    const dots = (n) => {
+      const out = [], t = { measureText: (x) => ({ width: String(x).length * 7 }), fillRect: (x, y, w) => { if (w === 1.6) out.push(x.toFixed(3) + ',' + y.toFixed(3)); } };
+      const ctx = new Proxy(t, { get: (o, k) => (k in o ? o[k] : () => {}), set: () => true });
+      PP.viz.decoherence(ctx, 640, 330, PP.vizState({ exp, form: exp.forms[0].id, vals: Object.assign(M.defaults(exp), { n }), consts: {}, opts: {}, col: COL }));
+      return out;
+    };
+    const a = dots(10), b = dots(11);
+    ok(a.length === 10 && b.length === 11 && a.every((x, i) => x === b[i]), a.length + ' / ' + b.length + ' Treffer');
+  });
   test('Offene Fragen', 'Keine Kandidaten für eine Quantengravitation – weder im Experiment noch in seinen Quellen noch auf den Seiten', () => {
     const banned = /string|schleifenquant|loop quantum|asymptoti\w* (sicherheit|safety)|kausale menge|causal set|holograph|AdS\/CFT|M-theor/i;
     const bad = [], seen = new WeakSet();
@@ -1094,7 +1143,7 @@
   });
   test('Sprache', 'Keine deutschen Reste in den englischen Texten der Experimente und Konstanten', () => {
     // „ und Umlaute verraten deutsche Texte; Eigennamen dürfen sie behalten
-    const german = /[„äöüÄÖÜß]/, names = /Schrödinger|Eötvös|Göttingen/g;
+    const german = /[„äöüÄÖÜß]/, names = /Schrödinger|Eötvös|Göttingen|Hackermüller/g;
     const skip = new Set(['ast', 'lhs', 'rhs', 'symDims', 'dimv', 'values', 'checks']);
     const bad = [], seen = new WeakSet();
     const walk = (o, path) => {

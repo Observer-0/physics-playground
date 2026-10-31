@@ -1349,6 +1349,149 @@
       note: narrow ? tr('oben Radius, unten Entropie', 'top: radius, bottom: entropy') : tr('Oben Radius, unten Entropie k_B πr²/l_P² · violett: Schwarze Löcher', 'Top: radius, bottom: entropy k_B πr²/l_P² · violet: black holes'),
     });
   }
+  /* ---------- Dekohärenz: Schirm mit einzelnen Treffern, Wegzustand als Dichtematrix ----------
+     „Schirm“: I(x) kommt aus der Engine (S.at). Die Treffer zieht das Bild per Inversionsverfahren aus dieser Verteilung,
+     mit festem Zufallsstartwert – ein Treffer bleibt liegen, wenn neue dazukommen. Welcher Punkt kommt, entscheidet hier
+     ein Zufallsgenerator; die Theorie sagt nur die Verteilung voraus. Histogramm und erwartete Kurve n·I·Δx/∫I sind gleich
+     skaliert. „Wegzustand ρ“: Diagonale p₁, p₂, außerhalb |ρ₁₂| (Fläche ∝ Betrag), daneben V² + D² als Balken.
+     Farben: Bernstein = Kohärenz (V, ρ₁₂, Streifen), Cyan = Wahrscheinlichkeiten und Weginformation (p, D, Treffer). */
+  const HITS = (() => { const r = rng(4242); return Array.from({ length: 2000 }, () => [r(), r()]); })();
+  // der erste Text der Liste, der in maxW passt (sonst der letzte)
+  function fit(ctx, col, list, maxW, size, mono) {
+    font(ctx, col, size, mono);
+    return list.find((s) => textW(ctx, s) <= maxW) || list[list.length - 1];
+  }
+  const noteFit = (ctx, col, W, H, list) => note(ctx, fit(ctx, col, list, W - 20, 11), W, H, col);
+  function decoScreen(ctx, W, H, S) {
+    const { v, col } = S, narrow = W < 520;
+    const bad = () => invalid(ctx, W, H, col, tr('Die Sichtbarkeit ist hier nicht definiert', 'The visibility is not defined here'));
+    if (!isFinite(S.o('V'))) return bad();
+    // Verteilung auf dem Schirm aus der Engine (n fest, damit die Werte beim Abspielen im Zwischenspeicher bleiben)
+    const NX = 160, xs = [], Is = [];
+    for (let i = 0; i <= NX; i++) { const x = -4 + (8 * i) / NX; xs.push(x); Is.push(Math.max(0, S.at({ x, n: 0 }).o('I'))); }
+    const cdf = [0];
+    for (let i = 1; i <= NX; i++) cdf.push(cdf[i - 1] + (Is[i - 1] + Is[i]) / 2);
+    const tot = cdf[NX];
+    if (!(tot > 0) || !Is.every(isFinite)) return bad();
+    const sample = (u) => {
+      const t = u * tot;
+      let lo = 0, hi = NX;
+      while (hi - lo > 1) { const m = (lo + hi) >> 1; if (cdf[m] < t) lo = m; else hi = m; }
+      const seg = cdf[hi] - cdf[lo];
+      return xs[lo] + (seg > 0 ? (t - cdf[lo]) / seg : 0) * (xs[hi] - xs[lo]);
+    };
+    const n = clamp(Math.floor(v.n || 0), 0, HITS.length);
+    const x0 = narrow ? 14 : Math.round(W * 0.3), x1 = W - 14, top = 54, bottom = H - (narrow ? 50 : 62), plateH = narrow ? 16 : 20, plateY = bottom + 8;
+    const X = (x) => x0 + ((x + 4) / 8) * (x1 - x0);
+    // Kopf
+    segs(ctx, [['V = ', col.ink2], [S.fo('V'), col.accent], ['   D = ', col.ink2], [S.fo('DE'), col.cyan]].concat(narrow ? [] : [['   V² + D² = ', col.ink2], [S.fo('VD'), col.ink]]), 14, 19, col, { mono: true, size: narrow ? 12 : 13 });
+    segs(ctx, [['n = ' + n, col.ink], [tr(' Teilchen', ' particles') + (narrow ? '' : tr(' · jeder Punkt ein einzelnes Ergebnis', ' · each dot one single outcome')), col.ink2]], 14, 36, col, { size: 11 });
+    // links: zwei Wege (Strichstärke ∝ Gewicht) und die Umgebung (schematisch)
+    if (!narrow) {
+      const sx = 18, ex = x0 - 26, cy = top + (plateY - top - 40) / 2, dy = Math.min(46, (plateY - top - 40) / 2 - 14), mx = (sx + ex) / 2;
+      ctx.strokeStyle = col.ink3;
+      [[-1, v.p1], [1, S.o('p2')]].forEach(([s, p]) => {
+        ctx.lineWidth = 1 + 3 * clamp(p, 0, 1);
+        ctx.beginPath(); ctx.moveTo(sx, cy); ctx.quadraticCurveTo(mx, cy + s * dy * 2, ex, cy); ctx.stroke();
+      });
+      ctx.fillStyle = col.accent; ctx.beginPath(); ctx.arc(sx, cy, 4, 0, 7); ctx.fill();
+      label(ctx, tr('Weg 1', 'path 1'), mx, cy - dy - 8, col, { align: 'center', size: 11, color: col.ink2 });
+      label(ctx, tr('Weg 2', 'path 2'), mx, cy + dy + 18, col, { align: 'center', size: 11, color: col.ink2 });
+      arrow(ctx, ex, cy, x0 - 8, cy, col.ink3, 1.2, 6);
+      // Umgebungsteilchen: je mehr Stöße im Mittel, desto mehr Punkte (höchstens 60)
+      const k = Math.min(60, Math.round(v.N * 1.5)), r = rng(77);
+      ctx.fillStyle = col.violet; ctx.globalAlpha = 0.75;
+      for (let i = 0; i < k; i++) {
+        const t = 0.15 + 0.7 * r(), s = r() < 0.5 ? -1 : 1, off = (r() - 0.5) * 14;
+        ctx.beginPath(); ctx.arc(sx + t * (ex - sx), cy + s * dy * 4 * t * (1 - t) + off, 2, 0, 7); ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+      label(ctx, tr('Umgebung', 'environment'), sx, cy + dy + 38, col, { size: 11, color: col.violet });
+      label(ctx, 'N = ' + E.fmt(v.N, 3) + ', γ = ' + E.fmt(v.g, 3), sx, cy + dy + 54, col, { size: 11, mono: true, color: col.violet });
+      label(ctx, tr('Schirm', 'screen'), x0 - 8, plateY + plateH / 2, col, { align: 'right', base: 'middle', size: 11, color: col.ink3 });
+    }
+    // Histogramm der Treffer und erwartete Verteilung, gleich skaliert
+    const NB = 40, cnt = new Array(NB).fill(0), pts = [];
+    for (let i = 0; i < n; i++) { const x = sample(HITS[i][0]); pts.push(x); cnt[clamp(Math.floor(((x + 4) / 8) * NB), 0, NB - 1)]++; }
+    // erwartete Treffer je Fach an der Stelle xs[i]: n·I·Δx/∫I mit Δx = 8/NB und ∫I = tot·8/NX
+    const expect = (i) => (n * Is[i] * NX) / (NB * tot);
+    let ymax = 0;
+    for (let i = 0; i <= NX; i++) ymax = Math.max(ymax, n > 0 ? expect(i) : Is[i]);
+    for (const c of cnt) ymax = Math.max(ymax, c);
+    ymax = ymax > 0 ? ymax * 1.08 : 1;
+    const Y = (y) => bottom - (clamp(y, 0, ymax) / ymax) * (bottom - top);
+    if (n > 0) {
+      ctx.fillStyle = col.cyan; ctx.globalAlpha = 0.45;
+      const bw = (x1 - x0) / NB;
+      cnt.forEach((c, i) => { if (c > 0) ctx.fillRect(x0 + i * bw + 0.5, Y(c), bw - 1, bottom - Y(c)); });
+      ctx.globalAlpha = 1;
+    }
+    ctx.strokeStyle = col.accent; ctx.lineWidth = n > 0 ? 2 : 1.6; ctx.setLineDash(n > 0 ? [] : [5, 4]);
+    ctx.beginPath();
+    xs.forEach((x, i) => { const y = Y(n > 0 ? expect(i) : Is[i]); if (i) ctx.lineTo(X(x), y); else ctx.moveTo(X(x), y); });
+    ctx.stroke(); ctx.setLineDash([]);
+    label(ctx, n > 0 ? tr('erwartet: |ψ|²', 'expected: |ψ|²') : tr('erwartete Verteilung |ψ|²', 'expected distribution |ψ|²'), x1, top - 6, col, { align: 'right', size: 11, color: col.accent });
+    // Schirm: jeder Punkt ein Treffer, der neueste hervorgehoben
+    ctx.fillStyle = col.panel2; ctx.fillRect(x0, plateY, x1 - x0, plateH);
+    ctx.fillStyle = col.ink; ctx.globalAlpha = 0.8;
+    pts.forEach((x, i) => ctx.fillRect(X(x) - 0.8, plateY + 1 + HITS[i][1] * (plateH - 3), 1.6, 1.6));
+    ctx.globalAlpha = 1;
+    if (n > 0) { ctx.fillStyle = col.accent; ctx.beginPath(); ctx.arc(X(pts[n - 1]), plateY + 1 + HITS[n - 1][1] * (plateH - 3), 3.2, 0, 7); ctx.fill(); }
+    if (narrow) label(ctx, tr('Schirm', 'screen'), x0, plateY + plateH + 14, col, { size: 11, color: col.ink3 });
+    noteFit(ctx, col, W, H, narrow ? [tr('Treffer zufällig aus |ψ|²', 'hits drawn at random from |ψ|²')]
+      : [tr('Schematisch · Treffer zufällig aus |ψ|² gezogen – die Theorie gibt nur die Verteilung', 'Schematic · hits drawn at random from |ψ|² – the theory only gives the distribution'), tr('Schematisch · Treffer zufällig aus |ψ|²', 'Schematic · hits drawn at random from |ψ|²')]);
+  }
+  function decoState(ctx, W, H, S) {
+    const { v, col } = S, narrow = W < 520;
+    const p1 = v.p1, p2 = S.o('p2'), r12 = S.o('r12'), V = S.o('V'), D = S.o('DE'), pur = S.o('pur');
+    if (![p1, p2, r12, V, D, pur].every(isFinite) || p1 < 0 || p2 < 0) return invalid(ctx, W, H, col, tr('Der Wegzustand ist hier nicht definiert', 'The path state is not defined here'));
+    const word = pur > 0.9995 ? tr('rein', 'pure') : pur < 0.5005 ? tr('ganz gemischt', 'fully mixed') : tr('gemischt', 'mixed');
+    segs(ctx, [['Tr ρ² = ', col.ink2], [S.fo('pur'), col.ink], [' · ' + word, col.ink2]].concat(narrow ? [] : [[tr('   (1: rein, ½: ganz gemischt)', '   (1: pure, ½: fully mixed)'), col.ink3]]), 14, 19, col, { mono: true, size: narrow ? 12 : 13 });
+    // schmal: ohne zweite Zeile – die Namen in den Feldern und die Notiz sagen dasselbe
+    if (!narrow) label(ctx, fit(ctx, col, [tr('Diagonale: Wahrscheinlichkeiten · außerhalb: Kohärenz', 'diagonal: probabilities · off-diagonal: coherence'), tr('Diagonale: p · außerhalb: Kohärenz', 'diagonal: p · off-diagonal: coherence')], W - 28, 11), 14, 36, col, { size: 11, color: col.ink2 });
+    // Dichtematrix des Weges: Fläche jedes Quadrats ∝ Betrag des Eintrags; Name oben, Wert unten
+    const my = narrow ? 46 : 66, size = clamp(H - my - (narrow ? 24 : 44), 90, narrow ? 150 : 200), cell = size / 2, mx = narrow ? 16 : 40, room = cell - 38;
+    const cells = [[0, 0, p1, 'p₁', col.cyan], [1, 1, p2, 'p₂', col.cyan], [0, 1, r12, '|ρ₁₂|', col.accent], [1, 0, r12, '|ρ₂₁|', col.accent]];
+    ctx.strokeStyle = col.ink3; ctx.lineWidth = 1;
+    for (let i = 0; i <= 2; i++) {
+      ctx.beginPath(); ctx.moveTo(mx + i * cell, my); ctx.lineTo(mx + i * cell, my + size); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(mx, my + i * cell); ctx.lineTo(mx + size, my + i * cell); ctx.stroke();
+    }
+    for (const [i, j, val, name, c] of cells) {
+      const side = room * Math.sqrt(clamp(val, 0, 1)), cx = mx + j * cell + cell / 2, cy = my + i * cell + 18 + room / 2;
+      ctx.fillStyle = c; ctx.globalAlpha = 0.75; ctx.fillRect(cx - side / 2, cy - side / 2, side, side); ctx.globalAlpha = 1;
+      label(ctx, name, cx, my + i * cell + 14, col, { align: 'center', size: 11, color: col.ink2 });
+      label(ctx, E.fmt(val, 2), cx, my + (i + 1) * cell - 6, col, { align: 'center', size: 11, mono: true, color: col.ink });
+    }
+    label(ctx, tr('Weg 1', 'path 1'), mx + cell / 2, my - 6, col, { align: 'center', size: 11, color: col.ink3 });
+    label(ctx, tr('Weg 2', 'path 2'), mx + 1.5 * cell, my - 6, col, { align: 'center', size: 11, color: col.ink3 });
+    // Komplementarität: V² + D² als ein Balken der Länge 1
+    const bx = mx + size + (narrow ? 22 : 48), bw = Math.min(W - bx - 16, 360), by = my + 18, bh = narrow ? 16 : 20;
+    if (bw > 60) {
+      label(ctx, tr('Komplementarität', 'Complementarity'), bx, by - 8, col, { size: 12, color: col.ink });
+      ctx.fillStyle = col.panel2; ctx.fillRect(bx, by, bw, bh);
+      const a = clamp(V * V, 0, 1) * bw, b = clamp(D * D, 0, 1) * bw;
+      ctx.fillStyle = col.accent; ctx.fillRect(bx, by, a, bh);
+      ctx.fillStyle = col.cyan; ctx.globalAlpha = 0.8; ctx.fillRect(bx + a, by, Math.min(b, bw - a), bh); ctx.globalAlpha = 1;
+      segs(ctx, [['V² = ' + E.fmt(V * V, 2), col.accent], ['  D² = ' + E.fmt(D * D, 2), col.cyan]], bx, by + bh + 16, col, { mono: true, size: 11 });
+      segs(ctx, [['V² + D² = ', col.ink2], [S.fo('VD'), col.ink]], bx, by + bh + 32, col, { mono: true, size: 11 });
+      const long = [tr('Was die Streifen zeigen, fehlt', 'What the fringes show is missing'), tr('der Weginformation – und umgekehrt', 'from the path information – and vice versa')];
+      font(ctx, col, 11);
+      const lines = long.every((s) => textW(ctx, s) <= bw) ? long : [tr('Streifen gegen', 'fringes against'), tr('Weginformation', 'path information')];
+      lines.forEach((s, i) => label(ctx, s, bx, by + bh + 52 + i * 15, col, { size: 11, color: col.ink2 }));
+      // Das Ganze bleibt eine Überlagerung (Modell: reiner Gesamtzustand)
+      const tot = [tr('Teilchen und Umgebung zusammen:', 'Particle and environment together:'), tr('weiter eine Überlagerung, rein', 'still a superposition, pure')];
+      const ty = by + bh + 92;
+      if (!narrow && ty + 15 < H - 28 && tot.every((s) => textW(ctx, s) <= bw)) tot.forEach((s, i) => label(ctx, s, bx, ty + i * 15, col, { size: 11, color: i ? col.ink2 : col.ink }));
+    }
+    noteFit(ctx, col, W, H, narrow ? [tr('Kohärenz weg, Diagonale bleibt', 'coherence gone, diagonal stays')]
+      : [tr('Dekohärenz löscht die Kohärenz, die Wahrscheinlichkeiten bleiben – welcher Weg, sagt ρ nicht', 'Decoherence erases the coherence, the probabilities remain – which path, ρ does not say'), tr('Kohärenz weg, Diagonale bleibt – welcher Weg, sagt ρ nicht', 'coherence gone, diagonal stays – which path, ρ does not say')]);
+  }
+  V.decoherence = (ctx, W, H, S) => {
+    grid(ctx, W, H, S.col);
+    (S.opts.view === 'state' ? decoState : decoScreen)(ctx, W, H, S);
+  };
+
   V.vacuum = (ctx, W, H, S) => {
     grid(ctx, W, H, S.col);
     (S.opts.view === 'rho' ? vacRho : S.opts.view === 'hor' ? vacHor : vacLen)(ctx, W, H, S);
