@@ -21,7 +21,7 @@
     ll: '≪', gg: '≫', pm: '±', equiv: '≡',
   };
   const SPACES = { ',': 0.17, ';': 0.28, ':': 0.22, quad: 1, qquad: 2, '!': -0.17, ' ': 0.25 };
-  const FUNCNAMES = new Set(['sin', 'cos', 'tan', 'exp', 'ln', 'log', 'max', 'min', 'lim']);
+  const FUNCNAMES = new Set(['sin', 'cos', 'tan', 'exp', 'ln', 'lg', 'log', 'max', 'min', 'lim']);
   const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
   function tokenize(src) {
@@ -108,6 +108,8 @@
       if (!t) return null;
       if (t.k === 'ch') {
         const c = t.v;
+        // {,} ist das Dezimalkomma: ohne den Abstand, den ein Komma als Trennzeichen bekommt
+        if (c === '{' && toks[p] && toks[p].v === ',' && toks[p + 1] && toks[p + 1].v === '}') { p += 2; return { html: '<span class="mn">,</span>' }; }
         if (c === '{') { const g = group('}'); return { html: '<span class="mg">' + g.html + '</span>', frac: g.frac }; }
         if (c === '}') return { html: '' };
         if (/[A-Za-z]/.test(c)) return { html: '<i class="mi">' + c + '</i>' };

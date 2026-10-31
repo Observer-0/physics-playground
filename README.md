@@ -92,11 +92,17 @@ The file loading order is defined only in `src/index.html`;
                                       question: Why exactly 1/4? (black
                                       hole entropy prefactor η as a
                                       slider, first-law check
-                                      R_η = 4η) · Is information lost?
-                                      (evaporation in time-lapse with
-                                      the Page curve, Page time from
-                                      the engine). More questions in
-                                      `ROADMAP.md`
+                                      R_η = 4η) · Why is the
+                                      cosmological constant so small?
+                                      (Λ as a curvature, 1/length²: a
+                                      length axis coupled to a
+                                      curvature axis, and the cutoff
+                                      estimate of the vacuum energy
+                                      ∝ E⁴ against u_Λ) · Is
+                                      information lost? (evaporation in
+                                      time-lapse with the Page curve,
+                                      Page time from the engine). More
+                                      questions in `ROADMAP.md`
 
   Tools                               Check your own or incorrect
                                       equations · Constants · Saved

@@ -247,7 +247,64 @@
       },
     },
 
-    /* Offene Fragen, Frage 2: Page-Kurve – die Entropien in Einheiten von k_B */
+    /* Offene Fragen, Frage 2: Λ als Energiedichte und die Abschätzung, mit der sie verglichen wird */
+    'lambda-vac': {
+      tex: '\\xs{uL}{u_\\Lambda} = \\frac{\\xs{Lambda}{\\Lambda}\\, \\xs{c}{c^4}}{\\xs{8pi}{8\\pi}\\, \\xs{G}{G}} \\qquad \\xs{uV}{u_{\\mathrm{vac}}} \\sim \\frac{\\xs{Ec}{E_{\\mathrm{c}}^4}}{(\\xs{hbar}{\\hbar} \\xs{c}{c})^3}',
+      pre: 'Lambda',
+      hint: { de: 'Zeig auf ein Symbol oder tippe es an. Links steht Λ als Energiedichte, rechts die grobe Abschätzung, mit der sie verglichen wird.', en: 'Point at a symbol or tap it. On the left is Λ as an energy density, on the right the rough estimate it is compared with.' },
+      symbols: {
+        uL: {
+          o: 'uL', color: 'res', tag: { de: 'Ergebnis: Beobachtung', en: 'Result: observation' },
+          meaning: { de: 'Die Energiedichte, die der beobachteten kosmologischen Konstante entspricht, etwa 5 × 10⁻¹⁰ J/m³. Als Ruheenergie wären das dreieinhalb Protonenmassen pro Kubikmeter.',
+            en: 'The energy density that corresponds to the observed cosmological constant, about 5 × 10⁻¹⁰ J/m³. As rest energy, that would be three and a half proton masses per cubic metre.' },
+          role: { de: 'Das, womit verglichen wird. Sie steht für Λ auf der rechten Seite der Feldgleichungen – als Energie des leeren Raums.',
+            en: 'What the estimate is compared with. It stands for Λ on the right-hand side of the field equations – as the energy of empty space.' },
+        },
+        Lambda: {
+          v: 'Lambda', color: 'cosmo', tag: { de: 'Kosmologie', en: 'Cosmology' },
+          meaning: { de: 'Die kosmologische Konstante, abgeleitet aus Beobachtungen im ΛCDM-Modell (Planck 2018). Sie hat die Dimension einer Krümmung, 1/Länge²: Zu ihr gehört die Länge 1/√Λ ≈ 10 Milliarden Lichtjahre.',
+            en: 'The cosmological constant, inferred from observations within the ΛCDM model (Planck 2018). It has the dimension of a curvature, 1/length²: it comes with the length 1/√Λ ≈ 10 billion light years.' },
+          role: { de: 'In den Feldgleichungen steht Λ neben der Krümmung G_μν. Hier wird sie in die Energiedichte umgerechnet, die sie als Quelle der Krümmung darstellen würde.',
+            en: 'In the field equations Λ stands next to the curvature G_μν. Here it is converted into the energy density it would represent as a source of curvature.' },
+        },
+        c: {
+          c: 'c', tex: 'c^4', color: 'rel', tag: REL,
+          role: { de: 'Links steht c⁴ im Zähler, rechts (ħc)³ im Nenner. Beide Male sorgt c dafür, dass am Ende eine Energiedichte in J/m³ herauskommt.',
+            en: 'On the left c⁴ is in the numerator, on the right (ħc)³ in the denominator. Both times c makes sure that an energy density in J/m³ comes out.' },
+        },
+        '8pi': {
+          n: 8 * Math.PI, tex: '8\\pi', color: 'geo', tag: NUMBER, name: PI8,
+          role: { de: 'Derselbe Faktor wie in den Feldgleichungen. Er steckt auch im exakten Verhältnis bei der Planck-Energie: u_vac/u_Λ = 8π/(Λ l_P²).',
+            en: 'The same factor as in the field equations. It also appears in the exact ratio at the Planck energy: u_vac/u_Λ = 8π/(Λ l_P²).' },
+        },
+        G: {
+          c: 'G', color: 'grav', tag: GRAV,
+          role: { de: 'Zusammen mit ħ und c legt G die Planck-Länge fest. In ihr gemessen wird Λ zu einer reinen Zahl: Λ l_P² ≈ 3 × 10⁻¹²².',
+            en: 'Together with ħ and c, G fixes the Planck length. Measured in it, Λ becomes a pure number: Λ l_P² ≈ 3 × 10⁻¹²².' },
+        },
+        uV: {
+          o: 'uV', color: 'res', tag: { de: 'Ergebnis: Abschätzung', en: 'Result: estimate' },
+          meaning: { de: 'Die Energiedichte der Nullpunktschwankungen, wenn man alle Feldmoden bis zur Energie E_c zählt – als Größenordnung, ohne Vorfaktor. Ein einzelnes freies Feld liefert davon 1/(16π²).',
+            en: 'The energy density of the zero-point fluctuations if you count all field modes up to the energy E_c – as an order of magnitude, without a prefactor. A single free field gives 1/(16π²) of it.' },
+          role: { de: 'Wächst wie E_c⁴: Eine Größenordnung mehr Energie bedeutet vier Größenordnungen mehr Energiedichte. Eine Vorhersage ist das nicht – die Zahl hängt am gewählten Cutoff.',
+            en: 'Grows like E_c⁴: one order of magnitude more energy means four orders of magnitude more energy density. It is not a prediction – the number depends on the chosen cutoff.' },
+        },
+        Ec: {
+          v: 'Ec', color: 'mass', tag: { de: 'Annahme', en: 'Assumption' },
+          meaning: { de: 'Die Energie, bis zu der Nullpunktenergien gezählt werden. Was darüber liegt, wird weggelassen.',
+            en: 'The energy up to which zero-point energies are counted. Whatever lies above it is left out.' },
+          role: { de: 'Steht in vierter Potenz da. Bei der Planck-Energie ist u_vac/u_Λ ≈ 10¹²³, bei 1 TeV ≈ 10⁵⁹, beim Elektron ≈ 10³³.',
+            en: 'Appears to the fourth power. At the Planck energy u_vac/u_Λ ≈ 10¹²³, at 1 TeV ≈ 10⁵⁹, at the electron ≈ 10³³.' },
+        },
+        hbar: {
+          c: 'hbar', color: 'q', tag: QM,
+          role: { de: 'Macht aus E_c eine Länge, ħc/E_c – die kürzeste mitgezählte Wellenlänge, geteilt durch 2π. Die Abschätzung ist dann eine Energie E_c pro Würfel dieser Kantenlänge.',
+            en: 'Turns E_c into a length, ħc/E_c – the shortest wavelength counted, divided by 2π. The estimate is then one energy E_c per cube of this edge length.' },
+        },
+      },
+    },
+
+    /* Offene Fragen, Frage 3: Page-Kurve – die Entropien in Einheiten von k_B */
     'bh-page': {
       tex: '\\xs{SP}{S_{\\mathrm{Page}}} = \\xs{min}{\\min}\\left(\\xs{SR}{S_{\\mathrm{rad}}},\\, \\xs{SB}{S_{\\mathrm{BH}}}\\right) \\qquad \\xs{SB}{S_{\\mathrm{BH}}} = \\xs{S0}{S_0}\\,(1 - \\xs{tau}{\\tau})^{2/3}',
       pre: 'SP',

@@ -103,6 +103,120 @@
     },
     /* ------------------------------------------------------------ */
     {
+      id: 'lambda', status: 'open', exp: 'lambda-vac', title: { de: 'Warum ist die kosmologische Konstante so klein?', en: 'Why is the cosmological constant so small?' },
+      body: {
+        de: () => {
+          const MATH = 'Mathematik', MEAS = 'Messung', OPEN = 'offen', QFT = 'Quantenfeldtheorie', EST = 'Abschätzung';
+          return '<h3 class="th-h3">Die Frage</h3>' +
+            '<p>Einstein schrieb 1917 einen zusätzlichen Term in seine Feldgleichungen: ' + t(R`\Lambda\, g_{\mu\nu}`) + ' mit der kosmologischen Konstante Λ.</p>' +
+            xq('rel-efe') +
+            '<p>Heute ist Λ die einfachste Erklärung dafür, dass sich das Universum beschleunigt ausdehnt. Ihr Wert ist winzig. Die Quantenfeldtheorie sagt aber: Auch der leere Raum hat Energie, und die Gravitation spürt jede Energie. Jede naheliegende Abschätzung dieser Vakuumenergie liegt viele Größenordnungen über dem, was Λ entspricht. Warum ist Λ so klein – und warum trotzdem nicht null?</p>' +
+            '<h3 class="th-h3">Was gesichert ist</h3>' +
+            '<p>' + kind(MEAS) + ' Ferne Supernovae vom Typ Ia zeigen seit 1998, dass sich die Expansion beschleunigt (Riess u. a. 1998, Perlmutter u. a. 1999). Hintergrundstrahlung und baryonische akustische Oszillationen bestätigen das. Im kosmologischen Standardmodell ΛCDM folgt ' + t(R`\Lambda \approx 1{,}1 \times 10^{-52}\,\mathrm{m}^{-2}`) + ' (Planck 2018) – ein modellabhängiger Wert.</p>' +
+            '<div class="oq-dim"><p><b>Λ ist eine Krümmung.</b> ' + kind(MATH) + ' In den Feldgleichungen steht ' + t(R`\Lambda\, g_{\mu\nu}`) + ' neben ' + t(R`G_{\mu\nu}`) + '. Der Einstein-Tensor ist aus zweiten Ableitungen der Metrik gebaut und hat die Dimension 1/Länge²; die Metrik selbst ist dimensionslos. Also hat Λ die Dimension einer Krümmung – es ist die Krümmung, die die Raumzeit auch ganz ohne Materie hätte.</p>' +
+            '<p>Jede Krümmung ist „eins durch Länge zum Quadrat“: Eine Kugel mit dem Radius ' + t('r') + ' hat die Krümmung ' + t('1/r^{2}') + '. Deshalb gehört zu Λ eine Länge:</p>' +
+            d(R`\ell_\Lambda = \frac{1}{\sqrt{\Lambda}}`) +
+            '<p>Das sind ' + t(R`9{,}5 \times 10^{25}\,\mathrm{m}`) + ', rund 10 Milliarden Lichtjahre – vergleichbar mit dem Hubble-Radius ' + t(R`c/H_0`) + ' von etwa 14 Milliarden Lichtjahren. Enthielte die Raumzeit nur Λ, läge ihr Horizont bei ' + t(R`\sqrt{3/\Lambda}`) + ', etwa 17 Milliarden Lichtjahren.</p>' +
+            '<p>Weil Λ eine inverse Fläche ist, wird sie in Planck-Einheiten zu einer reinen Zahl – dem Verhältnis zweier Flächen:</p>' +
+            d(R`\Lambda\, l_{\mathrm{P}}^{2} = \left(\frac{l_{\mathrm{P}}}{\ell_\Lambda}\right)^{2}`) +
+            '<p>Die beiden Längen trennen 61 Größenordnungen. Λ geht mit der Länge hoch minus zwei – also trennen Λ und die Planck-Krümmung ' + t(R`1/l_{\mathrm{P}}^{2}`) + ' 122 Größenordnungen: ' + t(R`\Lambda\, l_{\mathrm{P}}^{2} \approx 3 \times 10^{-122}`) + '. Das ist die berühmte kleine Zahl.</p>' +
+            '<p>Rechts vom Gleichheitszeichen gelesen, ist der Λ-Term eine Energiedichte des leeren Raums, überall gleich und für jeden Beobachter dieselbe:</p>' +
+            d(R`u_\Lambda = \frac{\Lambda\, c^{4}}{8\pi G}`) +
+            '<p>Das sind ' + t(R`5{,}3 \times 10^{-10}\,\mathrm{J/m^{3}}`) + ' – so viel wie die Ruheenergie von dreieinhalb Protonen pro Kubikmeter. Ihr Druck ist minus ihre Energiedichte; deshalb beschleunigt sie die Expansion, statt sie zu bremsen.</p>' +
+            '<p>In natürlichen Einheiten (' + t(R`\hbar = c = 1`) + ') ist eine Energiedichte eine Energie hoch vier. Zu ' + t(R`u_\Lambda`) + ' gehört deshalb die Energie ' + t(R`E_\Lambda = \left(u_\Lambda\, (\hbar c)^{3}\right)^{1/4} \approx 2{,}2\,\mathrm{meV}`) + ' und die Länge ' + t(R`\hbar c/E_\Lambda \approx 0{,}09\,\mathrm{mm}`) + ' – etwa die Dicke eines Haares. Auf der logarithmischen Skala liegt sie fast genau in der Mitte zwischen Planck-Länge und ' + t(R`\ell_\Lambda`) + ':</p>' +
+            d(R`\frac{\hbar c}{E_\Lambda} = (8\pi)^{1/4} \sqrt{l_{\mathrm{P}}\, \ell_\Lambda}`) +
+            '<p>Wie viele Größenordnungen „die“ Lücke hat, hängt also an der Dimension, in der man vergleicht:</p>' +
+            '<div class="th-scroll"><table class="t th-cmp"><thead><tr><th>Vergleich</th><th>Dimension</th><th>Größenordnungen</th></tr></thead><tbody>' +
+            '<tr><td>' + t(R`\ell_\Lambda / l_{\mathrm{P}}`) + '</td><td>Länge</td><td>≈ 60,8</td></tr>' +
+            '<tr><td>' + t(R`1/(\Lambda\, l_{\mathrm{P}}^{2})`) + '</td><td>Krümmung, 1/Länge²</td><td>≈ 121,5</td></tr>' +
+            '<tr><td>' + t(R`E_{\mathrm{P}} / E_\Lambda`) + '</td><td>Energie</td><td>≈ 30,7</td></tr>' +
+            '<tr><td>' + t(R`u_{\mathrm{vac}}(E_{\mathrm{P}}) / u_\Lambda`) + '</td><td>Energiedichte, Energie⁴/(ħc)³</td><td>≈ 122,9</td></tr>' +
+            '</tbody></table></div>' +
+            '<p>Länge und Krümmung verbindet der Exponent 2, Energie und Energiedichte der Exponent 4. Beide Paare hängen über ' + t(R`u_\Lambda = \Lambda c^{4}/(8\pi G)`) + ' zusammen: 122,9 = 121,5 + lg 8π.</p></div>' +
+            '<p>' + kind(QFT) + ' Ohne Gravitation zählen in der Quantenfeldtheorie nur Energieunterschiede; den Nullpunkt der Energie kann man frei wählen. Die Gravitation dagegen spürt jede Energie, auch die des Vakuums. Eine Energiedichte des leeren Raums, die für jeden Beobachter gleich aussieht, hat genau die Form des Λ-Terms – sie wirkt wie ein Beitrag zu Λ. Nullpunktschwankungen sind dabei kein Rechentrick: Lamb-Verschiebung und Casimir-Effekt hängen mit ihnen zusammen. Gemessen werden dort aber Energieunterschiede, nicht die Energiedichte des Vakuums selbst.</p>' +
+            '<p>' + kind(EST) + ' Zählt man die Nullpunktenergien ' + t(R`\tfrac{1}{2}\hbar\omega`) + ' aller Feldmoden bis zu einer Abschneide-Energie ' + t(R`E_{\mathrm{c}}`) + ', wächst die Summe wie ' + t(R`E_{\mathrm{c}}^{4}`) + ':</p>' +
+            d(R`u_{\mathrm{vac}} \sim \frac{E_{\mathrm{c}}^{4}}{(\hbar c)^{3}}`) +
+            '<p>' + kind(MATH) + ' Bei der Planck-Energie hängt das Verhältnis nur noch an der kleinen Zahl von oben:</p>' +
+            d(R`\frac{u_{\mathrm{vac}}(E_{\mathrm{P}})}{u_\Lambda} = \frac{8\pi}{\Lambda\, l_{\mathrm{P}}^{2}}`) +
+            '<p>Das sind etwa ' + t(R`10^{123}`) + ', mit dem Vorfaktor ' + t(R`1/(16\pi^{2})`) + ' eines einzelnen freien Feldes etwa ' + t(R`10^{121}`) + ' – daher die oft zitierten „120 Größenordnungen“. Bei 1 TeV bleiben etwa ' + t(R`10^{59}`) + ', beim Elektron ' + t(R`10^{33}`) + ' – mit Physik, die gut getestet ist.</p>' +
+            '<div class="honest"><b>Einordnung:</b> Die 120 Größenordnungen sind keine Vorhersage der Quantenfeldtheorie. Ein harter Cutoff zeichnet ein Bezugssystem aus und verletzt die Lorentz-Invarianz; die so gezählte Energie verhält sich wie Strahlung, nicht wie Λ. Eine Lorentz-invariante Rechnung ergibt für die bekannten Teilchen eine Vakuumenergie von der Größenordnung ' + t(R`(100\,\mathrm{GeV})^{4}`) + ', rund 55 Größenordnungen über ' + t(R`u_\Lambda`) + ' (Martin 2012). Ähnlich groß ist der Sprung der Vakuumenergie, den das Standardmodell für den elektroschwachen Übergang im frühen Universum vorhersagt. Das Problem wird kleiner, aber es verschwindet nicht.</div>' +
+            '<h3 class="th-h3">Was offen ist</h3>' +
+            '<p>' + kind(OPEN) + ' Warum die Vakuumenergie nicht so gravitiert, wie die Abschätzungen es nahelegen – oder warum sich alle Beiträge mit einer zusätzlichen Konstante auf Dutzende Stellen genau aufheben. Eine solche Feinabstimmung ist mathematisch erlaubt, aber unerklärt. Das ist das alte Problem der kosmologischen Konstante (Weinberg 1989).</p>' +
+            '<p>' + kind(OPEN) + ' Warum Λ trotzdem nicht null ist – und warum ihre Energiedichte gerade heute mit der der Materie vergleichbar ist, etwa 69 zu 31 Prozent (Planck 2018). Im ΛCDM-Modell überwog früher die Materie, künftig bestimmt Λ allein die Expansion. Dieses „Warum gerade jetzt?“ heißt Koinzidenzproblem.</p>' +
+            '<p>' + kind(OPEN) + ' Ob Λ wirklich konstant ist. DESI fand 2025 Hinweise, dass sich die Dunkle Energie mit der Zeit ändert – je nach Kombination der Daten mit 2,8 bis 4,2 σ. Für einen Nachweis reicht das noch nicht.</p>' +
+            '<h3 class="th-h3 th-deep">Woher das E⁴ kommt</h3>' +
+            '<p>' + kind(MATH) + ' Aus ħ, c und einer Energie ' + t(R`E_{\mathrm{c}}`) + ' lässt sich nur auf eine Weise eine Energiedichte bauen: ' + t(R`E_{\mathrm{c}}^{4}/(\hbar c)^{3}`) + ', eine Energie ' + t(R`E_{\mathrm{c}}`) + ' pro Würfel mit der Kantenlänge ' + t(R`\hbar c/E_{\mathrm{c}}`) + '. Die Dimensionsanalyse legt die Form fest, nur den Vorfaktor liefert die Rechnung. Für ein freies Feld trägt jede Mode die Energie ' + t(R`\tfrac{1}{2}\hbar c k`) + ', und die Zahl der Moden pro Volumen wächst wie ' + t('k^{3}') + ':</p>' +
+            d(R`u_{\mathrm{vac},1} = \int_0^{k_{\mathrm{c}}} \frac{4\pi k^{2}\,\mathrm{d}k}{(2\pi)^{3}}\,\frac{\hbar c k}{2} = \frac{E_{\mathrm{c}}^{4}}{16\pi^{2}\,(\hbar c)^{3}}`) +
+            '<p>Dabei ist ' + t(R`k_{\mathrm{c}} = E_{\mathrm{c}}/(\hbar c)`) + ' die größte mitgezählte Wellenzahl. Der Vorfaktor ' + t(R`1/(16\pi^{2}) \approx 1/158`) + ' nimmt gut zwei Größenordnungen weg – am Bild ändert das nichts.</p>' +
+            '<h3 class="th-h3">Was es entscheiden würde</h3>' +
+            '<p>Theoretisch: eine Rechnung, die erklärt, warum die Vakuumenergie der bekannten Felder nicht in dieser Größe gravitiert oder warum sich ihre Beiträge ohne Feinabstimmung aufheben – und die den beobachteten Wert von Λ ergibt. Ob dafür eine Theorie der Quantengravitation nötig ist, ist selbst offen.</p>' +
+            '<p>' + kind(MEAS) + ' Ob Λ konstant ist, entscheiden Beobachtungen: Eine kosmologische Konstante verlangt zu allen Zeiten Druck gleich minus Energiedichte. Die vollständigen DESI-Daten und weitere Durchmusterungen werden zeigen, ob die Hinweise von 2025 halten. Ein Nachweis veränderlicher Dunkler Energie löste das alte Problem allerdings nicht – warum die Vakuumenergie nicht riesig ist, bliebe offen.</p>' +
+            '<p>' + kind(MEAS) + ' Messbar ist auch die Länge ' + t(R`\hbar c/E_\Lambda \approx 0{,}09\,\mathrm{mm}`) + ': Im Labor gilt Newtons Gravitationsgesetz mit ' + t('1/r^{2}') + ' bis hinunter zu etwa 56 µm, also bis unter diese Länge – ohne Abweichung (Kapner u. a. 2007).</p>' +
+            '<h3 class="th-h3">Live in der App</h3>' +
+            '<p>Das Experiment hat zwei Regler: die Abschneide-Energie ' + t(R`E_{\mathrm{c}}`) + ' der Abschätzung und Λ selbst. Die Engine rechnet ' + t(R`u_\Lambda`) + ', ' + t(R`u_{\mathrm{vac}}`) + ', ihr Verhältnis und die Längen aus. Zwei Ansichten zeigen, was die Dimension mit den Größenordnungen macht:</p>' +
+            '<ul><li><b>Λ = 1/ℓ²</b> ' + kind(MATH) + ' oben Längen, unten Krümmungen 1/Länge² – an derselben Stelle. Aus ≈ 61 Größenordnungen zwischen ' + t(R`l_{\mathrm{P}}`) + ' und ' + t(R`\ell_\Lambda`) + ' werden ≈ 122 zwischen ' + t(R`1/l_{\mathrm{P}}^{2}`) + ' und Λ.</li>' +
+            '<li><b>Energiedichte ∝ E⁴</b> ' + kind(EST) + ' oben die Abschneide-Energie, unten die abgeschätzte Energiedichte: Eine Größenordnung in der Energie sind vier in der Energiedichte.</li></ul>' +
+            '<p>Die Presets reichen von der Planck-Energie über 1 TeV, die elektroschwache Skala und das Elektron bis zur Energieskala von Λ, bei der das Verhältnis 1 ist. Das letzte dreht die Frage um: Λ so groß, wie die Planck-Abschätzung es verlangen würde – dann wäre ' + t(R`\ell_\Lambda`) + ' kleiner als die Planck-Länge. „E_c pendeln lassen“ fährt die Abschneide-Energie zwischen der Energieskala von Λ und der Planck-Energie hin und her.</p>' +
+            '<p><a class="btn oq-live" href="#exp=lambda-vac">Zum Experiment: Λ = 1/ℓ² →</a> <a class="btn oq-live" href="#exp=lambda-vac&amp;vo=view:rho">Energiedichte ∝ E⁴ →</a></p>' + srcs('lambda-vac');
+        },
+        en: () => {
+          const MATH = 'mathematics', MEAS = 'measurement', OPEN = 'open', QFT = 'quantum field theory', EST = 'estimate';
+          return '<h3 class="th-h3">The question</h3>' +
+            '<p>In 1917 Einstein added an extra term to his field equations: ' + t(R`\Lambda\, g_{\mu\nu}`) + ' with the cosmological constant Λ.</p>' +
+            xq('rel-efe') +
+            '<p>Today Λ is the simplest explanation for the fact that the universe is expanding at an accelerating rate. Its value is tiny. Quantum field theory, however, says that empty space has energy too, and gravity feels every energy. Every obvious estimate of this vacuum energy lies many orders of magnitude above what Λ corresponds to. Why is Λ so small – and why is it not zero after all?</p>' +
+            '<h3 class="th-h3">What is established</h3>' +
+            '<p>' + kind(MEAS) + ' Since 1998, distant type Ia supernovae have shown that the expansion is accelerating (Riess et al. 1998, Perlmutter et al. 1999). The cosmic microwave background and baryon acoustic oscillations confirm this. In the standard model of cosmology, ΛCDM, it follows that ' + t(R`\Lambda \approx 1.1 \times 10^{-52}\,\mathrm{m}^{-2}`) + ' (Planck 2018) – a model-dependent value.</p>' +
+            '<div class="oq-dim"><p><b>Λ is a curvature.</b> ' + kind(MATH) + ' In the field equations, ' + t(R`\Lambda\, g_{\mu\nu}`) + ' stands next to ' + t(R`G_{\mu\nu}`) + '. The Einstein tensor is built from second derivatives of the metric and has the dimension 1/length²; the metric itself is dimensionless. So Λ has the dimension of a curvature – it is the curvature spacetime would have even without any matter.</p>' +
+            '<p>Every curvature is “one over length squared”: a sphere of radius ' + t('r') + ' has the curvature ' + t('1/r^{2}') + '. That is why Λ comes with a length:</p>' +
+            d(R`\ell_\Lambda = \frac{1}{\sqrt{\Lambda}}`) +
+            '<p>That is ' + t(R`9.5 \times 10^{25}\,\mathrm{m}`) + ', around 10 billion light years – comparable to the Hubble radius ' + t(R`c/H_0`) + ' of about 14 billion light years. If spacetime contained only Λ, its horizon would lie at ' + t(R`\sqrt{3/\Lambda}`) + ', about 17 billion light years.</p>' +
+            '<p>Because Λ is an inverse area, in Planck units it becomes a pure number – the ratio of two areas:</p>' +
+            d(R`\Lambda\, l_{\mathrm{P}}^{2} = \left(\frac{l_{\mathrm{P}}}{\ell_\Lambda}\right)^{2}`) +
+            '<p>61 orders of magnitude separate the two lengths. Λ goes with length to the power of minus two – so 122 orders of magnitude separate Λ from the Planck curvature ' + t(R`1/l_{\mathrm{P}}^{2}`) + ': ' + t(R`\Lambda\, l_{\mathrm{P}}^{2} \approx 3 \times 10^{-122}`) + '. That is the famous small number.</p>' +
+            '<p>Read on the right-hand side of the equals sign, the Λ term is an energy density of empty space, the same everywhere and the same for every observer:</p>' +
+            d(R`u_\Lambda = \frac{\Lambda\, c^{4}}{8\pi G}`) +
+            '<p>That is ' + t(R`5.3 \times 10^{-10}\,\mathrm{J/m^{3}}`) + ' – as much as the rest energy of three and a half protons per cubic metre. Its pressure is minus its energy density; that is why it accelerates the expansion instead of slowing it down.</p>' +
+            '<p>In natural units (' + t(R`\hbar = c = 1`) + '), an energy density is an energy to the fourth power. So ' + t(R`u_\Lambda`) + ' comes with the energy ' + t(R`E_\Lambda = \left(u_\Lambda\, (\hbar c)^{3}\right)^{1/4} \approx 2.2\,\mathrm{meV}`) + ' and the length ' + t(R`\hbar c/E_\Lambda \approx 0.09\,\mathrm{mm}`) + ' – about the thickness of a hair. On a logarithmic scale it lies almost exactly halfway between the Planck length and ' + t(R`\ell_\Lambda`) + ':</p>' +
+            d(R`\frac{\hbar c}{E_\Lambda} = (8\pi)^{1/4} \sqrt{l_{\mathrm{P}}\, \ell_\Lambda}`) +
+            '<p>So how many orders of magnitude “the” gap has depends on the dimension in which you compare:</p>' +
+            '<div class="th-scroll"><table class="t th-cmp"><thead><tr><th>Comparison</th><th>Dimension</th><th>Orders of magnitude</th></tr></thead><tbody>' +
+            '<tr><td>' + t(R`\ell_\Lambda / l_{\mathrm{P}}`) + '</td><td>length</td><td>≈ 60.8</td></tr>' +
+            '<tr><td>' + t(R`1/(\Lambda\, l_{\mathrm{P}}^{2})`) + '</td><td>curvature, 1/length²</td><td>≈ 121.5</td></tr>' +
+            '<tr><td>' + t(R`E_{\mathrm{P}} / E_\Lambda`) + '</td><td>energy</td><td>≈ 30.7</td></tr>' +
+            '<tr><td>' + t(R`u_{\mathrm{vac}}(E_{\mathrm{P}}) / u_\Lambda`) + '</td><td>energy density, energy⁴/(ħc)³</td><td>≈ 122.9</td></tr>' +
+            '</tbody></table></div>' +
+            '<p>Length and curvature are linked by the exponent 2, energy and energy density by the exponent 4. The two pairs are connected through ' + t(R`u_\Lambda = \Lambda c^{4}/(8\pi G)`) + ': 122.9 = 121.5 + lg 8π.</p></div>' +
+            '<p>' + kind(QFT) + ' Without gravity, only energy differences count in quantum field theory; the zero of energy can be chosen freely. Gravity, by contrast, feels every energy, including that of the vacuum. An energy density of empty space that looks the same to every observer has exactly the form of the Λ term – it acts like a contribution to Λ. Zero-point fluctuations are not a trick of the calculation: the Lamb shift and the Casimir effect are connected with them. What is measured there, however, are energy differences, not the energy density of the vacuum itself.</p>' +
+            '<p>' + kind(EST) + ' If you count the zero-point energies ' + t(R`\tfrac{1}{2}\hbar\omega`) + ' of all field modes up to a cutoff energy ' + t(R`E_{\mathrm{c}}`) + ', the sum grows like ' + t(R`E_{\mathrm{c}}^{4}`) + ':</p>' +
+            d(R`u_{\mathrm{vac}} \sim \frac{E_{\mathrm{c}}^{4}}{(\hbar c)^{3}}`) +
+            '<p>' + kind(MATH) + ' At the Planck energy, the ratio depends only on the small number from above:</p>' +
+            d(R`\frac{u_{\mathrm{vac}}(E_{\mathrm{P}})}{u_\Lambda} = \frac{8\pi}{\Lambda\, l_{\mathrm{P}}^{2}}`) +
+            '<p>That is about ' + t(R`10^{123}`) + ', and with the prefactor ' + t(R`1/(16\pi^{2})`) + ' of a single free field about ' + t(R`10^{121}`) + ' – hence the often-quoted “120 orders of magnitude”. At 1 TeV about ' + t(R`10^{59}`) + ' remain, at the electron ' + t(R`10^{33}`) + ' – with physics that is well tested.</p>' +
+            '<div class="honest"><b>Perspective:</b> the 120 orders of magnitude are not a prediction of quantum field theory. A hard cutoff singles out a frame of reference and violates Lorentz invariance; the energy counted this way behaves like radiation, not like Λ. A Lorentz-invariant calculation gives a vacuum energy of the order of ' + t(R`(100\,\mathrm{GeV})^{4}`) + ' for the known particles, around 55 orders of magnitude above ' + t(R`u_\Lambda`) + ' (Martin 2012). The jump in vacuum energy that the Standard Model predicts for the electroweak transition in the early universe is of a similar size. The problem becomes smaller, but it does not go away.</div>' +
+            '<h3 class="th-h3">What remains open</h3>' +
+            '<p>' + kind(OPEN) + ' Why the vacuum energy does not gravitate the way the estimates suggest – or why all contributions cancel against an additional constant to dozens of digits. Such fine-tuning is mathematically allowed, but unexplained. This is the old cosmological constant problem (Weinberg 1989).</p>' +
+            '<p>' + kind(OPEN) + ' Why Λ is not zero after all – and why its energy density is comparable to that of matter just now, about 69 to 31 per cent (Planck 2018). In the ΛCDM model matter dominated earlier; in the future Λ alone will determine the expansion. This “why just now?” is called the coincidence problem.</p>' +
+            '<p>' + kind(OPEN) + ' Whether Λ is really constant. In 2025 DESI found hints that dark energy changes over time – at 2.8 to 4.2 σ, depending on how the data are combined. That is not yet enough for a detection.</p>' +
+            '<h3 class="th-h3 th-deep">Where the E⁴ comes from</h3>' +
+            '<p>' + kind(MATH) + ' From ħ, c and an energy ' + t(R`E_{\mathrm{c}}`) + ' you can build an energy density in only one way: ' + t(R`E_{\mathrm{c}}^{4}/(\hbar c)^{3}`) + ', one energy ' + t(R`E_{\mathrm{c}}`) + ' per cube with the edge length ' + t(R`\hbar c/E_{\mathrm{c}}`) + '. Dimensional analysis fixes the form; only the prefactor needs the calculation. For a free field, each mode carries the energy ' + t(R`\tfrac{1}{2}\hbar c k`) + ', and the number of modes per volume grows like ' + t('k^{3}') + ':</p>' +
+            d(R`u_{\mathrm{vac},1} = \int_0^{k_{\mathrm{c}}} \frac{4\pi k^{2}\,\mathrm{d}k}{(2\pi)^{3}}\,\frac{\hbar c k}{2} = \frac{E_{\mathrm{c}}^{4}}{16\pi^{2}\,(\hbar c)^{3}}`) +
+            '<p>Here ' + t(R`k_{\mathrm{c}} = E_{\mathrm{c}}/(\hbar c)`) + ' is the largest wave number counted. The prefactor ' + t(R`1/(16\pi^{2}) \approx 1/158`) + ' takes away a little over two orders of magnitude – it does not change the picture.</p>' +
+            '<h3 class="th-h3">What would settle it</h3>' +
+            '<p>Theoretically: a calculation that explains why the vacuum energy of the known fields does not gravitate at this size, or why its contributions cancel without fine-tuning – and that gives the observed value of Λ. Whether this requires a theory of quantum gravity is itself open.</p>' +
+            '<p>' + kind(MEAS) + ' Whether Λ is constant will be decided by observations: a cosmological constant requires pressure equal to minus the energy density at all times. The full DESI data and further surveys will show whether the hints from 2025 hold up. A detection of time-varying dark energy would not solve the old problem, though – why the vacuum energy is not huge would remain open.</p>' +
+            '<p>' + kind(MEAS) + ' The length ' + t(R`\hbar c/E_\Lambda \approx 0.09\,\mathrm{mm}`) + ' can be probed as well: in the laboratory, Newton’s law of gravitation with ' + t('1/r^{2}') + ' holds down to about 56 µm, i.e. below this length – with no deviation (Kapner et al. 2007).</p>' +
+            '<h3 class="th-h3">Live in the app</h3>' +
+            '<p>The experiment has two sliders: the cutoff energy ' + t(R`E_{\mathrm{c}}`) + ' of the estimate and Λ itself. The engine calculates ' + t(R`u_\Lambda`) + ', ' + t(R`u_{\mathrm{vac}}`) + ', their ratio and the lengths. Two views show what the dimension does to the orders of magnitude:</p>' +
+            '<ul><li><b>Λ = 1/ℓ²</b> ' + kind(MATH) + ' lengths on top, curvatures 1/length² below – at the same place. ≈ 61 orders of magnitude between ' + t(R`l_{\mathrm{P}}`) + ' and ' + t(R`\ell_\Lambda`) + ' become ≈ 122 between ' + t(R`1/l_{\mathrm{P}}^{2}`) + ' and Λ.</li>' +
+            '<li><b>Energy density ∝ E⁴</b> ' + kind(EST) + ' the cutoff energy on top, the estimated energy density below: one order of magnitude in energy is four in energy density.</li></ul>' +
+            '<p>The presets range from the Planck energy via 1 TeV, the electroweak scale and the electron down to the energy scale of Λ, where the ratio is 1. The last one turns the question around: Λ as large as the Planck estimate would require – then ' + t(R`\ell_\Lambda`) + ' would be smaller than the Planck length. “Oscillate E_c” moves the cutoff energy back and forth between the energy scale of Λ and the Planck energy.</p>' +
+            '<p><a class="btn oq-live" href="#exp=lambda-vac">To the experiment: Λ = 1/ℓ² →</a> <a class="btn oq-live" href="#exp=lambda-vac&amp;vo=view:rho">Energy density ∝ E⁴ →</a></p>' + srcs('lambda-vac');
+        },
+      },
+    },
+    /* ------------------------------------------------------------ */
+    {
       id: 'info', status: 'open', exp: 'bh-page', title: { de: 'Geht Information verloren?', en: 'Is information lost?' },
       body: {
         de: () => {
@@ -172,6 +286,7 @@
   const TITLE = () => T('Offene Fragen', 'Open questions');
   const META = I.localize({
     quarter: { short: { de: 'Warum genau 1/4?', en: 'Why exactly 1/4?' }, teaser: { de: 'Der Vorfaktor der Entropie Schwarzer Löcher ist festgelegt – was sie zählt, ist offen.', en: 'The prefactor of black hole entropy is fixed – what it counts is open.' } },
+    lambda: { short: { de: 'Warum ist Λ so klein?', en: 'Why is Λ so small?' }, teaser: { de: 'Λ ist eine Krümmung, 1/Länge². In Planck-Einheiten ist sie 10⁻¹²² – weit kleiner als jede Abschätzung der Vakuumenergie.', en: 'Λ is a curvature, 1/length². In Planck units it is 10⁻¹²² – far smaller than any estimate of the vacuum energy.' } },
     info: { short: { de: 'Geht Information verloren?', en: 'Is information lost?' }, teaser: { de: 'Ein Schwarzes Loch verdampft. Steckt die Information über seinen Anfang am Ende in der Strahlung?', en: 'A black hole evaporates. Does the information about its beginning end up in the radiation?' } },
   });
   const meta = (q) => META[q.id] || { short: q.title, teaser: '' };
@@ -197,11 +312,11 @@
       '<p>Hier geht es um die Stellen, an denen die Allgemeine Relativitätstheorie und die Quantentheorie an ihre Grenzen kommen oder wichtige Fragen offenlassen. Jede Seite trennt drei Dinge: was gesichert ist, was offen bleibt und was die Frage entscheiden würde. Was ungelöst ist, heißt hier „offen“ – spekulative Antworten gibt es nicht. Die Zahlen kommen aus derselben Engine wie überall in der App.</p>',
       '<p>This is about the places where general relativity and quantum theory reach their limits or leave important questions unanswered. Every page separates three things: what is established, what remains open and what would settle the question. Whatever is unresolved is called “open” here – there are no speculative answers. The numbers come from the same engine as everywhere else in the app.</p>') +
       '<ul class="oq-legend">' + ['open', 'partial', 'semi'].map((k) => '<li>' + chip(k) + esc(STATUS[k].text) + '</li>').join('') + '</ul>' +
-      '<p class="faint">' + T('Der Status beschreibt die Frage als Ganzes. Die Etiketten im Text – Mathematik, semiklassisch, Messung, offen – kennzeichnen einzelne Aussagen.',
-        'The status describes the question as a whole. The labels in the text – mathematics, semiclassical, measurement, open – mark individual statements.') + '</p></div>';
+      '<p class="faint">' + T('Der Status beschreibt die Frage als Ganzes. Die Etiketten im Text – Mathematik, semiklassisch, Abschätzung, Messung, offen – kennzeichnen einzelne Aussagen.',
+        'The status describes the question as a whole. The labels in the text – mathematics, semiclassical, estimate, measurement, open – mark individual statements.') + '</p></div>';
     h += '<div class="th-cards">' + QUESTIONS.map((q, i) => '<a class="th-card" href="' + href(q.id) + '"><span class="th-card-n">' + (i + 1) + '</span><div><h3>' + esc(q.title) + '</h3><p>' + esc(meta(q).teaser) + '</p>' + chip(q.status) + '</div></a>').join('') + '</div>';
-    h += '<p class="oq-next">' + T('In Vorbereitung: die kosmologische Konstante, das Messproblem und die Anforderungen an eine Quantengravitation.',
-      'In preparation: the cosmological constant, the measurement problem and the requirements for quantum gravity.') + '</p>';
+    h += '<p class="oq-next">' + T('In Vorbereitung: das Messproblem und die Anforderungen an eine Quantengravitation.',
+      'In preparation: the measurement problem and the requirements for quantum gravity.') + '</p>';
     el.innerHTML = h;
   }
 

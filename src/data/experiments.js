@@ -891,7 +891,122 @@
     },
   });
 
-  /* Frage 2 „Geht Information verloren?“ (src/ui/open.js): Verdampfung im Zeitraffer und Page-Kurve.
+  /* Frage 2 „Warum ist Λ so klein?“ (src/ui/open.js): Λ als Länge und als Energiedichte.
+     Λ hat die Dimension L⁻²: ℓ_Λ = 1/√Λ ist eine Länge, Λ l_P² eine reine Zahl. Als Energiedichte gelesen ist
+     u_Λ = Λc⁴/(8πG). u_vac ~ E_c⁴/(ħc)³ ist die grobe Abschätzung der Nullpunktenergie bis zur Abschneide-Energie E_c,
+     ohne Vorfaktor (ein freies Feld mit hartem Impuls-Cutoff: E_c⁴/(16π²(ħc)³)). Bei E_c = E_P ist
+     u_vac/u_Λ = 8π/(Λ l_P²) ≈ 10¹²³ – die Engine rechnet beides getrennt aus. */
+  const LAM = C.Lambda.value, EV = C.eV.value;
+  const E_P = Math.sqrt(C.hbar.value * Math.pow(C.c.value, 5) / C.G.value);   // Reglergrenze und Preset
+  // Energieskala von Λ, (u_Λ (ħc)³)^¼ – nur für das Preset; im Experiment rechnet die Engine sie aus (EL)
+  const E_L = Math.pow(LAM * Math.pow(C.c.value, 4) / (8 * Math.PI * C.G.value) * Math.pow(C.hbar.value * C.c.value, 3), 0.25);
+  const LY = { de: 'Lichtjahr = c · 365,25 Tage', en: 'light year = c · 365.25 days' };
+  define({
+    id: 'lambda-vac', group: OPEN_Q, field: 'open', title: { de: 'Kosmologische Konstante und Vakuumenergie', en: 'Cosmological constant and vacuum energy' }, short: { de: 'Λ und Vakuumenergie', en: 'Λ and vacuum energy' },
+    subtitle: { de: 'Λ ist eine Krümmung mit der Dimension 1/Länge². Als Energiedichte gelesen ist sie winzig – verglichen mit jeder Abschätzung der Vakuumenergie.', en: 'Λ is a curvature with the dimension 1/length². Read as an energy density it is tiny – compared with any estimate of the vacuum energy.' },
+    tex: 'u_\\Lambda = \\frac{\\Lambda\\, c^4}{8\\pi\\, G} \\qquad u_{\\mathrm{vac}} \\sim \\frac{E_{\\mathrm{c}}^4}{(\\hbar c)^3}',
+    meta: { mathType: SCALAR, mainDim: { de: 'dimensionslos (Verhältnis); Λ: 1/Länge²', en: 'dimensionless (ratio); Λ: 1/length²' }, domain: { de: 'Kosmologie und Quantenfeldtheorie', en: 'Cosmology and quantum field theory' }, status: { de: 'Λ aus Beobachtungen (ΛCDM); u_vac ist eine grobe Abschätzung, keine Vorhersage', en: 'Λ from observations (ΛCDM); u_vac is a rough estimate, not a prediction' } },
+    vars: {
+      Ec: { label: 'E_c', tex: 'E_{\\mathrm{c}}', name: { de: 'Abschneide-Energie: bis hierhin werden Nullpunktenergien gezählt', en: 'Cutoff energy: zero-point energies are counted up to here' }, dim: 'M L^2 T^-2', default: E_P, min: 1e-23, max: E_P, scale: 'log', positive: true,
+        negNote: { de: 'Eine Abschneide-Energie ist positiv.', en: 'A cutoff energy is positive.' } },
+      Lambda: { label: 'Λ', tex: '\\Lambda', name: { de: 'Kosmologische Konstante', en: 'Cosmological constant' }, dim: 'L^-2', constant: 'Lambda', min: 1e-60, max: 1e71, scale: 'log', positive: true,
+        negNote: { de: 'Beobachtet ist ein positives Λ. Λ < 0 ist mathematisch möglich, ergäbe aber keine beschleunigte Expansion, und ℓ_Λ = 1/√Λ wäre nicht reell.', en: 'A positive Λ is observed. Λ < 0 is mathematically possible but would give no accelerating expansion, and ℓ_Λ = 1/√Λ would not be real.' } },
+    },
+    // E_c durchläuft beim Pendeln alles zwischen der Energieskala von Λ und (knapp) der Planck-Energie
+    sweep: { key: 'Ec', center: Math.sqrt(E_L * 0.999 * E_P), span: Math.sqrt(0.999 * E_P / E_L), period: 10, label: { de: 'E_c pendeln lassen', en: 'Oscillate E_c' } },
+    outputs: [
+      { key: 'uL', sym: 'u_Λ', tex: 'u_\\Lambda', name: { de: 'Energiedichte, die Λ entspricht (Λc⁴/8πG)', en: 'Energy density corresponding to Λ (Λc⁴/8πG)' }, expr: 'Lambda*c^4/(8*pi*G)', dim: 'M L^-1 T^-2' },
+      { key: 'np', sym: 'u_Λ/(m_p c²)', tex: 'u_\\Lambda/(m_{\\mathrm{p}} c^2)', name: { de: 'Als Ruheenergie: so viele Protonenmassen pro Kubikmeter', en: 'As rest energy: this many proton masses per cubic metre' }, expr: 'uL/(m_p*c^2)', dim: 'L^-3' },
+      { key: 'uV', sym: 'u_vac', tex: 'u_{\\mathrm{vac}}', name: { de: 'Abgeschätzte Vakuumenergiedichte bis E_c', en: 'Estimated vacuum energy density up to E_c' }, expr: 'Ec^4/(hbar*c)^3', dim: 'M L^-1 T^-2',
+        note: { de: 'Größenordnung ohne Vorfaktor – keine Vorhersage der Quantenfeldtheorie', en: 'order of magnitude without a prefactor – not a prediction of quantum field theory' } },
+      { key: 'uV1', sym: 'u_vac,1', tex: 'u_{\\mathrm{vac},1}', name: { de: 'Ein freies Feld mit hartem Impuls-Cutoff: E_c⁴/(16π²(ħc)³)', en: 'One free field with a hard momentum cutoff: E_c⁴/(16π²(ħc)³)' }, expr: 'uV/(16*pi^2)', dim: 'M L^-1 T^-2', aux: true },
+      { key: 'R', sym: 'u_vac/u_Λ', tex: 'u_{\\mathrm{vac}}/u_\\Lambda', name: { de: 'Abschätzung geteilt durch Beobachtung', en: 'Estimate divided by observation' }, expr: 'uV/uL', dim: '', primary: true },
+      { key: 'lgR', sym: 'lg(u_vac/u_Λ)', tex: '\\lg(u_{\\mathrm{vac}}/u_\\Lambda)', name: { de: 'Größenordnungen zwischen Abschätzung und Beobachtung', en: 'Orders of magnitude between estimate and observation' }, expr: 'log10(R)', dim: '' },
+      { key: 'lgR1', sym: 'lg(u_vac,1/u_Λ)', tex: '\\lg(u_{\\mathrm{vac},1}/u_\\Lambda)', name: { de: 'Dasselbe für ein freies Feld mit dem Vorfaktor 1/(16π²)', en: 'The same for one free field with the prefactor 1/(16π²)' }, expr: 'log10(uV1/uL)', dim: '' },
+      { key: 'EL', sym: 'E_Λ', tex: 'E_\\Lambda', name: { de: 'Energieskala von Λ: (u_Λ (ħc)³)^¼', en: 'Energy scale of Λ: (u_Λ (ħc)³)^¼' }, expr: '(uL*(hbar*c)^3)^(1/4)', dim: 'M L^2 T^-2', aux: true },
+      { key: 'ELmeV', sym: 'E_Λ / meV', tex: 'E_\\Lambda/\\mathrm{meV}', name: { de: 'Energieskala von Λ in Millielektronvolt', en: 'Energy scale of Λ in millielectronvolts' }, expr: 'EL/(0.001*eV)', dim: '' },
+      { key: 'ELeV', sym: 'E_Λ / eV', tex: 'E_\\Lambda/\\mathrm{eV}', name: { de: 'Energieskala von Λ in Elektronvolt', en: 'Energy scale of Λ in electronvolts' }, expr: 'EL/eV', dim: '', aux: true },
+      { key: 'EPl', sym: 'E_P', tex: 'E_{\\mathrm{P}}', name: { de: 'Planck-Energie', en: 'Planck energy' }, expr: 'sqrt(hbar*c^5/G)', dim: 'M L^2 T^-2', aux: true },
+      { key: 'EPeV', sym: 'E_P / eV', tex: 'E_{\\mathrm{P}}/\\mathrm{eV}', name: { de: 'Planck-Energie in Elektronvolt', en: 'Planck energy in electronvolts' }, expr: 'EPl/eV', dim: '', aux: true },
+      { key: 'EcP', sym: 'E_c/E_P', tex: 'E_{\\mathrm{c}}/E_{\\mathrm{P}}', name: { de: 'Abschneide-Energie in Einheiten der Planck-Energie', en: 'Cutoff energy in units of the Planck energy' }, expr: 'Ec/EPl', dim: '', aux: true },
+      { key: 'EceV', sym: 'E_c / eV', tex: 'E_{\\mathrm{c}}/\\mathrm{eV}', name: { de: 'Abschneide-Energie in Elektronvolt', en: 'Cutoff energy in electronvolts' }, expr: 'Ec/eV', dim: '' },
+      { key: 'nE', sym: 'lg(E_c/E_Λ)', tex: '\\lg(E_{\\mathrm{c}}/E_\\Lambda)', name: { de: 'Größenordnungen in der Energie: E_c gegen E_Λ', en: 'Orders of magnitude in energy: E_c against E_Λ' }, expr: 'log10(Ec/EL)', dim: '', aux: true },
+      { key: 'lP', sym: 'l_P', tex: 'l_{\\mathrm{P}}', name: { de: 'Planck-Länge', en: 'Planck length' }, expr: 'sqrt(hbar*G/c^3)', dim: 'L', aux: true },
+      { key: 'KP', sym: '1/l_P²', tex: '1/l_{\\mathrm{P}}^2', name: { de: 'Krümmung auf der Planck-Skala, 1/l_P²', en: 'Curvature at the Planck scale, 1/l_P²' }, expr: '1/lP^2', dim: 'L^-2', aux: true },
+      { key: 'lc', sym: 'λ_c', tex: '\\lambda_{\\mathrm{c}}', name: { de: 'Abschneide-Länge ħc/E_c', en: 'Cutoff length ħc/E_c' }, expr: 'hbar*c/Ec', dim: 'L', aux: true },
+      { key: 'lamL', sym: 'λ_Λ', tex: '\\lambda_\\Lambda', name: { de: 'Länge der Energieskala von Λ, ħc/E_Λ', en: 'Length of the energy scale of Λ, ħc/E_Λ' }, expr: 'hbar*c/EL', dim: 'L', aux: true },
+      { key: 'lL', sym: 'ℓ_Λ', tex: '\\ell_\\Lambda', name: { de: 'Länge zu Λ: 1/√Λ', en: 'Length belonging to Λ: 1/√Λ' }, expr: '1/sqrt(Lambda)', dim: 'L' },
+      { key: 'lLly', sym: { de: 'ℓ_Λ / Lichtjahr', en: 'ℓ_Λ / light year' }, tex: '\\ell_\\Lambda/\\mathrm{ly}', name: { de: 'ℓ_Λ in Lichtjahren', en: 'ℓ_Λ in light years' }, expr: 'lL/(c*31557600)', dim: '', noEq: true, note: LY },
+      { key: 'rdS', sym: 'r_dS', tex: 'r_{\\mathrm{dS}}', name: { de: 'Horizontradius einer Raumzeit, die nur Λ enthält: √(3/Λ)', en: 'Horizon radius of a spacetime containing only Λ: √(3/Λ)' }, expr: 'sqrt(3/Lambda)', dim: 'L', aux: true },
+      { key: 'rdSly', sym: { de: 'r_dS / Lichtjahr', en: 'r_dS / light year' }, tex: 'r_{\\mathrm{dS}}/\\mathrm{ly}', name: { de: 'r_dS in Lichtjahren', en: 'r_dS in light years' }, expr: 'rdS/(c*31557600)', dim: '', noEq: true, aux: true },
+      { key: 'LlP2', sym: 'Λ l_P²', tex: '\\Lambda\\, l_{\\mathrm{P}}^2', name: { de: 'Λ in Planck-Einheiten – eine reine Zahl', en: 'Λ in Planck units – a pure number' }, expr: 'Lambda*lP^2', dim: '' },
+      { key: 'nl', sym: 'lg(ℓ_Λ/l_P)', tex: '\\lg(\\ell_\\Lambda/l_{\\mathrm{P}})', name: { de: 'Größenordnungen in der Länge: ℓ_Λ gegen l_P', en: 'Orders of magnitude in length: ℓ_Λ against l_P' }, expr: 'log10(lL/lP)', dim: '', aux: true },
+      { key: 'lgLl', sym: 'lg(Λ l_P²)', tex: '\\lg(\\Lambda\\, l_{\\mathrm{P}}^2)', name: { de: 'Größenordnungen in der Krümmung: Λ gegen 1/l_P²', en: 'Orders of magnitude in curvature: Λ against 1/l_P²' }, expr: 'log10(LlP2)', dim: '', aux: true },
+      { key: 'RP', sym: '8π/(Λ l_P²)', tex: '8\\pi/(\\Lambda\\, l_{\\mathrm{P}}^2)', name: { de: 'u_vac/u_Λ bei E_c = E_P, nur aus Λ und l_P', en: 'u_vac/u_Λ at E_c = E_P, from Λ and l_P alone' }, expr: '8*pi/LlP2', dim: '' },
+    ],
+    equations: [
+      { label: { de: 'Energiedichte zu Λ', en: 'Energy density belonging to Λ' }, eq: 'uL = Lambda*c^4/(8*pi*G)' },
+      { label: { de: 'Abschätzung der Vakuumenergie bis E_c (ohne Vorfaktor)', en: 'Estimate of the vacuum energy up to E_c (without a prefactor)' }, eq: 'uV = Ec^4/(hbar*c)^3' },
+      { label: { de: 'Ein freies Feld mit hartem Impuls-Cutoff', en: 'One free field with a hard momentum cutoff' }, eq: 'uV1 = Ec^4/(16*pi^2*(hbar*c)^3)' },
+      { label: { de: 'Abschätzung geteilt durch Beobachtung', en: 'Estimate divided by observation' }, eq: 'R = uV/uL' },
+      { label: { de: 'Λ als Länge: Krümmung ist 1/Länge²', en: 'Λ as a length: curvature is 1/length²' }, eq: 'lL = 1/sqrt(Lambda)' },
+      { label: { de: 'Planck-Länge', en: 'Planck length' }, eq: 'lP = sqrt(hbar*G/c^3)' },
+      { label: { de: 'Λ in Planck-Einheiten – dimensionslos', en: 'Λ in Planck units – dimensionless' }, eq: 'LlP2 = Lambda*lP^2' },
+      { label: { de: 'Bei E_c = E_P hängt das Verhältnis nur an Λ l_P²', en: 'At E_c = E_P the ratio depends only on Λ l_P²' }, eq: 'RP = 8*pi/(Lambda*lP^2)' },
+      { label: { de: 'Energieskala von Λ', en: 'Energy scale of Λ' }, eq: 'EL = (uL*(hbar*c)^3)^(1/4)' },
+    ],
+    checks({ o, issues, fmt }) {
+      const lg = o('lgR');
+      if (isFinite(lg)) {
+        if (Math.abs(lg) < 0.05) issues.push({ cat: 'info', msg: T('u_vac ≈ u_Λ: Mit E_c ≈ ' + fmt(o('ELmeV'), 3) + ' meV passt die Abschätzung zur Beobachtung. Dafür muss sie alle Beiträge oberhalb weniger meV weglassen – schon den des Elektrons (511 keV).', 'u_vac ≈ u_Λ: with E_c ≈ ' + fmt(o('ELmeV'), 3) + ' meV the estimate matches the observation. For that it has to leave out every contribution above a few meV – even that of the electron (511 keV).') });
+        else if (lg > 0) issues.push({ cat: 'info', msg: T('Die Abschätzung liegt ' + fmt(lg, 4) + ' Größenordnungen über der Energiedichte, die Λ entspricht.', 'The estimate lies ' + fmt(lg, 4) + ' orders of magnitude above the energy density corresponding to Λ.') });
+        else issues.push({ cat: 'info', msg: T('Die Abschätzung liegt ' + fmt(-lg, 4) + ' Größenordnungen unter der Energiedichte, die Λ entspricht.', 'The estimate lies ' + fmt(-lg, 4) + ' orders of magnitude below the energy density corresponding to Λ.') });
+      }
+      if (o('EcP') > 1 + 1e-9) issues.push({ cat: 'model', why: T('oberhalb der Planck-Energie', 'above the Planck energy'), on: ['uV', 'R', 'lgR', 'lgR1'], msg: T('Oberhalb der Planck-Energie fehlt der Abschätzung jede Grundlage: Quantenfelder auf einer festen Raumzeit sind dort kein verlässliches Modell mehr.', 'Above the Planck energy the estimate has no basis at all: quantum fields on a fixed spacetime are no longer a reliable model there.') });
+      issues.push({ cat: 'assume', msg: T('Die Abschneide-Energie E_c ist eine Annahme: Beiträge oberhalb von E_c werden einfach weggelassen.', 'The cutoff energy E_c is an assumption: contributions above E_c are simply left out.') });
+      issues.push({ cat: 'assume', msg: T('u_vac ~ E_c⁴/(ħc)³ ist eine Abschätzung ohne Vorfaktor. Ein freies Feld mit hartem Impuls-Cutoff ergibt E_c⁴/(16π²(ħc)³), gut zwei Größenordnungen weniger. Ein harter Cutoff verletzt die Lorentz-Invarianz; eine Lorentz-invariante Rechnung liefert für die bekannten Teilchen deutlich weniger – aber immer noch viel zu viel (Martin 2012).',
+        'u_vac ~ E_c⁴/(ħc)³ is an estimate without a prefactor. One free field with a hard momentum cutoff gives E_c⁴/(16π²(ħc)³), a little over two orders of magnitude less. A hard cutoff violates Lorentz invariance; a Lorentz-invariant calculation for the known particles gives much less – but still far too much (Martin 2012).') });
+      issues.push({ cat: 'assume', msg: T('Λ ≈ 1,1 × 10⁻⁵² m⁻² (Planck 2018) ist im ΛCDM-Modell abgeleitet und damit modellabhängig.', 'Λ ≈ 1.1 × 10⁻⁵² m⁻² (Planck 2018) is inferred within the ΛCDM model and is therefore model-dependent.') });
+    },
+    presets: [
+      { name: { de: 'Planck-Energie', en: 'Planck energy' }, note: { de: 'E_c = E_P ≈ 1,2 × 10¹⁹ GeV: u_vac/u_Λ = 8π/(Λ l_P²) ≈ 10¹²³', en: 'E_c = E_P ≈ 1.2 × 10¹⁹ GeV: u_vac/u_Λ = 8π/(Λ l_P²) ≈ 10¹²³' }, values: { Ec: E_P, Lambda: LAM } },
+      { name: '1 TeV', note: { de: 'Größenordnung der Energien am LHC: ≈ 10⁵⁹', en: 'the order of the energies at the LHC: ≈ 10⁵⁹' }, values: { Ec: 1e12 * EV, Lambda: LAM } },
+      { name: { de: 'Elektroschwache Skala (100 GeV)', en: 'Electroweak scale (100 GeV)' }, note: { de: 'Massen von W, Z, Higgs und Top-Quark: ≈ 10⁵⁵ – etwa so viel liefert auch die Lorentz-invariante Rechnung mit den bekannten Teilchen (Martin 2012)', en: 'masses of the W, Z, Higgs and top quark: ≈ 10⁵⁵ – about what the Lorentz-invariant calculation with the known particles gives as well (Martin 2012)' }, values: { Ec: 1e11 * EV, Lambda: LAM } },
+      { name: { de: 'Elektron (511 keV)', en: 'Electron (511 keV)' }, note: { de: 'E_c = m_e c²: schon ≈ 10³³ – mit gut getesteter Physik', en: 'E_c = m_e c²: already ≈ 10³³ – with well-tested physics' }, values: { Ec: C.m_e.value * C.c.value ** 2, Lambda: LAM } },
+      { name: { de: 'Energieskala von Λ (≈ 2 meV)', en: 'Energy scale of Λ (≈ 2 meV)' }, note: { de: 'E_c = E_Λ: u_vac = u_Λ, Verhältnis 1', en: 'E_c = E_Λ: u_vac = u_Λ, ratio 1' }, values: { Ec: E_L, Lambda: LAM } },
+      { name: { de: 'Λ so groß wie die Planck-Abschätzung', en: 'Λ as large as the Planck estimate' }, note: { de: 'Λ = 8π/l_P² ≈ 10⁷¹ m⁻²: Verhältnis 1 bei E_c = E_P – aber ℓ_Λ ≈ 3 × 10⁻³⁶ m. Nicht unser Universum.', en: 'Λ = 8π/l_P² ≈ 10⁷¹ m⁻²: ratio 1 at E_c = E_P – but ℓ_Λ ≈ 3 × 10⁻³⁶ m. Not our universe.' }, values: { Ec: E_P, Lambda: 8 * Math.PI * Math.pow(C.c.value, 3) / (C.hbar.value * C.G.value) } },
+    ],
+    graph: { x: 'Ec', y: 'R', xlog: true, ylog: true, refs: [{ y: 'R', value: 1, label: { de: 'u_vac = u_Λ', en: 'u_vac = u_Λ' } }] },
+    viz: 'vacuum',
+    vizControls: [{ key: 'view', label: { de: 'Ansicht', en: 'View' }, options: [
+      { v: 'len', label: 'Λ = 1/ℓ²' }, { v: 'rho', label: { de: 'Energiedichte ∝ E⁴', en: 'Energy density ∝ E⁴' } },
+    ] }],
+    explain: {
+      intuition: {
+        de: 'Λ steht in Einsteins Feldgleichungen neben der Krümmung und hat dieselbe Dimension: 1/Länge². Zu Λ gehört deshalb eine Länge, ℓ_Λ = 1/√Λ ≈ 10 Milliarden Lichtjahre. Liest man Λ als Energiedichte des leeren Raums, ist sie winzig – Abschätzungen der Vakuumenergie aus der Quantenfeldtheorie liegen viele Größenordnungen darüber.',
+        en: 'Λ stands next to the curvature in Einstein’s field equations and has the same dimension: 1/length². So Λ comes with a length, ℓ_Λ = 1/√Λ ≈ 10 billion light years. Read as an energy density of empty space, Λ is tiny – estimates of the vacuum energy from quantum field theory lie many orders of magnitude above it.',
+      },
+      math: [
+        { t: { de: 'Λ als Länge', en: 'Λ as a length' }, tex: '\\Lambda = \\frac{1}{\\ell_\\Lambda^2} \\;\\Rightarrow\\; \\ell_\\Lambda = \\frac{1}{\\sqrt{\\Lambda}}' },
+        { t: { de: 'Λ als Energiedichte', en: 'Λ as an energy density' }, tex: 'u_\\Lambda = \\frac{\\Lambda\\, c^4}{8\\pi G}' },
+        { t: { de: 'Abschätzung der Nullpunktenergie bis E_c', en: 'Estimate of the zero-point energy up to E_c' }, tex: 'u_{\\mathrm{vac}} \\sim \\frac{E_{\\mathrm{c}}^4}{(\\hbar c)^3}' },
+        { t: { de: 'Ein freies Feld mit hartem Impuls-Cutoff k_c = E_c/(ħc)', en: 'One free field with a hard momentum cutoff k_c = E_c/(ħc)' }, tex: 'u_{\\mathrm{vac},1} = \\int_0^{k_{\\mathrm{c}}} \\frac{4\\pi k^2\\,\\mathrm{d}k}{(2\\pi)^3}\\,\\frac{\\hbar c k}{2} = \\frac{E_{\\mathrm{c}}^4}{16\\pi^2 (\\hbar c)^3}' },
+        { t: { de: 'Bei E_c = E_P hängt alles an Λ l_P²', en: 'At E_c = E_P everything hinges on Λ l_P²' }, tex: '\\frac{u_{\\mathrm{vac}}}{u_\\Lambda} = \\frac{8\\pi}{\\Lambda\\, l_{\\mathrm{P}}^2} = 8\\pi \\left(\\frac{\\ell_\\Lambda}{l_{\\mathrm{P}}}\\right)^2' },
+      ],
+      physics: {
+        de: 'Ohne Gravitation zählen in der Quantenfeldtheorie nur Energieunterschiede; den Nullpunkt der Energie kann man frei wählen. Die Gravitation dagegen spürt jede Energie, auch die des Vakuums. Eine Energiedichte des leeren Raums, die für jeden Beobachter gleich aussieht, hat genau die Form des Λ-Terms: Ihr Druck ist minus ihre Energiedichte. Zählt man die Nullpunktenergien aller Feldmoden bis zu einer Abschneide-Energie E_c, wächst die Summe wie E_c⁴ – bei der Planck-Energie bis etwa 123 Größenordnungen über u_Λ, schon beim Elektron bis 33. Eine Vorhersage ist das nicht: Die Zahl hängt am Cutoff, und ein harter Cutoff verletzt die Lorentz-Invarianz. Eine Lorentz-invariante Rechnung mit den bekannten Teilchen ergibt rund 55 Größenordnungen (Martin 2012). Man kann eine Konstante hinzufügen, die das ausgleicht – dann muss sie die Beiträge auf Dutzende Stellen genau aufheben. Warum das so ist, ist offen.',
+        en: 'Without gravity, only energy differences count in quantum field theory; the zero of energy can be chosen freely. Gravity, by contrast, feels every energy, including that of the vacuum. An energy density of empty space that looks the same to every observer has exactly the form of the Λ term: its pressure is minus its energy density. If you count the zero-point energies of all field modes up to a cutoff energy E_c, the sum grows like E_c⁴ – at the Planck energy to about 123 orders of magnitude above u_Λ, already at the electron to 33. This is not a prediction: the number depends on the cutoff, and a hard cutoff violates Lorentz invariance. A Lorentz-invariant calculation with the known particles gives around 55 orders of magnitude (Martin 2012). You can add a constant that compensates for this – then it has to cancel the contributions to dozens of digits. Why that is so remains open.',
+      },
+      epistemics: [
+        { type: 'measured', text: { de: 'Die beschleunigte Expansion ist durch Supernovae (1998/99), die Hintergrundstrahlung und baryonische akustische Oszillationen belegt. Λ ≈ 1,1 × 10⁻⁵² m⁻² gilt im ΛCDM-Modell (Planck 2018).', en: 'The accelerating expansion is established by supernovae (1998/99), the cosmic microwave background and baryon acoustic oscillations. Λ ≈ 1.1 × 10⁻⁵² m⁻² holds within the ΛCDM model (Planck 2018).' } },
+        { type: 'math', text: { de: 'Λ l_P² ist dimensionslos, und u_vac(E_P)/u_Λ = 8π/(Λ l_P²) gilt exakt – ganz ohne Annahme über die Physik hinter dem Cutoff.', en: 'Λ l_P² is dimensionless, and u_vac(E_P)/u_Λ = 8π/(Λ l_P²) holds exactly – without any assumption about the physics behind the cutoff.' } },
+        { type: 'approx', text: { de: 'u_vac ~ E_c⁴/(ħc)³ ist eine Größenordnungsabschätzung; der Cutoff E_c ist eine Annahme.', en: 'u_vac ~ E_c⁴/(ħc)³ is an order-of-magnitude estimate; the cutoff E_c is an assumption.' } },
+        { type: 'model', text: { de: 'Ob Λ wirklich konstant ist, ist offen: DESI fand 2025 Hinweise auf eine zeitlich veränderliche Dunkle Energie (2,8 bis 4,2 σ, je nach Datenkombination) – noch kein Nachweis.', en: 'Whether Λ is really constant is open: in 2025 DESI found hints of a time-varying dark energy (2.8 to 4.2 σ, depending on the data combination) – not yet a detection.' } },
+      ],
+    },
+  });
+
+  /* Frage 3 „Geht Information verloren?“ (src/ui/open.js): Verdampfung im Zeitraffer und Page-Kurve.
      Vereinfachtes Modell: M³ ∝ 1 − τ mit τ = t/t_evap, also S_BH = S₀(1 − τ)^{2/3}; S_rad = β(S₀ − S_BH);
      S_Page = min(S_rad, S_BH). β = 1 ist die vereinfachte Bilanz der Roadmap (Page-Zeit 1 − 2^{−3/2} ≈ 0,646),
      β ≈ 1,4847 der Wert für Photonen und Gravitonen (Page 2013, Page-Zeit ≈ 0,538). Die Page-Zeit folgt aus

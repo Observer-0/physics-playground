@@ -102,6 +102,9 @@
     'Fadenpendel: Das Bild zeigt in „Bewegung θ(t)“ t, θ und θₐ aus der Engine, in „Periodendauer“ den Zeitmaßstab': 'Pendulum: in “Motion θ(t)” the picture shows t, θ and θₐ from the engine, in “Period” the time scale',
     'Pendeln um einen festen Wert (sweep.center) bleibt im Regler-Bereich': 'Oscillating around a fixed value (sweep.center) stays within the slider range',
     'Warum 1/4: R_η = 4η bei jeder Masse, nur η = 1/4 erfüllt den ersten Hauptsatz, S_η(1/4) = S_BH, R ohne Messunsicherheit': 'Why 1/4: R_η = 4η for every mass, only η = 1/4 satisfies the first law, S_η(1/4) = S_BH, R without measurement uncertainty',
+    'Kosmologische Konstante: bei der Planck-Energie u_vac/u_Λ zwischen 10¹²⁰ und 10¹²⁴ und gleich 8π/(Λ l_P²), bei der Energieskala von Λ gleich 1; u_vac ∝ E_c⁴; Verhältnisse dimensionslos': 'Cosmological constant: at the Planck energy u_vac/u_Λ lies between 10¹²⁰ and 10¹²⁴ and equals 8π/(Λ l_P²), at the energy scale of Λ it is 1; u_vac ∝ E_c⁴; ratios are dimensionless',
+    'Kosmologische Konstante: ℓ_Λ = 1/√Λ ≈ 10¹⁰ Lichtjahre, Λ l_P² ≈ 2,9 × 10⁻¹²², lg(ℓ_Λ/l_P) = −lg(Λ l_P²)/2; ħc/E_Λ ist bis auf (8π)^¼ das geometrische Mittel von l_P und ℓ_Λ; die Zahlen der Seite stimmen mit der Engine': 'Cosmological constant: ℓ_Λ = 1/√Λ ≈ 10¹⁰ light years, Λ l_P² ≈ 2.9 × 10⁻¹²², lg(ℓ_Λ/l_P) = −lg(Λ l_P²)/2; up to (8π)^¼, ħc/E_Λ is the geometric mean of l_P and ℓ_Λ; the numbers on the page agree with the engine',
+    'Kosmologische Konstante: über der Planck-Energie „außerhalb des Modells“, ein verändertes Λ weicht vom „beobachteten“ Wert ab; beide Ansichten zeigen Werte aus der Engine': 'Cosmological constant: above the Planck energy “outside the model”, a changed Λ differs from the “observed” value; both views show values from the engine',
     'Keine Kandidaten für eine Quantengravitation – weder im Experiment noch in seinen Quellen noch auf den Seiten': 'No quantum-gravity candidates – not in the experiment, its sources or the pages',
     'Offene Fragen: jede Frage hat Status, Kurztitel, die fünf Abschnitte und ein Experiment im Feld „open“; der Direktlink #view=offen&sec=… bleibt im Zustand': 'Open questions: every question has a status, a short title, the five sections and an experiment in the “open” field; the direct link #view=offen&sec=… stays in the state',
     'Graph': 'Graph',
@@ -110,7 +113,7 @@
     'Schraffur je Größe: Die Kleinwinkelnäherung betrifft T₀, nicht die exakte Periodendauer T': 'Hatching per quantity: the small-angle approximation affects T₀, not the exact period T',
     'Jede Modellgrenze aus einem Check hat einen kurzen Grund, auf Englisch ohne deutsche Reste': 'Every model limit from a check has a short reason, in English without German',
     'Standardbereich: verweist auf vorhandene Ausgaben und liegt im Regler-Bereich; freier Fall endet kurz nach dem Aufprall': 'Default range: refers to existing outputs and lies within the slider range; free fall ends shortly after impact',
-    'Formelsatz: tfrac12 ist der Bruch ½, frac{12}{3} bleibt zweistellig, circ und ddot werden gesetzt': 'Typesetting: tfrac12 is the fraction ½, frac{12}{3} keeps two digits, circ and ddot are typeset',
+    'Formelsatz: tfrac12 ist der Bruch ½, frac{12}{3} bleibt zweistellig, circ und ddot werden gesetzt, {,} ist ein Dezimalkomma ohne Abstand': 'Typesetting: tfrac12 is the fraction ½, frac{12}{3} keeps two digits, circ and ddot are typeset, {,} is a decimal comma without a gap',
     'Drei Wege, ein Wert: ħc³/(8πGMk_B) = ħκ/(2πck_B) = T_P·m_P/(8πM), κ = c⁴/(4GM)': 'Three routes, one value: ħc³/(8πGMk_B) = ħκ/(2πck_B) = T_P·m_P/(8πM), κ = c⁴/(4GM)',
     'Grenzfälle im Break-Modus: G → 0 „außerhalb des Modells“, G = 0 undefiniert, ħ = 0 ergibt T_H = 0, k_B·T_H bleibt bei k_B ÷ 1000': 'Limits in Break mode: G → 0 “outside the model”, G = 0 undefined, ħ = 0 gives T_H = 0, k_B·T_H is unchanged for k_B ÷ 1000',
     'Schnittpunkt-Block: Symbole, Kette, Aha-Kasten und Wörterbuch verweisen nur auf vorhandene Engine-Größen': 'Crossroads block: symbols, chain, aha box and dictionary only refer to existing engine quantities',
@@ -795,6 +798,57 @@
     ok(end.issues.some((i) => i.cat === 'math' && i.out === 'TH') && end.issues.some((i) => i.cat === 'model'), 'τ = 1: ' + end.issues.map((i) => i.cat).join());
     ok(end.out.sPage.ok && end.out.M.ok && val(end, 'M') === 0, 'τ = 1: Page-Kurve und Masse bleiben definiert');
   });
+  test('Offene Fragen', 'Kosmologische Konstante: bei der Planck-Energie u_vac/u_Λ zwischen 10¹²⁰ und 10¹²⁴ und gleich 8π/(Λ l_P²), bei der Energieskala von Λ gleich 1; u_vac ∝ E_c⁴; Verhältnisse dimensionslos', () => {
+    const L = (vals) => run('lambda-vac', vals), exp = M.byId['lambda-vac'];
+    const p = L(), R = val(p, 'R');
+    ok(R > 1e120 && R < 1e124, 'Planck: ' + R);
+    close(R, val(p, 'RP'), 1e-9, 'u_vac(E_P)/u_Λ gegen 8π/(Λ l_P²):');
+    close(val(p, 'EcP'), 1, 1e-12, 'Standardwert E_c = E_P:');
+    close(val(L({ Ec: val(p, 'EL') }), 'R'), 1, 1e-9, 'Energieskala von Λ:');
+    close(val(L({ Ec: val(p, 'EL') }), 'uV'), val(p, 'uL'), 1e-9, 'u_vac(E_Λ) = u_Λ:');
+    close(val(L({ Ec: 1e8 }), 'R') / val(L({ Ec: 1e9 }), 'R'), 1e-4, 1e-9, 'E_c ÷ 10 → u_vac ÷ 10⁴:');
+    close(val(p, 'lgR') - val(p, 'lgR1'), Math.log10(16 * Math.PI * Math.PI), 1e-9, 'Vorfaktor 1/(16π²):');
+    const lg = (vals) => val(L(vals), 'lgR');
+    ok(Math.abs(lg({ Ec: 1e12 * M.C.eV.value }) - 58.6) < 0.05 && Math.abs(lg({ Ec: 1e11 * M.C.eV.value }) - 54.6) < 0.05 && Math.abs(lg({ Ec: M.C.m_e.value * M.C.c.value ** 2 }) - 33.4) < 0.05, 'TeV, 100 GeV, Elektron');
+    ok(exp.presets.map((x) => Math.round(val(L(x.values), 'lgR'))).join() === '123,59,55,33,0,0', 'Presets: ' + exp.presets.map((x) => val(L(x.values), 'lgR').toFixed(2)).join());
+    const dims = Object.fromEntries(exp.forms[0].c.outputs.map((o) => [o.key, o.dim]));
+    for (const k of ['R', 'lgR', 'lgR1', 'LlP2', 'RP', 'nl', 'nE']) ok(dims[k] === '', k + ' hat eine Dimension');
+    ok(E.dimEq(exp.vars.Lambda.dimv, D('L^-2')), '[Λ] = ' + E.dimStr(exp.vars.Lambda.dimv));
+  });
+  test('Offene Fragen', 'Kosmologische Konstante: ℓ_Λ = 1/√Λ ≈ 10¹⁰ Lichtjahre, Λ l_P² ≈ 2,9 × 10⁻¹²², lg(ℓ_Λ/l_P) = −lg(Λ l_P²)/2; ħc/E_Λ ist bis auf (8π)^¼ das geometrische Mittel von l_P und ℓ_Λ; die Zahlen der Seite stimmen mit der Engine', () => {
+    const L = (vals) => run('lambda-vac', vals), p = L(), lam = M.C.Lambda.value;
+    close(val(p, 'lL'), 1 / Math.sqrt(lam), 1e-12, 'ℓ_Λ:');
+    ok(Math.abs(val(p, 'lLly') / 1.008e10 - 1) < 0.01, 'ℓ_Λ in Lichtjahren: ' + val(p, 'lLly'));
+    const x = val(p, 'LlP2');
+    ok(x > 2.8e-122 && x < 3.0e-122, 'Λ l_P² = ' + x);
+    close(val(p, 'nl'), -val(p, 'lgLl') / 2, 1e-12, 'Länge gegen Krümmung:');
+    close(val(L({ Lambda: 100 * lam }), 'lL'), val(p, 'lL') / 10, 1e-12, 'Λ × 100 → ℓ_Λ ÷ 10:');
+    close(val(p, 'lamL') / Math.sqrt(val(p, 'lP') * val(p, 'lL')), Math.pow(8 * Math.PI, 0.25), 1e-9, 'geometrisches Mittel:');
+    close(val(p, 'nE') * 4, val(p, 'lgR'), 1e-9, 'Energie gegen Energiedichte:');
+    // Tabelle und Text auf der Seite der Frage (src/ui/open.js): 60,8 · 121,5 · 30,7 · 122,9; 2,2 meV; dreieinhalb Protonen; 17 Mrd. Lichtjahre
+    const r1 = (v) => Math.round(v * 10) / 10;
+    ok([r1(val(p, 'nl')), r1(-val(p, 'lgLl')), r1(val(p, 'nE')), r1(val(p, 'lgR'))].join() === '60.8,121.5,30.7,122.9', 'Tabelle');
+    close(r1(-val(p, 'lgLl') + Math.log10(8 * Math.PI)), r1(val(p, 'lgR')), 1e-12, '122,9 = 121,5 + lg 8π:');
+    ok(r1(val(p, 'ELmeV')) === 2.2 && Math.abs(val(p, 'np') - 3.5) < 0.1 && Math.round(val(p, 'rdSly') / 1e9) === 17 && Math.abs(val(p, 'lamL') - 9e-5) < 5e-6, 'E_Λ, Protonen, de-Sitter-Radius, ħc/E_Λ');
+  });
+  test('Offene Fragen', 'Kosmologische Konstante: über der Planck-Energie „außerhalb des Modells“, ein verändertes Λ weicht vom „beobachteten“ Wert ab; beide Ansichten zeigen Werte aus der Engine', () => {
+    const L = (vals) => run('lambda-vac', vals), exp = M.byId['lambda-vac'];
+    const base = L();
+    ok(!base.issues.some((i) => i.cat === 'model' || i.cat === 'unreal'), base.issues.map((i) => i.cat).join());
+    const big = L({ Ec: 2 * exp.vars.Ec.max });
+    ok(big.issues.some((i) => i.cat === 'model' && /Planck-Energie/.test(i.why)), 'E_c > E_P: ' + big.issues.map((i) => i.cat).join());
+    const lam = L({ Lambda: 1e-50 });
+    ok(lam.issues.some((i) => i.cat === 'unreal' && /beobachteten Wert/.test(i.msg)), lam.issues.map((i) => i.msg).join(' | '));
+    if (!PP.viz) return;
+    for (const W of [640, 360]) {
+      const len = draw('lambda-vac', {}, { W, H: W < 400 ? 260 : 330, opts: { view: 'len' } }), rho = draw('lambda-vac', {}, { W, H: W < 400 ? 260 : 330, opts: { view: 'rho' } });
+      ok(len.some((s) => s.includes(fmtOut(base, 'lL') + ' m')) && len.includes(fmtOut(base, 'LlP2')), W + ' px, Λ = 1/ℓ²: ' + len.slice(0, 6).join(' | '));
+      ok(len.includes('1/l_P²') && len.some((s) => /≈ 121\.5/.test(s)) && len.some((s) => /≈ 60\.8/.test(s)), W + ' px: Größenordnungen in Länge und Krümmung');
+      ok(rho.includes(fmtOut(base, 'R')) && rho.some((s) => /≈ 122\.9/.test(s)) && rho.some((s) => /≈ 30\.7/.test(s)), W + ' px, Energiedichte: ' + rho.slice(0, 6).join(' | '));
+    }
+    const same = draw('lambda-vac', { Ec: val(base, 'EL') }, { opts: { view: 'rho' } });
+    ok(same.includes('u_vac ≈ u_Λ'), 'Verhältnis 1: ' + same.join(' | '));
+  });
   test('Offene Fragen', 'Keine Kandidaten für eine Quantengravitation – weder im Experiment noch in seinen Quellen noch auf den Seiten', () => {
     const banned = /string|schleifenquant|loop quantum|asymptoti\w* (sicherheit|safety)|kausale menge|causal set|holograph|AdS\/CFT|M-theor/i;
     const bad = [], seen = new WeakSet();
@@ -995,12 +1049,13 @@
     const tf = val(run('free-fall'), 'tf'), gv = M.byId['free-fall'].graph.view;
     ok(tf * gv.f < M.byId['free-fall'].vars.t.max / 2, 'Standardbereich des freien Falls ist kaum kürzer als der Regler-Bereich');
   });
-  test('Formatierung', 'Formelsatz: tfrac12 ist der Bruch ½, frac{12}{3} bleibt zweistellig, circ und ddot werden gesetzt', () => {
+  test('Formatierung', 'Formelsatz: tfrac12 ist der Bruch ½, frac{12}{3} bleibt zweistellig, circ und ddot werden gesetzt, {,} ist ein Dezimalkomma ohne Abstand', () => {
     if (!PP.tex) return;
     const r = PP.tex.render, R = String.raw;
     ok(/<span class="mnu"><span class="mn">1<\/span><\/span><span class="mde"><span class="mn">2<\/span><\/span>/.test(r(R`h_0 - \tfrac12\, g t^2`)), '½ falsch gesetzt');
     ok(/<span class="mnu"><span class="mn">12<\/span><\/span>/.test(r(R`\frac{12}{3}`)), '12/3 falsch gesetzt');
     ok(!/circ|ddot/.test(r(R`\ddot\theta = 45^{\circ}`).replace(/<[^>]+>/g, '')), 'Befehlsname im Text');
+    ok(r(R`0{,}646`).includes('<span class="mn">0</span><span class="mn">,</span><span class="mn">646</span>') && r('f(a, b)').includes('<span class="mp">,</span>'), 'Dezimalkomma');
   });
 
   test('Sprache', 'Engine-Meldungen und Dimensionsnamen gibt es auf Deutsch und Englisch', () => {

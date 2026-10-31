@@ -145,7 +145,9 @@
           const ref = C[v.constant].value;
           const x = values[v.key];
           if (isFinite(x) && Math.abs(x / ref - 1) > 1e-9) {
-            issues.push({ cat: 'unreal', why: T('Konstante verändert', 'constant changed'), msg: v.label + T(' weicht vom ' + (C[v.constant].kind === 'measured' ? 'gemessenen' : 'festgelegten') + ' Wert ab (Faktor ', ' differs from the ' + (C[v.constant].kind === 'measured' ? 'measured' : 'defined') + ' value (factor ') + E.fmt(x / ref, 3) + T('). Mathematisch möglich – so ist unser Universum aber nicht.', '). Mathematically possible – but that is not our universe.') });
+            // gemessen (G), aus Beobachtungen abgeleitet (Λ) oder festgelegt (c, h, …)
+            const kind = C[v.constant].kind, de = kind === 'measured' ? 'gemessenen' : kind === 'cosmo' ? 'beobachteten' : 'festgelegten', en = kind === 'measured' ? 'measured' : kind === 'cosmo' ? 'observed' : 'defined';
+            issues.push({ cat: 'unreal', why: T('Konstante verändert', 'constant changed'), msg: v.label + T(' weicht vom ' + de + ' Wert ab (Faktor ', ' differs from the ' + en + ' value (factor ') + E.fmt(x / ref, 3) + T('). Mathematisch möglich – so ist unser Universum aber nicht.', '). Mathematically possible – but that is not our universe.') });
           }
         }
         if (v.positive && values[v.key] <= 0) {
