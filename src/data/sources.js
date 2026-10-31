@@ -26,6 +26,8 @@
     { de: 'Erste direkt gemessene Gravitationswelle; zwei Schwarze Löcher mit ≈ 36 und ≈ 29 Sonnenmassen', en: 'First directly measured gravitational wave; two black holes of ≈ 36 and ≈ 29 solar masses' }, { doi: '10.1103/PhysRevLett.116.061102' });
   const EHT = src('Event Horizon Telescope Collaboration (K. Akiyama et al.)', 2019, 'First M87 Event Horizon Telescope results. I. The shadow of the supermassive black hole', 'The Astrophysical Journal Letters 875, L1', 'meas',
     { de: 'Erstes Bild eines Schwarzen Lochs; Masse von M87* ≈ 6,5 × 10⁹ Sonnenmassen', en: 'First image of a black hole; mass of M87* ≈ 6.5 × 10⁹ solar masses' }, { doi: '10.3847/2041-8213/ab0ec7' });
+  const PLANCK18 = src('Planck Collaboration (N. Aghanim et al.)', 2020, 'Planck 2018 results. VI. Cosmological parameters', 'Astronomy & Astrophysics 641, A6', 'meas',
+    { de: 'Λ, H₀ ≈ 67 km/s/Mpc und kritische Dichte (ΛCDM)', en: 'Λ, H₀ ≈ 67 km/s/Mpc and the critical density (ΛCDM)' }, { doi: '10.1051/0004-6361/201833910' });
   const HAWK75 = src('S. W. Hawking', 1975, 'Particle creation by black holes', 'Communications in Mathematical Physics 43, 199–220', 'orig',
     { de: 'Ausführliche Herleitung der Hawking-Strahlung und ihrer Temperatur', en: 'Full derivation of Hawking radiation and its temperature' }, { doi: '10.1007/BF02345020' });
 
@@ -93,7 +95,19 @@
       src('M. Isi, W. M. Farr, M. Giesler, M. A. Scheel, S. A. Teukolsky', 2021, 'Testing the black-hole area law with GW150914', 'Physical Review Letters 127, 011103', 'meas', { de: 'Flächensatz an GW150914 geprüft – sagt nichts über den Faktor 1/4', en: 'Area theorem tested with GW150914 – says nothing about the factor 1/4' }, { doi: '10.1103/PhysRevLett.127.011103' }),
       src('LIGO Scientific, Virgo and KAGRA Collaborations (A. G. Abac et al.)', 2025, 'GW250114: Testing Hawking’s area law and the Kerr nature of black holes', 'Physical Review Letters 135, 111403', 'meas', { de: 'Deutlich genauerer Test des Flächensatzes', en: 'A much more precise test of the area theorem' }, { doi: '10.1103/kw5g-d732' }),
     ],
-    // Offene Fragen, Frage 2 „Geht Information verloren?“ – erscheint auch auf der Seite der Frage
+    // Offene Fragen, Frage 2 „Warum ist Λ so klein?“ – erscheint auch auf der Seite der Frage
+    'lambda-vac': [
+      src('A. Einstein', 1917, 'Kosmologische Betrachtungen zur allgemeinen Relativitätstheorie', 'Sitzungsberichte der Königlich Preußischen Akademie der Wissenschaften (Berlin), 142–152', 'orig', { de: 'Führt Λ in die Feldgleichungen ein – damals für ein statisches Universum', en: 'Introduces Λ into the field equations – at the time for a static universe' }, { lang: 'de' }),
+      src('A. G. Riess et al.', 1998, 'Observational evidence from supernovae for an accelerating universe and a cosmological constant', 'The Astronomical Journal 116, 1009–1038', 'meas', { de: 'Beschleunigte Expansion aus fernen Supernovae vom Typ Ia', en: 'Accelerating expansion from distant type Ia supernovae' }, { doi: '10.1086/300499' }),
+      src('S. Perlmutter et al.', 1999, 'Measurements of Ω and Λ from 42 high-redshift supernovae', 'The Astrophysical Journal 517, 565–586', 'meas', { de: 'Unabhängige Bestätigung mit einer zweiten Supernova-Stichprobe: Λ > 0', en: 'Independent confirmation with a second supernova sample: Λ > 0' }, { doi: '10.1086/307221' }),
+      Object.assign({}, PLANCK18, { note: { de: 'Λ ≈ 1,1 × 10⁻⁵² m⁻² im ΛCDM-Modell – der Wert in dieser App', en: 'Λ ≈ 1.1 × 10⁻⁵² m⁻² within the ΛCDM model – the value used in this app' } }),
+      src('DESI Collaboration (M. Abdul-Karim et al.)', 2025, 'DESI DR2 results. II. Measurements of baryon acoustic oscillations and cosmological constraints', 'Physical Review D 112, 083515', 'meas', { de: 'Hinweise auf zeitlich veränderliche Dunkle Energie: 2,8 bis 4,2 σ je nach Datenkombination – kein Nachweis', en: 'Hints of time-varying dark energy: 2.8 to 4.2 σ depending on the data combination – not a detection' }, { doi: '10.1103/tr6y-kpc6' }),
+      src('S. Weinberg', 1989, 'The cosmological constant problem', 'Reviews of Modern Physics 61, 1–23', 'orig', { de: 'Die klassische Übersicht: warum die Vakuumenergie das Problem macht', en: 'The classic review: why the vacuum energy creates the problem' }, { doi: '10.1103/RevModPhys.61.1' }),
+      src('J. Martin', 2012, 'Everything you always wanted to know about the cosmological constant problem (but were afraid to ask)', 'Comptes Rendus Physique 13, 566–665', 'orig', { de: 'Lorentz-invariante Rechnung: weit unter den oft zitierten 10¹²², aber immer noch viel zu groß; Lamb-Verschiebung, Casimir-Effekt, Phasenübergänge', en: 'Lorentz-invariant calculation: far below the often-quoted 10¹²², but still far too large; Lamb shift, Casimir effect, phase transitions' }, { doi: '10.1016/j.crhy.2012.04.008' }),
+      src('D. J. Kapner et al.', 2007, 'Tests of the gravitational inverse-square law below the dark-energy length scale', 'Physical Review Letters 98, 021101', 'meas', { de: 'Newtons 1/r²-Gesetz gilt bis ≈ 56 µm – unterhalb von ħc/E_Λ ≈ 0,09 mm', en: 'Newton’s 1/r² law holds down to ≈ 56 µm – below ħc/E_Λ ≈ 0.09 mm' }, { doi: '10.1103/PhysRevLett.98.021101' }),
+      CODATA,
+    ],
+    // Offene Fragen, Frage 3 „Geht Information verloren?“ – erscheint auch auf der Seite der Frage
     'bh-page': [
       Object.assign({}, HAWK75, { note: { de: 'Thermische Strahlung: Das Loch verliert Masse und wird dabei heißer', en: 'Thermal radiation: the hole loses mass and becomes hotter in the process' } }),
       src('S. W. Hawking', 1976, 'Breakdown of predictability in gravitational collapse', 'Physical Review D 14, 2460–2473', 'orig', { de: 'Das Informationsparadoxon: Aus einem reinen würde ein gemischter Zustand', en: 'The information paradox: a pure state would turn into a mixed one' }, { doi: '10.1103/PhysRevD.14.2460' }),
@@ -108,7 +122,7 @@
       src('A. Einstein', 1915, 'Die Feldgleichungen der Gravitation', 'Sitzungsberichte der Königlich Preußischen Akademie der Wissenschaften (Berlin), 844–847', 'orig', { de: 'Die Feldgleichungen in ihrer endgültigen Form', en: 'The field equations in their final form' }, { lang: 'de' }),
       src('A. Einstein', 1916, 'Die Grundlage der allgemeinen Relativitätstheorie', 'Annalen der Physik 354, 769–822', 'orig', { de: 'Zusammenfassende Darstellung der Allgemeinen Relativitätstheorie', en: 'Comprehensive presentation of general relativity' }, { doi: '10.1002/andp.19163540702', lang: 'de' }),
       GW150914, EHT,
-      src('Planck Collaboration (N. Aghanim et al.)', 2020, 'Planck 2018 results. VI. Cosmological parameters', 'Astronomy & Astrophysics 641, A6', 'meas', { de: 'Λ, H₀ ≈ 67 km/s/Mpc und kritische Dichte (ΛCDM)', en: 'Λ, H₀ ≈ 67 km/s/Mpc and the critical density (ΛCDM)' }, { doi: '10.1051/0004-6361/201833910' }),
+      PLANCK18,
     ],
     schroedinger: [
       src('E. Schrödinger', 1926, 'Quantisierung als Eigenwertproblem (Erste Mitteilung)', 'Annalen der Physik 384, 361–376', 'orig', { de: 'Stationäre Wellengleichung und Energieniveaus', en: 'Stationary wave equation and energy levels' }, { doi: '10.1002/andp.19263840404', lang: 'de' }),

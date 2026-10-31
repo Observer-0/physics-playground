@@ -1,6 +1,6 @@
 # Roadmap: Open Questions
 
-**Status: October 31, 2026.** Section 2 (structure), Question 1 (Why exactly 1/4?) and Question 3 (information paradox) are implemented; Questions 2 and 4 and the overview of requirements are planned.
+**Status: October 31, 2026.** Section 2 (structure), Question 1 (Why exactly 1/4?), Question 2 (cosmological constant) and Question 3 (information paradox) are implemented; Question 4 and the overview of requirements are planned.
 
 Add a new section, **Open Questions**, exploring where general relativity (GR) and quantum theory reach their limits or leave important questions unanswered.
 
@@ -186,6 +186,8 @@ Mark the cutoff as an **assumption** and the vacuum energy calculation as an **e
 **Status:** Open.
 
 **Tests:** Planck-scale ratio between \(10^{120}\) and \(10^{124}\); ratio near 1 at the Λ energy scale; dimensionless output.
+
+**Implemented (October 31, 2026):** experiment `lambda-vac` with two sliders, the cutoff energy E_c (from 10⁻²³ J up to the Planck energy) and Λ itself (constant `Lambda`; a changed value is flagged as differing from the *observed* value). The engine computes u_Λ = Λc⁴/(8πG), u_vac ~ E_c⁴/(ħc)³, their ratio and its logarithm; the one-field prefactor 1/(16π²) is a separate output (lg R₁ = lg R − 2.2). At E_c = E_P the ratio equals 8π/(Λ l_P²) ≈ 8.7 × 10¹²² (tested against the separate output `RP`). Beyond the roadmap, Λ's dimension 1/length² is the second focus: ℓ_Λ = 1/√Λ ≈ 9.5 × 10²⁵ m ≈ 10¹⁰ light years, Λ l_P² ≈ 2.9 × 10⁻¹²², and ħc/E_Λ ≈ 0.09 mm = (8π)^{1/4} √(l_P ℓ_Λ). Visualization with two views: "Λ = 1/ℓ²" (a length axis coupled to a curvature axis, 61 → 122 orders of magnitude) and "Energy density ∝ E⁴" (cutoff energy coupled to energy density, 30.7 → 122.9). Presets: Planck energy, 1 TeV, 100 GeV, electron, Λ energy scale (ratio 1), and Λ as large as the Planck estimate. Page `#view=offen&sec=lambda`; it states that the cutoff estimate is not a prediction (a hard cutoff breaks Lorentz invariance; a Lorentz-invariant calculation gives about 55 orders of magnitude, Martin 2012) and lists as open: the old problem, the coincidence problem and whether Λ is constant (DESI DR2 2025: 2.8–4.2σ hints, not a detection). Sources: Einstein 1917, Riess et al. 1998, Perlmutter et al. 1999, Planck 2018, DESI 2025, Weinberg 1989, Martin 2012, Kapner et al. 2007, CODATA. Question 3 is now the third page, in roadmap order.
 
 ## 5. Question 3: The Information Paradox
 

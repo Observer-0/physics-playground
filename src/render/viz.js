@@ -1149,5 +1149,161 @@
     if (!narrow) label(ctx, tr('Schematisch: Radius ∝ M, Punkte ∝ Leuchtkraft', 'Schematic: radius ∝ M, dots ∝ luminosity'), 10, H - 10, col, { size: 11, color: col.ink3 });
   };
 
+  /* ---------- Kosmologische Konstante: zwei gekoppelte logarithmische Achsen ----------
+     „Λ = 1/ℓ²“: oben Längen, unten Krümmungen 1/Länge². An derselben Stelle steht oben ℓ und unten 1/ℓ² –
+     eine Größenordnung in der Länge sind zwei in der Krümmung. „Energiedichte ∝ E⁴“: oben die Abschneide-
+     Energie, unten u_vac – eine Größenordnung in der Energie sind vier in der Energiedichte. Die Enden der
+     unteren Achse rechnet die Engine aus (S.at), ebenso jede Marke; Vergleichswerte sind gerundet. */
+  // Zahl mit einer Nachkommastelle („60.8“, „122.9“); unter 1 zwei gültige Stellen
+  const dec1 = (x) => (Math.abs(x) < 1 ? E.fmt(x, 2) : E.fmt(x, Math.floor(lg10(Math.abs(x))) + 2));
+  const lenTxt = (x) => (x >= 1e-6 && x < 1e-3 ? E.fmt(x * 1e6, 2) + ' µm' : x >= 1e-3 && x < 1 ? E.fmt(x * 1e3, 2) + ' mm' : E.fmt(x, 2) + ' m');
+  // Beschriftungen an einer Achse weichen stufenweise aus; ohne Platz bleibt nur der Punkt
+  function axisMarks(ctx, col, W) {
+    const used = {};
+    return (x, y, s, c, o) => {
+      const side = o.side, size = o.size || 11;
+      font(ctx, col, size);
+      const w = textW(ctx, s), x0 = clamp(x - w / 2, 4, W - 4 - w);
+      let tier = 0;
+      for (; tier < o.tiers; tier++) {
+        const row = used[side + tier] || (used[side + tier] = []);
+        if (row.every(([a, b]) => x0 + w + 6 < a || x0 > b + 6)) { row.push([x0, x0 + w]); break; }
+      }
+      ctx.fillStyle = c; ctx.beginPath(); ctx.arc(x, y, o.r || 3.5, 0, 7); ctx.fill();
+      if (tier === o.tiers) return;
+      const ly = side === 'up' ? y - 18 - tier * 14 : y + 28 + tier * 14;
+      ctx.strokeStyle = c; ctx.lineWidth = 1; ctx.globalAlpha = 0.55;
+      ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x, side === 'up' ? ly + 3 : ly - 11); ctx.stroke(); ctx.globalAlpha = 1;
+      label(ctx, s, x0, ly, col, { size, color: c });
+    };
+  }
+  // Gerüst beider Ansichten: Kopf, obere Achse (Marken darüber), untere Achse (Marken darunter), Fuß.
+  // Auf dem Handy im Hochformat ist das Bild nur 220 px hoch: dann eine Stufe unten und kein Hinweis
+  function vacFrame(ctx, W, H, S, f) {
+    const { col } = S, narrow = W < 520, short = narrow && H < 250;
+    const x0 = 18, x1 = W - 18, yA = narrow ? (short ? 84 : 88) : Math.round(H * 0.32), yB = narrow ? (short ? 158 : 162) : Math.round(H * 0.61);
+    segs(ctx, f.head, 14, 19, col, { mono: true, size: narrow ? 12 : 13 });
+    if (f.head2) segs(ctx, f.head2, 14, 36, col, { mono: true, size: 11 });
+    const rows = [[f.top, yA, true], [f.bot, yB, false]];
+    // Lücke zwischen zwei Marken als Band
+    for (const [ax, y] of rows) if (ax.band) {
+      const a = ax.X(ax.band[0]), b = ax.X(ax.band[1]);
+      ctx.fillStyle = ax.band[2]; ctx.globalAlpha = 0.14; ctx.fillRect(Math.min(a, b), y - 8, Math.max(2, Math.abs(b - a)), 16); ctx.globalAlpha = 1;
+    }
+    // dieselbe Stelle auf beiden Achsen
+    for (const [l, c] of f.links) {
+      const x = Math.round(f.top.X(l)) + 0.5;
+      ctx.save(); ctx.strokeStyle = c; ctx.globalAlpha = 0.45; ctx.setLineDash([3, 4]); ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(x, yA + 8); ctx.lineTo(x, yB - 8); ctx.stroke(); ctx.restore();
+    }
+    // Achsen mit Zehnerpotenzen: oben darunter, unten darüber beschriftet. Von rechts nach links, damit die
+    // rechte Marke mit der Einheit Vorrang hat; eine Beschriftung, die anstoßen würde, entfällt
+    for (const [ax, y, below] of rows) {
+      ctx.strokeStyle = col.ink3; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(x0, y); ctx.lineTo(x1, y); ctx.stroke();
+      const a = Math.min(ax.lo, ax.hi), b = Math.max(ax.lo, ax.hi), ks = [], placed = [];
+      for (let k = Math.ceil(a / ax.step) * ax.step; k <= b; k += ax.step) ks.push(k);
+      ks.sort((p, q) => ax.X(q) - ax.X(p));
+      font(ctx, col, 10, true);
+      ks.forEach((k, i) => {
+        const x = ax.X(k), n = '10' + E.sup(k), s = n + (i === 0 ? ' ' + ax.unit : '');
+        ctx.strokeStyle = col.ink3; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x, y - 4); ctx.lineTo(x, y + 4); ctx.stroke();
+        const w = textW(ctx, s), lx = clamp(x - textW(ctx, n) / 2, 4, W - 4 - w);
+        if (placed.some(([p, q]) => lx < q + 6 && lx + w > p - 6)) return;
+        placed.push([lx, lx + w]);
+        label(ctx, s, lx, below ? y + 16 : y - 8, col, { size: 10, mono: true, color: col.ink3 });
+      });
+      if (ax.gap) {
+        const xm = (ax.X(ax.band[0]) + ax.X(ax.band[1])) / 2;
+        font(ctx, col, 11);
+        const w = textW(ctx, ax.gap);
+        label(ctx, ax.gap, clamp(xm - w / 2, 6, W - 6 - w), below ? y + 33 : y - 25, col, { size: 11, color: ax.band[2] });
+      }
+    }
+    for (const [ax, y, below] of rows) {
+      const mark = axisMarks(ctx, col, W);
+      for (const m of ax.marks) if (isFinite(m.l)) mark(ax.X(m.l), y, m.s, m.c, { side: below ? 'up' : 'down', size: m.size, r: m.r, tiers: below ? (narrow ? 2 : 3) : (short ? 1 : narrow ? 2 : 3) });
+    }
+    segs(ctx, f.foot, 14, H - (short ? 9 : narrow ? 27 : 33), col, { mono: true, size: narrow ? 11 : 12 });
+    if (!short) note(ctx, f.note, W, H, col);
+  }
+  const ORDERS = () => tr(' Größenordnungen', ' orders of magnitude');
+  function vacLen(ctx, W, H, S) {
+    const { col } = S, narrow = W < 520, lam = S.v.Lambda;
+    const lgK = lam > 0 ? lg10(lam) : NaN, lgL = S.lg('lL'), lgP = S.lg('lP'), lgKP = S.lg('KP'), nl = S.o('nl'), lgLl = S.o('lgLl');
+    const bad = () => invalid(ctx, W, H, col, tr('ℓ_Λ = 1/√Λ ist hier nicht definiert', 'ℓ_Λ = 1/√Λ is not defined here'));
+    if (![lgK, lgL, lgP, lgKP, nl, lgLl].every(isFinite)) return bad();
+    // untere Achse: Krümmung, links groß; die Längen an ihren Enden kommen aus der Engine (ℓ_Λ zu diesem Λ)
+    const kHi = Math.ceil(Math.max(lgKP, lgK) + 3), kLo = Math.floor(Math.min(lgK, -52) - 7);
+    const lA = S.at({ Lambda: Math.pow(10, kHi) }).lg('lL'), lB = S.at({ Lambda: Math.pow(10, kLo) }).lg('lL');
+    if (!isFinite(lA) || !isFinite(lB) || !(lB > lA)) return bad();
+    const x0 = 18, x1 = W - 18, step = [5, 10, 15, 20].find((s) => s * (x1 - x0) / (lB - lA) >= 44) || 20;
+    const obs = Math.abs(lam / PP.model.C.Lambda.value - 1) < 1e-9;
+    const top = {
+      lo: lA, hi: lB, step, unit: 'm', X: (l) => map(l, lA, lB, x0, x1), band: [lgP, lgL, col.red], gap: '≈ ' + dec1(Math.abs(nl)) + ORDERS(),
+      marks: [
+        { l: lgL, s: narrow ? 'ℓ_Λ' : tr('ℓ_Λ = 1/√Λ (Länge zu Λ)', 'ℓ_Λ = 1/√Λ (length of Λ)'), c: col.cyan, size: 12, r: 5 },
+        { l: lgP, s: narrow ? 'l_P' : tr('Planck-Länge l_P', 'Planck length l_P'), c: col.ink },
+        { l: S.lg('lamL'), s: (narrow ? '' : 'ħc/E_Λ ≈ ') + lenTxt(S.o('lamL')), c: col.cyan },
+        { l: S.lg('lc'), s: narrow ? 'λ_c' : tr('λ_c = ħc/E_c (Abschneide-Länge)', 'λ_c = ħc/E_c (cutoff length)'), c: col.accent },
+      ].concat(narrow ? [] : [
+        { l: lg10(8.4e-16), s: tr('Proton', 'proton'), c: col.ink3 }, { l: lg10(1.7), s: tr('Mensch', 'human'), c: col.ink3 }, { l: lg10(1.2742e7), s: tr('Erde', 'Earth'), c: col.ink3 },
+      ]),
+    };
+    const bot = {
+      lo: kLo, hi: kHi, step: 2 * step, unit: 'm⁻²', X: (k) => map(k, kHi, kLo, x0, x1), band: [lgKP, lgK, col.red], gap: '≈ ' + dec1(Math.abs(lgLl)) + ORDERS(),
+      marks: [{ l: lgK, s: obs && !narrow ? tr('Λ (beobachtet)', 'Λ (observed)') : 'Λ', c: col.cyan, size: 12, r: 5 }, { l: lgKP, s: '1/l_P²', c: col.ink }],
+    };
+    vacFrame(ctx, W, H, S, {
+      head: narrow ? [['Λ = ', col.ink2], [E.fmt(lam, 3) + ' m⁻²', col.cyan], [' = 1/ℓ_Λ²', col.ink2]]
+        : [['Λ = ', col.ink2], [E.fmt(lam, 3) + ' m⁻²', col.cyan], ['  ⇒  ℓ_Λ = 1/√Λ = ', col.ink2], [S.fo('lL') + ' m', col.cyan]],
+      head2: narrow ? [['ℓ_Λ = ', col.ink2], [S.fo('lL') + ' m', col.cyan], [' ≈ ' + S.fo('lLly') + tr(' Lichtjahre', ' light years'), col.ink2]]
+        : [['≈ ' + S.fo('lLly') + tr(' Lichtjahre · Λ ist eine Krümmung: Dimension 1/Länge²', ' light years · Λ is a curvature: dimension 1/length²'), col.ink2]],
+      top, bot, links: [[lgL, col.cyan], [lgP, col.ink3]],
+      foot: [['Λ l_P² = (l_P/ℓ_Λ)² = ', col.ink2], [S.fo('LlP2'), col.cyan]].concat(narrow ? [] : [['  ·  2 × ' + E.fmt(nl, 5) + ' = ' + E.fmt(-lgLl, 5) + ORDERS(), col.ink2]]),
+      note: narrow ? tr('oben Länge, unten 1/Länge²', 'top: length, bottom: 1/length²') : tr('Oben Länge, unten Krümmung 1/Länge² – an derselben Stelle · Vergleichswerte gerundet', 'Top: length, bottom: curvature 1/length² – at the same place · reference values rounded'),
+    });
+  }
+  function vacRho(ctx, W, H, S) {
+    const { col } = S, narrow = W < 520, C = PP.model.C, ev = C.eV.value;
+    const lgEc = S.lg('EceV'), lgEL = S.lg('ELeV'), lgEP = S.lg('EPeV'), lgU = S.lg('uV'), lgUL = S.lg('uL'), lgR = S.o('lgR'), nE = S.o('nE');
+    const bad = () => invalid(ctx, W, H, col, tr('Die Abschätzung ist hier nicht definiert', 'The estimate is not defined here'));
+    if (![lgEc, lgEL, lgEP, lgU, lgUL, lgR, nE].every(isFinite)) return bad();
+    // obere Achse: Energie in eV; die Energiedichten an ihren Enden kommen aus der Engine
+    const eLo = Math.floor(Math.min(-4, lgEL - 1.5, lgEc - 1)), eHi = Math.ceil(Math.max(29, lgEP + 1, lgEc + 1));
+    const uLo = S.at({ Ec: Math.pow(10, eLo) * ev }).lg('uV'), uHi = S.at({ Ec: Math.pow(10, eHi) * ev }).lg('uV');
+    if (!isFinite(uLo) || !isFinite(uHi) || !(uHi > uLo)) return bad();
+    const x0 = 18, x1 = W - 18, same = Math.abs(lgR) < 0.05;
+    const gapC = same ? col.green : col.red, mainC = same ? col.green : col.accent;
+    const obs = Math.abs(S.v.Lambda / C.Lambda.value - 1) < 1e-9;
+    const top = {
+      lo: eLo, hi: eHi, step: [3, 6, 9, 12].find((s) => s * (x1 - x0) / (eHi - eLo) >= 44) || 12, unit: 'eV', X: (l) => map(l, eLo, eHi, x0, x1),
+      band: [lgEL, lgEc, gapC], gap: same ? 'E_c ≈ E_Λ' : '≈ ' + dec1(Math.abs(nE)) + ORDERS(),
+      marks: [
+        { l: lgEc, s: 'E_c', c: col.accent, size: 12, r: 5 },
+        { l: lgEL, s: 'E_Λ ≈ ' + S.fo('ELmeV', false, 2) + ' meV', c: col.cyan },
+        { l: lgEP, s: narrow ? 'E_P' : tr('Planck-Energie E_P', 'Planck energy E_P'), c: col.ink },
+        { l: lg10(C.m_e.value * C.c.value ** 2 / ev), s: narrow ? 'm_e c²' : tr('Elektron 511 keV', 'electron 511 keV'), c: col.ink2 },
+        { l: 12, s: '1 TeV', c: col.ink2 },
+      ],
+    };
+    const bot = {
+      lo: uLo, hi: uHi, step: [10, 20, 30, 40].find((s) => s * (x1 - x0) / (uHi - uLo) >= 44) || 40, unit: 'J/m³', X: (l) => map(l, uLo, uHi, x0, x1),
+      band: [lgUL, lgU, gapC], gap: same ? 'u_vac ≈ u_Λ' : '≈ ' + dec1(Math.abs(lgR)) + ORDERS() + (lgR < 0 ? tr(' darunter', ' below') : ''),
+      marks: [{ l: lgU, s: 'u_vac', c: col.accent, size: 12, r: 5 }, { l: lgUL, s: obs ? tr('u_Λ beobachtet', 'u_Λ observed') : 'u_Λ', c: col.cyan }],
+    };
+    vacFrame(ctx, W, H, S, {
+      head: [['u_vac / u_Λ = ', col.ink2], [S.fo('R'), mainC]].concat(narrow ? [] : [['   E_c = ', col.ink2], [S.fo('EceV') + ' eV', col.accent]]),
+      head2: narrow ? [['E_c = ', col.ink2], [S.fo('EceV') + ' eV', col.accent], ['  u_Λ = ', col.ink2], [S.fo('uL') + ' J/m³', col.cyan]]
+        : [['u_vac ~ E_c⁴/(ħc)³ = ', col.ink2], [S.fo('uV') + ' J/m³', col.accent], ['   u_Λ = Λc⁴/(8πG) = ', col.ink2], [S.fo('uL') + ' J/m³', col.cyan]],
+      top, bot, links: [[lgEc, col.accent], [lgEL, col.cyan]],
+      foot: [['u ∝ E⁴: 4 × ' + E.fmt(nE, 5) + ' = ', col.ink2], [E.fmt(lgR, 5), mainC], [narrow ? '' : ORDERS(), col.ink2]],
+      note: narrow ? tr('Abschätzung ohne Vorfaktor', 'estimate without a prefactor') : tr('Oben Energie, unten Energiedichte – an derselben Stelle · Abschätzung ohne Vorfaktor', 'Top: energy, bottom: energy density – at the same place · estimate without a prefactor'),
+    });
+  }
+  V.vacuum = (ctx, W, H, S) => {
+    grid(ctx, W, H, S.col);
+    (S.opts.view === 'rho' ? vacRho : vacLen)(ctx, W, H, S);
+  };
+
   PP.viz = V;
 })(globalThis.PP = globalThis.PP || {});

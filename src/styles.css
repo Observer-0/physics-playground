@@ -615,6 +615,10 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
 .oq-intro { max-width: 46rem; font-size: 15px; line-height: 1.6; }
 .oq-next { margin-top: 18px; font-size: 13.5px; color: var(--ink3); }
 .oq-live { display: inline-block; margin: 6px 0 4px; }
+.oq-live + .oq-live { margin-left: 8px; }
+/* Λ als Krümmung: der Absatz zur Dimension 1/Länge² hebt sich in der Feldfarbe ab */
+.oq-dim { border-left: 2px solid var(--fc, var(--cyan)); padding: 2px 0 2px 14px; margin: 16px 0 20px; }
+.oq-dim > p:first-child b { color: var(--ink); font-weight: 600; }
 .xhead .x-back { flex: 1 0 100%; font-size: 13px; text-decoration: none; margin-bottom: -8px; }
 /* Vergleichsleiste „Charakter der Theorie“ */
 .th-char { border: 1px solid var(--line2); border-radius: var(--r); background: var(--panel); padding: 10px 14px; margin: 16px 0 20px; font-size: 13.5px; }
