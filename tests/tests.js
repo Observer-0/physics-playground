@@ -125,7 +125,7 @@
     'Interaktive Gleichungen': 'Interactive equations',
     'Jede Gleichung ist interaktiv und ohne Marker gesetzt genau ihre Formel exp.tex': 'Every equation is interactive and, typeset without markers, is exactly its formula exp.tex',
     'Jedes Symbol: eine Quelle, Farbe, Kurzlabel, Rolle und Bedeutung auf Deutsch und Englisch, je höchstens drei Sätze; Werte nur aus PP.model.C': 'Every symbol: one source, colour, short label, role and meaning in German and English, at most three sentences each; values only from PP.model.C',
-    'Interaktive Gleichung: Zeigen und Klick wählen ein Symbol samt Karte, × und Esc schließen sie': 'Interactive equation: pointing and clicking select a symbol and its card, × and Esc close it',
+    'Interaktive Gleichung: Zeigen und Klick wählen ein Symbol samt Karte, × und Esc schließen sie; im Labor auf schmalen Bildschirmen ist sie zuerst zu': 'Interactive equation: pointing and clicking select a symbol and its card, × and Esc close it; in the lab on narrow screens it starts closed',
     'Grundlagen: Zu jedem Marker einer Kerngleichung gibt es ein Symbol und umgekehrt, auf Deutsch und Englisch': 'Foundations: every marker of a core equation has a symbol and vice versa, in German and English',
     'Grundlagen: Jede Kerngleichung steht in einem Abschnitt, jedes ihrer Symbole ist ein Knopf': 'Foundations: every core equation appears in a section, and each of its symbols is a button',
     'Grundlagen: Klick öffnet die schwebende Karte, × schließt sie, beim Abbau verschwindet sie': 'Foundations: a click opens the floating card, × closes it, and teardown removes it',
@@ -1050,7 +1050,7 @@
     } finally { down(); box.remove(); }
     ok(!document.getElementById('xpop'), 'Karte bleibt nach dem Abbau im Dokument');
   });
-  test('UI (im Browser)', 'Interaktive Gleichung: Zeigen und Klick wählen ein Symbol samt Karte, × und Esc schließen sie', () => {
+  test('UI (im Browser)', 'Interaktive Gleichung: Zeigen und Klick wählen ein Symbol samt Karte, × und Esc schließen sie; im Labor auf schmalen Bildschirmen ist sie zuerst zu', () => {
     if (!PP.ui || !PP.ui.eqx || typeof document === 'undefined') return;
     const U = PP.ui, S = U.S, keep = { exp: S.exp, form: S.form, xsel: S.xsel };
     try {
@@ -1072,6 +1072,19 @@
       b.click();
       ok(on() === 'Tmn', 'Klick auf T_μν: ' + on());
       ok(U.eqx.escape(el) && on() === '' && S.xsel.efe === null && !U.eqx.escape(el), 'Esc schließt nicht');
+      // Im Labor eines Experiments auf schmalen Bildschirmen ist die Karte zuerst zu – sonst schöbe sie das Experiment
+      // eine Bildschirmhöhe nach unten. Anderswo (hier: Testseite, Grundlagen) ist pre wie gewohnt gewählt.
+      const mm = Object.getOwnPropertyDescriptor(window, 'matchMedia'), view = S.view, tab = S.tab;
+      try {
+        window.matchMedia = () => ({ matches: true });
+        S.view = 'exp'; S.tab = 'lab'; S.xsel = {};
+        const el2 = document.createElement('div');
+        el2.innerHTML = U.eqx.hero(exp, '');
+        ok(!el2.querySelector('[aria-pressed="true"]'), 'schmal im Labor: Karte sollte zu sein');
+      } finally {
+        if (mm) Object.defineProperty(window, 'matchMedia', mm); else delete window.matchMedia;
+        S.view = view; S.tab = tab;
+      }
     } finally { S.exp = keep.exp; S.form = keep.form; S.xsel = keep.xsel; }
   });
 

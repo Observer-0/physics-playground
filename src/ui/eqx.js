@@ -69,7 +69,7 @@
   // Ausgewähltes Symbol der Gleichung; null = Karte geschlossen. Beim ersten Besuch ist eq.pre ausgewählt,
   // damit sofort sichtbar ist, was die Karten zeigen – außer im Labor auf schmalen Bildschirmen: Dort stünde die
   // Karte unter der Formel und schöbe das Experiment eine Bildschirmhöhe nach unten.
-  const narrowLab = () => S.tab === 'lab' && typeof matchMedia === 'function' && matchMedia('(max-width: 820px)').matches;
+  const narrowLab = () => S.view === 'exp' && S.tab === 'lab' && typeof matchMedia === 'function' && matchMedia('(max-width: 820px)').matches;
   function sel(exp, eq) {
     if (!E.has(S.xsel, exp.id)) S.xsel[exp.id] = narrowLab() ? null : eq.pre || null;
     const k = S.xsel[exp.id];
