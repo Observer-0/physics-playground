@@ -42,7 +42,7 @@ for (const v of ['hall', 'custom', 'theorie', 'offen', 'constants', 'saved', 'ab
 // Grundlagen und Offene Fragen: jeder Abschnitt hat eine eigene Seite
 for (const sec of ['dim', 'inertia', 'rel', 'idx', 'tensor', 'action', 'history', 'qm', 'entropy', 'gap']) hashes.push('view=theorie&sec=' + sec);
 for (const sec of ['quarter', 'lambda', 'info']) hashes.push('view=offen&sec=' + sec);
-hashes.push('exp=pendulum&f=motion&a=L:1;g:9.80665;th:170;t:0.37', 'exp=newton-gravity&cmp=1&b=m1:2;m2:1;r:0.5', 'exp=special-rel&a=beta:1;tau:1;L0:1;m:1', 'exp=planck&vo=q:T', 'exp=lambda-vac&vo=view:rho', 'exp=newton-gravity&brk=1', 'view=custom&eq=E%20%3D%20m%20g%20h');
+hashes.push('exp=pendulum&f=motion&a=L:1;g:9.80665;th:170;t:0.37', 'exp=newton-gravity&cmp=1&b=m1:2;m2:1;r:0.5', 'exp=special-rel&a=beta:1;tau:1;L0:1;m:1', 'exp=planck&vo=q:T', 'exp=lambda-vac&vo=view:rho', 'exp=lambda-vac&vo=view:hor', 'exp=newton-gravity&brk=1', 'view=custom&eq=E%20%3D%20m%20g%20h');
 let jobs = [];
 for (const lang of ['de', 'en']) { for (const h of hashes) jobs.push({ h, lang }); jobs.push({ h: 'view=tests', lang, tests: true }); }
 // Nur einen Teil prüfen, z. B. CHECK_ONLY=exp=planck

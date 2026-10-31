@@ -104,7 +104,8 @@
     'Warum 1/4: R_η = 4η bei jeder Masse, nur η = 1/4 erfüllt den ersten Hauptsatz, S_η(1/4) = S_BH, R ohne Messunsicherheit': 'Why 1/4: R_η = 4η for every mass, only η = 1/4 satisfies the first law, S_η(1/4) = S_BH, R without measurement uncertainty',
     'Kosmologische Konstante: bei der Planck-Energie u_vac/u_Λ zwischen 10¹²⁰ und 10¹²⁴ und gleich 8π/(Λ l_P²), bei der Energieskala von Λ gleich 1; u_vac ∝ E_c⁴; Verhältnisse dimensionslos': 'Cosmological constant: at the Planck energy u_vac/u_Λ lies between 10¹²⁰ and 10¹²⁴ and equals 8π/(Λ l_P²), at the energy scale of Λ it is 1; u_vac ∝ E_c⁴; ratios are dimensionless',
     'Kosmologische Konstante: ℓ_Λ = 1/√Λ ≈ 10¹⁰ Lichtjahre, Λ l_P² ≈ 2,9 × 10⁻¹²², lg(ℓ_Λ/l_P) = −lg(Λ l_P²)/2; ħc/E_Λ ist bis auf (8π)^¼ das geometrische Mittel von l_P und ℓ_Λ; die Zahlen der Seite stimmen mit der Engine': 'Cosmological constant: ℓ_Λ = 1/√Λ ≈ 10¹⁰ light years, Λ l_P² ≈ 2.9 × 10⁻¹²², lg(ℓ_Λ/l_P) = −lg(Λ l_P²)/2; up to (8π)^¼, ħc/E_Λ is the geometric mean of l_P and ℓ_Λ; the numbers on the page agree with the engine',
-    'Kosmologische Konstante: über der Planck-Energie „außerhalb des Modells“, ein verändertes Λ weicht vom „beobachteten“ Wert ab; beide Ansichten zeigen Werte aus der Engine': 'Cosmological constant: above the Planck energy “outside the model”, a changed Λ differs from the “observed” value; both views show values from the engine',
+    'Kosmologische Konstante: über der Planck-Energie „außerhalb des Modells“, ein verändertes Λ weicht vom „beobachteten“ Wert ab; alle drei Ansichten zeigen Werte aus der Engine': 'Cosmological constant: above the Planck energy “outside the model”, a changed Λ differs from the “observed” value; all three views show values from the engine',
+    'Λ-Horizont: S_dS = 3π k_B/(Λ l_P²) ≈ 3,3 × 10¹²² k_B, T_dS ≈ 2,2 × 10⁻³⁰ K; Schwarze Löcher erreichen die Bekenstein-Schranke 2πk_B ER/(ħc); beide Horizonte folgen S = k_B πr²/l_P²': 'Λ horizon: S_dS = 3π k_B/(Λ l_P²) ≈ 3.3 × 10¹²² k_B, T_dS ≈ 2.2 × 10⁻³⁰ K; black holes attain the Bekenstein bound 2πk_B ER/(ħc); both horizons follow S = k_B πr²/l_P²',
     'Keine Kandidaten für eine Quantengravitation – weder im Experiment noch in seinen Quellen noch auf den Seiten': 'No quantum-gravity candidates – not in the experiment, its sources or the pages',
     'Offene Fragen: jede Frage hat Status, Kurztitel, die fünf Abschnitte und ein Experiment im Feld „open“; der Direktlink #view=offen&sec=… bleibt im Zustand': 'Open questions: every question has a status, a short title, the five sections and an experiment in the “open” field; the direct link #view=offen&sec=… stays in the state',
     'Graph': 'Graph',
@@ -831,7 +832,7 @@
     close(r1(-val(p, 'lgLl') + Math.log10(8 * Math.PI)), r1(val(p, 'lgR')), 1e-12, '122,9 = 121,5 + lg 8π:');
     ok(r1(val(p, 'ELmeV')) === 2.2 && Math.abs(val(p, 'np') - 3.5) < 0.1 && Math.round(val(p, 'rdSly') / 1e9) === 17 && Math.abs(val(p, 'lamL') - 9e-5) < 5e-6, 'E_Λ, Protonen, de-Sitter-Radius, ħc/E_Λ');
   });
-  test('Offene Fragen', 'Kosmologische Konstante: über der Planck-Energie „außerhalb des Modells“, ein verändertes Λ weicht vom „beobachteten“ Wert ab; beide Ansichten zeigen Werte aus der Engine', () => {
+  test('Offene Fragen', 'Kosmologische Konstante: über der Planck-Energie „außerhalb des Modells“, ein verändertes Λ weicht vom „beobachteten“ Wert ab; alle drei Ansichten zeigen Werte aus der Engine', () => {
     const L = (vals) => run('lambda-vac', vals), exp = M.byId['lambda-vac'];
     const base = L();
     ok(!base.issues.some((i) => i.cat === 'model' || i.cat === 'unreal'), base.issues.map((i) => i.cat).join());
@@ -843,11 +844,29 @@
     for (const W of [640, 360]) {
       const len = draw('lambda-vac', {}, { W, H: W < 400 ? 260 : 330, opts: { view: 'len' } }), rho = draw('lambda-vac', {}, { W, H: W < 400 ? 260 : 330, opts: { view: 'rho' } });
       ok(len.some((s) => s.includes(fmtOut(base, 'lL') + ' m')) && len.includes(fmtOut(base, 'LlP2')), W + ' px, Λ = 1/ℓ²: ' + len.slice(0, 6).join(' | '));
-      ok(len.includes('1/l_P²') && len.some((s) => /≈ 121\.5/.test(s)) && len.some((s) => /≈ 60\.8/.test(s)), W + ' px: Größenordnungen in Länge und Krümmung');
+      ok(len.some((s) => s.startsWith('1/l_P²')) && len.some((s) => /≈ 121\.5/.test(s)) && len.some((s) => /≈ 60\.8/.test(s)), W + ' px: Größenordnungen in Länge und Krümmung');
       ok(rho.includes(fmtOut(base, 'R')) && rho.some((s) => /≈ 122\.9/.test(s)) && rho.some((s) => /≈ 30\.7/.test(s)), W + ' px, Energiedichte: ' + rho.slice(0, 6).join(' | '));
+      const hor = draw('lambda-vac', {}, { W, H: W < 400 ? 260 : 330, opts: { view: 'hor' } });
+      ok(hor.includes(fmtOut(base, 'SdS') + ' k_B') && hor.includes(fmtOut(base, 'TdS') + ' K') && hor.some((s) => /≈ 61 /.test(s)) && hor.some((s) => /≈ 122 /.test(s)) && hor.includes('M87*'), W + ' px, Horizonte: ' + hor.slice(0, 8).join(' | '));
     }
     const same = draw('lambda-vac', { Ec: val(base, 'EL') }, { opts: { view: 'rho' } });
     ok(same.includes('u_vac ≈ u_Λ'), 'Verhältnis 1: ' + same.join(' | '));
+  });
+  test('Offene Fragen', 'Λ-Horizont: S_dS = 3π k_B/(Λ l_P²) ≈ 3,3 × 10¹²² k_B, T_dS ≈ 2,2 × 10⁻³⁰ K; Schwarze Löcher erreichen die Bekenstein-Schranke 2πk_B ER/(ħc); beide Horizonte folgen S = k_B πr²/l_P²', () => {
+    const L = (vals) => run('lambda-vac', vals), p = L(), C = M.C;
+    close(val(p, 'SdS'), 3 * Math.PI / val(p, 'LlP2'), 1e-12, 'S_dS gegen 3π/(Λ l_P²):');
+    ok(val(p, 'SdS') > 3.2e122 && val(p, 'SdS') < 3.4e122, 'S_dS = ' + val(p, 'SdS'));
+    close(val(p, 'TdS'), C.hbar.value * C.c.value * Math.sqrt(C.Lambda.value / 3) / (2 * Math.PI * C.k_B.value), 1e-12, 'T_dS = ħH/(2πk_B):');
+    ok(Math.abs(val(p, 'TdS') / 2.2e-30 - 1) < 0.01, 'T_dS = ' + val(p, 'TdS'));
+    close(val(L({ Lambda: C.Lambda.value / 100 }), 'SdS'), 100 * val(p, 'SdS'), 1e-12, 'Λ ÷ 100 → S_dS × 100:');
+    close(val(p, 'nS'), 2 * val(p, 'nR'), 1e-12, 'eine Größenordnung im Radius = zwei in der Entropie:');
+    const lP2 = val(p, 'lP') ** 2;
+    close(val(p, 'SdS'), Math.PI * val(p, 'rdS') ** 2 / lP2, 1e-12, 'Λ-Horizont: S = πr²/l_P²:');
+    for (const Mx of [C.M_sun.value, 4.3e6 * C.M_sun.value, 6.5e9 * C.M_sun.value]) {
+      const bh = run('bh-entropy', { M: Mx }, 'mass'), rs = val(bh, 'rs');
+      close(2 * Math.PI * Mx * C.c.value ** 2 * rs / (C.hbar.value * C.c.value), val(bh, 'SkB'), 1e-12, 'Bekenstein-Schranke bei M = ' + Mx + ':');
+      close(val(bh, 'SkB'), Math.PI * rs * rs / lP2, 1e-12, 'Schwarzes Loch: S = πr²/l_P²:');
+    }
   });
   test('Offene Fragen', 'Keine Kandidaten für eine Quantengravitation – weder im Experiment noch in seinen Quellen noch auf den Seiten', () => {
     const banned = /string|schleifenquant|loop quantum|asymptoti\w* (sicherheit|safety)|kausale menge|causal set|holograph|AdS\/CFT|M-theor/i;

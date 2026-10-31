@@ -1162,6 +1162,7 @@
     const used = {};
     return (x, y, s, c, o) => {
       const side = o.side, size = o.size || 11;
+      if (!s) { ctx.fillStyle = c; ctx.beginPath(); ctx.arc(x, y, o.r || 3.5, 0, 7); ctx.fill(); return; }
       font(ctx, col, size);
       const w = textW(ctx, s), x0 = clamp(x - w / 2, 4, W - 4 - w);
       let tier = 0;
@@ -1170,7 +1171,7 @@
         if (row.every(([a, b]) => x0 + w + 6 < a || x0 > b + 6)) { row.push([x0, x0 + w]); break; }
       }
       ctx.fillStyle = c; ctx.beginPath(); ctx.arc(x, y, o.r || 3.5, 0, 7); ctx.fill();
-      if (tier === o.tiers) return;
+      if (tier === o.tiers || !s) return;
       const ly = side === 'up' ? y - 18 - tier * 14 : y + 28 + tier * 14;
       ctx.strokeStyle = c; ctx.lineWidth = 1; ctx.globalAlpha = 0.55;
       ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x, side === 'up' ? ly + 3 : ly - 11); ctx.stroke(); ctx.globalAlpha = 1;
@@ -1182,8 +1183,14 @@
   function vacFrame(ctx, W, H, S, f) {
     const { col } = S, narrow = W < 520, short = narrow && H < 250;
     const x0 = 18, x1 = W - 18, yA = narrow ? (short ? 84 : 88) : Math.round(H * 0.32), yB = narrow ? (short ? 158 : 162) : Math.round(H * 0.61);
-    segs(ctx, f.head, 14, 19, col, { mono: true, size: narrow ? 12 : 13 });
-    if (f.head2) segs(ctx, f.head2, 14, 36, col, { mono: true, size: 11 });
+    // eine Zeile in Monospace: so groß wie möglich, aber nie breiter als das Bild
+    const line = (parts, y, size) => {
+      let k = size;
+      for (; k > 10; k--) { font(ctx, col, k, true); if (textW(ctx, parts.map((q) => q[0]).join('')) <= W - 28) break; }
+      segs(ctx, parts, 14, y, col, { mono: true, size: k });
+    };
+    line(f.head, 19, narrow ? 12 : 13);
+    if (f.head2) line(f.head2, 36, 11);
     const rows = [[f.top, yA, true], [f.bot, yB, false]];
     // Lücke zwischen zwei Marken als Band
     for (const [ax, y] of rows) if (ax.band) {
@@ -1223,7 +1230,7 @@
       const mark = axisMarks(ctx, col, W);
       for (const m of ax.marks) if (isFinite(m.l)) mark(ax.X(m.l), y, m.s, m.c, { side: below ? 'up' : 'down', size: m.size, r: m.r, tiers: below ? (narrow ? 2 : 3) : (short ? 1 : narrow ? 2 : 3) });
     }
-    segs(ctx, f.foot, 14, H - (short ? 9 : narrow ? 27 : 33), col, { mono: true, size: narrow ? 11 : 12 });
+    line(f.foot, H - (short ? 9 : narrow ? 27 : 33), narrow ? 11 : 12);
     if (!short) note(ctx, f.note, W, H, col);
   }
   const ORDERS = () => tr(' Größenordnungen', ' orders of magnitude');
@@ -1251,7 +1258,7 @@
     };
     const bot = {
       lo: kLo, hi: kHi, step: 2 * step, unit: 'm⁻²', X: (k) => map(k, kHi, kLo, x0, x1), band: [lgKP, lgK, col.red], gap: '≈ ' + dec1(Math.abs(lgLl)) + ORDERS(),
-      marks: [{ l: lgK, s: obs && !narrow ? tr('Λ (beobachtet)', 'Λ (observed)') : 'Λ', c: col.cyan, size: 12, r: 5 }, { l: lgKP, s: '1/l_P²', c: col.ink }],
+      marks: [{ l: lgK, s: obs && !narrow ? tr('Λ (beobachtet)', 'Λ (observed)') : 'Λ', c: col.cyan, size: 12, r: 5 }, { l: lgKP, s: narrow ? '1/l_P²' : '1/l_P² = c³/(ħG)', c: col.ink }],
     };
     vacFrame(ctx, W, H, S, {
       head: narrow ? [['Λ = ', col.ink2], [E.fmt(lam, 3) + ' m⁻²', col.cyan], [' = 1/ℓ_Λ²', col.ink2]]
@@ -1260,7 +1267,7 @@
         : [['≈ ' + S.fo('lLly') + tr(' Lichtjahre · Λ ist eine Krümmung: Dimension 1/Länge²', ' light years · Λ is a curvature: dimension 1/length²'), col.ink2]],
       top, bot, links: [[lgL, col.cyan], [lgP, col.ink3]],
       foot: [['Λ l_P² = (l_P/ℓ_Λ)² = ', col.ink2], [S.fo('LlP2'), col.cyan]].concat(narrow ? [] : [['  ·  2 × ' + E.fmt(nl, 5) + ' = ' + E.fmt(-lgLl, 5) + ORDERS(), col.ink2]]),
-      note: narrow ? tr('oben Länge, unten 1/Länge²', 'top: length, bottom: 1/length²') : tr('Oben Länge, unten Krümmung 1/Länge² – an derselben Stelle · Vergleichswerte gerundet', 'Top: length, bottom: curvature 1/length² – at the same place · reference values rounded'),
+      note: narrow ? tr('oben Länge, unten 1/Länge²', 'top: length, bottom: 1/length²') : tr('Oben Länge, unten Krümmung 1/Länge² · Λ aus der Geometrie, 1/l_P² mit ħ', 'Top: length, bottom: curvature 1/length² · Λ from geometry, 1/l_P² with ħ'),
     });
   }
   function vacRho(ctx, W, H, S) {
@@ -1297,12 +1304,54 @@
         : [['u_vac ~ E_c⁴/(ħc)³ = ', col.ink2], [S.fo('uV') + ' J/m³', col.accent], ['   u_Λ = Λc⁴/(8πG) = ', col.ink2], [S.fo('uL') + ' J/m³', col.cyan]],
       top, bot, links: [[lgEc, col.accent], [lgEL, col.cyan]],
       foot: [['u ∝ E⁴: 4 × ' + E.fmt(nE, 5) + ' = ', col.ink2], [E.fmt(lgR, 5), mainC], [narrow ? '' : ORDERS(), col.ink2]],
-      note: narrow ? tr('Abschätzung ohne Vorfaktor', 'estimate without a prefactor') : tr('Oben Energie, unten Energiedichte – an derselben Stelle · Abschätzung ohne Vorfaktor', 'Top: energy, bottom: energy density – at the same place · estimate without a prefactor'),
+      note: narrow ? tr('Abschätzung ohne Vorfaktor', 'estimate without a prefactor') : tr('Oben Energie, unten Energiedichte · Abschätzung ohne Vorfaktor', 'Top: energy, bottom: energy density · estimate without a prefactor'),
+    });
+  }
+  /* „Horizonte S ∝ r²“: oben der Radius eines Horizonts, unten seine Entropie k_B πr²/l_P² – die Bekenstein-Schranke
+     mit der größten Energie, die in den Radius passt. Schwarze Löcher (violett, aus „Bekenstein-Hawking-Entropie“)
+     und der Λ-Horizont r_dS = √(3/Λ) liegen auf denselben Achsen; eine Größenordnung im Radius sind zwei in der Entropie. */
+  function vacHor(ctx, W, H, S) {
+    const { col } = S, narrow = W < 520, lam = S.v.Lambda;
+    const lgK = lam > 0 ? lg10(lam) : NaN, lgR = S.lg('rdS'), lgS = S.lg('SdS'), lgP = S.lg('lP'), lgKP = S.lg('KP'), nR = S.o('nR'), nS = S.o('nS');
+    const bad = () => invalid(ctx, W, H, col, tr('Der Λ-Horizont ist hier nicht definiert', 'The Λ horizon is not defined here'));
+    if (![lgK, lgR, lgS, lgP, lgKP, nR, nS].every(isFinite)) return bad();
+    // Achsenenden: die Horizonte zu einem großen und einem kleinen Λ – Radius und Entropie aus der Engine
+    const kHi = Math.ceil(Math.max(lgKP, lgK) + 3), kLo = Math.floor(Math.min(lgK, -52) - 7);
+    const a = S.at({ Lambda: Math.pow(10, kHi) }), b = S.at({ Lambda: Math.pow(10, kLo) });
+    const rA = a.lg('rdS'), rB = b.lg('rdS'), sA = a.lg('SdS'), sB = b.lg('SdS');
+    if (![rA, rB, sA, sB].every(isFinite) || !(rB > rA) || !(sB > sA)) return bad();
+    const x0 = 18, x1 = W - 18, step = [5, 10, 15, 20].find((k) => k * (x1 - x0) / (rB - rA) >= 44) || 20;
+    const MS = PP.model.C.M_sun.value;
+    const holes = [[1, '1 M☉'], [4.3e6, 'Sgr A*'], [6.5e9, 'M87*']].filter((h, i) => !narrow || i !== 1).map(([m, s]) => {
+      const r = S.at({ M: m * MS }, 'bh-entropy', 'mass');
+      return { r: r.lg('rs'), S: r.lg('SkB'), s };
+    });
+    const top = {
+      lo: rA, hi: rB, step, unit: 'm', X: (l) => map(l, rA, rB, x0, x1), band: [lgP, lgR, col.red], gap: '≈ ' + dec1(Math.abs(nR)) + ORDERS(),
+      marks: [
+        { l: lgR, s: narrow ? 'r_dS' : tr('r_dS = √(3/Λ): Λ-Horizont', 'r_dS = √(3/Λ): Λ horizon'), c: col.cyan, size: 12, r: 5 },
+        { l: lgP, s: 'l_P', c: col.ink },
+      ].concat(holes.map((h) => ({ l: h.r, s: h.s, c: col.violet }))),
+    };
+    const bot = {
+      lo: sA, hi: sB, step: [10, 20, 30, 40].find((k) => k * (x1 - x0) / (sB - sA) >= 44) || 40, unit: 'k_B', X: (l) => map(l, sA, sB, x0, x1),
+      band: [lgS - nS, lgS, col.red], gap: '≈ ' + dec1(Math.abs(nS)) + ORDERS(),
+      marks: [
+        { l: lgS, s: narrow ? 'S_dS' : tr('S_dS: Entropie des Λ-Horizonts', 'S_dS: entropy of the Λ horizon'), c: col.cyan, size: 12, r: 5 },
+        { l: lgS - nS, s: '', c: col.ink },
+      ].concat(holes.map((h) => ({ l: h.S, s: '', c: col.violet }))),
+    };
+    vacFrame(ctx, W, H, S, {
+      head: [[(narrow ? '' : 'Bekenstein: ') + 'S ≤ 2πk_B ER/(ħc) ≤ k_B πR²/l_P²', col.ink2]],
+      head2: [[narrow ? 'S_dS = ' : tr('Λ-Horizont: S_dS = ', 'Λ horizon: S_dS = '), col.ink2], [S.fo('SdS') + ' k_B', col.cyan], [narrow ? '  T = ' : '   T_dS = ', col.ink2], [S.fo('TdS') + ' K', col.cyan]],
+      top, bot, links: [[lgR, col.cyan], [lgP, col.ink3]],
+      foot: [['Λ l_P² = 3π k_B/S_dS = ', col.ink2], [S.fo('LlP2'), col.cyan]].concat(narrow ? [] : [[tr('  ·  Kehrwert einer Entropie', '  ·  the inverse of an entropy'), col.ink2]]),
+      note: narrow ? tr('oben Radius, unten Entropie', 'top: radius, bottom: entropy') : tr('Oben Radius, unten Entropie k_B πr²/l_P² · violett: Schwarze Löcher', 'Top: radius, bottom: entropy k_B πr²/l_P² · violet: black holes'),
     });
   }
   V.vacuum = (ctx, W, H, S) => {
     grid(ctx, W, H, S.col);
-    (S.opts.view === 'rho' ? vacRho : vacLen)(ctx, W, H, S);
+    (S.opts.view === 'rho' ? vacRho : S.opts.view === 'hor' ? vacHor : vacLen)(ctx, W, H, S);
   };
 
   PP.viz = V;
