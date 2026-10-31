@@ -65,7 +65,7 @@
       tex: '\\xs{TH}{T_{\\mathrm{H}}} = \\frac{\\xs{hbar}{\\hbar}\\, \\xs{c}{c^3}}{\\xs{8pi}{8\\pi}\\, \\xs{G}{G}\\, \\xs{M}{M}\\, \\xs{k_B}{k_{\\mathrm{B}}}}',
       pre: 'hbar',
       legend: { de: 'Symbole und Theorien', en: 'Symbols and theories' },
-      hint: { de: 'Zeig auf ein Symbol oder tippe es an: Welche Theorie steckt dahinter – und was passiert, wenn man sie abschaltet?', en: 'Point at a symbol or tap it: which theory is behind it – and what happens if you switch it off?' },
+      hint: { de: 'Zeig auf ein Symbol oder tippe es an: Die Karte nennt die Theorie dahinter und zeigt, was passiert, wenn man sie abschaltet.', en: 'Point at a symbol or tap it: the card names the theory behind it and shows what happens if you switch it off.' },
       symbols: {
         TH: {
           o: 'TH', color: 'res', tag: RESULT,

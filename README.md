@@ -126,15 +126,19 @@ valid region determines the view.
 
 Other features: A/B comparison with ratio and percentage change (series
 B is faded in the graph); presets with sources; "Try it" tasks with
-automatic checking; a Sources tab with original papers and DOIs;
+automatic checking, phrased as instructions rather than questions; a Sources tab with original papers and DOIs;
 Break-the-Physics mode; Dimensional Analysis Nightmare Mode; URL state
 (including visualization settings); local saving; and light and dark
 themes.
 
-Every experiment uses the same tabs (Graph & Lab, Formula & Variables,
-Dimensional Analysis, Physics & Limits, Sources) and opens on the Lab
-tab. On mobile, the visualization stays pinned at the top while
-scrolling through the sliders.
+Every experiment uses the same tabs (Lab, Explanation, Formula,
+Dimensions, Sources) and opens on the Lab tab. The Explanation tab goes
+from intuition via mathematics to physics. Compare and Reset sit in the
+header of the parameter panel; in the results list, each value shares a
+line with its symbol and its description runs underneath, so no value is
+cut off. On mobile, the visualization stays pinned at the top while
+scrolling through the sliders, and two formulas separated by `\qquad`
+may wrap onto two lines.
 
 The Hawking temperature page shows how quantum mechanics, relativity,
 gravity, and thermodynamics meet. Its limiting cases can be explored
@@ -368,7 +372,9 @@ in `src/index.html`.
   `src/ui/open.js`                    Open Questions: overview
                                       (`#view=offen`) and one page per
                                       question (`#view=offen&sec=quarter`)
-                                      with the five parts question /
+                                      with an introduction (no section
+                                      of its own, no question sentences
+                                      in the text) and the four parts
                                       established / open / what would
                                       settle it / live in the app, a
                                       status (open, partially

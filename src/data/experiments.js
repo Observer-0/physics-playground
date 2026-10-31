@@ -18,6 +18,7 @@
 
   define({
     id: 'newton-gravity', group: MECH, field: 'mech', title: { de: 'Newtonsche Gravitation', en: 'Newtonian gravity' }, short: { de: 'Gravitation', en: 'Gravity' },
+    subtitle: { de: 'Doppelte Masse, doppelte Kraft – doppelter Abstand, ein Viertel der Kraft.', en: 'Twice the mass, twice the force – twice the distance, a quarter of the force.' },
     tex: 'F = G\\,\\frac{m_1\\, m_2}{r^2}',
     vars: {
       G:  { label: 'G', tex: 'G', name: { de: 'Gravitationskonstante', en: 'Gravitational constant' }, dim: 'L^3 M^-1 T^-2', constant: 'G', min: 1e-15, max: 1e-3, scale: 'log' },
@@ -86,6 +87,7 @@
 
   define({
     id: 'kinematics', group: MECH, field: 'mech', title: { de: 'Gleichmäßig beschleunigte Bewegung', en: 'Uniformly accelerated motion' }, short: { de: 'Kinematik', en: 'Kinematics' },
+    subtitle: { de: 'Bei konstanter Beschleunigung wächst die Geschwindigkeit linear mit der Zeit, der Weg quadratisch.', en: 'With constant acceleration, the velocity grows linearly with time, the distance quadratically.' },
     tex: 's(t) = s_0 + v_0\\,t + \\tfrac12\\,a\\,t^2',
     vars: {
       s0: { label: 's₀', tex: 's_0', name: { de: 'Startposition', en: 'Initial position' }, dim: 'L', default: 0, min: -100, max: 100, scale: 'lin' },
@@ -140,6 +142,7 @@
 
   define({
     id: 'free-fall', group: MECH, field: 'mech', title: { de: 'Freier Fall', en: 'Free fall' }, short: { de: 'Freier Fall', en: 'Free fall' },
+    subtitle: { de: 'Ohne Luftwiderstand fallen alle Körper gleich schnell – die Fallstrecke wächst quadratisch mit der Zeit.', en: 'Without air resistance, all bodies fall equally fast – the distance fallen grows quadratically with time.' },
     tex: 'h(t) = h_0 - \\tfrac12\\, g\\, t^2',
     vars: {
       h0: { label: 'h₀', tex: 'h_0', name: { de: 'Starthöhe', en: 'Initial height' }, dim: 'L', default: 100, min: 0, max: 1000, scale: 'lin' },
@@ -198,6 +201,7 @@
 
   define({
     id: 'spring', group: MECH, field: 'mech', title: { de: 'Federpendel (Hookesches Gesetz)', en: 'Mass on a spring (Hooke’s law)' }, short: { de: 'Feder', en: 'Spring' },
+    subtitle: { de: 'Die Feder zieht proportional zur Auslenkung zurück; den Takt der Schwingung bestimmen nur Masse und Federhärte.', en: 'The spring pulls back in proportion to the displacement; only mass and stiffness set the rhythm of the oscillation.' },
     tex: 'F = -k\\,x',
     vars: {
       k: { label: 'k', tex: 'k', name: { de: 'Federkonstante', en: 'Spring constant' }, dim: 'M T^-2', default: 50, min: 0.1, max: 1e6, scale: 'log', positive: true },
@@ -250,6 +254,7 @@
 
   define({
     id: 'circular', group: MECH, field: 'mech', title: { de: 'Gleichförmige Kreisbewegung', en: 'Uniform circular motion' }, short: { de: 'Kreisbewegung', en: 'Circular motion' },
+    subtitle: { de: 'Konstantes Tempo und trotzdem beschleunigt: Die Beschleunigung zeigt zur Mitte und wächst mit v².', en: 'Constant speed and still accelerating: the acceleration points to the centre and grows with v².' },
     tex: 'a = \\frac{v^2}{r}',
     vars: {
       v: { label: 'v', tex: 'v', name: { de: 'Bahngeschwindigkeit', en: 'Orbital speed' }, dim: 'L T^-1', default: 10, min: 0.01, max: 1e6, scale: 'log', positive: true },
@@ -311,6 +316,7 @@
 
   define({
     id: 'pendulum', group: MECH, field: 'mech', title: { de: 'Fadenpendel: Näherung und exakte Lösung', en: 'Simple pendulum: approximation and exact solution' }, short: { de: 'Fadenpendel', en: 'Pendulum' },
+    subtitle: { de: 'Die Näherung für kleine Winkel gegen die exakte Lösung: Je größer der Ausschlag, desto länger dauert eine Schwingung.', en: 'The small-angle approximation against the exact solution: the larger the amplitude, the longer one swing takes.' },
     tex: 'T = 4\\sqrt{\\frac{L}{g}}\\;K\\left(\\sin\\frac{\\theta_0}{2}\\right)',
     vars: {
       L: { label: 'L', tex: 'L', name: { de: 'Fadenlänge', en: 'Length of the string' }, dim: 'L', default: 1, min: 0.01, max: 100, scale: 'log', positive: true },
@@ -394,6 +400,7 @@
 
   define({
     id: 'projectile', group: MECH, field: 'mech', title: { de: 'Schiefer Wurf', en: 'Projectile motion' }, short: { de: 'Schiefer Wurf', en: 'Projectile' },
+    subtitle: { de: 'Waagerecht gleichförmig, senkrecht freier Fall – zusammen eine Parabel, am weitesten unter 45°.', en: 'Uniform horizontally, free fall vertically – together a parabola, reaching farthest at 45°.' },
     tex: 'R = \\frac{v_0^2\\,\\sin 2\\alpha}{g}',
     vars: {
       v0: { label: 'v₀', tex: 'v_0', name: { de: 'Abwurfgeschwindigkeit', en: 'Launch speed' }, dim: 'L T^-1', default: 20, min: 0.1, max: 1000, scale: 'log', positive: true },
@@ -457,6 +464,7 @@
 
   define({
     id: 'special-rel', group: { de: 'Relativität', en: 'Relativity' }, field: 'rel', title: { de: 'Spezielle Relativität: Lorentz-Faktor', en: 'Special relativity: Lorentz factor' }, short: { de: 'Lorentz-Faktor', en: 'Lorentz factor' },
+    subtitle: { de: 'Je näher an der Lichtgeschwindigkeit, desto langsamer gehen bewegte Uhren und desto kürzer sind bewegte Maßstäbe.', en: 'The closer to the speed of light, the slower moving clocks run and the shorter moving rulers are.' },
     tex: '\\gamma = \\frac{1}{\\sqrt{1 - v^2/c^2}}',
     vars: {
       beta: { label: 'β = v/c', tex: '\\beta', name: { de: 'Geschwindigkeit in Einheiten von c', en: 'Speed in units of c' }, dim: '', default: 0.8, min: 0, max: 1, scale: 'toone', toone: 12 },
@@ -523,6 +531,7 @@
   const NA = C.N_A.value;
   define({
     id: 'ideal-gas', group: { de: 'Thermodynamik', en: 'Thermodynamics' }, field: 'thermo', title: { de: 'Ideales Gas', en: 'Ideal gas' }, short: { de: 'Ideales Gas', en: 'Ideal gas' },
+    subtitle: { de: 'Mehr Teilchen, höhere Temperatur oder weniger Volumen – jedes davon erhöht den Druck.', en: 'More particles, a higher temperature or less volume – each of them raises the pressure.' },
     tex: 'p\\,V = N\\,k_{\\mathrm{B}}\\,T',
     vars: {
       N: { label: 'N', tex: 'N', name: { de: 'Teilchenzahl', en: 'Number of particles' }, dim: '', default: NA, min: 1, max: 1e30, scale: 'log', positive: true },
@@ -738,6 +747,7 @@
 
   define({
     id: 'bh-entropy', group: 'Famous Equations', field: 'famous', hall: true, title: BH_ENTROPY, short: { de: 'BH-Entropie', en: 'BH entropy' },
+    subtitle: { de: 'Die Entropie wächst mit der Fläche des Horizonts, nicht mit dem Volumen – gezählt in Planck-Flächen.', en: 'The entropy grows with the area of the horizon, not with the volume – counted in Planck areas.' },
     dict: BH_DICT,
     tex: 'S_{\\mathrm{BH}} = \\frac{k_{\\mathrm{B}}\\, c^3 A}{4\\, G\\, \\hbar}',
     meta: { mathType: SCALAR, mainDim: { de: 'Entropie', en: 'Entropy' }, domain: BH_THERMO, status: { de: 'theoretisches Ergebnis, nicht gemessen', en: 'theoretical result, not measured' } },
@@ -819,7 +829,7 @@
 
   define({
     id: 'bh-eta', group: OPEN_Q, field: 'open', title: { de: 'Vorfaktor η der Entropie Schwarzer Löcher', en: 'Prefactor η of black hole entropy' }, short: { de: 'Vorfaktor η', en: 'Prefactor η' },
-    subtitle: { de: 'Welcher Vorfaktor ist mit dem ersten Hauptsatz und der Hawking-Temperatur verträglich?', en: 'Which prefactor is compatible with the first law and the Hawking temperature?' },
+    subtitle: { de: 'Der Vorfaktor als Regler: Nur ein Wert verträgt sich mit dem ersten Hauptsatz und der Hawking-Temperatur.', en: 'The prefactor as a slider: only one value is compatible with the first law and the Hawking temperature.' },
     tex: 'S_\\eta = \\eta\\,\\frac{k_{\\mathrm{B}}\\, A}{l_{\\mathrm{P}}^2} \\qquad R_\\eta = \\frac{T_{\\mathrm{H}}}{c^2}\\,\\frac{\\mathrm{d}S_\\eta}{\\mathrm{d}M}',
     meta: { mathType: SCALAR, mainDim: { de: 'dimensionslos', en: 'dimensionless' }, domain: BH_THERMO, status: { de: 'Konsistenzprüfung im Rahmen der semiklassischen Gravitation', en: 'consistency check within semiclassical gravity' } },
     vars: {
@@ -870,8 +880,8 @@
     viz: 'firstlaw',
     explain: {
       intuition: {
-        de: 'Die Entropie eines Schwarzen Lochs ist proportional zur Horizontfläche – aber mit welchem Vorfaktor? Hier ist er frei wählbar. Der erste Hauptsatz und die Hawking-Temperatur lassen nur einen einzigen Wert zu: ein Viertel.',
-        en: 'The entropy of a black hole is proportional to the horizon area – but with what prefactor? Here you can choose it freely. The first law and the Hawking temperature allow only a single value: one quarter.',
+        de: 'Die Entropie eines Schwarzen Lochs ist proportional zur Horizontfläche. Den Vorfaktor legt das allein nicht fest – hier ist er frei wählbar. Der erste Hauptsatz und die Hawking-Temperatur lassen nur einen einzigen Wert zu: ein Viertel.',
+        en: 'The entropy of a black hole is proportional to the horizon area. That alone does not fix the prefactor – here you can choose it freely. The first law and the Hawking temperature allow only a single value: one quarter.',
       },
       math: [
         { t: { de: 'Entropie mit freiem Vorfaktor', en: 'Entropy with a free prefactor' }, tex: 'S_\\eta = \\eta\\,\\frac{k_{\\mathrm{B}} A}{l_{\\mathrm{P}}^2} = \\eta\\,\\frac{16\\pi G k_{\\mathrm{B}}}{\\hbar c}\\, M^2' },
@@ -1201,6 +1211,7 @@
 
   define({
     id: 'efe', group: 'Famous Equations', field: 'famous', hall: true, title: { de: 'Einsteinsche Feldgleichungen', en: 'Einstein field equations' }, short: { de: 'Feldgleichungen', en: 'Field equations' },
+    subtitle: { de: 'Energie krümmt die Raumzeit – das Experiment schätzt ab, wie stark, für eine gegebene Energiedichte.', en: 'Energy curves spacetime – the experiment estimates how strongly, for a given energy density.' },
     tex: 'G_{\\mu\\nu} + \\Lambda\\, g_{\\mu\\nu} = \\frac{8\\pi G}{c^4}\\, T_{\\mu\\nu}',
     meta: {
       mathType: { de: 'Tensorgleichung (10 gekoppelte nichtlineare PDGs)', en: 'Tensor equation (10 coupled nonlinear PDEs)' },
@@ -1268,6 +1279,7 @@
 
   define({
     id: 'schroedinger', group: 'Famous Equations', field: 'famous', hall: true, title: { de: 'Schrödinger-Gleichung', en: 'Schrödinger equation' }, short: 'Schrödinger',
+    subtitle: { de: 'Im Kasten passen nur stehende Wellen hinein – deshalb sind nur bestimmte Energien möglich.', en: 'Only standing waves fit into the box – that is why only certain energies are possible.' },
     tex: 'i\\hbar\\,\\frac{\\partial \\psi}{\\partial t} = \\Bigl[-\\frac{\\hbar^2}{2m}\\nabla^2 + V\\Bigr]\\psi',
     meta: {
       mathType: { de: 'lineare partielle Differentialgleichung', en: 'linear partial differential equation' },

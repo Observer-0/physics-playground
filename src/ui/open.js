@@ -8,7 +8,8 @@
    heißt „offen“. Alle Zahlen kommen aus der Engine (Experimente mit
    field: 'open' in src/data/experiments.js).
    Jede Frage: { id, status, exp?, title, body } – Seitenaufbau wie die
-   Grundlagen (U.sectionPage in src/ui/theory.js).
+   Grundlagen (U.sectionPage in src/ui/theory.js). Eine Seite beginnt mit einer
+   Einleitung (p.oq-lead) und ohne Fragesätze im Text; Fragen sind nur die Titel.
    ===================================================================== */
 (function (PP) {
   'use strict';
@@ -41,10 +42,9 @@
       body: {
         de: () => {
           const MATH = 'Mathematik', SEMI = 'semiklassisch', OPEN = 'offen', MEAS = 'Messung', QFT = 'Quantenfeldtheorie';
-          return '<h3 class="th-h3">Die Frage</h3>' +
-            '<p>Die Entropie eines Schwarzen Lochs wächst mit der Fläche seines Horizonts – gezählt in Planck-Flächen, mit einem Vorfaktor von genau einem Viertel:</p>' +
+          return '<p class="oq-lead">Die Entropie eines Schwarzen Lochs wächst mit der Fläche seines Horizonts – gezählt in Planck-Flächen, mit einem Vorfaktor von genau einem Viertel:</p>' +
             xq('entropy-bh') +
-            '<p>Daran hängen zwei Fragen. Woher kommt genau dieser Faktor 1/4? Und was zählt diese Entropie eigentlich – welche Zustände stecken hinter ihr?</p>' +
+            '<p>Zu klären sind zwei Punkte: woher genau dieser Faktor kommt und welche Zustände diese Entropie zählt. Der erste ist im Rahmen der semiklassischen Gravitation verstanden, der zweite nicht.</p>' +
             '<h3 class="th-h3">Was gesichert ist</h3>' +
             '<p>' + kind(SEMI) + ' Für ein Schwarzschild-Loch liefern Hawkings Rechnung (1975) und die Geometrie des Horizonts Temperatur und Fläche:</p>' +
             d(R`T_{\mathrm{H}} = \frac{\hbar c^{3}}{8\pi G M k_{\mathrm{B}}}`) + d(R`A = 4\pi r_{\mathrm{s}}^{2} = \frac{16\pi G^{2} M^{2}}{c^{4}}`) +
@@ -71,10 +71,9 @@
         },
         en: () => {
           const MATH = 'mathematics', SEMI = 'semiclassical', OPEN = 'open', MEAS = 'measurement', QFT = 'quantum field theory';
-          return '<h3 class="th-h3">The question</h3>' +
-            '<p>The entropy of a black hole grows with the area of its horizon – counted in Planck areas, with a prefactor of exactly one quarter:</p>' +
+          return '<p class="oq-lead">The entropy of a black hole grows with the area of its horizon – counted in Planck areas, with a prefactor of exactly one quarter:</p>' +
             xq('entropy-bh') +
-            '<p>Two questions follow. Where does exactly this factor of 1/4 come from? And what does this entropy actually count – which states lie behind it?</p>' +
+            '<p>Two points need clarifying: where exactly this factor comes from and which states this entropy counts. The first is understood within semiclassical gravity, the second is not.</p>' +
             '<h3 class="th-h3">What is established</h3>' +
             '<p>' + kind(SEMI) + ' For a Schwarzschild black hole, Hawking’s calculation (1975) and the geometry of the horizon give the temperature and the area:</p>' +
             d(R`T_{\mathrm{H}} = \frac{\hbar c^{3}}{8\pi G M k_{\mathrm{B}}}`) + d(R`A = 4\pi r_{\mathrm{s}}^{2} = \frac{16\pi G^{2} M^{2}}{c^{4}}`) +
@@ -107,22 +106,29 @@
       body: {
         de: () => {
           const MATH = 'Mathematik', MEAS = 'Messung', OPEN = 'offen', QFT = 'Quantenfeldtheorie', EST = 'Abschätzung', SEMI = 'semiklassisch';
-          return '<h3 class="th-h3">Die Frage</h3>' +
-            '<p>Einstein schrieb 1917 einen zusätzlichen Term in seine Feldgleichungen: ' + t(R`\Lambda\, g_{\mu\nu}`) + ' mit der kosmologischen Konstante Λ.</p>' +
+          return '<p class="oq-lead">Einstein schrieb 1917 einen zusätzlichen Term in seine Feldgleichungen: ' + t(R`\Lambda\, g_{\mu\nu}`) + ' mit der kosmologischen Konstante Λ.</p>' +
             xq('rel-efe') +
-            '<p>Heute ist Λ die einfachste Erklärung dafür, dass sich das Universum beschleunigt ausdehnt. Ihr Wert ist winzig. Die Quantenfeldtheorie sagt aber: Auch der leere Raum hat Energie, und die Gravitation spürt jede Energie. Jede naheliegende Abschätzung dieser Vakuumenergie liegt viele Größenordnungen über dem, was Λ entspricht. Warum ist Λ so klein – und warum trotzdem nicht null?</p>' +
+            '<p>Heute ist Λ die einfachste Erklärung dafür, dass sich das Universum beschleunigt ausdehnt. Ihr Wert ist winzig. Die Quantenfeldtheorie sagt aber: Auch der leere Raum hat Energie, und die Gravitation spürt jede Energie. Jede naheliegende Abschätzung dieser Vakuumenergie liegt viele Größenordnungen über dem, was Λ entspricht. Ungeklärt ist, warum Λ so klein ist – und warum trotzdem nicht null.</p>' +
             '<h3 class="th-h3">Was gesichert ist</h3>' +
             '<p>' + kind(MEAS) + ' Ferne Supernovae vom Typ Ia zeigen seit 1998, dass sich die Expansion beschleunigt (Riess u. a. 1998, Perlmutter u. a. 1999). Hintergrundstrahlung und baryonische akustische Oszillationen bestätigen das. Im kosmologischen Standardmodell ΛCDM folgt ' + t(R`\Lambda \approx 1{,}1 \times 10^{-52}\,\mathrm{m}^{-2}`) + ' (Planck 2018) – ein modellabhängiger Wert.</p>' +
+            '<p>' + kind(MATH) + ' Rechts vom Gleichheitszeichen gelesen, ist der Λ-Term eine Energiedichte des leeren Raums, überall gleich und für jeden Beobachter dieselbe:</p>' +
+            d(R`u_\Lambda = \frac{\Lambda\, c^{4}}{8\pi G}`) +
+            '<p>Das sind ' + t(R`5{,}3 \times 10^{-10}\,\mathrm{J/m^{3}}`) + ' – so viel wie die Ruheenergie von dreieinhalb Protonen pro Kubikmeter. Ihr Druck ist minus ihre Energiedichte; deshalb beschleunigt sie die Expansion, statt sie zu bremsen.</p>' +
+            '<p>' + kind(QFT) + ' Ohne Gravitation zählen in der Quantenfeldtheorie nur Energieunterschiede; den Nullpunkt der Energie kann man frei wählen. Die Gravitation dagegen spürt jede Energie, auch die des Vakuums. Eine Energiedichte des leeren Raums, die für jeden Beobachter gleich aussieht, hat genau die Form des Λ-Terms – sie wirkt wie ein Beitrag zu Λ. Nullpunktschwankungen sind dabei kein Rechentrick: Lamb-Verschiebung und Casimir-Effekt hängen mit ihnen zusammen. Gemessen werden dort aber Energieunterschiede, nicht die Energiedichte des Vakuums selbst.</p>' +
+            '<p>' + kind(EST) + ' Zählt man die Nullpunktenergien ' + t(R`\tfrac{1}{2}\hbar\omega`) + ' aller Feldmoden bis zu einer Abschneide-Energie ' + t(R`E_{\mathrm{c}}`) + ', wächst die Summe wie ' + t(R`E_{\mathrm{c}}^{4}`) + ':</p>' +
+            d(R`u_{\mathrm{vac}} \sim \frac{E_{\mathrm{c}}^{4}}{(\hbar c)^{3}}`) +
+            '<p>' + kind(MATH) + ' Bei der Planck-Energie hängt das Verhältnis nur noch an Λ, gemessen in Planck-Einheiten:</p>' +
+            d(R`\frac{u_{\mathrm{vac}}(E_{\mathrm{P}})}{u_\Lambda} = \frac{8\pi}{\Lambda\, l_{\mathrm{P}}^{2}}`) +
+            '<p>Das sind etwa ' + t(R`10^{123}`) + ', mit dem Vorfaktor ' + t(R`1/(16\pi^{2})`) + ' eines einzelnen freien Feldes etwa ' + t(R`10^{121}`) + ' – daher die oft zitierten „120 Größenordnungen“. Bei 1 TeV bleiben etwa ' + t(R`10^{59}`) + ', beim Elektron ' + t(R`10^{33}`) + ' – mit Physik, die gut getestet ist.</p>' +
+            '<div class="honest"><b>Einordnung:</b> Die 120 Größenordnungen sind keine Vorhersage der Quantenfeldtheorie. Ein harter Cutoff zeichnet ein Bezugssystem aus und verletzt die Lorentz-Invarianz; die so gezählte Energie verhält sich wie Strahlung, nicht wie Λ. Eine Lorentz-invariante Rechnung ergibt für die bekannten Teilchen eine Vakuumenergie von der Größenordnung ' + t(R`(100\,\mathrm{GeV})^{4}`) + ', rund 55 Größenordnungen über ' + t(R`u_\Lambda`) + ' (Martin 2012). Ähnlich groß ist der Sprung der Vakuumenergie, den das Standardmodell für den elektroschwachen Übergang im frühen Universum vorhersagt. Das Problem wird kleiner, aber es verschwindet nicht.</div>' +
+            '<h3 class="th-h3">Die Dimension von Λ</h3>' +
             '<div class="oq-dim"><p><b>Λ ist eine Krümmung.</b> ' + kind(MATH) + ' In den Feldgleichungen steht ' + t(R`\Lambda\, g_{\mu\nu}`) + ' neben ' + t(R`G_{\mu\nu}`) + '. Der Einstein-Tensor ist aus zweiten Ableitungen der Metrik gebaut und hat die Dimension 1/Länge²; die Metrik selbst ist dimensionslos. Also hat Λ die Dimension einer Krümmung – es ist die Krümmung, die die Raumzeit auch ganz ohne Materie hätte.</p>' +
             '<p>Jede Krümmung ist „eins durch Länge zum Quadrat“: Eine Kugel mit dem Radius ' + t('r') + ' hat die Krümmung ' + t('1/r^{2}') + '. Deshalb gehört zu Λ eine Länge:</p>' +
             d(R`\ell_\Lambda = \frac{1}{\sqrt{\Lambda}}`) +
             '<p>Das sind ' + t(R`9{,}5 \times 10^{25}\,\mathrm{m}`) + ', rund 10 Milliarden Lichtjahre – vergleichbar mit dem Hubble-Radius ' + t(R`c/H_0`) + ' von etwa 14 Milliarden Lichtjahren. Enthielte die Raumzeit nur Λ, läge ihr Horizont bei ' + t(R`\sqrt{3/\Lambda}`) + ', etwa 17 Milliarden Lichtjahren.</p>' +
             '<p>Weil Λ eine inverse Fläche ist, wird sie in Planck-Einheiten zu einer reinen Zahl – dem Verhältnis zweier Flächen:</p>' +
             d(R`\Lambda\, l_{\mathrm{P}}^{2} = \left(\frac{l_{\mathrm{P}}}{\ell_\Lambda}\right)^{2}`) +
-            '<p>Die beiden Längen trennen 61 Größenordnungen. Λ geht mit der Länge hoch minus zwei – also trennen Λ und die Planck-Krümmung ' + t(R`1/l_{\mathrm{P}}^{2}`) + ' 122 Größenordnungen: ' + t(R`\Lambda\, l_{\mathrm{P}}^{2} \approx 3 \times 10^{-122}`) + '. Das ist die berühmte kleine Zahl.</p>' +
-            '<p>Rechts vom Gleichheitszeichen gelesen, ist der Λ-Term eine Energiedichte des leeren Raums, überall gleich und für jeden Beobachter dieselbe:</p>' +
-            d(R`u_\Lambda = \frac{\Lambda\, c^{4}}{8\pi G}`) +
-            '<p>Das sind ' + t(R`5{,}3 \times 10^{-10}\,\mathrm{J/m^{3}}`) + ' – so viel wie die Ruheenergie von dreieinhalb Protonen pro Kubikmeter. Ihr Druck ist minus ihre Energiedichte; deshalb beschleunigt sie die Expansion, statt sie zu bremsen.</p>' +
+            '<p>Die beiden Längen trennen 61 Größenordnungen. Λ geht mit der Länge hoch minus zwei – also trennen Λ und die Planck-Krümmung ' + t(R`1/l_{\mathrm{P}}^{2}`) + ' 122 Größenordnungen: ' + t(R`\Lambda\, l_{\mathrm{P}}^{2} \approx 3 \times 10^{-122}`) + '. Das ist die berühmte kleine Zahl – dieselbe, die oben im Verhältnis steckt.</p>' +
             '<p>In natürlichen Einheiten (' + t(R`\hbar = c = 1`) + ') ist eine Energiedichte eine Energie hoch vier. Zu ' + t(R`u_\Lambda`) + ' gehört deshalb die Energie ' + t(R`E_\Lambda = \left(u_\Lambda\, (\hbar c)^{3}\right)^{1/4} \approx 2{,}2\,\mathrm{meV}`) + ' und die Länge ' + t(R`\hbar c/E_\Lambda \approx 0{,}09\,\mathrm{mm}`) + ' – etwa die Dicke eines Haares. Auf der logarithmischen Skala liegt sie fast genau in der Mitte zwischen Planck-Länge und ' + t(R`\ell_\Lambda`) + ':</p>' +
             d(R`\frac{\hbar c}{E_\Lambda} = (8\pi)^{1/4} \sqrt{l_{\mathrm{P}}\, \ell_\Lambda}`) +
             '<p>Wie viele Größenordnungen „die“ Lücke hat, hängt also an der Dimension, in der man vergleicht:</p>' +
@@ -144,16 +150,9 @@
             d(R`S_{\mathrm{dS}} = \frac{3\pi\, k_{\mathrm{B}}}{\Lambda\, l_{\mathrm{P}}^{2}}`) +
             '<p>Das sind ' + t(R`3{,}3 \times 10^{122}\, k_{\mathrm{B}}`) + ' bei einer Temperatur von ' + t(R`T_{\mathrm{dS}} = \hbar c/(2\pi k_{\mathrm{B}}\, r_{\mathrm{dS}}) \approx 2 \times 10^{-30}\,\mathrm{K}`) + '. Auf diesen Horizont läuft ein Universum mit Λ im ΛCDM-Modell zu.</p>' +
             '<p>' + kind(MATH) + ' Die kleine Zahl von oben ist also der Kehrwert einer Entropie: ' + t(R`\Lambda\, l_{\mathrm{P}}^{2} = 3\pi k_{\mathrm{B}}/S_{\mathrm{dS}}`) + '. Die Geometrie liefert Λ, die Quantentheorie das ħ in ' + t(R`l_{\mathrm{P}}^{2}`) + ' – und ihr Verhältnis zählt die Planck-Flächen auf dem Horizont.</p></div>' +
-            '<p>' + kind(QFT) + ' Ohne Gravitation zählen in der Quantenfeldtheorie nur Energieunterschiede; den Nullpunkt der Energie kann man frei wählen. Die Gravitation dagegen spürt jede Energie, auch die des Vakuums. Eine Energiedichte des leeren Raums, die für jeden Beobachter gleich aussieht, hat genau die Form des Λ-Terms – sie wirkt wie ein Beitrag zu Λ. Nullpunktschwankungen sind dabei kein Rechentrick: Lamb-Verschiebung und Casimir-Effekt hängen mit ihnen zusammen. Gemessen werden dort aber Energieunterschiede, nicht die Energiedichte des Vakuums selbst.</p>' +
-            '<p>' + kind(EST) + ' Zählt man die Nullpunktenergien ' + t(R`\tfrac{1}{2}\hbar\omega`) + ' aller Feldmoden bis zu einer Abschneide-Energie ' + t(R`E_{\mathrm{c}}`) + ', wächst die Summe wie ' + t(R`E_{\mathrm{c}}^{4}`) + ':</p>' +
-            d(R`u_{\mathrm{vac}} \sim \frac{E_{\mathrm{c}}^{4}}{(\hbar c)^{3}}`) +
-            '<p>' + kind(MATH) + ' Bei der Planck-Energie hängt das Verhältnis nur noch an der kleinen Zahl von oben:</p>' +
-            d(R`\frac{u_{\mathrm{vac}}(E_{\mathrm{P}})}{u_\Lambda} = \frac{8\pi}{\Lambda\, l_{\mathrm{P}}^{2}}`) +
-            '<p>Das sind etwa ' + t(R`10^{123}`) + ', mit dem Vorfaktor ' + t(R`1/(16\pi^{2})`) + ' eines einzelnen freien Feldes etwa ' + t(R`10^{121}`) + ' – daher die oft zitierten „120 Größenordnungen“. Bei 1 TeV bleiben etwa ' + t(R`10^{59}`) + ', beim Elektron ' + t(R`10^{33}`) + ' – mit Physik, die gut getestet ist.</p>' +
-            '<div class="honest"><b>Einordnung:</b> Die 120 Größenordnungen sind keine Vorhersage der Quantenfeldtheorie. Ein harter Cutoff zeichnet ein Bezugssystem aus und verletzt die Lorentz-Invarianz; die so gezählte Energie verhält sich wie Strahlung, nicht wie Λ. Eine Lorentz-invariante Rechnung ergibt für die bekannten Teilchen eine Vakuumenergie von der Größenordnung ' + t(R`(100\,\mathrm{GeV})^{4}`) + ', rund 55 Größenordnungen über ' + t(R`u_\Lambda`) + ' (Martin 2012). Ähnlich groß ist der Sprung der Vakuumenergie, den das Standardmodell für den elektroschwachen Übergang im frühen Universum vorhersagt. Das Problem wird kleiner, aber es verschwindet nicht.</div>' +
             '<h3 class="th-h3">Was offen ist</h3>' +
             '<p>' + kind(OPEN) + ' Warum die Vakuumenergie nicht so gravitiert, wie die Abschätzungen es nahelegen – oder warum sich alle Beiträge mit einer zusätzlichen Konstante auf Dutzende Stellen genau aufheben. Eine solche Feinabstimmung ist mathematisch erlaubt, aber unerklärt. Das ist das alte Problem der kosmologischen Konstante (Weinberg 1989).</p>' +
-            '<p>' + kind(OPEN) + ' Warum Λ trotzdem nicht null ist – und warum ihre Energiedichte gerade heute mit der der Materie vergleichbar ist, etwa 69 zu 31 Prozent (Planck 2018). Im ΛCDM-Modell überwog früher die Materie, künftig bestimmt Λ allein die Expansion. Dieses „Warum gerade jetzt?“ heißt Koinzidenzproblem.</p>' +
+            '<p>' + kind(OPEN) + ' Warum Λ trotzdem nicht null ist – und warum ihre Energiedichte gerade heute mit der der Materie vergleichbar ist, etwa 69 zu 31 Prozent (Planck 2018). Im ΛCDM-Modell überwog früher die Materie, künftig bestimmt Λ allein die Expansion. Dass beide gerade heute vergleichbar sind, heißt Koinzidenzproblem.</p>' +
             '<p>' + kind(OPEN) + ' Ob Λ wirklich konstant ist. DESI fand 2025 Hinweise, dass sich die Dunkle Energie mit der Zeit ändert – je nach Kombination der Daten mit 2,8 bis 4,2 σ. Für einen Nachweis reicht das noch nicht.</p>' +
             '<p>' + kind(OPEN) + ' Was die Entropie des Λ-Horizonts zählt – das ist so offen wie bei Schwarzen Löchern. Und die Umrechnung ' + t(R`\Lambda\, l_{\mathrm{P}}^{2} = 3\pi k_{\mathrm{B}}/S_{\mathrm{dS}}`) + ' erklärt nicht, warum Λ so klein ist: Sie macht aus der Frage nur eine andere – warum diese Entropie so groß ist.</p>' +
             '<h3 class="th-h3 th-deep">Woher das E⁴ kommt</h3>' +
@@ -174,22 +173,29 @@
         },
         en: () => {
           const MATH = 'mathematics', MEAS = 'measurement', OPEN = 'open', QFT = 'quantum field theory', EST = 'estimate', SEMI = 'semiclassical';
-          return '<h3 class="th-h3">The question</h3>' +
-            '<p>In 1917 Einstein added an extra term to his field equations: ' + t(R`\Lambda\, g_{\mu\nu}`) + ' with the cosmological constant Λ.</p>' +
+          return '<p class="oq-lead">In 1917 Einstein added an extra term to his field equations: ' + t(R`\Lambda\, g_{\mu\nu}`) + ' with the cosmological constant Λ.</p>' +
             xq('rel-efe') +
-            '<p>Today Λ is the simplest explanation for the fact that the universe is expanding at an accelerating rate. Its value is tiny. Quantum field theory, however, says that empty space has energy too, and gravity feels every energy. Every obvious estimate of this vacuum energy lies many orders of magnitude above what Λ corresponds to. Why is Λ so small – and why is it not zero after all?</p>' +
+            '<p>Today Λ is the simplest explanation for the fact that the universe is expanding at an accelerating rate. Its value is tiny. Quantum field theory, however, says that empty space has energy too, and gravity feels every energy. Every obvious estimate of this vacuum energy lies many orders of magnitude above what Λ corresponds to. What is unexplained is why Λ is so small – and why it is not zero after all.</p>' +
             '<h3 class="th-h3">What is established</h3>' +
             '<p>' + kind(MEAS) + ' Since 1998, distant type Ia supernovae have shown that the expansion is accelerating (Riess et al. 1998, Perlmutter et al. 1999). The cosmic microwave background and baryon acoustic oscillations confirm this. In the standard model of cosmology, ΛCDM, it follows that ' + t(R`\Lambda \approx 1.1 \times 10^{-52}\,\mathrm{m}^{-2}`) + ' (Planck 2018) – a model-dependent value.</p>' +
+            '<p>' + kind(MATH) + ' Read on the right-hand side of the equals sign, the Λ term is an energy density of empty space, the same everywhere and the same for every observer:</p>' +
+            d(R`u_\Lambda = \frac{\Lambda\, c^{4}}{8\pi G}`) +
+            '<p>That is ' + t(R`5.3 \times 10^{-10}\,\mathrm{J/m^{3}}`) + ' – as much as the rest energy of three and a half protons per cubic metre. Its pressure is minus its energy density; that is why it accelerates the expansion instead of slowing it down.</p>' +
+            '<p>' + kind(QFT) + ' Without gravity, only energy differences count in quantum field theory; the zero of energy can be chosen freely. Gravity, by contrast, feels every energy, including that of the vacuum. An energy density of empty space that looks the same to every observer has exactly the form of the Λ term – it acts like a contribution to Λ. Zero-point fluctuations are not a trick of the calculation: the Lamb shift and the Casimir effect are connected with them. What is measured there, however, are energy differences, not the energy density of the vacuum itself.</p>' +
+            '<p>' + kind(EST) + ' If you count the zero-point energies ' + t(R`\tfrac{1}{2}\hbar\omega`) + ' of all field modes up to a cutoff energy ' + t(R`E_{\mathrm{c}}`) + ', the sum grows like ' + t(R`E_{\mathrm{c}}^{4}`) + ':</p>' +
+            d(R`u_{\mathrm{vac}} \sim \frac{E_{\mathrm{c}}^{4}}{(\hbar c)^{3}}`) +
+            '<p>' + kind(MATH) + ' At the Planck energy, the ratio depends only on Λ measured in Planck units:</p>' +
+            d(R`\frac{u_{\mathrm{vac}}(E_{\mathrm{P}})}{u_\Lambda} = \frac{8\pi}{\Lambda\, l_{\mathrm{P}}^{2}}`) +
+            '<p>That is about ' + t(R`10^{123}`) + ', and with the prefactor ' + t(R`1/(16\pi^{2})`) + ' of a single free field about ' + t(R`10^{121}`) + ' – hence the often-quoted “120 orders of magnitude”. At 1 TeV about ' + t(R`10^{59}`) + ' remain, at the electron ' + t(R`10^{33}`) + ' – with physics that is well tested.</p>' +
+            '<div class="honest"><b>Perspective:</b> the 120 orders of magnitude are not a prediction of quantum field theory. A hard cutoff singles out a frame of reference and violates Lorentz invariance; the energy counted this way behaves like radiation, not like Λ. A Lorentz-invariant calculation gives a vacuum energy of the order of ' + t(R`(100\,\mathrm{GeV})^{4}`) + ' for the known particles, around 55 orders of magnitude above ' + t(R`u_\Lambda`) + ' (Martin 2012). The jump in vacuum energy that the Standard Model predicts for the electroweak transition in the early universe is of a similar size. The problem becomes smaller, but it does not go away.</div>' +
+            '<h3 class="th-h3">The dimension of Λ</h3>' +
             '<div class="oq-dim"><p><b>Λ is a curvature.</b> ' + kind(MATH) + ' In the field equations, ' + t(R`\Lambda\, g_{\mu\nu}`) + ' stands next to ' + t(R`G_{\mu\nu}`) + '. The Einstein tensor is built from second derivatives of the metric and has the dimension 1/length²; the metric itself is dimensionless. So Λ has the dimension of a curvature – it is the curvature spacetime would have even without any matter.</p>' +
             '<p>Every curvature is “one over length squared”: a sphere of radius ' + t('r') + ' has the curvature ' + t('1/r^{2}') + '. That is why Λ comes with a length:</p>' +
             d(R`\ell_\Lambda = \frac{1}{\sqrt{\Lambda}}`) +
             '<p>That is ' + t(R`9.5 \times 10^{25}\,\mathrm{m}`) + ', around 10 billion light years – comparable to the Hubble radius ' + t(R`c/H_0`) + ' of about 14 billion light years. If spacetime contained only Λ, its horizon would lie at ' + t(R`\sqrt{3/\Lambda}`) + ', about 17 billion light years.</p>' +
             '<p>Because Λ is an inverse area, in Planck units it becomes a pure number – the ratio of two areas:</p>' +
             d(R`\Lambda\, l_{\mathrm{P}}^{2} = \left(\frac{l_{\mathrm{P}}}{\ell_\Lambda}\right)^{2}`) +
-            '<p>61 orders of magnitude separate the two lengths. Λ goes with length to the power of minus two – so 122 orders of magnitude separate Λ from the Planck curvature ' + t(R`1/l_{\mathrm{P}}^{2}`) + ': ' + t(R`\Lambda\, l_{\mathrm{P}}^{2} \approx 3 \times 10^{-122}`) + '. That is the famous small number.</p>' +
-            '<p>Read on the right-hand side of the equals sign, the Λ term is an energy density of empty space, the same everywhere and the same for every observer:</p>' +
-            d(R`u_\Lambda = \frac{\Lambda\, c^{4}}{8\pi G}`) +
-            '<p>That is ' + t(R`5.3 \times 10^{-10}\,\mathrm{J/m^{3}}`) + ' – as much as the rest energy of three and a half protons per cubic metre. Its pressure is minus its energy density; that is why it accelerates the expansion instead of slowing it down.</p>' +
+            '<p>61 orders of magnitude separate the two lengths. Λ goes with length to the power of minus two – so 122 orders of magnitude separate Λ from the Planck curvature ' + t(R`1/l_{\mathrm{P}}^{2}`) + ': ' + t(R`\Lambda\, l_{\mathrm{P}}^{2} \approx 3 \times 10^{-122}`) + '. That is the famous small number – the same one that appears in the ratio above.</p>' +
             '<p>In natural units (' + t(R`\hbar = c = 1`) + '), an energy density is an energy to the fourth power. So ' + t(R`u_\Lambda`) + ' comes with the energy ' + t(R`E_\Lambda = \left(u_\Lambda\, (\hbar c)^{3}\right)^{1/4} \approx 2.2\,\mathrm{meV}`) + ' and the length ' + t(R`\hbar c/E_\Lambda \approx 0.09\,\mathrm{mm}`) + ' – about the thickness of a hair. On a logarithmic scale it lies almost exactly halfway between the Planck length and ' + t(R`\ell_\Lambda`) + ':</p>' +
             d(R`\frac{\hbar c}{E_\Lambda} = (8\pi)^{1/4} \sqrt{l_{\mathrm{P}}\, \ell_\Lambda}`) +
             '<p>So how many orders of magnitude “the” gap has depends on the dimension in which you compare:</p>' +
@@ -211,16 +217,9 @@
             d(R`S_{\mathrm{dS}} = \frac{3\pi\, k_{\mathrm{B}}}{\Lambda\, l_{\mathrm{P}}^{2}}`) +
             '<p>That is ' + t(R`3.3 \times 10^{122}\, k_{\mathrm{B}}`) + ' at a temperature of ' + t(R`T_{\mathrm{dS}} = \hbar c/(2\pi k_{\mathrm{B}}\, r_{\mathrm{dS}}) \approx 2 \times 10^{-30}\,\mathrm{K}`) + '. In the ΛCDM model, a universe with Λ approaches this horizon.</p>' +
             '<p>' + kind(MATH) + ' So the small number from above is the inverse of an entropy: ' + t(R`\Lambda\, l_{\mathrm{P}}^{2} = 3\pi k_{\mathrm{B}}/S_{\mathrm{dS}}`) + '. Geometry supplies Λ, quantum theory the ħ in ' + t(R`l_{\mathrm{P}}^{2}`) + ' – and their ratio counts the Planck areas on the horizon.</p></div>' +
-            '<p>' + kind(QFT) + ' Without gravity, only energy differences count in quantum field theory; the zero of energy can be chosen freely. Gravity, by contrast, feels every energy, including that of the vacuum. An energy density of empty space that looks the same to every observer has exactly the form of the Λ term – it acts like a contribution to Λ. Zero-point fluctuations are not a trick of the calculation: the Lamb shift and the Casimir effect are connected with them. What is measured there, however, are energy differences, not the energy density of the vacuum itself.</p>' +
-            '<p>' + kind(EST) + ' If you count the zero-point energies ' + t(R`\tfrac{1}{2}\hbar\omega`) + ' of all field modes up to a cutoff energy ' + t(R`E_{\mathrm{c}}`) + ', the sum grows like ' + t(R`E_{\mathrm{c}}^{4}`) + ':</p>' +
-            d(R`u_{\mathrm{vac}} \sim \frac{E_{\mathrm{c}}^{4}}{(\hbar c)^{3}}`) +
-            '<p>' + kind(MATH) + ' At the Planck energy, the ratio depends only on the small number from above:</p>' +
-            d(R`\frac{u_{\mathrm{vac}}(E_{\mathrm{P}})}{u_\Lambda} = \frac{8\pi}{\Lambda\, l_{\mathrm{P}}^{2}}`) +
-            '<p>That is about ' + t(R`10^{123}`) + ', and with the prefactor ' + t(R`1/(16\pi^{2})`) + ' of a single free field about ' + t(R`10^{121}`) + ' – hence the often-quoted “120 orders of magnitude”. At 1 TeV about ' + t(R`10^{59}`) + ' remain, at the electron ' + t(R`10^{33}`) + ' – with physics that is well tested.</p>' +
-            '<div class="honest"><b>Perspective:</b> the 120 orders of magnitude are not a prediction of quantum field theory. A hard cutoff singles out a frame of reference and violates Lorentz invariance; the energy counted this way behaves like radiation, not like Λ. A Lorentz-invariant calculation gives a vacuum energy of the order of ' + t(R`(100\,\mathrm{GeV})^{4}`) + ' for the known particles, around 55 orders of magnitude above ' + t(R`u_\Lambda`) + ' (Martin 2012). The jump in vacuum energy that the Standard Model predicts for the electroweak transition in the early universe is of a similar size. The problem becomes smaller, but it does not go away.</div>' +
             '<h3 class="th-h3">What remains open</h3>' +
             '<p>' + kind(OPEN) + ' Why the vacuum energy does not gravitate the way the estimates suggest – or why all contributions cancel against an additional constant to dozens of digits. Such fine-tuning is mathematically allowed, but unexplained. This is the old cosmological constant problem (Weinberg 1989).</p>' +
-            '<p>' + kind(OPEN) + ' Why Λ is not zero after all – and why its energy density is comparable to that of matter just now, about 69 to 31 per cent (Planck 2018). In the ΛCDM model matter dominated earlier; in the future Λ alone will determine the expansion. This “why just now?” is called the coincidence problem.</p>' +
+            '<p>' + kind(OPEN) + ' Why Λ is not zero after all – and why its energy density is comparable to that of matter just now, about 69 to 31 per cent (Planck 2018). In the ΛCDM model matter dominated earlier; in the future Λ alone will determine the expansion. That the two are comparable just now is called the coincidence problem.</p>' +
             '<p>' + kind(OPEN) + ' Whether Λ is really constant. In 2025 DESI found hints that dark energy changes over time – at 2.8 to 4.2 σ, depending on how the data are combined. That is not yet enough for a detection.</p>' +
             '<p>' + kind(OPEN) + ' What the entropy of the Λ horizon counts – that is as open as for black holes. And the conversion ' + t(R`\Lambda\, l_{\mathrm{P}}^{2} = 3\pi k_{\mathrm{B}}/S_{\mathrm{dS}}`) + ' does not explain why Λ is so small: it only turns the question into another one – why this entropy is so large.</p>' +
             '<h3 class="th-h3 th-deep">Where the E⁴ comes from</h3>' +
@@ -247,8 +246,7 @@
       body: {
         de: () => {
           const MATH = 'Mathematik', SEMI = 'semiklassisch', OPEN = 'offen', MEAS = 'Messung', QM = 'Quantenmechanik', UNIT = 'Erwartung bei Unitarität';
-          return '<h3 class="th-h3">Die Frage</h3>' +
-            '<p>Ein Schwarzes Loch entsteht aus Materie in einem bestimmten Quantenzustand. Dann strahlt es, wird leichter und verdampft. Bleibt die Information über den Anfangszustand erhalten – steckt sie am Ende in der Strahlung –, oder geht sie verloren?</p>' +
+          return '<p class="oq-lead">Ein Schwarzes Loch entsteht aus Materie in einem bestimmten Quantenzustand. Dann strahlt es, wird leichter und verdampft. Offen ist, ob die Information über den Anfangszustand dabei erhalten bleibt und am Ende in der Strahlung steckt – oder ob sie verloren geht.</p>' +
             '<h3 class="th-h3">Was gesichert ist</h3>' +
             '<p>' + kind(SEMI) + ' Hawkings Rechnung (1975) liefert thermische Strahlung mit einer Temperatur ' + t(R`T_{\mathrm{H}} \propto 1/M`) + ' (' + exp('hawking', 'Hawking-Temperatur') + '). Das Loch verliert Masse, wird dabei heißer und strahlt immer stärker. Seine Lebensdauer wächst wie ' + t('M^{3}') + ' – für eine Sonnenmasse grob 10⁶⁷ Jahre.</p>' +
             '<p>' + kind(SEMI) + ' Daraus folgt das Paradoxon (Hawking 1976). Nimmt man zusammen: einen reinen Anfangszustand, vollständige Verdampfung ohne Rest und exakt thermische Strahlung, dann wird aus einem reinen ein gemischter Zustand. Das widerspricht der unitären Zeitentwicklung der Quantenmechanik, nach der Information nie verloren geht.</p>' +
@@ -260,10 +258,10 @@
             '<p>' + kind(SEMI) + ' Seit 2019 reproduzieren semiklassische Rechnungen diesen Verlauf in speziellen theoretischen Modellen, vor allem in zwei Dimensionen. Das ist eine Rechnung, keine Beobachtung an einem Schwarzen Loch.</p>' +
             '<div class="honest"><b>Einordnung:</b> Die Zahl 0,646 gehört zum einfachsten Modell. Realistisch erzeugt die Abstrahlung mehr Entropie, als das Loch verliert – für Photonen und Gravitonen etwa das 1,48-Fache (Page 2013). Dann liegt das Maximum schon bei etwa 53,8 % der Verdampfungszeit. Die Form der Kurve bleibt, ihre Zahlen hängen an den Annahmen.</div>' +
             '<h3 class="th-h3">Was offen ist</h3>' +
-            '<p>' + kind(OPEN) + ' Der Mechanismus: Wie gelangt die Information in die Strahlung, und wo ist sie vorher? Hawkings Rechnung zeigt dafür keinen Weg.</p>' +
+            '<p>' + kind(OPEN) + ' Der Mechanismus: wie die Information in die Strahlung gelangt und wo sie vorher ist. Hawkings Rechnung zeigt dafür keinen Weg.</p>' +
             '<p>' + kind(OPEN) + ' Ob die Verdampfung überhaupt unitär verläuft. Die Page-Kurve ist die Erwartung unter dieser Annahme, gemessen ist sie nicht.</p>' +
             '<p>' + kind(OPEN) + ' Die Endphase: Nahe der Planck-Masse versagt die semiklassische Rechnung. Ob das Loch ganz verschwindet oder ein Rest bleibt, ist offen.</p>' +
-            '<h3 class="th-h3 th-deep">Warum ausgerechnet das Minimum?</h3>' +
+            '<h3 class="th-h3 th-deep">Woher das Minimum kommt</h3>' +
             '<p>' + kind(QM) + ' Ein reiner Zustand hat die Entropie null. Teilt man ihn in zwei Teile, haben beide dieselbe Verschränkungsentropie – und die kann höchstens so groß sein wie die größtmögliche Entropie des kleineren Teils. Page zeigte 1993, dass ein zufälliger reiner Zustand diese Grenze fast erreicht: Dem kleineren Teil fehlt im Mittel weniger als eine halbe Einheit Information.</p>' +
             '<p>Für die Verdampfung heißt das: Solange die Strahlung das kleinere System ist, wächst ihre Entropie wie bei Hawking. Sobald das verbleibende Loch kleiner ist, begrenzt seine Entropie die der Strahlung – daher ' + t(R`\min(S_{\mathrm{rad}}, S_{\mathrm{BH}})`) + '.</p>' +
             '<h3 class="th-h3">Was es entscheiden würde</h3>' +
@@ -277,8 +275,7 @@
         },
         en: () => {
           const MATH = 'mathematics', SEMI = 'semiclassical', OPEN = 'open', MEAS = 'measurement', QM = 'quantum mechanics', UNIT = 'expected under unitarity';
-          return '<h3 class="th-h3">The question</h3>' +
-            '<p>A black hole forms from matter in a definite quantum state. Then it radiates, becomes lighter and evaporates. Is the information about the initial state preserved – does it end up in the radiation – or is it lost?</p>' +
+          return '<p class="oq-lead">A black hole forms from matter in a definite quantum state. Then it radiates, becomes lighter and evaporates. Whether the information about the initial state is preserved in the process and ends up in the radiation – or is lost – is open.</p>' +
             '<h3 class="th-h3">What is established</h3>' +
             '<p>' + kind(SEMI) + ' Hawking’s calculation (1975) gives thermal radiation with a temperature ' + t(R`T_{\mathrm{H}} \propto 1/M`) + ' (' + exp('hawking', 'Hawking temperature') + '). The hole loses mass, becomes hotter in the process and radiates ever more strongly. Its lifetime grows like ' + t('M^{3}') + ' – roughly 10⁶⁷ years for one solar mass.</p>' +
             '<p>' + kind(SEMI) + ' This leads to the paradox (Hawking 1976). Put together a pure initial state, complete evaporation without a remnant and exactly thermal radiation, and a pure state turns into a mixed one. That contradicts the unitary time evolution of quantum mechanics, according to which information is never lost.</p>' +
@@ -290,10 +287,10 @@
             '<p>' + kind(SEMI) + ' Since 2019, semiclassical calculations have reproduced this behaviour in specific theoretical models, mostly in two dimensions. That is a calculation, not an observation of a black hole.</p>' +
             '<div class="honest"><b>Perspective:</b> the number 0.646 belongs to the simplest model. Realistically, the emission produces more entropy than the hole loses – about 1.48 times as much for photons and gravitons (Page 2013). Then the maximum already comes at about 53.8 % of the evaporation time. The shape of the curve stays; its numbers depend on the assumptions.</div>' +
             '<h3 class="th-h3">What remains open</h3>' +
-            '<p>' + kind(OPEN) + ' The mechanism: how does the information get into the radiation, and where is it before? Hawking’s calculation shows no way for this.</p>' +
+            '<p>' + kind(OPEN) + ' The mechanism: how the information gets into the radiation and where it is before. Hawking’s calculation shows no way for this.</p>' +
             '<p>' + kind(OPEN) + ' Whether evaporation is unitary at all. The Page curve is the expectation under this assumption; it has not been measured.</p>' +
             '<p>' + kind(OPEN) + ' The final stage: near the Planck mass the semiclassical calculation breaks down. Whether the hole disappears completely or leaves a remnant is open.</p>' +
-            '<h3 class="th-h3 th-deep">Why the minimum, of all things?</h3>' +
+            '<h3 class="th-h3 th-deep">Where the minimum comes from</h3>' +
             '<p>' + kind(QM) + ' A pure state has zero entropy. Split it into two parts, and both have the same entanglement entropy – which can be at most as large as the largest possible entropy of the smaller part. Page showed in 1993 that a random pure state almost reaches this limit: on average, the smaller part lacks less than half a unit of information.</p>' +
             '<p>For evaporation this means: as long as the radiation is the smaller system, its entropy grows as in Hawking’s calculation. As soon as the remaining hole is smaller, its entropy limits that of the radiation – hence ' + t(R`\min(S_{\mathrm{rad}}, S_{\mathrm{BH}})`) + '.</p>' +
             '<h3 class="th-h3">What would settle it</h3>' +
@@ -313,11 +310,10 @@
       body: {
         de: () => {
           const MATH = 'Mathematik', QM = 'Quantenmechanik', OPEN = 'offen', MEAS = 'Messung';
-          return '<h3 class="th-h3">Die Frage</h3>' +
-            '<p>Ein Teilchen fliegt durch ein Interferometer mit zwei Wegen. Die Quantenmechanik beschreibt es als Überlagerung ' + t(R`|\psi\rangle = a\,|1\rangle + b\,|2\rangle`) + ' – nicht als Teilchen auf Weg 1 oder auf Weg 2. Auf dem Schirm landet es trotzdem an genau einer Stelle. Erst viele Teilchen zusammen zeichnen Streifen, und die entstehen nur, wenn beide Wege beteiligt waren.</p>' +
+          return '<p class="oq-lead">Ein Teilchen fliegt durch ein Interferometer mit zwei Wegen. Die Quantenmechanik beschreibt es als Überlagerung ' + t(R`|\psi\rangle = a\,|1\rangle + b\,|2\rangle`) + ' – nicht als Teilchen auf Weg 1 oder auf Weg 2. Auf dem Schirm landet es trotzdem an genau einer Stelle. Erst viele Teilchen zusammen zeichnen Streifen, und die entstehen nur, wenn beide Wege beteiligt waren.</p>' +
             '<p>Die Schrödinger-Gleichung ist linear. Misst ein Gerät den Weg, wird es nach ihr selbst Teil der Überlagerung (von Neumann 1932):</p>' +
-            d(R`|\psi\rangle|M_0\rangle \;\rightarrow\; a\,|1\rangle|M_1\rangle + b\,|2\rangle|M_2\rangle`) +
-            '<p>Abgelesen wird aber immer genau eine Zeigerstellung, ' + t('M_1') + ' oder ' + t('M_2') + ', mit den Wahrscheinlichkeiten ' + t(R`|a|^{2}`) + ' und ' + t(R`|b|^{2}`) + '. Wie wird aus dem „und“ der Gleichung das „oder“ der Messung?</p>' +
+            d(R`|\psi\rangle|M_0\rangle \rightarrow a\,|1\rangle|M_1\rangle + b\,|2\rangle|M_2\rangle`) +
+            '<p>Abgelesen wird aber immer genau eine Zeigerstellung, ' + t('M_1') + ' oder ' + t('M_2') + ', mit den Wahrscheinlichkeiten ' + t(R`|a|^{2}`) + ' und ' + t(R`|b|^{2}`) + '. Offen ist, wie aus dem „und“ der Gleichung das „oder“ der Messung wird.</p>' +
             '<h3 class="th-h3">Was gesichert ist</h3>' +
             '<p>' + kind(QM) + ' Die Wahrscheinlichkeiten folgen aus den Amplituden, ' + t(R`p_1 = |a|^{2}`) + ' und ' + t(R`p_2 = |b|^{2}`) + ' (Born 1926). In der Standardformulierung ist diese Born-Regel ein Postulat, und sie ist genau geprüft: Bei drei Spalten gibt es nach ihr nur Interferenz zwischen Paaren von Wegen. Ein Anteil, an dem alle drei zugleich beteiligt wären, ist kleiner als ein Hundertstel der gewöhnlichen Interferenz (Sinha u. a. 2010).</p>' +
             '<p>' + kind(MEAS) + ' Überlagerungen sind nicht auf kleine Teilchen beschränkt: Moleküle mit bis zu 2000 Atomen und mehr als 25 000 u zeigen Interferenz (Fein u. a. 2019). Eine Grenze, ab der die Quantenmechanik nicht mehr gilt, hat kein Experiment gefunden.</p>' +
@@ -329,6 +325,11 @@
             d(R`V^{2} + D^{2} = 1`) +
             '<p>' + kind(MEAS) + ' Dekohärenz ist gemessen. Haroche und seine Gruppe sahen 1996, wie eine Überlagerung zweier Feldzustände in einem Resonator nach und nach zur Mischung wurde (Brune u. a. 1996). Bei Fullerenen fällt die Sichtbarkeit exponentiell mit dem Gasdruck (Hornberger u. a. 2003) und verschwindet, wenn die Moleküle heiß genug sind, um Wärmephotonen abzustrahlen (Hackermüller u. a. 2004).</p>' +
             '<div class="honest"><b>Einordnung:</b> Dekohärenz erklärt, warum man an Alltagsgegenständen keine Interferenz sieht und warum ein Zeiger stabil „hier“ oder „dort“ steht: Die Umgebung bevorzugt die Zustände, die sie nicht zerstört (Zurek 2003). Sie erklärt nicht, warum genau ein Ergebnis eintritt. Der Gesamtzustand bleibt eine Überlagerung – das „oder“ der Mischung ist ein „und“, das man nur nicht mehr sieht.</div>' +
+            '<h3 class="th-h3">Was offen ist</h3>' +
+            '<p>' + kind(OPEN) + ' Das einzelne Ergebnis: warum eine Messung genau eines zeigt, obwohl die Schrödinger-Gleichung nur Überlagerungen liefert. Dekohärenz trennt die Möglichkeiten so, dass sie sich nicht mehr stören – eine auswählen tut sie nicht.</p>' +
+            '<p>' + kind(OPEN) + ' Die Wahrscheinlichkeiten: Ob die Born-Regel aus den übrigen Grundannahmen folgt oder ein eigenes Postulat bleiben muss, ist umstritten.</p>' +
+            '<p>' + kind(OPEN) + ' Was eine Messung physikalisch ist. Die Interpretationen der Quantenmechanik beantworten das verschieden und machen für alle bisherigen Experimente dieselben Vorhersagen (siehe ' + sec('qm', 'Quantenmechanik – die Idee') + '). Welche zutrifft, ist offen.</p>' +
+            '<p>' + kind(OPEN) + ' Wie eine Masse in Überlagerung gravitiert. Die Feldgleichungen brauchen einen bestimmten Wert für ' + t(R`T_{\mu\nu}`) + ' (siehe ' + sec('gap', 'Grundlagen: Geometrie einer Überlagerung') + '). Ob die Gravitation zwei Massen verschränken kann, ist experimentell nicht entschieden.</p>' +
             '<p>Zusammengefasst:</p>' +
             '<div class="th-scroll"><table class="t th-cmp"><thead><tr><th>Die Theorie sagt</th><th>Experimente zeigen</th><th>Offen ist</th></tr></thead><tbody>' +
             '<tr><td><b>Überlagerung:</b> lineare Zeitentwicklung, auch für Messgeräte</td><td>Interferenz bis über 25 000 u (2019)</td><td>warum nie eine Überlagerung von Zeigerstellungen abgelesen wird</td></tr>' +
@@ -336,16 +337,11 @@
             '<tr><td><b>Dekohärenz:</b> Die Sichtbarkeit fällt mit dem Überlapp der Umgebungszustände</td><td>gemessen im Resonator (1996) und an Fullerenen (2003, 2004)</td><td>warum genau ein Ergebnis eintritt</td></tr>' +
             '<tr><td><b>Gravitation:</b> Die Feldgleichungen brauchen einen bestimmten Wert für ' + t(R`T_{\mu\nu}`) + '</td><td>noch kein Experiment mit Massen in Überlagerung, das ihre Gravitation misst; Tests vorgeschlagen (2017)</td><td>wie eine Überlagerung gravitiert</td></tr>' +
             '</tbody></table></div>' +
-            '<h3 class="th-h3">Was offen ist</h3>' +
-            '<p>' + kind(OPEN) + ' Das einzelne Ergebnis: Warum zeigt eine Messung genau eines, wenn die Schrödinger-Gleichung nur Überlagerungen liefert? Dekohärenz trennt die Möglichkeiten so, dass sie sich nicht mehr stören – eine auswählen tut sie nicht.</p>' +
-            '<p>' + kind(OPEN) + ' Die Wahrscheinlichkeiten: Ob die Born-Regel aus den übrigen Grundannahmen folgt oder ein eigenes Postulat bleiben muss, ist umstritten.</p>' +
-            '<p>' + kind(OPEN) + ' Was eine Messung physikalisch ist. Die Interpretationen der Quantenmechanik beantworten das verschieden und machen für alle bisherigen Experimente dieselben Vorhersagen (siehe ' + sec('qm', 'Quantenmechanik – die Idee') + '). Welche zutrifft, ist offen.</p>' +
-            '<p>' + kind(OPEN) + ' Wie eine Masse in Überlagerung gravitiert. Die Feldgleichungen brauchen einen bestimmten Wert für ' + t(R`T_{\mu\nu}`) + ' (siehe ' + sec('gap', 'Welche Geometrie hat eine Überlagerung?') + '). Ob die Gravitation zwei Massen verschränken kann, ist experimentell nicht entschieden.</p>' +
             '<h3 class="th-h3 th-deep">Warum die Streifen exponentiell verschwinden</h3>' +
             '<p>' + kind(MATH) + ' Jeder Stoß hinterlässt die Umgebung in einem von zwei Zuständen, je nach Weg; ihr Überlapp sei ' + t(R`\gamma`) + '. Nach ' + t('k') + ' Stößen multiplizieren sich die Überlappe zu ' + t(R`\gamma^{k}`) + '. Ist die Zahl der Stöße Poisson-verteilt mit dem Mittelwert ' + t('N') + ', ist der Überlapp ' + t(R`\left|\langle E_1 | E_2 \rangle\right|`) + ' im Mittel</p>' +
             d(R`\sum_{k=0}^{\infty} \frac{N^{k} e^{-N}}{k!}\,\gamma^{k} = e^{-N(1-\gamma)}`) +
             '<p>' + t('N') + ' wächst mit dem Gasdruck – daher der exponentielle Abfall, den Hornberger u. a. 2003 gemessen haben. Es zählt nur ' + t(R`N(1-\gamma)`) + ': Viele Stöße, die wenig verraten, wirken wie wenige, die viel verraten. Bei ' + t(R`\gamma = 0`) + ' verrät jeder Stoß den Weg ganz. Streifen kommen dann nur noch von den Teilchen, die gar nicht gestoßen wurden – im Mittel der Anteil ' + t(R`e^{-N}`) + '.</p>' +
-            '<h3 class="th-h3 th-deep">Mischung oder Überlagerung?</h3>' +
+            '<h3 class="th-h3 th-deep">Mischung ohne festen Weg</h3>' +
             '<p>' + kind(QM) + ' Das Teilchen allein beschreibt eine Dichtematrix ' + t(R`\rho`) + '. Auf ihrer Diagonale stehen die Wahrscheinlichkeiten ' + t('p_1') + ' und ' + t('p_2') + ', außerhalb die Kohärenz</p>' +
             d(R`|\rho_{12}| = \sqrt{p_1 p_2}\,\left|\langle E_1 | E_2 \rangle\right|`) +
             '<p>Dekohärenz löscht nur die Kohärenz. Danach sieht ' + t(R`\rho`) + ' genauso aus wie bei einem Teilchen, das mit der Wahrscheinlichkeit ' + t('p_1') + ' den einen und mit ' + t('p_2') + ' den anderen Weg nahm – für jede Messung am Teilchen allein. Dasselbe ist es trotzdem nicht: Hier steht kein Weg fest, den man nur nicht kennt. Teilchen und Umgebung zusammen sind weiter in einer Überlagerung, ihr gemeinsamer Zustand bleibt rein.</p>' +
@@ -362,11 +358,10 @@
         },
         en: () => {
           const MATH = 'mathematics', QM = 'quantum mechanics', OPEN = 'open', MEAS = 'measurement';
-          return '<h3 class="th-h3">The question</h3>' +
-            '<p>A particle flies through an interferometer with two paths. Quantum mechanics describes it as a superposition ' + t(R`|\psi\rangle = a\,|1\rangle + b\,|2\rangle`) + ' – not as a particle on path 1 or on path 2. Yet it lands at exactly one place on the screen. Only many particles together draw fringes, and these arise only if both paths were involved.</p>' +
+          return '<p class="oq-lead">A particle flies through an interferometer with two paths. Quantum mechanics describes it as a superposition ' + t(R`|\psi\rangle = a\,|1\rangle + b\,|2\rangle`) + ' – not as a particle on path 1 or on path 2. Yet it lands at exactly one place on the screen. Only many particles together draw fringes, and these arise only if both paths were involved.</p>' +
             '<p>The Schrödinger equation is linear. If a device measures the path, according to the equation the device itself becomes part of the superposition (von Neumann 1932):</p>' +
-            d(R`|\psi\rangle|M_0\rangle \;\rightarrow\; a\,|1\rangle|M_1\rangle + b\,|2\rangle|M_2\rangle`) +
-            '<p>Yet what is read off is always exactly one pointer position, ' + t('M_1') + ' or ' + t('M_2') + ', with the probabilities ' + t(R`|a|^{2}`) + ' and ' + t(R`|b|^{2}`) + '. How does the “and” of the equation become the “or” of the measurement?</p>' +
+            d(R`|\psi\rangle|M_0\rangle \rightarrow a\,|1\rangle|M_1\rangle + b\,|2\rangle|M_2\rangle`) +
+            '<p>Yet what is read off is always exactly one pointer position, ' + t('M_1') + ' or ' + t('M_2') + ', with the probabilities ' + t(R`|a|^{2}`) + ' and ' + t(R`|b|^{2}`) + '. How the “and” of the equation becomes the “or” of the measurement is open.</p>' +
             '<h3 class="th-h3">What is established</h3>' +
             '<p>' + kind(QM) + ' The probabilities follow from the amplitudes, ' + t(R`p_1 = |a|^{2}`) + ' and ' + t(R`p_2 = |b|^{2}`) + ' (Born 1926). In the standard formulation this Born rule is a postulate, and it has been tested precisely: with three slits, it allows interference only between pairs of paths. A contribution involving all three at once is smaller than one hundredth of the ordinary interference (Sinha et al. 2010).</p>' +
             '<p>' + kind(MEAS) + ' Superpositions are not limited to small particles: molecules with up to 2000 atoms and more than 25,000 u show interference (Fein et al. 2019). No experiment has found a limit beyond which quantum mechanics no longer holds.</p>' +
@@ -378,6 +373,11 @@
             d(R`V^{2} + D^{2} = 1`) +
             '<p>' + kind(MEAS) + ' Decoherence has been measured. In 1996 Haroche and his group watched a superposition of two field states in a cavity gradually turn into a mixture (Brune et al. 1996). With fullerenes, the visibility falls exponentially with the gas pressure (Hornberger et al. 2003) and disappears when the molecules are hot enough to emit thermal photons (Hackermüller et al. 2004).</p>' +
             '<div class="honest"><b>Perspective:</b> decoherence explains why no interference is seen with everyday objects and why a pointer stays stably “here” or “there”: the environment favours the states it does not destroy (Zurek 2003). It does not explain why exactly one outcome occurs. The total state remains a superposition – the “or” of the mixture is an “and” that can no longer be seen.</div>' +
+            '<h3 class="th-h3">What remains open</h3>' +
+            '<p>' + kind(OPEN) + ' The single outcome: why a measurement shows exactly one, although the Schrödinger equation only yields superpositions. Decoherence separates the possibilities so that they no longer interfere – it does not pick one.</p>' +
+            '<p>' + kind(OPEN) + ' The probabilities: whether the Born rule follows from the other basic assumptions or has to remain a postulate of its own is disputed.</p>' +
+            '<p>' + kind(OPEN) + ' What a measurement physically is. The interpretations of quantum mechanics answer this differently and make the same predictions for all experiments so far (see ' + sec('qm', 'Quantum mechanics – the idea') + '). Which one is right is open.</p>' +
+            '<p>' + kind(OPEN) + ' How a mass in superposition gravitates. The field equations need a definite value for ' + t(R`T_{\mu\nu}`) + ' (see ' + sec('gap', 'Foundations: the geometry of a superposition') + '). Whether gravity can entangle two masses has not been decided experimentally.</p>' +
             '<p>In summary:</p>' +
             '<div class="th-scroll"><table class="t th-cmp"><thead><tr><th>Theory says</th><th>Experiments show</th><th>Open</th></tr></thead><tbody>' +
             '<tr><td><b>Superposition:</b> linear time evolution, also for measuring devices</td><td>interference up to more than 25,000 u (2019)</td><td>why a superposition of pointer positions is never read off</td></tr>' +
@@ -385,16 +385,11 @@
             '<tr><td><b>Decoherence:</b> the visibility falls with the overlap of the environment states</td><td>measured in a cavity (1996) and with fullerenes (2003, 2004)</td><td>why exactly one outcome occurs</td></tr>' +
             '<tr><td><b>Gravity:</b> the field equations need a definite value for ' + t(R`T_{\mu\nu}`) + '</td><td>no experiment yet that measures the gravity of masses in superposition; tests proposed (2017)</td><td>how a superposition gravitates</td></tr>' +
             '</tbody></table></div>' +
-            '<h3 class="th-h3">What remains open</h3>' +
-            '<p>' + kind(OPEN) + ' The single outcome: why does a measurement show exactly one, if the Schrödinger equation only yields superpositions? Decoherence separates the possibilities so that they no longer interfere – it does not pick one.</p>' +
-            '<p>' + kind(OPEN) + ' The probabilities: whether the Born rule follows from the other basic assumptions or has to remain a postulate of its own is disputed.</p>' +
-            '<p>' + kind(OPEN) + ' What a measurement physically is. The interpretations of quantum mechanics answer this differently and make the same predictions for all experiments so far (see ' + sec('qm', 'Quantum mechanics – the idea') + '). Which one is right is open.</p>' +
-            '<p>' + kind(OPEN) + ' How a mass in superposition gravitates. The field equations need a definite value for ' + t(R`T_{\mu\nu}`) + ' (see ' + sec('gap', 'What geometry does a superposition have?') + '). Whether gravity can entangle two masses has not been decided experimentally.</p>' +
             '<h3 class="th-h3 th-deep">Why the fringes disappear exponentially</h3>' +
             '<p>' + kind(MATH) + ' Each collision leaves the environment in one of two states, depending on the path; let their overlap be ' + t(R`\gamma`) + '. After ' + t('k') + ' collisions the overlaps multiply to ' + t(R`\gamma^{k}`) + '. If the number of collisions is Poisson-distributed with mean ' + t('N') + ', the overlap ' + t(R`\left|\langle E_1 | E_2 \rangle\right|`) + ' is on average</p>' +
             d(R`\sum_{k=0}^{\infty} \frac{N^{k} e^{-N}}{k!}\,\gamma^{k} = e^{-N(1-\gamma)}`) +
             '<p>' + t('N') + ' grows with the gas pressure – hence the exponential decrease that Hornberger et al. measured in 2003. Only ' + t(R`N(1-\gamma)`) + ' counts: many collisions that reveal little act like a few that reveal a lot. At ' + t(R`\gamma = 0`) + ' every collision reveals the path completely. The fringes then come only from the particles that were not hit at all – on average the fraction ' + t(R`e^{-N}`) + '.</p>' +
-            '<h3 class="th-h3 th-deep">Mixture or superposition?</h3>' +
+            '<h3 class="th-h3 th-deep">A mixture without a definite path</h3>' +
             '<p>' + kind(QM) + ' The particle on its own is described by a density matrix ' + t(R`\rho`) + '. Its diagonal holds the probabilities ' + t('p_1') + ' and ' + t('p_2') + ', the off-diagonal the coherence</p>' +
             d(R`|\rho_{12}| = \sqrt{p_1 p_2}\,\left|\langle E_1 | E_2 \rangle\right|`) +
             '<p>Decoherence erases only the coherence. Afterwards ' + t(R`\rho`) + ' looks exactly like that of a particle that took one path with probability ' + t('p_1') + ' and the other with ' + t('p_2') + ' – for every measurement on the particle alone. Still, it is not the same: here no path is fixed that is merely unknown. Particle and environment together are still in a superposition; their joint state remains pure.</p>' +
@@ -417,8 +412,8 @@
   const META = I.localize({
     quarter: { short: { de: 'Warum genau 1/4?', en: 'Why exactly 1/4?' }, teaser: { de: 'Der Vorfaktor der Entropie Schwarzer Löcher ist festgelegt – was sie zählt, ist offen.', en: 'The prefactor of black hole entropy is fixed – what it counts is open.' } },
     lambda: { short: { de: 'Warum ist Λ so klein?', en: 'Why is Λ so small?' }, teaser: { de: 'Λ ist eine Krümmung, 1/Länge². In Planck-Einheiten ist sie 10⁻¹²² – weit kleiner als jede Abschätzung der Vakuumenergie.', en: 'Λ is a curvature, 1/length². In Planck units it is 10⁻¹²² – far smaller than any estimate of the vacuum energy.' } },
-    info: { short: { de: 'Geht Information verloren?', en: 'Is information lost?' }, teaser: { de: 'Ein Schwarzes Loch verdampft. Steckt die Information über seinen Anfang am Ende in der Strahlung?', en: 'A black hole evaporates. Does the information about its beginning end up in the radiation?' } },
-    mess: { short: { de: 'Das Messproblem', en: 'The measurement problem' }, teaser: { de: 'Die Schrödinger-Gleichung kennt nur Überlagerungen. Warum liefert eine Messung genau ein Ergebnis?', en: 'The Schrödinger equation knows only superpositions. Why does a measurement give exactly one result?' } },
+    info: { short: { de: 'Geht Information verloren?', en: 'Is information lost?' }, teaser: { de: 'Ein Schwarzes Loch verdampft. Offen ist, ob die Information über seinen Anfang am Ende in der Strahlung steckt.', en: 'A black hole evaporates. Whether the information about its beginning ends up in the radiation is open.' } },
+    mess: { short: { de: 'Das Messproblem', en: 'The measurement problem' }, teaser: { de: 'Die Schrödinger-Gleichung kennt nur Überlagerungen – eine Messung liefert trotzdem genau ein Ergebnis.', en: 'The Schrödinger equation knows only superpositions – yet a measurement gives exactly one result.' } },
   });
   const meta = (q) => META[q.id] || { short: q.title, teaser: '' };
   const href = (id) => '#view=offen&amp;sec=' + id;
@@ -443,8 +438,8 @@
       '<p>Hier geht es um die Stellen, an denen die Allgemeine Relativitätstheorie und die Quantentheorie an ihre Grenzen kommen oder wichtige Fragen offenlassen. Jede Seite trennt drei Dinge: was gesichert ist, was offen bleibt und was die Frage entscheiden würde. Was ungelöst ist, heißt hier „offen“ – spekulative Antworten gibt es nicht. Die Zahlen kommen aus derselben Engine wie überall in der App.</p>',
       '<p>This is about the places where general relativity and quantum theory reach their limits or leave important questions unanswered. Every page separates three things: what is established, what remains open and what would settle the question. Whatever is unresolved is called “open” here – there are no speculative answers. The numbers come from the same engine as everywhere else in the app.</p>') +
       '<ul class="oq-legend">' + ['open', 'partial', 'semi'].map((k) => '<li>' + chip(k) + esc(STATUS[k].text) + '</li>').join('') + '</ul>' +
-      '<p class="faint">' + T('Der Status beschreibt die Frage als Ganzes. Die Etiketten im Text – Mathematik, semiklassisch, Abschätzung, Messung, offen – kennzeichnen einzelne Aussagen.',
-        'The status describes the question as a whole. The labels in the text – mathematics, semiclassical, estimate, measurement, open – mark individual statements.') + '</p></div>';
+      '<p class="faint">' + T('Der Status beschreibt die Frage als Ganzes. Die Etiketten im Text – Mathematik, Quantenmechanik, semiklassisch, Abschätzung, Messung, offen – kennzeichnen einzelne Aussagen.',
+        'The status describes the question as a whole. The labels in the text – mathematics, quantum mechanics, semiclassical, estimate, measurement, open – mark individual statements.') + '</p></div>';
     h += '<div class="th-cards">' + QUESTIONS.map((q, i) => '<a class="th-card" href="' + href(q.id) + '"><span class="th-card-n">' + (i + 1) + '</span><div><h3>' + esc(q.title) + '</h3><p>' + esc(meta(q).teaser) + '</p>' + chip(q.status) + '</div></a>').join('') + '</div>';
     h += '<p class="oq-next">' + T('In Vorbereitung: die Anforderungen an eine Quantengravitation.',
       'In preparation: the requirements for quantum gravity.') + '</p>';

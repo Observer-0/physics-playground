@@ -42,13 +42,12 @@ Create one overview page and one page per question.
 
 Follow the existing Foundations layout, reusing `sectionPage`, `foldDeep`, and `charBar` from `src/ui/theory.js`. Generalize the existing pattern where practical instead of duplicating it.
 
-Each question page follows the same structure:
+Each question page follows the same structure: a short introduction that states the problem (as of October 31, 2026 without a heading of its own and without question sentences – only the title is a question), then
 
-1. **The question**
-2. **What is established**
-3. **What remains open**
-4. **What would settle it**
-5. **Live in the app**
+1. **What is established**
+2. **What remains open**
+3. **What would settle it**
+4. **Live in the app**
 
 Each page also gets a status: **Open**, **Partially understood**, or **Semiclassically resolved**.
 
@@ -270,7 +269,7 @@ An optional widget may illustrate interference visibility as environmental coupl
 
 Keep existing interpretations in Foundations Section 8. Do not introduce modifications of quantum mechanics.
 
-Link to Section 10: **What geometry does a superposition have?**
+Link to Section 10: **The geometry of a superposition** (heading as of October 31, 2026; previously phrased as a question).
 
 **Status:** Open.
 
