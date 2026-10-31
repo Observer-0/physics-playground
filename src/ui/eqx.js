@@ -67,9 +67,11 @@
   /* ---------- Daten ---------- */
   const of = (exp) => (exp && PP.equations && E.has(PP.equations.byId, exp.id) ? PP.equations.byId[exp.id] : null);
   // Ausgewähltes Symbol der Gleichung; null = Karte geschlossen. Beim ersten Besuch ist eq.pre ausgewählt,
-  // damit sofort sichtbar ist, was die Karten zeigen.
+  // damit sofort sichtbar ist, was die Karten zeigen – außer im Labor auf schmalen Bildschirmen: Dort stünde die
+  // Karte unter der Formel und schöbe das Experiment eine Bildschirmhöhe nach unten.
+  const narrowLab = () => S.view === 'exp' && S.tab === 'lab' && typeof matchMedia === 'function' && matchMedia('(max-width: 820px)').matches;
   function sel(exp, eq) {
-    if (!E.has(S.xsel, exp.id)) S.xsel[exp.id] = eq.pre || null;
+    if (!E.has(S.xsel, exp.id)) S.xsel[exp.id] = narrowLab() ? null : eq.pre || null;
     const k = S.xsel[exp.id];
     return k && E.has(eq.symbols, k) ? k : null;
   }
@@ -141,7 +143,7 @@
   }
   const hint = (exp) => {
     const eq = of(exp);
-    return (eq && eq.hint) || T('Zeig auf ein Symbol oder tippe es an: Was bedeutet es, und welche Rolle spielt es in dieser Gleichung?', 'Point at a symbol or tap it: what does it mean, and what role does it play in this equation?');
+    return (eq && eq.hint) || T('Zeig auf ein Symbol oder tippe es an: Die Karte erklärt, was es bedeutet und welche Rolle es in dieser Gleichung spielt.', 'Point at a symbol or tap it: the card explains what it means and what role it plays in this equation.');
   };
 
   const opLabel = (f) => (f < 1 ? '÷ ' + String(Math.round(1 / f)) : '× ' + String(f));
@@ -180,7 +182,8 @@
   }
   function cardClass(exp) {
     const eq = of(exp), k = sel(exp, eq);
-    return 'xr-card' + (k ? ' xc-' + eq.symbols[k].color : '');
+    // xr-none: keine Auswahl – auf schmalen Bildschirmen ist die Karte dann ausgeblendet (der Hinweis steht schon unter der Legende)
+    return 'xr-card' + (k ? ' xc-' + eq.symbols[k].color : ' xr-none');
   }
   // tabindex: Nach dem Schließen bekommt die Karte den Fokus, damit er nicht verloren geht
   const card = (exp) => '<div class="' + cardClass(exp) + '" id="xr-card" tabindex="-1">' + cardInner(exp) + '</div>';

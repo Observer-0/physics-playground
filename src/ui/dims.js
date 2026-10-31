@@ -30,11 +30,9 @@
     return '<div class="lvl"><div class="lk"><b>' + k + '</b>' + (sub || '') + '</div><div>' + body + '</div></div>';
   }
   function formulaDoc() {
-    const exp = S.exp, f = form(), ex = exp.explain || {};
+    const exp = S.exp, f = form();
     const cx = ctxOfForm(exp, f);
     let h = '';
-    h += lvl('Intuition', T('Ebene 1', 'Level 1'), '<div class="prose"><p>' + esc(ex.intuition || '') + '</p></div>');
-    h += lvl(T('Mathematik', 'Mathematics'), T('Ebene 2', 'Level 2'), '<div class="steps">' + (ex.math || []).map((s) => '<div class="step"><div class="d">' + esc(s.t) + '</div><div>' + U.tex(s.tex) + '</div></div>').join('') + '</div>');
     // variables & constants
     const used = new Set();
     f.c.outputs.forEach((o) => E.symbolsIn(o.ast).forEach((s) => used.add(s)));
@@ -51,12 +49,15 @@
       '</tbody></table></div>');
     return h;
   }
+  // Tab „Erklärung“: die drei Ebenen nacheinander, dann Einordnung, aktuelle Annahmen und Steckbrief
   function physicsDoc() {
     const exp = S.exp, ex = exp.explain || {};
-    let h = lvl(T('Physik', 'Physics'), T('Ebene 3', 'Level 3'), '<div class="prose"><p>' + esc(ex.physics || '') + '</p></div>');
+    let h = lvl('Intuition', T('Ebene 1', 'Level 1'), '<div class="prose"><p>' + esc(ex.intuition || '') + '</p></div>');
+    h += lvl(T('Mathematik', 'Mathematics'), T('Ebene 2', 'Level 2'), '<div class="steps">' + (ex.math || []).map((s) => '<div class="step"><div class="d">' + esc(s.t) + '</div><div>' + U.tex(s.tex) + '</div></div>').join('') + '</div>');
+    h += lvl(T('Physik', 'Physics'), T('Ebene 3', 'Level 3'), '<div class="prose"><p>' + esc(ex.physics || '') + '</p></div>');
     // Zusätzliche Hintergrund-Abschnitte (z. B. Boltzmann und k_B bei den Planck-Einheiten)
     (ex.more || []).forEach((m) => { h += lvl(esc(m.t), esc(m.sub || ''), '<div class="prose">' + m.paras.map((p) => '<p>' + esc(p) + '</p>').join('') + (m.link ? '<p><a href="' + esc(m.link.href) + '">' + esc(m.link.label) + '</a></p>' : '') + '</div>'); });
-    h += lvl(T('Einordnung', 'Classification'), T('Was ist was?', 'What is what?'), '<ul class="ep">' + (ex.epistemics || []).map((e) => '<li><span class="tag ' + e.type + '">' + EP_LABEL[e.type] + '</span><span>' + esc(e.text) + '</span></li>').join('') + '</ul>');
+    h += lvl(T('Einordnung', 'Classification'), T('gemessen, hergeleitet, angenommen', 'measured, derived, assumed'), '<ul class="ep">' + (ex.epistemics || []).map((e) => '<li><span class="tag ' + e.type + '">' + EP_LABEL[e.type] + '</span><span>' + esc(e.text) + '</span></li>').join('') + '</ul>');
     const iss = (S.res.A ? S.res.A.issues : []).filter((i) => i.cat === 'assume' || i.cat === 'model');
     if (iss.length) h += lvl(T('Aktuell', 'Currently'), T('für die eingestellten Werte', 'for the values you set'), '<ul class="issues">' + iss.map((i) => '<li class="' + i.cat + '"><b>' + U.lab.CAT[i.cat] + '</b>' + esc(i.msg) + '</li>').join('') + '</ul>');
     if (exp.meta) {
@@ -227,7 +228,7 @@
     const exp = S.exp, f = form();
     const cx = ctxOfForm(exp, f);
     let h = '<div class="dimtop"><label class="switch"><input type="checkbox" id="nmm"' + (S.nightmare ? ' checked' : '') + '><span>Dimensional Analysis Nightmare Mode<small>' + T('jeden Faktor bis auf die Basisgrößen auflösen', 'break every factor down to the base quantities') + '</small></span></label></div>';
-    h += '<details class="dimwhat"><summary>' + T('Was ist Dimensionsanalyse?', 'What is dimensional analysis?') + '</summary><div>' + T(
+    h += '<details class="dimwhat"><summary>' + T('Dimensionsanalyse in Kürze', 'Dimensional analysis in brief') + '</summary><div>' + T(
       '<p>Jede physikalische Größe hat eine <b>Dimension</b> – sie sagt, <i>welche Art</i> von Größe das ist, unabhängig von der Einheit. Alles lässt sich auf wenige Basisgrößen zurückführen: Länge ' + U.tex('L') + ', Masse ' + U.tex('M') + ', Zeit ' + U.tex('T') + ', Temperatur ' + U.tex('\\Theta') + ' und einige mehr. Eine Kraft ist zum Beispiel ' + U.tex('\\mathrm{M}\\,\\mathrm{L}\\,\\mathrm{T}^{-2}') + ', eine Energie ' + U.tex('\\mathrm{M}\\,\\mathrm{L}^{2}\\,\\mathrm{T}^{-2}') + '.</p>' +
       '<p>Die Grundregel: <b>Nur Gleiches lässt sich vergleichen.</b> Beide Seiten einer Gleichung müssen dieselbe Dimension haben, und addieren darf man nur Terme gleicher Dimension. Diese Seite zerlegt jede Gleichung des Experiments in ihre Faktoren und prüft genau das.</p>' +
       '<p><a href="#view=theorie&amp;sec=dim">Ausführlicher, mit Beispiel zum Herleiten →</a></p>',
@@ -237,8 +238,8 @@
     h += '<p class="honest">' + T('<b>Was diese Prüfung leistet – und was nicht:</b> Passen die Dimensionen nicht zusammen, ist die Gleichung sicher falsch. Passen sie zusammen, ist sie deshalb noch nicht richtig. Reine Zahlenfaktoren wie ½ oder 2π haben keine Dimension und bleiben für die Prüfung unsichtbar. Ob das Modell hinter der Gleichung in der betrachteten Situation überhaupt gilt, kann sie ebenfalls nicht beurteilen. Dimensionsanalyse ist ein Ausschlusstest, kein Beweis.',
       '<b>What this check can do – and what it cannot:</b> if the dimensions do not match, the equation is certainly wrong. If they do match, that does not make it right. Pure numerical factors such as ½ or 2π have no dimension and are invisible to the check. Nor can it judge whether the model behind the equation applies in the situation at hand at all. Dimensional analysis is a test that rules things out, not a proof.') + '</p>';
     if (exp.meta && /Tensor/.test(exp.meta.mathType || '')) {
-      h += '<div class="callout">' + T('<b>Tensorgleichung:</b> Geprüft wird die Dimension <i>jeder einzelnen Komponente</i>. Alle 10 unabhängigen Komponenten haben dieselbe Dimension. Über die Tensorstruktur, die Indizes oder die Lösbarkeit sagt diese Prüfung nichts. Die Metrik ist hier dimensionslos gewählt (alle Koordinaten als Längen, x⁰ = ct). <a href="#view=theorie&amp;sec=idx">Was bedeuten die Indizes μν?</a>',
-        '<b>Tensor equation:</b> what is checked is the dimension of <i>each individual component</i>. All 10 independent components have the same dimension. The check says nothing about the tensor structure, the indices or whether the equations can be solved. The metric is chosen to be dimensionless here (all coordinates as lengths, x⁰ = ct). <a href="#view=theorie&amp;sec=idx">What do the indices μν mean?</a>') + '</div>';
+      h += '<div class="callout">' + T('<b>Tensorgleichung:</b> Geprüft wird die Dimension <i>jeder einzelnen Komponente</i>. Alle 10 unabhängigen Komponenten haben dieselbe Dimension. Über die Tensorstruktur, die Indizes oder die Lösbarkeit sagt diese Prüfung nichts. Die Metrik ist hier dimensionslos gewählt (alle Koordinaten als Längen, x⁰ = ct). <a href="#view=theorie&amp;sec=idx">Mehr zu den Indizes μν →</a>',
+        '<b>Tensor equation:</b> what is checked is the dimension of <i>each individual component</i>. All 10 independent components have the same dimension. The check says nothing about the tensor structure, the indices or whether the equations can be solved. The metric is chosen to be dimensionless here (all coordinates as lengths, x⁰ = ct). <a href="#view=theorie&amp;sec=idx">More on the indices μν →</a>') + '</div>';
     }
     h += notesHTML(exp);
     const eqs = f.c.equations;

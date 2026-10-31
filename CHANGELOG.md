@@ -2,6 +2,18 @@
 
 ## 2026-10-31
 
+**Formulierungen und Layout: Aussagen statt Fragesätze, Experiment-Seiten neu geordnet**
+
+- Offene Fragen: Jede Seite beginnt mit einer kurzen Einleitung statt mit dem Abschnitt „Die Frage“. Fragesätze im Text sind Aussagen geworden – Fragen sind nur noch die Titel. Die Vertiefungen heißen „Woher das Minimum kommt“ und „Mischung ohne festen Weg“, die Kurztexte der Übersicht sind Aussagen.
+- Seite zur kosmologischen Konstante neu geordnet: erst Messung, Vakuumenergie und Abschätzung, dann ein eigener Abschnitt „Die Dimension von Λ“ mit Krümmung, Längen, Vergleichstabelle und Horizont-Entropie. Die Tabelle steht jetzt nach der Abschätzung, auf die sie sich bezieht. Beim Messproblem steht die Zusammenfassung nach „Was offen ist“.
+- Grundlagen: „1. Die Geometrie einer Überlagerung“ statt einer Frage als Überschrift; zwei Fragesätze im Text umformuliert.
+- Experiment-Seiten: Tabs „Labor, Erklärung, Formel, Dimensionen, Quellen“; „Erklärung“ führt von der Intuition über die Mathematik zur Physik. Vergleich A/B und Zurücksetzen stehen bei den Reglern, Speichern und Teilen im Kopf. Jedes Experiment hat eine Unterzeile, Hinweise und Unterzeilen sind Aussagen.
+- Ergebnisliste: Symbol und Wert in einer Zeile, die Beschreibung darunter über die ganze Breite – kein Wert wird mehr abgeschnitten, auch nicht in der schmalen Spalte rechts. Namen der Regler zweizeilig statt nach wenigen Zeichen abgeschnitten.
+- Handy: Im Labor ist die Karte der Gleichung zuerst zu, damit das Experiment nicht eine Bildschirmhöhe tiefer beginnt. Zwei Formeln, die durch `\qquad` getrennt sind, brechen bei Bedarf in zwei Zeilen um. Die fünf Tabs passen in eine Zeile.
+- „Probier mal“: alle 48 Aufgaben und ihre Tipps als Aufträge statt als Fragen („Finde …“, „Lies ab, …“).
+
+**Tests:** weiterhin 115. Der Aufbau-Test der Offenen Fragen verlangt Einleitung, vier Abschnitte und keine Fragesätze im Text, der Aufgaben-Test Aufträge ohne Fragezeichen.
+
 **Offene Fragen, Frage 4: „Das Messproblem“ – Dekohärenz im Interferometer**
 
 - Neue Seite `#view=offen&sec=mess` (Status: offen). Die Frage: Die Schrödinger-Gleichung macht aus einer Überlagerung samt Messgerät eine größere Überlagerung (von Neumann 1932) – abgelesen wird aber immer genau ein Ergebnis. Gesichert: die Born-Regel (in der Standardformulierung ein Postulat, geprüft mit drei Spalten, Sinha u. a. 2010), Interferenz von Molekülen über 25 000 u (Fein u. a. 2019) und Dekohärenz: V = 2√(p₁p₂)|⟨E₁|E₂⟩| mit V² + D² = 1 (Englert 1996), gemessen im Resonator (Brune u. a. 1996) und an Fullerenen (Hornberger u. a. 2003, Hackermüller u. a. 2004). Eine Tabelle stellt Theorie, Experimente und Offenes nebeneinander. Offen: das einzelne Ergebnis, der Status der Born-Regel, was eine Messung ist (die Interpretationen bleiben in Grundlagen §8) und wie eine Überlagerung gravitiert (Verweis auf §10). Vertiefungen: warum die Streifen exponentiell verschwinden; Mischung oder Überlagerung. Verschränkung über Gravitation steht als Vorschlag da, nicht als Ergebnis.

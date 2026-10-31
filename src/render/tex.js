@@ -175,7 +175,21 @@
       if (c === '%') return { html: '%' };
       return { html: '<span class="mu">' + esc(c) + '</span>' };
     }
-    let html = group(null).html;
+    // Oberste Ebene: \qquad trennt zwei Formeln. Nur dort darf eine Formel umbrechen, wenn sie nicht in eine Zeile passt
+    // (schmale Bildschirme); jede Teilformel bleibt zusammen (styles.css: .mwrap, .mgrp).
+    function top() {
+      const parts = [''];
+      while (p < toks.length) {
+        const t = peek();
+        if (t.k === 'cmd' && t.v === 'qquad') { p++; parts.push(''); continue; }
+        const a = atom();
+        if (a === null) break;
+        parts[parts.length - 1] += scripts(a);
+      }
+      const full = parts.filter((x) => x !== '');
+      return full.length < 2 ? full.join('') : '<span class="mwrap">' + full.map((x) => '<span class="mgrp">' + x + '</span>').join(' ') + '</span>';
+    }
+    let html = top();
     if (opts.upright) html = html.replace(/<i class="mi">/g, '<span class="mu">').replace(/<\/i>/g, '</span>');
     return html;
   }

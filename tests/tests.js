@@ -84,7 +84,7 @@
     'Ideales Gas: 1 mol bei 273,15 K in 22,414 l → 101,325 kPa': 'Ideal gas: 1 mol at 273.15 K in 22.414 l → 101.325 kPa',
     'Schiefer Wurf: 30° und 60° fliegen gleich weit, 45° am weitesten': 'Projectile: 30° and 60° fly equally far, 45° furthest',
     'Quellen: jedes Experiment hat Quellen, DOIs sind gültig geformt, englische Notizen ohne deutsche Reste': 'Sources: every experiment has sources, DOIs are well-formed, English notes contain no German',
-    'Jede „Probier mal“-Aufgabe ist mit den Reglern lösbar und am Anfang noch offen': 'Every “Try this” task can be solved with the sliders and is still open at the start',
+    'Jede „Probier mal“-Aufgabe ist ein Auftrag ohne Fragesatz, mit den Reglern lösbar und am Anfang noch offen': 'Every “Try this” task is an instruction without a question, can be solved with the sliders and is still open at the start',
     'Engine-Meldungen und Dimensionsnamen gibt es auf Deutsch und Englisch': 'Engine messages and dimension names exist in German and English',
     'Umschalten wirkt auch auf die kompilierten Kopien der Experimente': 'Switching also affects the compiled copies of the experiments',
     'Keine deutschen Reste in den englischen Texten der Experimente und Konstanten': 'No German left in the English texts of the experiments and constants',
@@ -110,7 +110,7 @@
     'Dekohärenz: Presets V = 1, e⁻², e⁻¹⁰ und 0,6 mit P = D = 0,8; I(x) hat bei V = 1 Nullstellen; p₁ oder γ außerhalb von 0 bis 1 und N < 0 sind „unreal“': 'Decoherence: presets V = 1, e⁻², e⁻¹⁰ and 0.6 with P = D = 0.8; I(x) has zeros at V = 1; p₁ or γ outside 0 to 1 and N < 0 are “unreal”',
     'Dekohärenz: Schirm und Wegzustand zeigen V, D und die Matrixeinträge aus der Engine; ein Treffer bleibt liegen, wenn neue dazukommen': 'Decoherence: screen and path state show V, D and the matrix entries from the engine; a hit stays put when new ones arrive',
     'Keine Kandidaten für eine Quantengravitation – weder im Experiment noch in seinen Quellen noch auf den Seiten': 'No quantum-gravity candidates – not in the experiment, its sources or the pages',
-    'Offene Fragen: jede Frage hat Status, Kurztitel, die fünf Abschnitte und ein Experiment im Feld „open“; der Direktlink #view=offen&sec=… bleibt im Zustand': 'Open questions: every question has a status, a short title, the five sections and an experiment in the “open” field; the direct link #view=offen&sec=… stays in the state',
+    'Offene Fragen: jede Frage hat Status, Kurztitel, eine Einleitung, die vier Abschnitte, keine Fragesätze im Text und ein Experiment im Feld „open“; der Direktlink #view=offen&sec=… bleibt im Zustand': 'Open questions: every question has a status, a short title, an introduction, the four sections, no questions in the text and an experiment in the “open” field; the direct link #view=offen&sec=… stays in the state',
     'Graph': 'Graph',
     'Grundlagen: jeder Abschnitt hat Kurztitel und Kurzbeschreibung, der Direktlink #view=theorie&sec=… bleibt im Zustand': 'Foundations: every section has a short title and a one-line summary, the direct link #view=theorie&sec=… stays in the state',
     'Schraffur je Größe: „nach der Landung“ betrifft y(t) und x(t), aber nicht R und H': 'Hatching per quantity: “after landing” affects y(t) and x(t), but not R and H',
@@ -125,7 +125,7 @@
     'Interaktive Gleichungen': 'Interactive equations',
     'Jede Gleichung ist interaktiv und ohne Marker gesetzt genau ihre Formel exp.tex': 'Every equation is interactive and, typeset without markers, is exactly its formula exp.tex',
     'Jedes Symbol: eine Quelle, Farbe, Kurzlabel, Rolle und Bedeutung auf Deutsch und Englisch, je höchstens drei Sätze; Werte nur aus PP.model.C': 'Every symbol: one source, colour, short label, role and meaning in German and English, at most three sentences each; values only from PP.model.C',
-    'Interaktive Gleichung: Zeigen und Klick wählen ein Symbol samt Karte, × und Esc schließen sie': 'Interactive equation: pointing and clicking select a symbol and its card, × and Esc close it',
+    'Interaktive Gleichung: Zeigen und Klick wählen ein Symbol samt Karte, × und Esc schließen sie; im Labor auf schmalen Bildschirmen ist sie zuerst zu': 'Interactive equation: pointing and clicking select a symbol and its card, × and Esc close it; in the lab on narrow screens it starts closed',
     'Grundlagen: Zu jedem Marker einer Kerngleichung gibt es ein Symbol und umgekehrt, auf Deutsch und Englisch': 'Foundations: every marker of a core equation has a symbol and vice versa, in German and English',
     'Grundlagen: Jede Kerngleichung steht in einem Abschnitt, jedes ihrer Symbole ist ein Knopf': 'Foundations: every core equation appears in a section, and each of its symbols is a button',
     'Grundlagen: Klick öffnet die schwebende Karte, × schließt sie, beim Abbau verschwindet sie': 'Foundations: a click opens the floating card, × closes it, and teardown removes it',
@@ -555,7 +555,7 @@
   });
 
   /* --- Aufgaben: jede lösbar, keine schon am Anfang gelöst --- */
-  test('Aufgaben', 'Jede „Probier mal“-Aufgabe ist mit den Reglern lösbar und am Anfang noch offen', () => {
+  test('Aufgaben', 'Jede „Probier mal“-Aufgabe ist ein Auftrag ohne Fragesatz, mit den Reglern lösbar und am Anfang noch offen', () => {
     const bad = [];
     const state = (exp, form, vals, base, consts, opts) => {
       const v = Object.assign(M.defaults(exp), vals || {}), b = Object.assign(M.defaults(exp), base || {});
@@ -567,6 +567,8 @@
     for (const exp of M.registry) (exp.tasks || []).forEach((t, i) => {
       n++;
       const d = t.demo || {}, form = d.form || exp.forms[0].id, name = exp.id + ' #' + (i + 1);
+      // Aufträge statt Fragen: „Finde …“, „Lies ab, …“ – auch im Tipp kein Fragesatz
+      for (const lang of ['de', 'en']) I.with(lang, () => { if (/\?/.test(t.q) || /\?/.test(t.hint || '')) bad.push(name + ' (' + lang + '): Fragesatz'); });
       if (!t.done(state(exp, form, d.vals, d.base, d.consts, d.opts))) bad.push(name + ': Beispiellösung erfüllt die Aufgabe nicht');
       if (t.done(state(exp, exp.forms[0].id, {}, {}, {}, {}))) bad.push(name + ': schon bei den Ausgangswerten erfüllt');
       for (const k in d.vals || {}) {
@@ -936,10 +938,10 @@
     ok(M.registry.some((e) => e.field === 'open'), 'kein Experiment im Feld open');
     ok(!bad.length, bad.slice(0, 3).join(' | '));
   });
-  test('UI (im Browser)', 'Offene Fragen: jede Frage hat Status, Kurztitel, die fünf Abschnitte und ein Experiment im Feld „open“; der Direktlink #view=offen&sec=… bleibt im Zustand', () => {
+  test('UI (im Browser)', 'Offene Fragen: jede Frage hat Status, Kurztitel, eine Einleitung, die vier Abschnitte, keine Fragesätze im Text und ein Experiment im Feld „open“; der Direktlink #view=offen&sec=… bleibt im Zustand', () => {
     if (!PP.ui || !PP.ui.open || !PP.ui.stateString) return;
     const U = PP.ui;
-    const heads = { de: ['Die Frage', 'Was gesichert ist', 'Was offen ist', 'Was es entscheiden würde', 'Live in der App'], en: ['The question', 'What is established', 'What remains open', 'What would settle it', 'Live in the app'] };
+    const heads = { de: ['Was gesichert ist', 'Was offen ist', 'Was es entscheiden würde', 'Live in der App'], en: ['What is established', 'What remains open', 'What would settle it', 'Live in the app'] };
     for (const lang of ['de', 'en']) I.with(lang, () => U.open.questions.forEach((q) => {
       const m = U.open.meta(q);
       ok(m.short && m.teaser, lang + ': ' + q.id);
@@ -947,6 +949,10 @@
       ok(!q.exp || (M.byId[q.exp] && M.byId[q.exp].field === 'open'), q.id + ': Experiment ' + q.exp);
       const h3 = [...q.body().matchAll(/<h3 class="th-h3">([^<]*)<\/h3>/g)].map((x) => x[1]);
       ok(heads[lang].every((x) => h3.includes(x)), q.id + ' (' + lang + '): ' + h3.join(', '));
+      // Die Seite beginnt mit einer Einleitung; Fragen sind nur der Titel und der Kurztitel
+      ok(/^<p class="oq-lead">/.test(q.body()), q.id + ' (' + lang + '): keine Einleitung am Anfang');
+      const txt = q.body().replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+      ok(!txt.includes('?') && !m.teaser.includes('?'), q.id + ' (' + lang + '): Fragesatz „' + (txt.match(/[^.:]*\?/) || [m.teaser])[0].trim() + '“');
       if (q.exp) ok(U.backLink(M.byId[q.exp]).href.endsWith('sec=' + q.id), q.id + ': Rückweg');
     }));
     const prev = { view: U.S.view, sec: U.S.theorySec };
@@ -1044,7 +1050,7 @@
     } finally { down(); box.remove(); }
     ok(!document.getElementById('xpop'), 'Karte bleibt nach dem Abbau im Dokument');
   });
-  test('UI (im Browser)', 'Interaktive Gleichung: Zeigen und Klick wählen ein Symbol samt Karte, × und Esc schließen sie', () => {
+  test('UI (im Browser)', 'Interaktive Gleichung: Zeigen und Klick wählen ein Symbol samt Karte, × und Esc schließen sie; im Labor auf schmalen Bildschirmen ist sie zuerst zu', () => {
     if (!PP.ui || !PP.ui.eqx || typeof document === 'undefined') return;
     const U = PP.ui, S = U.S, keep = { exp: S.exp, form: S.form, xsel: S.xsel };
     try {
@@ -1066,6 +1072,19 @@
       b.click();
       ok(on() === 'Tmn', 'Klick auf T_μν: ' + on());
       ok(U.eqx.escape(el) && on() === '' && S.xsel.efe === null && !U.eqx.escape(el), 'Esc schließt nicht');
+      // Im Labor eines Experiments auf schmalen Bildschirmen ist die Karte zuerst zu – sonst schöbe sie das Experiment
+      // eine Bildschirmhöhe nach unten. Anderswo (hier: Testseite, Grundlagen) ist pre wie gewohnt gewählt.
+      const mm = Object.getOwnPropertyDescriptor(window, 'matchMedia'), view = S.view, tab = S.tab;
+      try {
+        window.matchMedia = () => ({ matches: true });
+        S.view = 'exp'; S.tab = 'lab'; S.xsel = {};
+        const el2 = document.createElement('div');
+        el2.innerHTML = U.eqx.hero(exp, '');
+        ok(!el2.querySelector('[aria-pressed="true"]'), 'schmal im Labor: Karte sollte zu sein');
+      } finally {
+        if (mm) Object.defineProperty(window, 'matchMedia', mm); else delete window.matchMedia;
+        S.view = view; S.tab = tab;
+      }
     } finally { S.exp = keep.exp; S.form = keep.form; S.xsel = keep.xsel; }
   });
 

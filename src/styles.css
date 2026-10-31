@@ -120,6 +120,7 @@ select { background: var(--panel); border: 1px solid var(--line2); border-radius
 .panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); min-width: 0; }
 .ph { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 8px 12px; border-bottom: 1px solid var(--line); min-height: 42px; }
 .ph h3 { margin: 0; font-size: 13px; font-weight: 500; color: var(--ink2); margin-right: auto; }
+.abrow { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; font-size: 12.5px; color: var(--ink3); }
 .pb { padding: 12px; }
 .chip { display: inline-flex; align-items: center; gap: 5px; border: 1px solid var(--line2); border-radius: 20px; padding: 2px 10px; font-size: 12.5px; background: transparent; color: var(--ink2); }
 .chip:hover { color: var(--ink); border-color: var(--ink3); }
@@ -171,6 +172,9 @@ table.t tr:last-child td { border-bottom: 0; }
 .tip { position: absolute; pointer-events: none; background: var(--bg); border: 1px solid var(--line2); border-radius: 4px; padding: 5px 8px; font: 12px/1.5 var(--font-mono); color: var(--ink); white-space: nowrap; z-index: 5; }
 .tip i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
 .gsel { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--ink3); flex-wrap: wrap; }
+/* Lange Namen in der Auswahl dürfen das Handy-Layout nicht verbreitern */
+.gsel { min-width: 0; max-width: 100%; }
+.gsel select { max-width: 100%; min-width: 0; }
 .legend { display: flex; gap: 6px; flex-wrap: wrap; padding: 8px 12px 0; }
 .ghint { font-size: 12.5px; color: var(--ink2); padding: 4px 12px 8px; }
 .controls { display: grid; gap: 14px; position: sticky; top: 14px; }
@@ -183,7 +187,8 @@ table.t tr:last-child td { border-bottom: 0; }
 .prm:last-child { border-bottom: 0; }
 .prm .lab2 { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
 .prm .lab2 .math { font-size: 17px; }
-.prm .nm { font-size: 12.5px; color: var(--ink2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.prm .nm { font-size: 12.5px; line-height: 1.3; color: var(--ink2); overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.prm .lab2 { align-items: center; }
 .prm .valbox { display: flex; align-items: center; gap: 4px; justify-self: end; }
 .prm input.num { width: 118px; text-align: right; background: var(--bg); border: 1px solid var(--line2); border-radius: 4px; padding: 3px 7px; font-family: var(--font-mono); font-size: 12.5px; }
 .prm input.num:focus { outline: none; border-color: var(--accent); }
@@ -217,9 +222,18 @@ input[type=range]:focus-visible { outline: 1px dashed var(--accent); outline-off
 .rlist td.k { width: 1%; white-space: nowrap; }
 .rlist td.k .math { font-size: 15px; }
 .rlist td.val { font-family: var(--font-mono); text-align: right; white-space: nowrap; }
+.rlist td.val .vn { white-space: nowrap; }
 .rlist td.val .alt { display: block; color: var(--ink2); font-size: 12px; }
 .rlist td.nm { color: var(--ink2); font-size: 12.5px; }
 .rlist .rnote { display: block; margin-top: 3px; font-size: 12.5px; line-height: 1.4; color: var(--ink2); border-left: 2px solid var(--line2); padding-left: 7px; }
+/* Ergebnisliste (ohne Vergleich): Symbol und Wert in einer Zeile, die Beschreibung darunter über die ganze Breite –
+   so wird kein Wert abgeschnitten, auch nicht in der schmalen Spalte rechts oder auf dem Handy */
+.rlist:not(.cmp) tr { display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 12px; align-items: baseline; padding: 7px 0; border-bottom: 1px solid var(--line); }
+.rlist:not(.cmp) tr:last-child { border-bottom: 0; }
+.rlist:not(.cmp) td { padding: 0; border: 0; }
+.rlist:not(.cmp) td.k { grid-row: 1; grid-column: 1; width: auto; }
+.rlist:not(.cmp) td.val { grid-row: 1; grid-column: 2; white-space: normal; overflow-wrap: anywhere; }
+.rlist:not(.cmp) td.nm { grid-row: 2; grid-column: 1 / -1; margin-top: 3px; }
 .rlist td.err { color: var(--red); font-family: var(--font-sans); }
 .cmp td.val { color: var(--ink); }
 .cmp td.ratio { color: var(--accent); font-family: var(--font-mono); text-align: right; white-space: nowrap; }
@@ -271,6 +285,9 @@ input[type=range]:focus-visible { outline: 1px dashed var(--accent); outline-off
 /* ---------- math ---------- */
 .math { font-family: var(--font-math); font-size: 1.12em; white-space: nowrap; line-height: 1.2; display: inline-block; vertical-align: middle; }
 .math i.mi { font-style: italic; padding-right: .02em; }
+/* Zwei Formeln, getrennt durch \qquad: Umbruch nur zwischen ihnen (src/render/tex.js) */
+.math .mwrap { display: inline-flex; flex-wrap: wrap; justify-content: center; align-items: baseline; column-gap: 2em; row-gap: .45em; }
+.math .mgrp { white-space: nowrap; }
 .math .mu, .math .mn, .math .mrm, .math .mtx { font-style: normal; }
 .math .mtx { font-family: var(--font-sans); font-size: .82em; padding: 0 .15em; }
 .math .msf { font-family: var(--font-sans); font-size: .86em; font-style: normal; }
@@ -544,7 +561,13 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
   .xr { padding: 12px; }
   .xr-top { grid-template-columns: minmax(0, 1fr); }
   .xr-card { min-height: 0; }
+  .xr-card.xr-none { display: none; }
+  .rlist td.val { white-space: normal; }
+  .tabs button { padding: 9px 8px; font-size: 13.5px; }
   .lvl, .step, .ep li, .wall a { grid-template-columns: 1fr; }
+  .step .math { font-size: 16px; }
+  /* Breite Tabellen scrollen in ihrem Kasten, statt die Seite zu verbreitern */
+  .lvl { grid-template-columns: minmax(0, 1fr); }
   .vizwrap { height: 260px; }
   .plotwrap { height: 250px; }
   .xhead .acts { margin-left: 0; }
@@ -554,6 +577,10 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
   .hero.eqx { padding: 16px 12px; }
   .balance { grid-template-columns: 1fr; }
   .stat { grid-template-columns: 1fr; }
+}
+/* Sehr schmal (≤ 380 px): Die fünf Tabs passen trotzdem in eine Zeile */
+@media (max-width: 380px) {
+  .tabs button { padding: 9px 5px; }
 }
 
 /* Handy hochkant: Das Bild bleibt beim Scrollen durch die Regler oben stehen */
@@ -617,6 +644,8 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
 .oq-live { display: inline-block; margin: 6px 0 4px; }
 .oq-live + .oq-live { margin-left: 8px; }
 /* Λ als Krümmung: der Absatz zur Dimension 1/Länge² hebt sich in der Feldfarbe ab */
+/* Einleitung einer Frage: an Stelle eines eigenen Abschnitts „Die Frage“ */
+.oq-lead { font-size: 1.07em; color: var(--ink); }
 .oq-dim { border-left: 2px solid var(--fc, var(--cyan)); padding: 2px 0 2px 14px; margin: 16px 0 20px; }
 .oq-dim > p:first-child b { color: var(--ink); font-weight: 600; }
 .xhead .x-back { flex: 1 0 100%; font-size: 13px; text-decoration: none; margin-bottom: -8px; }

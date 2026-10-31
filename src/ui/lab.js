@@ -96,16 +96,14 @@
 
   /* ---------- page ---------- */
   function headerHTML(exp) {
-    const hasVars = exp.forms.some((f) => f.vars.length);
     return '<header class="xhead">' + U.fieldBanner(U.fieldOf(exp), exp.group) +
       // Rückweg, wenn das Experiment zu einer Seite gehört (exp.question → src/ui/open.js)
       (U.backLink && U.backLink(exp) ? '<a class="x-back" href="' + U.backLink(exp).href + '">← ' + esc(U.backLink(exp).label) + '</a>' : '') +
       '<div><h1>' + esc(exp.title) + '</h1>' + (exp.subtitle ? '<div class="sub">' + esc(exp.subtitle) + '</div>' : '') + '</div>' +
       // Die Formel steht groß im Kopfblock darunter (Famous Equations, interaktive Gleichungen), sonst klein neben dem Titel
       (hasHero(exp) ? '' : '<div class="eq">' + U.tex(exp.tex) + '</div>') +
+      // Speichern und Teilen betreffen die ganze Seite; Vergleich und Zurücksetzen stehen bei den Reglern (labHTML)
       '<div class="acts">' +
-      (hasVars ? '<button class="btn' + (S.cmp ? ' on' : '') + '" data-a="cmp" aria-pressed="' + S.cmp + '">' + T('Vergleich A/B', 'Compare A/B') + '</button>' +
-        '<button class="btn" data-a="reset" title="' + T('Alle Werte auf den Ausgangszustand', 'Reset all values to the starting state') + '">' + T('Zurücksetzen', 'Reset') + '</button>' : '') +
       '<button class="btn" data-a="save">' + T('Speichern', 'Save') + '</button>' +
       '<button class="btn" data-a="share">' + T('Teilen', 'Share') + '</button>' +
       '<div class="pop" id="pop" hidden></div>' +
@@ -154,8 +152,11 @@
       (showGraph ? '<section class="panel gpanel" id="gpanel"></section>' : '') +
       '</div>' +
       '<div class="controls">' +
-      '<section class="panel prmpanel"><div class="ph"><h3>' + T('Parameter', 'Parameters') + '</h3>' + ab + '</div>' +
-      '<div class="pb">' + (forms ? '<div style="margin-bottom:10px">' + forms + '</div>' : '') +
+      '<section class="panel prmpanel"><div class="ph"><h3>' + T('Parameter', 'Parameters') + '</h3>' +
+      (hasVars ? '<button class="btn sm' + (S.cmp ? ' on' : '') + '" data-a="cmp" aria-pressed="' + S.cmp + '">' + T('Vergleich A/B', 'Compare A/B') + '</button>' +
+        '<button class="btn sm" data-a="reset" title="' + T('Alle Werte auf den Ausgangszustand', 'Reset all values to the starting state') + '">' + T('Zurücksetzen', 'Reset') + '</button>' : '') + '</div>' +
+      // Im Vergleich: zuerst wählen, welcher Satz bearbeitet wird
+      '<div class="pb">' + (ab ? '<div class="abrow">' + T('Bearbeiten: ', 'Editing: ') + ab + '</div>' : '') + (forms ? '<div style="margin-bottom:10px">' + forms + '</div>' : '') +
       (presets.length ? '<div class="presets">' + presets.map((p) => '<button class="chip" data-preset="' + exp.presets.indexOf(p) + '">' + esc(p.name) + '</button>').join('') + '</div><div class="pnote" id="pnote"></div>' : '') +
       '<div id="prms"></div><div id="cprms"></div></div></section>' +
       '<section class="panel respanel"><div class="ph"><h3>' + T('Ergebnis', 'Result') + '</h3></div><div class="pb" id="res" aria-live="polite"></div></section>' +
@@ -166,7 +167,8 @@
   function render(el) {
     const exp = S.exp;
     // Alle Experimente haben dieselben Tabs direkt unter dem Kopf; das Labor ist der erste und voreingestellte
-    const tabs = [['lab', T('Graph & Labor', 'Graph & lab')], ['formula', T('Formel & Variablen', 'Formula & variables')], ['dims', T('Dimensionsanalyse', 'Dimensional analysis')], ['physics', T('Physik & Grenzen', 'Physics & limits')]];
+    // Reihenfolge: ausprobieren, verstehen (Intuition → Mathematik → Physik), Größen im Einzelnen, Dimensionen, Quellen
+    const tabs = [['lab', T('Labor', 'Lab')], ['physics', T('Erklärung', 'Explanation')], ['formula', T('Formel', 'Formula')], ['dims', T('Dimensionen', 'Dimensions')]];
     if (PP.sources && PP.sources.byId[exp.id]) tabs.push(['sources', T('Quellen', 'Sources')]);
     if (!tabs.some((t) => t[0] === S.tab)) S.tab = tabs[0][0];
     let h = '<div class="' + (exp.hall ? 'hallx' : '') + '">' + headerHTML(exp);
@@ -624,13 +626,14 @@
         h += '<div class="delta">' + T('gegenüber ' + (S.base.preset ? 'Preset' : 'Ausgangswert'), 'compared with the ' + (S.base.preset ? 'preset' : 'starting value')) + ': ' + esc(q.t) + (q.p ? '  (' + esc(q.p) + ')' : '') + '</div>';
       }
       h += '</div>';
-      h += '<table class="t rlist"><tbody>' + outs.filter((o) => o !== prim && !o.aux).map((o) => {
+      // Zahl und Einheit je für sich ungetrennt; dazwischen darf auf schmalen Bildschirmen umbrochen werden
+      h += '<div class="scroll-x"><table class="t rlist"><tbody>' + outs.filter((o) => o !== prim && !o.aux).map((o) => {
         const rr = A.out[o.key];
         const vv = fmtR(rr, digitsFor(o, 'A').d);
         const alt2 = altR(o, rr);
         return '<tr><td class="k">' + U.tex(o.tex) + '</td><td class="nm">' + esc(o.name) + (o.note ? '<span class="rnote">' + esc(o.note) + '</span>' : '') + '</td>' +
-          (vv === null ? '<td class="val err">' + T('nicht definiert', 'not defined') + '</td>' : '<td class="val">' + esc(vv) + ' ' + esc(U.unit(o.dimv)) + (alt2 ? '<span class="alt">' + esc(alt2) + '</span>' : '') + '</td>') + '</tr>';
-      }).join('') + '</tbody></table>';
+          (vv === null ? '<td class="val err">' + T('nicht definiert', 'not defined') + '</td>' : '<td class="val"><span class="vn">' + esc(vv) + '</span>' + (U.unit(o.dimv) ? ' <span class="vn">' + esc(U.unit(o.dimv)) + '</span>' : '') + (alt2 ? '<span class="alt">' + esc(alt2) + '</span>' : '') + '</td>') + '</tr>';
+      }).join('') + '</tbody></table></div>';
     } else {
       const B = S.res.B;
       h += '<div class="scroll-x"><table class="t rlist cmp"><thead><tr><th>' + T('Größe', 'Quantity') + '</th><th>A</th><th>B</th><th>B / A</th></tr></thead><tbody>' + outs.filter((o) => !o.aux).map((o) => {
