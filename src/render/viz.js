@@ -1063,5 +1063,91 @@
     note(ctx, tr('Schematisch: Balken in Vielfachen von c² dM, Werte aus der Engine', 'Schematic: bars in multiples of c² dM, values from the engine'), W, H, col);
   };
 
+  /* ---------- Verdampfung und Page-Kurve ----------
+     Links das Loch: Radius ∝ M (M/M₀ = (1 − τ)^{1/3} aus der Engine), heller mit wachsender Temperatur,
+     Punkte ∝ Leuchtkraft ∝ 1/M². Rechts die drei Entropien über τ – bis zur aktuellen Zeit kräftig, danach blass –
+     und die Page-Zeit als Linie. Alle Zahlen aus der Engine; Größe, Helligkeit und Punkte sind schematisch. */
+  V.page = (ctx, W, H, S) => {
+    const { v, col } = S;
+    grid(ctx, W, H, col);
+    const sP = S.o('sPage'), tauP = S.o('tauP');
+    if (!isFinite(sP) || !isFinite(tauP)) return invalid(ctx, W, H, col, tr('Die Page-Kurve ist hier nicht definiert', 'The Page curve is not defined here'));
+    const narrow = W < 520, tau = clamp(v.tau, 0, 1), m = Math.max(0, S.o('m') || 0);
+    const after = tau >= tauP;
+    label(ctx, 'τ = ' + E.fmt(tau, 3) + (after ? tr(' · nach der Page-Zeit', ' · after the Page time') : tr(' · vor der Page-Zeit', ' · before the Page time')), 12, 18, col, { mono: true, size: narrow ? 11 : 12, color: col.accent });
+    // Diagrammbereich
+    const x0 = W * (narrow ? 0.4 : 0.42), x1 = W - 14, y0 = 36, y1 = H - (narrow ? 62 : 70);
+    const ymax = Math.max(1, v.beta || 1) * 1.06;
+    const X = (t) => x0 + clamp(t, 0, 1) * (x1 - x0), Y = (s) => y1 - (clamp(s, 0, ymax) / ymax) * (y1 - y0);
+    // Loch
+    const cx = W * (narrow ? 0.19 : 0.2), cy = (y0 + y1) / 2, Rmax = Math.max(12, Math.min(W * (narrow ? 0.14 : 0.13), (y1 - y0) / 2 - 8)), R = Rmax * m;
+    if (m > 0) {
+      const n = Math.round(clamp(6 / (m * m), 6, 140)), Rout = Math.min(Rmax * 1.55, cx - 4);
+      ctx.fillStyle = col.accent;
+      for (let i = 0; i < n; i++) {
+        const a = 2 * Math.PI * ((i * 0.6180339887 + 0.13) % 1), p = (i * 0.3719 + tau * 8) % 1;
+        const r = R + 4 + p * Math.max(8, Rout - R - 4);
+        ctx.globalAlpha = 0.85 * (1 - p);
+        ctx.beginPath(); ctx.arc(cx + r * Math.cos(a), cy + r * Math.sin(a), 1.8, 0, 7); ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(cx, cy, R, 0, 7); ctx.fill();
+      // Rand: orange, mit steigender Temperatur heller (T_H ∝ 1/M)
+      ctx.lineWidth = 2.2; ctx.strokeStyle = col.accent; ctx.beginPath(); ctx.arc(cx, cy, R, 0, 7); ctx.stroke();
+      ctx.globalAlpha = clamp(1 - m, 0, 0.85); ctx.strokeStyle = '#ffffff'; ctx.stroke(); ctx.globalAlpha = 1;
+    } else label(ctx, tr('verdampft', 'evaporated'), cx, cy, col, { align: 'center', base: 'middle', size: 13, color: col.ink2 });
+    ctx.strokeStyle = col.ink3; ctx.setLineDash([2, 4]); ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.arc(cx, cy, Rmax, 0, 7); ctx.stroke(); ctx.setLineDash([]);
+    // Werte unter dem Loch; auf schmalen Bildschirmen linksbündig, damit nichts abgeschnitten wird
+    const ly = cy + Rmax + 18, lx0 = narrow ? 6 : cx, la = narrow ? 'left' : 'center';
+    label(ctx, 'M = ' + S.fo('M') + ' kg', lx0, ly, col, { align: la, mono: true, size: narrow ? 11 : 12, color: col.ink });
+    label(ctx, 'T_H = ' + S.fo('TH') + ' K', lx0, ly + 16, col, { align: la, mono: true, size: narrow ? 11 : 12, color: col.accent });
+    if (!narrow) label(ctx, 't ≈ ' + S.fo('ty') + tr(' Jahre', ' years'), cx, ly + 32, col, { align: 'center', mono: true, size: 12, color: col.ink2 });
+    // Achsen
+    ctx.strokeStyle = col.ink3; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(x0, y0 - 6); ctx.lineTo(x0, y1); ctx.lineTo(x1, y1); ctx.stroke();
+    label(ctx, '0', x0, y1 + 14, col, { align: 'center', size: 11, color: col.ink3 });
+    label(ctx, 't_evap', x1, y1 + 14, col, { align: 'right', size: 11, color: col.ink3 });
+    label(ctx, 'S₀', x0 - 4, Y(1) + 4, col, { align: 'right', size: 11, color: col.ink3 });
+    ctx.strokeStyle = col.grid; ctx.beginPath(); ctx.moveTo(x0, Y(1) + 0.5); ctx.lineTo(x1, Y(1) + 0.5); ctx.stroke();
+    // Page-Zeit
+    const xp = X(tauP);
+    ctx.strokeStyle = after ? col.accent : col.ink3; ctx.setLineDash([4, 4]); ctx.beginPath(); ctx.moveTo(xp + 0.5, y0 - 4); ctx.lineTo(xp + 0.5, y1); ctx.stroke(); ctx.setLineDash([]);
+    label(ctx, tr('Page-Zeit ', 'Page time ') + S.fo('tauP'), xp, y0 - 8, col, { align: xp > x1 - 70 ? 'right' : 'center', size: 11, color: after ? col.accent : col.ink2 });
+    // Kurven aus der Engine: bis τ kräftig, danach blass
+    const N = narrow ? 60 : 90, ts = [];
+    for (let i = 0; i <= N; i++) ts.push(i / N);
+    ts.push(tauP); ts.sort((a, b) => a - b);
+    const pts = ts.map((t) => { const r = S.at({ tau: t }); return [t, r.o('sBH'), r.o('sRad'), r.o('sPage')]; });
+    const curve = (k, c, w, dash) => {
+      ctx.strokeStyle = c; ctx.lineWidth = w; ctx.setLineDash(dash || []);
+      ctx.beginPath(); let first = true;
+      for (const p of pts) { if (!isFinite(p[k])) continue; if (first) { ctx.moveTo(X(p[0]), Y(p[k])); first = false; } else ctx.lineTo(X(p[0]), Y(p[k])); }
+      ctx.stroke(); ctx.setLineDash([]);
+    };
+    const series = [[1, col.violet, 1.8, null], [2, col.cyan, 1.8, [5, 4]], [3, col.accent, 2.8, null]];
+    ctx.globalAlpha = 0.3; series.forEach((s) => curve(...s)); ctx.globalAlpha = 1;
+    ctx.save(); ctx.beginPath(); ctx.rect(x0 - 2, 0, X(tau) - x0 + 2, H); ctx.clip(); series.forEach((s) => curve(...s)); ctx.restore();
+    [['sBH', col.violet], ['sRad', col.cyan], ['sPage', col.accent]].forEach(([k, c]) => {
+      const y = S.o(k);
+      if (!isFinite(y)) return;
+      ctx.fillStyle = c; ctx.beginPath(); ctx.arc(X(tau), Y(y), k === 'sPage' ? 4.5 : 3.5, 0, 7); ctx.fill();
+    });
+    // Legende
+    const items = narrow
+      ? [['S_BH', col.violet], ['S_rad', col.cyan], ['S_Page', col.accent]]
+      : [[tr('S_BH: Loch', 'S_BH: hole'), col.violet], [tr('S_rad: Hawking, thermisch', 'S_rad: Hawking, thermal'), col.cyan], [tr('S_Page: keine Information verloren', 'S_Page: no information lost'), col.accent]];
+    let lx = x0, lyy = y1 + 32;
+    font(ctx, col, 11);
+    items.forEach(([t, c]) => {
+      const w = 14 + textW(ctx, t);
+      if (lx > x0 && lx + w > x1) { lx = x0; lyy += 16; }   // umbrechen, wenn die Zeile voll ist
+      ctx.fillStyle = c; ctx.fillRect(lx, lyy - 5, 10, 3);
+      label(ctx, t, lx + 14, lyy, col, { size: 11, color: col.ink2 });
+      lx += w + (narrow ? 10 : 14);
+    });
+    if (!narrow) label(ctx, tr('Schematisch: Radius ∝ M, Punkte ∝ Leuchtkraft', 'Schematic: radius ∝ M, dots ∝ luminosity'), 10, H - 10, col, { size: 11, color: col.ink3 });
+  };
+
   PP.viz = V;
 })(globalThis.PP = globalThis.PP || {});

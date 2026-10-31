@@ -2,6 +2,16 @@
 
 ## 2026-10-31
 
+**Offene Fragen, Frage 2: „Geht Information verloren?“ – Verdampfung und Page-Kurve**
+
+- Neue Seite `#view=offen&sec=info` (Status: offen) mit den fünf Teilen: Hawkings thermische Strahlung, das Paradoxon von 1976, Pages Argument mit dem Minimum, die Page-Zeit im einfachsten Modell, semiklassische Rechnungen seit 2019 als Rechnung in speziellen Modellen – nicht als Beobachtung. Offen bleiben der Mechanismus, die Unitarität selbst und die Endphase. Als Vertiefung: warum ausgerechnet das Minimum.
+- Neues Experiment „Verdampfung und Page-Kurve“: τ = t/t_evap als Regler, „Zeit laufen lassen“ lässt das Loch in 10 s verdampfen. Masse, Temperatur und Entropien kommen aus der Engine: S_BH = S₀(1 − τ)^{2/3}, S_rad = β(S₀ − S_BH), S_Page = min(S_rad, S_BH). Die Page-Zeit rechnet die Engine aus, τ_Page = 1 − (β/(1 + β))^{3/2}: 0,6464 im einfachsten Modell (β = 1), Pages 53,81 % für Photonen und Gravitonen (β ≈ 1,4847).
+- Visualisierung: links das Loch, das schrumpft, heller wird und immer stärker strahlt; rechts die drei Kurven, die bis zur aktuellen Zeit kräftig gezeichnet werden, mit der Page-Zeit als Linie. Am Ende: „verdampft“, T_H undefiniert, die Endphase als Modellgrenze markiert.
+- Interaktive Gleichung, drei Aufgaben, sieben Quellen (DOIs geprüft). Die Grundlagen verweisen im Abschnitt zum Informationsparadoxon auf die neue Seite.
+- Engine: `min` und `max` für zwei Größen derselben Dimension, auch jenseits des Double-Bereichs. `animateRate` legt fest, wie schnell „Zeit laufen lassen“ läuft. Während die Zeit läuft, gilt – wie beim Pendeln – keine Aufgabe als gelöst; wer an der richtigen Stelle anhält, löst sie.
+
+**Tests:** 105 → 108 (min und max; Page-Kurve mit Page-Zeit, Maximum und Pages Zahlen für β ≈ 1,4847; Verdampfung konsistent mit Hawking-Temperatur und BH-Entropie, T_H bei 99,9 %, Verhalten bei τ = 1). `npm run check:ui` prüft die neue Seite.
+
 **Animationen: exaktes Fadenpendel und η pendeln**
 
 - Fadenpendel: Das exakte Pendel bewegt sich jetzt wirklich exakt. Bisher war seine Bewegung als Kosinus gezeichnet (bekannte Einschränkung in der README); jetzt kommt der Winkel aus der Engine: θ(t) = 2 arcsin(k · sn(K(k) − ω₀t, k)) mit k = sin(θ₀/2). Bei großen Amplituden verweilt das Pendel sichtbar an den Umkehrpunkten. Die Näherung θ₀ cos ω₀t kommt ebenfalls aus der Engine. Das Bild nennt den Zeitmaßstab (Echtzeit, Zeitraffer oder Zeitlupe).

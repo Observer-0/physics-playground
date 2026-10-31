@@ -247,6 +247,56 @@
       },
     },
 
+    /* Offene Fragen, Frage 2: Page-Kurve – die Entropien in Einheiten von k_B */
+    'bh-page': {
+      tex: '\\xs{SP}{S_{\\mathrm{Page}}} = \\xs{min}{\\min}\\left(\\xs{SR}{S_{\\mathrm{rad}}},\\, \\xs{SB}{S_{\\mathrm{BH}}}\\right) \\qquad \\xs{SB}{S_{\\mathrm{BH}}} = \\xs{S0}{S_0}\\,(1 - \\xs{tau}{\\tau})^{2/3}',
+      pre: 'SP',
+      hint: { de: 'Zeig auf ein Symbol oder tippe es an. Lass dann die Zeit laufen: Bis zur Page-Zeit folgt die Kurve S_rad, danach S_BH.', en: 'Point at a symbol or tap it. Then let time run: until the Page time the curve follows S_rad, afterwards S_BH.' },
+      symbols: {
+        SP: {
+          o: 'SPk', color: 'res', tag: RESULT, tex: 'S_{\\mathrm{Page}}',
+          meaning: { de: 'Die Entropie der Strahlung, wie sie sein müsste, wenn bei der Verdampfung keine Information verloren geht. Gemeint ist die feinkörnige (von-Neumann-)Entropie, hier in Einheiten von k_B.',
+            en: 'The entropy of the radiation as it would have to be if no information is lost during evaporation. This is the fine-grained (von Neumann) entropy, here in units of k_B.' },
+          role: { de: 'Das kleinere der beiden Argumente: bis zur Page-Zeit S_rad, danach S_BH. Am Ende ist sie null – die Strahlung wäre dann in einem reinen Zustand.',
+            en: 'The smaller of the two arguments: S_rad until the Page time, S_BH afterwards. At the end it is zero – the radiation would then be in a pure state.' },
+        },
+        min: {
+          m: 'min', tex: '\\min', color: 'geo', tag: { de: 'Mathematik', en: 'Mathematics' }, name: { de: 'Minimum', en: 'Minimum' },
+          meaning: { de: 'Der kleinere von zwei Werten.', en: 'The smaller of two values.' },
+          role: { de: 'Kommt aus Pages Ergebnis von 1993: Ist ein zufälliger Gesamtzustand rein, ist das kleinere von zwei Teilsystemen fast maximal verschränkt. Deshalb kann die Entropie der Strahlung nie größer sein als die des verbleibenden Lochs.',
+            en: 'Comes from Page’s 1993 result: if a random total state is pure, the smaller of two subsystems is almost maximally entangled. That is why the entropy of the radiation can never exceed that of the remaining hole.' },
+        },
+        SR: {
+          o: 'SRk', color: 'q', tag: { de: 'Semiklassisch', en: 'Semiclassical' }, tex: 'S_{\\mathrm{rad}}',
+          meaning: { de: 'Die Entropie der Strahlung, wie Hawkings Rechnung sie liefert: thermisch, sie wächst bis zum Schluss.',
+            en: 'The entropy of the radiation as Hawking’s calculation gives it: thermal, it grows until the end.' },
+          role: { de: 'Hier vereinfacht als β (S₀ − S_BH); β = 1 heißt, die Strahlung trägt genau die Entropie weg, die das Loch verliert. Bis zur Page-Zeit ist sie das kleinere Argument.',
+            en: 'Simplified here as β (S₀ − S_BH); β = 1 means the radiation carries away exactly the entropy the hole loses. Until the Page time it is the smaller argument.' },
+        },
+        SB: {
+          o: 'SBk', color: 'thermo', tag: THERMO, tex: 'S_{\\mathrm{BH}}',
+          meaning: { de: 'Die Bekenstein-Hawking-Entropie des verbleibenden Lochs, proportional zu M².',
+            en: 'The Bekenstein–Hawking entropy of the remaining hole, proportional to M².' },
+          role: { de: 'Fällt wie (1 − τ)^{2/3}, weil M³ linear in der Zeit abnimmt. Nach der Page-Zeit ist sie das kleinere Argument – die Page-Kurve fällt mit ihr.',
+            en: 'Falls like (1 − τ)^{2/3} because M³ decreases linearly in time. After the Page time it is the smaller argument – the Page curve falls with it.' },
+        },
+        S0: {
+          o: 'S0', color: 'mass', tag: BH, tex: 'S_0',
+          meaning: { de: 'Die Entropie des Lochs zu Beginn, S₀ = 4πGk_B M₀²/(ħc), hier in Einheiten von k_B.',
+            en: 'The entropy of the hole at the start, S₀ = 4πGk_B M₀²/(ħc), here in units of k_B.' },
+          role: { de: 'Setzt den Maßstab: Bei einer Sonnenmasse ist S₀/k_B ≈ 10⁷⁷.',
+            en: 'Sets the scale: for one solar mass, S₀/k_B ≈ 10⁷⁷.' },
+        },
+        tau: {
+          v: 'tau', color: 'mass', tag: { de: 'Zeit', en: 'Time' },
+          meaning: { de: 'Die Zeit seit Beginn der Verdampfung in Einheiten der Verdampfungszeit: τ = 0 am Anfang, τ = 1 am Ende.',
+            en: 'The time since the start of evaporation in units of the evaporation time: τ = 0 at the start, τ = 1 at the end.' },
+          role: { de: 'Mit τ statt t sieht die Kurve für jede Masse gleich aus. Nur t_evap ändert sich – von Sekunden bis zu 10⁶⁷ Jahren.',
+            en: 'With τ instead of t, the curve looks the same for every mass. Only t_evap changes – from seconds to 10⁶⁷ years.' },
+        },
+      },
+    },
+
     /* Einsteinsche Feldgleichungen */
     efe: {
       tex: '\\xs{Gmn}{G_{\\mu\\nu}} + \\xs{Lambda}{\\Lambda}\\, \\xs{gmn}{g_{\\mu\\nu}} = \\frac{\\xs{8pi}{8\\pi} \\xs{G}{G}}{\\xs{c}{c^4}}\\, \\xs{Tmn}{T_{\\mu\\nu}}',

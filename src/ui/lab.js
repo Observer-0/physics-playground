@@ -318,7 +318,7 @@
         const r = S.res.A && S.res[S.edit].out[exp.animateUntil];
         if (r && r.ok && r.value > 0 && isFinite(r.value)) lim = Math.min(lim, r.value);
       }
-      let x = S.vals[S.edit][k] + dt;
+      let x = S.vals[S.edit][k] + dt * (exp.animateRate || 1);   // animateRate: Einheiten je Sekunde (Page-Kurve: τ 0,1/s)
       if (x >= lim) { x = lim; S.playing = false; }
       S.vals[S.edit][k] = x;
       update();
@@ -757,8 +757,9 @@
     const box = $('#tasks');
     if (!box) return;
     const st = taskStates();
-    // Beim Pendeln treibt die Animation den Wert, nicht du – dabei gilt keine Aufgabe als gelöst
-    if (S.sweep) st.forEach((s) => { s.now = false; });
+    // Beim Pendeln oder während die Zeit läuft treibt die Animation den Wert, nicht du – dabei gilt keine
+    // Aufgabe als gelöst. Hältst du an der richtigen Stelle an, zählt es.
+    if (S.sweep || S.playing) st.forEach((s) => { s.now = false; });
     st.forEach((s) => {
       if (!s.now || solved.has(s.key)) return;
       solved.add(s.key);

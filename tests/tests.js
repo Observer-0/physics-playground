@@ -92,6 +92,9 @@
     'Keine deutschen Reste in den englischen Beschriftungen der Visualisierungen': 'No German left in the English labels of the visualisations',
     'Hawking-Temperatur': 'Hawking temperature',
     'Offene Fragen': 'Open questions',
+    'min und max: richtig auch für negative Zahlen, null und Werte jenseits von 10³⁰⁸; nur Größen derselben Dimension': 'min and max: correct for negative numbers, zero and values beyond 10³⁰⁸; only quantities of the same dimension',
+    'Page-Kurve: Page-Zeit 1 − 2^(−3/2) mit Maximum S₀/2; für β ≈ 1,4847 Pages 53,81 % und 59,75 %; null am Anfang und am Ende': 'Page curve: Page time 1 − 2^(−3/2) with maximum S₀/2; for β ≈ 1.4847 Page’s 53.81 % and 59.75 %; zero at the start and the end',
+    'Verdampfung: t_evap und S₀ wie bei Hawking-Temperatur und BH-Entropie, T_H wächst wie (1 − τ)^(−1/3), bei τ = 1 ist T_H undefiniert': 'Evaporation: t_evap and S₀ as for the Hawking temperature and BH entropy, T_H grows like (1 − τ)^(−1/3), at τ = 1 T_H is undefined',
     'Jacobi-Funktion: sn(K) = 1, sn(K/2) = 1/√(1 + k′), sn(3K) = −1, k = 0 → sin, k = 1 → tanh': 'Jacobi function: sn(K) = 1, sn(K/2) = 1/√(1 + k′), sn(3K) = −1, k = 0 → sin, k = 1 → tanh',
     'sn braucht genau zwei Argumente, beide dimensionslos; arcsin außerhalb von [−1, 1] und |k| > 1 sind math-Issues': 'sn takes exactly two arguments, both dimensionless; arcsin outside [−1, 1] and |k| > 1 are math issues',
     'Fadenpendel: θ(t) aus Jacobi-sn stimmt mit einer numerischen Integration (RK4) auf 10⁻⁷ Grad überein – bei 10°, 90° und 170°': 'Pendulum: θ(t) from Jacobi sn agrees with a numerical integration (RK4) to 10⁻⁷ degrees – at 10°, 90° and 170°',
@@ -489,6 +492,17 @@
     for (const src of ['asin(1.5)', 'sn(1, 1.2)']) { const x = E.evaluate(E.parse(src), {}); ok(!x.ok && x.issues[0].cat === 'math', src); }
     ok(/arcsin/.test(E.toTex(E.parse('asin(x)'))) && /operatorname\{sn\}.*, /.test(E.toTex(E.parse('sn(u, k)'))), E.toTex(E.parse('sn(u, k)')));
   });
+  test('Numerik', 'min und max: richtig auch für negative Zahlen, null und Werte jenseits von 10³⁰⁸; nur Größen derselben Dimension', () => {
+    const ev = (src) => E.evaluate(E.parse(src), {});
+    const v = (src) => E.toDouble(ev(src));
+    ok(v('min(2, 3)') === 2 && v('max(2, 3)') === 3 && v('min(-2, 3)') === -2 && v('min(-2, -3)') === -3 && v('max(-2, -3)') === -2, 'Vorzeichen');
+    ok(v('min(0, -1)') === -1 && v('min(0, 1)') === 0 && v('max(0, -1)') === 0, 'null');
+    const big = ev('max(10^400, 10^300)'), small = ev('min(10^400, 10^300)');
+    ok(Math.abs(big.l - 400) < 1e-9 && Math.abs(small.l - 300) < 1e-9, 'jenseits von 10^308: ' + big.l + ', ' + small.l);
+    ok(!E.dimAnalyze(E.parse('min(x, y)'), { x: D('L'), y: D('T') }).ok, 'L gegen T');
+    const r = E.dimAnalyze(E.parse('max(x, y)'), { x: D('L'), y: D('L') });
+    ok(r.ok && E.dimInfo(r.dim).unit === 'm', 'Ergebnis behält die Dimension');
+  });
   test('Dimensionsanalyse', 'ellipk(Länge) wird abgelehnt', () => {
     ok(!E.dimAnalyze(E.parse('ellipk(x)'), { x: D('L') }).ok && E.dimAnalyze(E.parse('ellipk(x)'), { x: D('') }).ok);
   });
@@ -746,6 +760,40 @@
     const msgs = (eta) => run('bh-eta', { eta }).issues.map((i) => i.msg).join(' | ');
     ok(/R_η = 1: Mit η = 1\/4/.test(msgs(0.25)) && !/verletzt/.test(msgs(0.25)), msgs(0.25));
     ok(/≠ 1/.test(msgs(0.5)) && /verletzt/.test(msgs(0.5)), msgs(0.5));
+  });
+  test('Offene Fragen', 'Page-Kurve: Page-Zeit 1 − 2^(−3/2) mit Maximum S₀/2; für β ≈ 1,4847 Pages 53,81 % und 59,75 %; null am Anfang und am Ende', () => {
+    const P = (vals) => run('bh-page', vals);
+    const tP = 1 - Math.pow(2, -1.5);
+    close(val(P({}), 'tauP'), tP, 1e-14, 'Page-Zeit:');
+    const atP = P({ tau: tP });
+    close(val(atP, 'sBH'), 0.5, 1e-12, 'S_BH an der Page-Zeit:');
+    close(val(atP, 'sRad'), 0.5, 1e-12, 'S_rad an der Page-Zeit:');
+    let last = -1, peak = 0;
+    for (let i = 0; i <= 200; i++) {
+      const t = i / 200, s = val(P({ tau: t }), 'sPage');
+      ok(s <= 0.5 + 1e-12, 'über dem Maximum bei τ = ' + t);
+      if (t < tP - 0.01) ok(s > last, 'fällt vor der Page-Zeit bei τ = ' + t);
+      if (t > tP + 0.01) ok(s < last, 'steigt nach der Page-Zeit bei τ = ' + t);
+      peak = Math.max(peak, s); last = s;
+    }
+    ok(peak > 0.49, 'Maximum ' + peak);
+    ok(val(P({ tau: 0 }), 'sPage') === 0 && val(P({ tau: 1 }), 'sPage') === 0, 'Anfang und Ende');
+    close(val(P({ tau: 1, beta: 1.3 }), 'sRad'), 1.3, 1e-12, 'S_rad am Ende = β S₀:');
+    const pg = P({ beta: 1.4847 }), tP2 = val(pg, 'tauP');
+    ok(Math.abs(tP2 - 0.5381) < 5e-4, 'β = 1,4847: Page-Zeit ' + tP2);
+    ok(Math.abs(val(P({ beta: 1.4847, tau: tP2 }), 'sPage') - 0.5975) < 5e-4, 'β = 1,4847: Maximum');
+  });
+  test('Offene Fragen', 'Verdampfung: t_evap und S₀ wie bei Hawking-Temperatur und BH-Entropie, T_H wächst wie (1 − τ)^(−1/3), bei τ = 1 ist T_H undefiniert', () => {
+    for (const Mx of [1e11, M.C.M_sun.value, 1e40]) {
+      close(val(run('bh-page', { M0: Mx }), 'tev'), val(run('hawking', { M: Mx }), 'tev'), 1e-12, 't_evap:');
+      close(val(run('bh-page', { M0: Mx }), 'S0'), val(run('bh-entropy', { M: Mx }, 'mass'), 'SkB'), 1e-12, 'S₀:');
+    }
+    const T0 = val(run('bh-page', { tau: 0 }), 'TH');
+    close(T0, val(run('hawking', { M: M.C.M_sun.value }), 'TH'), 1e-12, 'T_H am Anfang:');
+    close(val(run('bh-page', { tau: 0.999 }), 'TH') / T0, 10, 1e-9, 'T_H bei 99,9 %:');
+    const end = run('bh-page', { tau: 1 });
+    ok(end.issues.some((i) => i.cat === 'math' && i.out === 'TH') && end.issues.some((i) => i.cat === 'model'), 'τ = 1: ' + end.issues.map((i) => i.cat).join());
+    ok(end.out.sPage.ok && end.out.M.ok && val(end, 'M') === 0, 'τ = 1: Page-Kurve und Masse bleiben definiert');
   });
   test('Offene Fragen', 'Keine Kandidaten für eine Quantengravitation – weder im Experiment noch in seinen Quellen noch auf den Seiten', () => {
     const banned = /string|schleifenquant|loop quantum|asymptoti\w* (sicherheit|safety)|kausale menge|causal set|holograph|AdS\/CFT|M-theor/i;
