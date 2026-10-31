@@ -31,6 +31,12 @@
   const HAWK75 = src('S. W. Hawking', 1975, 'Particle creation by black holes', 'Communications in Mathematical Physics 43, 199–220', 'orig',
     { de: 'Ausführliche Herleitung der Hawking-Strahlung und ihrer Temperatur', en: 'Full derivation of Hawking radiation and its temperature' }, { doi: '10.1007/BF02345020' });
 
+  // Verschränkung über Gravitation: Vorschläge, keine Ergebnisse (Messproblem und Grundlagen §10)
+  const BOSE17 = src('S. Bose et al.', 2017, 'Spin entanglement witness for quantum gravity', 'Physical Review Letters 119, 240401', 'orig',
+    { de: 'Vorschlag: Verschränken sich zwei Massen nur über ihre Gravitation, muss die Gravitation Quanteneigenschaften haben – noch nicht durchgeführt', en: 'Proposal: if two masses become entangled only through their gravity, gravity must have quantum properties – not yet carried out' }, { doi: '10.1103/PhysRevLett.119.240401' });
+  const MARLETTO17 = src('C. Marletto, V. Vedral', 2017, 'Gravitationally induced entanglement between two massive particles is sufficient evidence of quantum effects in gravity', 'Physical Review Letters 119, 240402', 'orig',
+    { de: 'Derselbe Gedanke, unabhängig formuliert', en: 'The same idea, formulated independently' }, { doi: '10.1103/PhysRevLett.119.240402' });
+
   const SOURCES = {
     'newton-gravity': [
       src('I. Newton', 1687, 'Philosophiæ Naturalis Principia Mathematica', 'London: Royal Society', 'orig', { de: 'Das Gravitationsgesetz F ∝ m₁m₂/r²', en: 'The law of gravitation F ∝ m₁m₂/r²' }, { lang: 'la' }),
@@ -133,8 +139,8 @@
       src('L. Hackermüller et al.', 2004, 'Decoherence of matter waves by thermal emission of radiation', 'Nature 427, 711–714', 'meas', { de: 'Je heißer die Fullerene, desto mehr Wärmephotonen – die Sichtbarkeit fällt von 47 % auf null', en: 'The hotter the fullerenes, the more thermal photons – the visibility falls from 47 % to zero' }, { doi: '10.1038/nature02276' }),
       src('U. Sinha et al.', 2010, 'Ruling out multi-order interference in quantum mechanics', 'Science 329, 418–421', 'meas', { de: 'Test der Born-Regel mit drei Spalten: keine Interferenz dritter Ordnung, höchstens ein Hundertstel der Interferenz zweier Wege', en: 'Test of the Born rule with three slits: no third-order interference, at most one hundredth of the interference of two paths' }, { doi: '10.1126/science.1190545' }),
       src('Y. Y. Fein et al.', 2019, 'Quantum superposition of molecules beyond 25 kDa', 'Nature Physics 15, 1242–1245', 'meas', { de: 'Interferenz von Molekülen über 25 000 u mit bis zu 2000 Atomen', en: 'Interference of molecules above 25,000 u with up to 2000 atoms' }, { doi: '10.1038/s41567-019-0663-9' }),
-      src('S. Bose et al.', 2017, 'Spin entanglement witness for quantum gravity', 'Physical Review Letters 119, 240401', 'orig', { de: 'Vorschlag: Verschränken sich zwei Massen nur über ihre Gravitation, muss die Gravitation Quanteneigenschaften haben – noch nicht durchgeführt', en: 'Proposal: if two masses become entangled only through their gravity, gravity must have quantum properties – not yet carried out' }, { doi: '10.1103/PhysRevLett.119.240401' }),
-      src('C. Marletto, V. Vedral', 2017, 'Gravitationally induced entanglement between two massive particles is sufficient evidence of quantum effects in gravity', 'Physical Review Letters 119, 240402', 'orig', { de: 'Derselbe Gedanke, unabhängig formuliert', en: 'The same idea, formulated independently' }, { doi: '10.1103/PhysRevLett.119.240402' }),
+      BOSE17,
+      MARLETTO17,
     ],
     efe: [
       src('A. Einstein', 1915, 'Die Feldgleichungen der Gravitation', 'Sitzungsberichte der Königlich Preußischen Akademie der Wissenschaften (Berlin), 844–847', 'orig', { de: 'Die Feldgleichungen in ihrer endgültigen Form', en: 'The field equations in their final form' }, { lang: 'de' }),
@@ -164,5 +170,19 @@
   // Eigenes Verzeichnis statt am Experiment: Die Originaltitel bleiben in ihrer Sprache
   const byId = Object.create(null);
   for (const id in SOURCES) if (M.byId[id]) byId[id] = I.localize(SOURCES[id].map((s) => Object.assign({}, s)));
-  PP.sources = { KIND, byId };
+  // Quellen zu Abschnitten der Grundlagen (src/ui/theory.js): die Messgrenzen und Vorschläge bei den Anforderungen an eine Quantengravitation
+  const THEORY = {
+    gap: [
+      src('A. A. Abdo et al. (Fermi LAT, Fermi GBM)', 2009, 'A limit on the variation of the speed of light arising from quantum gravity effects', 'Nature 462, 331–334', 'meas',
+        { de: 'GRB 090510, Photonen bis ≈ 31 GeV: Eine linear von der Energie abhängige Lichtgeschwindigkeit setzt – wenn überhaupt – erst oberhalb von 1,2 E_P ein', en: 'GRB 090510, photons up to ≈ 31 GeV: a speed of light that depends linearly on energy sets in – if at all – only above 1.2 E_P' }, { doi: '10.1038/nature08574' }),
+      src('P. Touboul et al. (MICROSCOPE)', 2022, 'MICROSCOPE mission: final results of the test of the equivalence principle', 'Physical Review Letters 129, 121102', 'meas',
+        { de: 'Titan und Platin fallen gleich schnell: η = (−1,5 ± 2,3 ± 1,5) × 10⁻¹⁵', en: 'Titanium and platinum fall equally fast: η = (−1.5 ± 2.3 ± 1.5) × 10⁻¹⁵' }, { doi: '10.1103/PhysRevLett.129.121102' }),
+      src('B. P. Abbott et al. (LIGO, Virgo, Fermi GBM, INTEGRAL)', 2017, 'Gravitational waves and gamma-rays from a binary neutron star merger: GW170817 and GRB 170817A', 'The Astrophysical Journal Letters 848, L13', 'meas',
+        { de: 'Ankunft im Abstand von 1,74 s: Gravitation und Licht gleich schnell bis auf −3 × 10⁻¹⁵ … +7 × 10⁻¹⁶', en: 'Arrival 1.74 s apart: gravity and light equally fast to within −3 × 10⁻¹⁵ … +7 × 10⁻¹⁶' }, { doi: '10.3847/2041-8213/aa920c' }),
+      BOSE17, MARLETTO17,
+    ],
+  };
+  const theory = Object.create(null);
+  for (const id in THEORY) theory[id] = I.localize(THEORY[id].map((s) => Object.assign({}, s)));
+  PP.sources = { KIND, byId, theory };
 })(globalThis.PP = globalThis.PP || {});

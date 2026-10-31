@@ -292,6 +292,7 @@ input[type=range]:focus-visible { outline: 1px dashed var(--accent); outline-off
 .math .mtx { font-family: var(--font-sans); font-size: .82em; padding: 0 .15em; }
 .math .msf { font-family: var(--font-sans); font-size: .86em; font-style: normal; }
 .math .mo { padding: 0 .22em; }
+.math .mo.msign { padding: 0 .04em 0 0; }
 .math .mp { padding-right: .18em; }
 .math .mfn { padding-right: .08em; }
 .math .mfr { display: inline-flex; flex-direction: column; vertical-align: middle; text-align: center; margin: 0 .1em; }
@@ -591,6 +592,12 @@ h2.sec { font-size: 17px; font-weight: 500; margin: 36px 0 10px; }
 
 /* ---- Grundlagen / Theorie ---- */
 .th-scroll { overflow-x: auto; }
+/* Anforderungen an eine Quantengravitation (Grundlagen §10): nummerierte Liste mit Luft zwischen den Punkten */
+.th-req { padding-left: 1.4em; }
+.th-req > li { margin-bottom: 10px; }
+.th-req > li::marker { color: var(--ink3); font-family: var(--font-mono); font-size: .9em; }
+.th-req ul { margin: 6px 0 0; padding-left: 1.1em; }
+.th-req ul li { margin-bottom: 6px; }
 .th-h3 { font-size: 16px; font-weight: 600; margin: 28px 0 8px; color: var(--ink); scroll-margin-top: 16px; }
 /* Übersicht: eine Karte je Abschnitt */
 .th-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 12px; }

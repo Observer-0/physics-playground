@@ -441,8 +441,8 @@
       '<p class="faint">' + T('Der Status beschreibt die Frage als Ganzes. Die Etiketten im Text – Mathematik, Quantenmechanik, semiklassisch, Abschätzung, Messung, offen – kennzeichnen einzelne Aussagen.',
         'The status describes the question as a whole. The labels in the text – mathematics, quantum mechanics, semiclassical, estimate, measurement, open – mark individual statements.') + '</p></div>';
     h += '<div class="th-cards">' + QUESTIONS.map((q, i) => '<a class="th-card" href="' + href(q.id) + '"><span class="th-card-n">' + (i + 1) + '</span><div><h3>' + esc(q.title) + '</h3><p>' + esc(meta(q).teaser) + '</p>' + chip(q.status) + '</div></a>').join('') + '</div>';
-    h += '<p class="oq-next">' + T('In Vorbereitung: die Anforderungen an eine Quantengravitation.',
-      'In preparation: the requirements for quantum gravity.') + '</p>';
+    h += '<p class="oq-next">' + T('Was jede Quantengravitation leisten muss – von der ART im Grenzfall bis zu den Messgrenzen –, steht in den Grundlagen: <a href="#view=theorie&amp;sec=gap">Anforderungen an eine Quantengravitation →</a>',
+      'What every theory of quantum gravity has to achieve – from GR as a limit to the measured bounds – is in the Foundations: <a href="#view=theorie&amp;sec=gap">Requirements for quantum gravity →</a>') + '</p>';
     el.innerHTML = h;
   }
 
