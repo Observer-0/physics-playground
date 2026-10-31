@@ -891,6 +891,97 @@
     },
   });
 
+  /* Frage 2 „Geht Information verloren?“ (src/ui/open.js): Verdampfung im Zeitraffer und Page-Kurve.
+     Vereinfachtes Modell: M³ ∝ 1 − τ mit τ = t/t_evap, also S_BH = S₀(1 − τ)^{2/3}; S_rad = β(S₀ − S_BH);
+     S_Page = min(S_rad, S_BH). β = 1 ist die vereinfachte Bilanz der Roadmap (Page-Zeit 1 − 2^{−3/2} ≈ 0,646),
+     β ≈ 1,4847 der Wert für Photonen und Gravitonen (Page 2013, Page-Zeit ≈ 0,538). Die Page-Zeit folgt aus
+     S_rad = S_BH: τ_Page = 1 − (β/(1 + β))^{3/2}. */
+  define({
+    id: 'bh-page', group: OPEN_Q, field: 'open', title: { de: 'Verdampfung und Page-Kurve', en: 'Evaporation and the Page curve' }, short: { de: 'Page-Kurve', en: 'Page curve' },
+    subtitle: { de: 'Ein Schwarzes Loch verdampft im Zeitraffer – und was die Entropie seiner Strahlung tun müsste, wenn keine Information verloren geht.', en: 'A black hole evaporates in time-lapse – and what the entropy of its radiation would have to do if no information is lost.' },
+    tex: 'S_{\\mathrm{Page}} = \\min\\left(S_{\\mathrm{rad}},\\, S_{\\mathrm{BH}}\\right) \\qquad S_{\\mathrm{BH}} = S_0\\,(1 - \\tau)^{2/3}',
+    meta: { mathType: SCALAR, mainDim: { de: 'dimensionslos', en: 'dimensionless' }, domain: BH_THERMO, status: { de: 'vereinfachtes Modell; die Page-Kurve ist eine Erwartung, keine Beobachtung', en: 'simplified model; the Page curve is an expectation, not an observation' } },
+    vars: {
+      tau: { label: 'τ', tex: '\\tau', name: { de: 'Zeit in Einheiten der Verdampfungszeit, t/t_evap', en: 'Time in units of the evaporation time, t/t_evap' }, dim: '', default: 0, min: 0, max: 1, scale: 'lin' },
+      M0: { label: 'M₀', tex: 'M_0', name: { de: 'Anfangsmasse des Schwarzen Lochs', en: 'Initial mass of the black hole' }, dim: 'M', default: MS, min: 1e8, max: 1e42, scale: 'log', positive: true },
+      beta: { label: 'β', tex: '\\beta', name: { de: 'Entropie der Strahlung je verlorener Entropie des Lochs', en: 'Radiation entropy per entropy lost by the hole' }, dim: '', default: 1, min: 1, max: 2, scale: 'lin', positive: true },
+    },
+    // „Zeit laufen lassen“: τ wächst um 0,1 je Sekunde – die ganze Verdampfung dauert 10 s
+    animateVar: 'tau', animateRate: 0.1,
+    outputs: [
+      { key: 'tev', sym: 't_evap', tex: 't_{\\mathrm{evap}}', name: { de: 'Verdampfungszeit (grobe Abschätzung)', en: 'Evaporation time (rough estimate)' }, expr: '5120*pi*G^2*M0^3/(hbar*c^4)', dim: 'T', note: { de: 'wie bei der Hawking-Temperatur: nur Photonen, ohne Greybody-Faktoren, ohne Einstrahlung', en: 'as for the Hawking temperature: photons only, without greybody factors, without incoming radiation' } },
+      { key: 'tevy', sym: { de: 't_evap / Jahr', en: 't_evap / year' }, tex: 't_{\\mathrm{evap}}/\\mathrm{a}', name: { de: 'Verdampfungszeit in Jahren', en: 'Evaporation time in years' }, expr: 'tev/31557600', dim: '', noEq: true },
+      { key: 'ty', sym: { de: 't / Jahr', en: 't / year' }, tex: 't/\\mathrm{a}', name: { de: 'Zeit seit Beginn der Verdampfung in Jahren', en: 'Time since the start of evaporation in years' }, expr: 'tau*tevy', dim: '', noEq: true },
+      { key: 'm', sym: 'M/M₀', tex: 'M/M_0', name: { de: 'Restmasse relativ zur Anfangsmasse', en: 'Remaining mass relative to the initial mass' }, expr: '(1 - tau)^(1/3)', dim: '', aux: true },
+      { key: 'M', sym: 'M', tex: 'M', name: { de: 'Masse jetzt', en: 'Mass now' }, expr: 'M0*m', dim: 'M' },
+      { key: 'TH', sym: 'T_H', tex: 'T_{\\mathrm{H}}', name: { de: 'Hawking-Temperatur jetzt', en: 'Hawking temperature now' }, expr: 'hbar*c^3/(8*pi*G*M*k_B)', dim: 'Θ' },
+      { key: 'S0', sym: 'S₀/k_B', tex: 'S_0/k_{\\mathrm{B}}', name: { de: 'Anfangsentropie des Lochs (Bekenstein-Hawking)', en: 'Initial entropy of the hole (Bekenstein–Hawking)' }, expr: '4*pi*G*M0^2/(hbar*c)', dim: '' },
+      { key: 'sBH', sym: 'S_BH/S₀', tex: 'S_{\\mathrm{BH}}/S_0', name: { de: 'Entropie des Lochs', en: 'Entropy of the hole' }, expr: '(1 - tau)^(2/3)', dim: '' },
+      { key: 'sRad', sym: 'S_rad/S₀', tex: 'S_{\\mathrm{rad}}/S_0', name: { de: 'Entropie der Strahlung nach Hawking (thermisch)', en: 'Entropy of the radiation according to Hawking (thermal)' }, expr: 'beta*(1 - sBH)', dim: '' },
+      { key: 'sPage', sym: 'S_Page/S₀', tex: 'S_{\\mathrm{Page}}/S_0', name: { de: 'Page-Kurve: Entropie der Strahlung, falls keine Information verloren geht', en: 'Page curve: entropy of the radiation if no information is lost' }, expr: 'min(sRad, sBH)', dim: '', primary: true },
+      // Absolutwerte in Einheiten von k_B – für die Karten der interaktiven Gleichung
+      { key: 'SBk', sym: 'S_BH/k_B', tex: 'S_{\\mathrm{BH}}/k_{\\mathrm{B}}', name: { de: 'Entropie des Lochs jetzt, in Einheiten von k_B', en: 'Entropy of the hole now, in units of k_B' }, expr: 'S0*sBH', dim: '', aux: true },
+      { key: 'SRk', sym: 'S_rad/k_B', tex: 'S_{\\mathrm{rad}}/k_{\\mathrm{B}}', name: { de: 'Entropie der Strahlung nach Hawking, in Einheiten von k_B', en: 'Entropy of the radiation according to Hawking, in units of k_B' }, expr: 'S0*sRad', dim: '', aux: true },
+      { key: 'SPk', sym: 'S_Page/k_B', tex: 'S_{\\mathrm{Page}}/k_{\\mathrm{B}}', name: { de: 'Page-Kurve, in Einheiten von k_B', en: 'Page curve, in units of k_B' }, expr: 'S0*sPage', dim: '', aux: true },
+      { key: 'tauP', sym: 'τ_Page', tex: '\\tau_{\\mathrm{Page}}', name: { de: 'Page-Zeit in Einheiten von t_evap', en: 'Page time in units of t_evap' }, expr: '1 - (beta/(1 + beta))^(3/2)', dim: '' },
+      { key: 'tPy', sym: { de: 't_Page / Jahr', en: 't_Page / year' }, tex: 't_{\\mathrm{Page}}/\\mathrm{a}', name: { de: 'Page-Zeit in Jahren', en: 'Page time in years' }, expr: 'tauP*tevy', dim: '', noEq: true },
+    ],
+    equations: [
+      { label: { de: 'Restmasse: M³ nimmt linear in der Zeit ab', en: 'Remaining mass: M³ decreases linearly in time' }, eq: 'M = M0*(1 - tau)^(1/3)' },
+      { label: { de: 'Verdampfungszeit (grobe Abschätzung)', en: 'Evaporation time (rough estimate)' }, eq: 't_evap = 5120*pi*G^2*M0^3/(hbar*c^4)' },
+      { label: { de: 'Anfangsentropie in Einheiten von k_B', en: 'Initial entropy in units of k_B' }, eq: 'S_0 = 4*pi*G*M0^2/(hbar*c)' },
+      { label: { de: 'Entropie des Lochs', en: 'Entropy of the hole' }, eq: 'S_BH = S_0*(1 - tau)^(2/3)' },
+      { label: { de: 'Entropie der Strahlung (vereinfachte Bilanz)', en: 'Entropy of the radiation (simplified balance)' }, eq: 'S_rad = beta*(S_0 - S_BH)' },
+      { label: { de: 'Page-Kurve', en: 'Page curve' }, eq: 'S_Page = min(S_rad, S_BH)' },
+      { label: { de: 'Page-Zeit aus S_rad = S_BH', en: 'Page time from S_rad = S_BH' }, eq: 'tau_P = 1 - (beta/(1 + beta))^(3/2)' },
+      { label: { de: 'Hawking-Temperatur', en: 'Hawking temperature' }, eq: 'T_H = hbar*c^3/(8*pi*G*M*k_B)' },
+    ],
+    symbols: { t_evap: { dim: 'T' }, S_0: { dim: '' }, S_BH: { dim: '' }, S_rad: { dim: '' }, S_Page: { dim: '' }, tau_P: { dim: '' }, T_H: { dim: 'Θ' } },
+    checks({ v, o, issues, C, fmt }) {
+      const M = o('M'), Th = o('TH');
+      if (isFinite(M) && M < 1e-6) issues.push({ cat: 'model', why: T('Endphase nahe der Planck-Masse', 'final stage near the Planck mass'), msg: T('Die Restmasse liegt nahe der Planck-Masse (≈ 2,2 × 10⁻⁸ kg) oder darunter. Hier versagt die semiklassische Rechnung – was in der Endphase passiert und ob ein Rest bleibt, ist offen.', 'The remaining mass is near the Planck mass (≈ 2.2 × 10⁻⁸ kg) or below it. The semiclassical calculation breaks down here – what happens in the final stage, and whether a remnant is left, is open.') });
+      if (v.tau >= 1) issues.push({ cat: 'info', msg: T('Vollständig verdampft (Annahme: kein Rest). Die Page-Kurve ist wieder bei null, Hawkings Strahlung trägt dagegen die volle Entropie β·S₀.', 'Completely evaporated (assumption: no remnant). The Page curve is back at zero, whereas Hawking’s radiation carries the full entropy β·S₀.') });
+      else if (isFinite(Th) && Th < C.T_cmb) issues.push({ cat: 'info', msg: T('T_H ≈ ' + fmt(Th, 3) + ' K liegt unter der Temperatur der Hintergrundstrahlung (≈ 2,7 K): Heute würde dieses Loch netto wachsen. Das Modell nimmt einen leeren, kalten Hintergrund an.', 'T_H ≈ ' + fmt(Th, 3) + ' K is below the temperature of the cosmic microwave background (≈ 2.7 K): today this hole would grow on balance. The model assumes an empty, cold background.') });
+      if (v.beta < 1) issues.push({ cat: 'unreal', why: 'β < 1', msg: T('β < 1 hieße: Die Strahlung trägt weniger Entropie weg, als das Loch verliert. Das verletzt den verallgemeinerten zweiten Hauptsatz.', 'β < 1 would mean that the radiation carries away less entropy than the hole loses. That violates the generalised second law.') });
+      issues.push({ cat: 'assume', msg: T('Vereinfachte Entropiebilanz S_rad = β (S₀ − S_BH). β = 1 heißt: Die Strahlung trägt genau die Entropie weg, die das Loch verliert. Für Photonen und Gravitonen in den leeren Raum ist β ≈ 1,48 (Page 2013).', 'Simplified entropy balance S_rad = β (S₀ − S_BH). β = 1 means that the radiation carries away exactly the entropy the hole loses. For photons and gravitons emitted into empty space, β ≈ 1.48 (Page 2013).') });
+      issues.push({ cat: 'assume', msg: T('S_Page = min(S_rad, S_BH) ist die Erwartung, falls die Verdampfung unitär ist (Page 1993) – nicht beobachtet.', 'S_Page = min(S_rad, S_BH) is the expectation if evaporation is unitary (Page 1993) – not observed.') });
+      issues.push({ cat: 'assume', msg: T('Schwarzschild-Loch; Massenverlust nach M³ ∝ 1 − t/t_evap; t_evap ist eine grobe Abschätzung (nur Photonen, ohne Greybody-Faktoren).', 'Schwarzschild black hole; mass loss following M³ ∝ 1 − t/t_evap; t_evap is a rough estimate (photons only, without greybody factors).') });
+    },
+    presets: [
+      { name: { de: 'Page-Zeit (β = 1)', en: 'Page time (β = 1)' }, note: { de: 'τ = 1 − 2^(−3/2) ≈ 0,6464: Loch und Strahlung haben gleich viel Entropie', en: 'τ = 1 − 2^(−3/2) ≈ 0.6464: hole and radiation have the same entropy' }, values: { tau: 1 - Math.pow(2, -1.5), beta: 1 } },
+      { name: { de: 'Photonen und Gravitonen (β ≈ 1,48)', en: 'Photons and gravitons (β ≈ 1.48)' }, note: { de: 'Page 2013: Maximum nach ≈ 53,8 % der Verdampfungszeit, bei ≈ 59,75 % von S₀', en: 'Page 2013: maximum after ≈ 53.8 % of the evaporation time, at ≈ 59.75 % of S₀' }, values: { beta: 1.4847, tau: 0.5381 } },
+      { name: { de: 'Kurz vor dem Ende (99,9 %)', en: 'Just before the end (99.9 %)' }, values: { tau: 0.999 } },
+      { name: { de: 'Lebensdauer ≈ Weltalter', en: 'Lifetime ≈ age of the universe' }, note: { de: 'M₀ ≈ 1,7 × 10¹¹ kg – ein hypothetisches primordiales Loch', en: 'M₀ ≈ 1.7 × 10¹¹ kg – a hypothetical primordial hole' }, values: { M0: 1.73e11 } },
+    ],
+    graph: { x: 'tau', y: 'sPage', also: ['sBH', 'sRad'], xlog: false, ylog: false },
+    viz: 'page',
+    explain: {
+      intuition: {
+        de: 'Ein Schwarzes Loch strahlt und wird dabei leichter, kleiner und heißer – erst unmerklich, am Ende immer schneller. Nach Hawkings Rechnung ist die Strahlung rein thermisch: Ihre Entropie wächst bis zum Schluss. Geht aber keine Information verloren, muss die Entropie der Strahlung irgendwann wieder fallen und am Ende null sein. Das ist die Page-Kurve.',
+        en: 'A black hole radiates and becomes lighter, smaller and hotter in the process – imperceptibly at first, ever faster at the end. According to Hawking’s calculation the radiation is purely thermal: its entropy keeps growing until the end. But if no information is lost, the entropy of the radiation must eventually fall again and be zero at the end. That is the Page curve.',
+      },
+      math: [
+        { t: { de: 'Masse: M³ nimmt linear ab', en: 'Mass: M³ decreases linearly' }, tex: 'M(t) = M_0\\left(1 - \\frac{t}{t_{\\mathrm{evap}}}\\right)^{1/3}' },
+        { t: { de: 'Entropie des Lochs, S ∝ M²', en: 'Entropy of the hole, S ∝ M²' }, tex: 'S_{\\mathrm{BH}} = S_0\\,(1 - \\tau)^{2/3}' },
+        { t: { de: 'Strahlung, vereinfachte Bilanz', en: 'Radiation, simplified balance' }, tex: 'S_{\\mathrm{rad}} = \\beta\\,(S_0 - S_{\\mathrm{BH}})' },
+        { t: { de: 'Page-Kurve', en: 'Page curve' }, tex: 'S_{\\mathrm{Page}} = \\min\\left(S_{\\mathrm{rad}},\\, S_{\\mathrm{BH}}\\right)' },
+        { t: { de: 'Page-Zeit aus S_rad = S_BH', en: 'Page time from S_rad = S_BH' }, tex: '\\tau_{\\mathrm{Page}} = 1 - \\left(\\frac{\\beta}{1 + \\beta}\\right)^{3/2}' },
+        { t: { de: 'Einfachstes Modell, β = 1', en: 'Simplest model, β = 1' }, tex: '\\tau_{\\mathrm{Page}} = 1 - 2^{-3/2}' },
+
+      ],
+      physics: {
+        de: 'Hawkings semiklassische Rechnung liefert thermische Strahlung. Verdampft das Loch vollständig und bleibt nichts zurück, wäre aus einem reinen Anfangszustand ein gemischter Endzustand geworden – im Widerspruch zur unitären Zeitentwicklung der Quantenmechanik. Page zeigte 1993: Ist der Gesamtzustand rein, kann die Entropie der Strahlung nie größer sein als die des verbleibenden Lochs. Sie steigt also nur bis zur Page-Zeit und fällt dann mit S_BH. Wo genau die Kurve abknickt, hängt von der Entropiebilanz ab: bei β = 1 nach 64,6 %, für Photonen und Gravitonen nach etwa 53,8 % der Verdampfungszeit.',
+        en: 'Hawking’s semiclassical calculation yields thermal radiation. If the hole evaporates completely and nothing is left, a pure initial state would have turned into a mixed final state – in contradiction to the unitary time evolution of quantum mechanics. Page showed in 1993: if the total state is pure, the entropy of the radiation can never exceed that of the remaining hole. So it only rises until the Page time and then falls with S_BH. Exactly where the curve turns over depends on the entropy balance: after 64.6 % of the evaporation time for β = 1, after about 53.8 % for photons and gravitons.',
+      },
+      epistemics: [
+        { type: 'assume', text: { de: 'S_BH und S_rad: semiklassische Ergebnisse (Bekenstein, Hawking). Hawking-Strahlung astrophysikalischer Löcher wurde nie beobachtet.', en: 'S_BH and S_rad: semiclassical results (Bekenstein, Hawking). Hawking radiation from astrophysical black holes has never been observed.' } },
+        { type: 'model', text: { de: 'S_Page = min(S_rad, S_BH): Erwartung bei unitärer Verdampfung (Page 1993). Seit 2019 in speziellen theoretischen Modellen semiklassisch reproduziert, nicht beobachtet. Der Mechanismus ist offen.', en: 'S_Page = min(S_rad, S_BH): expectation for unitary evaporation (Page 1993). Reproduced semiclassically in specific theoretical models since 2019, not observed. The mechanism is open.' } },
+        { type: 'approx', text: { de: 'Vereinfachte Entropiebilanz mit konstantem β; t_evap ist eine Größenordnungsabschätzung.', en: 'Simplified entropy balance with a constant β; t_evap is an order-of-magnitude estimate.' } },
+        { type: 'math', text: { de: 'Die Page-Zeit 1 − (β/(1 + β))^{3/2} folgt exakt aus den Modellannahmen; für β ≈ 1,4847 stimmt sie mit Pages 53,81 % überein.', en: 'The Page time 1 − (β/(1 + β))^{3/2} follows exactly from the model assumptions; for β ≈ 1.4847 it agrees with Page’s 53.81 %.' } },
+      ],
+    },
+  });
+
   define({
     id: 'efe', group: 'Famous Equations', field: 'famous', hall: true, title: { de: 'Einsteinsche Feldgleichungen', en: 'Einstein field equations' }, short: { de: 'Feldgleichungen', en: 'Field equations' },
     tex: 'G_{\\mu\\nu} + \\Lambda\\, g_{\\mu\\nu} = \\frac{8\\pi G}{c^4}\\, T_{\\mu\\nu}',

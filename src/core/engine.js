@@ -375,6 +375,8 @@
     if (!isFinite(x)) throw mathError(T('Argument von ' + name + '(…) liegt außerhalb des Double-Bereichs (≈10^±308) – das Ergebnis ist dort nicht mehr sinnvoll darstellbar', 'The argument of ' + name + '(…) lies outside the double range (≈10^±308) – no meaningful result can be represented there'), n);
     return x;
   }
+  // a < b für Zahlen der Engine ({ s: Vorzeichen, l: log₁₀|x| })
+  const less = (a, b) => (a.s !== b.s ? a.s < b.s : a.s === 0 ? false : a.s > 0 ? a.l < b.l : a.l > b.l);
   const trig = (name, fn) => ({ dim: 'less', f: (a, n) => mk(fn(finiteArg(a, name, n))) });
   const FUNCS = Object.assign(Object.create(null), {
     sqrt: { dim: 'half', f: (a, n) => { if (a.s < 0) throw mathError(T('Wurzel aus negativer Zahl – Ergebnis wäre imaginär', 'Square root of a negative number – the result would be imaginary'), n); return a.s === 0 ? ZERO : clean(Math.sqrt(a.d), 1, a.l / 2); } },
@@ -395,6 +397,9 @@
       for (let i = 0; i < 60 && Math.abs(x - y) > 1e-15 * x; i++) [x, y] = [(x + y) / 2, Math.sqrt(x * y)];
       return mk(Math.PI / (x + y));
     } },
+    // Kleinere bzw. größere von zwei Zahlen – über Vorzeichen und log₁₀, also auch jenseits des Double-Bereichs
+    min: { dim: 'match', args: 2, f: (a, b) => (less(b, a) ? b : a) },
+    max: { dim: 'match', args: 2, f: (a, b) => (less(a, b) ? b : a) },
     asin: { dim: 'less', f: (a, n) => {
       const x = finiteArg(a, 'asin', n);
       if (Math.abs(x) > 1 + 1e-12) throw mathError(T('arcsin(x) ist nur für |x| ≤ 1 reell', 'arcsin(x) is only real for |x| ≤ 1'), n);
@@ -504,6 +509,11 @@
           if (!F) { errors.push({ node: n, msg: T('Unbekannte Funktion ', 'Unknown function ') + n.name }); return dimless(); }
           if (F.dim === 'half') return dimPow(a, R(1, 2));
           if (F.dim === 'same') return a;
+          // min, max: alle Argumente dieselbe Dimension, das Ergebnis auch
+          if (F.dim === 'match') {
+            ds.forEach((d, i) => { if (i > 0 && !dimEq(d, a)) errors.push({ node: n, msg: n.name + T('(…) vergleicht nur Größen derselben Dimension: [', '(…) only compares quantities of the same dimension: [') + dimStr(a) + T('] und [', '] and [') + dimStr(d) + ']' }); });
+            return a;
+          }
           ds.forEach((d, i) => { if (!dimIsless(d)) errors.push({ node: ds.length > 1 ? n.args[i] : n, msg: n.name + T('(…) braucht ein dimensionsloses Argument, bekommt aber [', '(…) needs a dimensionless argument, but got [') + dimStr(d) + ']' }); });
           return dimless();
         }

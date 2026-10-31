@@ -101,11 +101,78 @@
         },
       },
     },
+    /* ------------------------------------------------------------ */
+    {
+      id: 'info', status: 'open', exp: 'bh-page', title: { de: 'Geht Information verloren?', en: 'Is information lost?' },
+      body: {
+        de: () => {
+          const MATH = 'Mathematik', SEMI = 'semiklassisch', OPEN = 'offen', MEAS = 'Messung', QM = 'Quantenmechanik', UNIT = 'Erwartung bei Unitarität';
+          return '<h3 class="th-h3">Die Frage</h3>' +
+            '<p>Ein Schwarzes Loch entsteht aus Materie in einem bestimmten Quantenzustand. Dann strahlt es, wird leichter und verdampft. Bleibt die Information über den Anfangszustand erhalten – steckt sie am Ende in der Strahlung –, oder geht sie verloren?</p>' +
+            '<h3 class="th-h3">Was gesichert ist</h3>' +
+            '<p>' + kind(SEMI) + ' Hawkings Rechnung (1975) liefert thermische Strahlung mit einer Temperatur ' + t(R`T_{\mathrm{H}} \propto 1/M`) + ' (' + exp('hawking', 'Hawking-Temperatur') + '). Das Loch verliert Masse, wird dabei heißer und strahlt immer stärker. Seine Lebensdauer wächst wie ' + t('M^{3}') + ' – für eine Sonnenmasse grob 10⁶⁷ Jahre.</p>' +
+            '<p>' + kind(SEMI) + ' Daraus folgt das Paradoxon (Hawking 1976). Nimmt man zusammen: einen reinen Anfangszustand, vollständige Verdampfung ohne Rest und exakt thermische Strahlung, dann wird aus einem reinen ein gemischter Zustand. Das widerspricht der unitären Zeitentwicklung der Quantenmechanik, nach der Information nie verloren geht.</p>' +
+            '<p>' + kind(QM) + ' Page (1993): Ist ein zufälliger Gesamtzustand rein, ist das kleinere von zwei Teilsystemen fast maximal mit dem größeren verschränkt. Geht keine Information verloren, kann die Entropie der Strahlung deshalb nie größer sein als die des verbleibenden Lochs. Sie steigt, erreicht ein Maximum und fällt am Ende auf null – das ist die Page-Kurve:</p>' +
+            d(R`S_{\mathrm{Page}} = \min\left(S_{\mathrm{rad}},\, S_{\mathrm{BH}}\right)`) +
+            '<p>' + kind(MATH) + ' Im einfachsten Modell nimmt ' + t('M^{3}') + ' linear in der Zeit ab, also ' + t(R`S_{\mathrm{BH}} = S_0\,(1 - \tau)^{2/3}`) + ' mit ' + t(R`\tau = t/t_{\mathrm{evap}}`) + '. Trägt die Strahlung genau die Entropie weg, die das Loch verliert, schneiden sich beide Kurven bei</p>' +
+            d(R`\tau_{\mathrm{Page}} = 1 - 2^{-3/2}`) +
+            '<p>also nach etwa 64,6 % der Verdampfungszeit. Nach Page kommt die Information vor allem danach heraus: Vorher zeigt die Strahlung kaum Spuren von ihr.</p>' +
+            '<p>' + kind(SEMI) + ' Seit 2019 reproduzieren semiklassische Rechnungen diesen Verlauf in speziellen theoretischen Modellen, vor allem in zwei Dimensionen. Das ist eine Rechnung, keine Beobachtung an einem Schwarzen Loch.</p>' +
+            '<div class="honest"><b>Einordnung:</b> Die Zahl 0,646 gehört zum einfachsten Modell. Realistisch erzeugt die Abstrahlung mehr Entropie, als das Loch verliert – für Photonen und Gravitonen etwa das 1,48-Fache (Page 2013). Dann liegt das Maximum schon bei etwa 53,8 % der Verdampfungszeit. Die Form der Kurve bleibt, ihre Zahlen hängen an den Annahmen.</div>' +
+            '<h3 class="th-h3">Was offen ist</h3>' +
+            '<p>' + kind(OPEN) + ' Der Mechanismus: Wie gelangt die Information in die Strahlung, und wo ist sie vorher? Hawkings Rechnung zeigt dafür keinen Weg.</p>' +
+            '<p>' + kind(OPEN) + ' Ob die Verdampfung überhaupt unitär verläuft. Die Page-Kurve ist die Erwartung unter dieser Annahme, gemessen ist sie nicht.</p>' +
+            '<p>' + kind(OPEN) + ' Die Endphase: Nahe der Planck-Masse versagt die semiklassische Rechnung. Ob das Loch ganz verschwindet oder ein Rest bleibt, ist offen.</p>' +
+            '<h3 class="th-h3 th-deep">Warum ausgerechnet das Minimum?</h3>' +
+            '<p>' + kind(QM) + ' Ein reiner Zustand hat die Entropie null. Teilt man ihn in zwei Teile, haben beide dieselbe Verschränkungsentropie – und die kann höchstens so groß sein wie die größtmögliche Entropie des kleineren Teils. Page zeigte 1993, dass ein zufälliger reiner Zustand diese Grenze fast erreicht: Dem kleineren Teil fehlt im Mittel weniger als eine halbe Einheit Information.</p>' +
+            '<p>Für die Verdampfung heißt das: Solange die Strahlung das kleinere System ist, wächst ihre Entropie wie bei Hawking. Sobald das verbleibende Loch kleiner ist, begrenzt seine Entropie die der Strahlung – daher ' + t(R`\min(S_{\mathrm{rad}}, S_{\mathrm{BH}})`) + '.</p>' +
+            '<h3 class="th-h3">Was es entscheiden würde</h3>' +
+            '<p>Theoretisch: eine Rechnung für realistische Schwarze Löcher, die zeigt, wie die Information herauskommt – oder warum nicht – und die dabei Hawkings Ergebnis für frühe Zeiten reproduziert.</p>' +
+            '<p>' + kind(MEAS) + ' Experimentell ist die Frage außer Reichweite: Die Strahlung astrophysikalischer Löcher ist viel schwächer als die kosmische Hintergrundstrahlung. Kleine primordiale Löcher, die heute verdampfen würden, sind hypothetisch und nie beobachtet worden. Analogexperimente, etwa in Bose-Einstein-Kondensaten (Steinhauer 2016), untersuchen Hawking-artige Strahlung und ihre Verschränkung – sie sind aber keine Schwarzen Löcher und testen das Paradoxon nicht.</p>' +
+            '<h3 class="th-h3">Live in der App</h3>' +
+            '<p>Das Experiment lässt ein Loch im Zeitraffer verdampfen: ' + t(R`\tau = t/t_{\mathrm{evap}}`) + ' läuft von 0 bis 1, Masse, Temperatur und Entropien kommen aus der Engine. Im Bild entstehen drei Kurven:</p>' +
+            '<ul><li><b>S_BH</b> ' + kind(SEMI) + ' die Entropie des verbleibenden Lochs,</li><li><b>S_rad</b> ' + kind(SEMI) + ' Hawkings thermische Strahlung, deren Entropie bis zum Schluss wächst,</li><li><b>S_Page</b> ' + kind(UNIT) + ' die Page-Kurve, seit 2019 in speziellen Modellen semiklassisch reproduziert.</li></ul>' +
+            '<p>Mit β stellst du die Entropiebilanz ein: β = 1 ist das einfachste Modell, β ≈ 1,48 der Wert für Photonen und Gravitonen. Die Engine rechnet die Page-Zeit ' + t(R`1 - \left(\beta/(1 + \beta)\right)^{3/2}`) + ' aus – für β ≈ 1,4847 kommen Pages 53,8 % heraus.</p>' +
+            live('bh-page', 'Zum Experiment: Verdampfung und Page-Kurve') + srcs('bh-page');
+        },
+        en: () => {
+          const MATH = 'mathematics', SEMI = 'semiclassical', OPEN = 'open', MEAS = 'measurement', QM = 'quantum mechanics', UNIT = 'expected under unitarity';
+          return '<h3 class="th-h3">The question</h3>' +
+            '<p>A black hole forms from matter in a definite quantum state. Then it radiates, becomes lighter and evaporates. Is the information about the initial state preserved – does it end up in the radiation – or is it lost?</p>' +
+            '<h3 class="th-h3">What is established</h3>' +
+            '<p>' + kind(SEMI) + ' Hawking’s calculation (1975) gives thermal radiation with a temperature ' + t(R`T_{\mathrm{H}} \propto 1/M`) + ' (' + exp('hawking', 'Hawking temperature') + '). The hole loses mass, becomes hotter in the process and radiates ever more strongly. Its lifetime grows like ' + t('M^{3}') + ' – roughly 10⁶⁷ years for one solar mass.</p>' +
+            '<p>' + kind(SEMI) + ' This leads to the paradox (Hawking 1976). Put together a pure initial state, complete evaporation without a remnant and exactly thermal radiation, and a pure state turns into a mixed one. That contradicts the unitary time evolution of quantum mechanics, according to which information is never lost.</p>' +
+            '<p>' + kind(QM) + ' Page (1993): if a random total state is pure, the smaller of two subsystems is almost maximally entangled with the larger one. So if no information is lost, the entropy of the radiation can never exceed that of the remaining hole. It rises, reaches a maximum and falls back to zero at the end – that is the Page curve:</p>' +
+            d(R`S_{\mathrm{Page}} = \min\left(S_{\mathrm{rad}},\, S_{\mathrm{BH}}\right)`) +
+            '<p>' + kind(MATH) + ' In the simplest model ' + t('M^{3}') + ' decreases linearly in time, so ' + t(R`S_{\mathrm{BH}} = S_0\,(1 - \tau)^{2/3}`) + ' with ' + t(R`\tau = t/t_{\mathrm{evap}}`) + '. If the radiation carries away exactly the entropy the hole loses, the two curves cross at</p>' +
+            d(R`\tau_{\mathrm{Page}} = 1 - 2^{-3/2}`) +
+            '<p>that is, after about 64.6 % of the evaporation time. According to Page, the information comes out mainly after that: before, the radiation shows hardly any trace of it.</p>' +
+            '<p>' + kind(SEMI) + ' Since 2019, semiclassical calculations have reproduced this behaviour in specific theoretical models, mostly in two dimensions. That is a calculation, not an observation of a black hole.</p>' +
+            '<div class="honest"><b>Perspective:</b> the number 0.646 belongs to the simplest model. Realistically, the emission produces more entropy than the hole loses – about 1.48 times as much for photons and gravitons (Page 2013). Then the maximum already comes at about 53.8 % of the evaporation time. The shape of the curve stays; its numbers depend on the assumptions.</div>' +
+            '<h3 class="th-h3">What remains open</h3>' +
+            '<p>' + kind(OPEN) + ' The mechanism: how does the information get into the radiation, and where is it before? Hawking’s calculation shows no way for this.</p>' +
+            '<p>' + kind(OPEN) + ' Whether evaporation is unitary at all. The Page curve is the expectation under this assumption; it has not been measured.</p>' +
+            '<p>' + kind(OPEN) + ' The final stage: near the Planck mass the semiclassical calculation breaks down. Whether the hole disappears completely or leaves a remnant is open.</p>' +
+            '<h3 class="th-h3 th-deep">Why the minimum, of all things?</h3>' +
+            '<p>' + kind(QM) + ' A pure state has zero entropy. Split it into two parts, and both have the same entanglement entropy – which can be at most as large as the largest possible entropy of the smaller part. Page showed in 1993 that a random pure state almost reaches this limit: on average, the smaller part lacks less than half a unit of information.</p>' +
+            '<p>For evaporation this means: as long as the radiation is the smaller system, its entropy grows as in Hawking’s calculation. As soon as the remaining hole is smaller, its entropy limits that of the radiation – hence ' + t(R`\min(S_{\mathrm{rad}}, S_{\mathrm{BH}})`) + '.</p>' +
+            '<h3 class="th-h3">What would settle it</h3>' +
+            '<p>Theoretically: a calculation for realistic black holes that shows how the information comes out – or why it does not – and at the same time reproduces Hawking’s result for early times.</p>' +
+            '<p>' + kind(MEAS) + ' Experimentally, the question is out of reach: the radiation from astrophysical black holes is far weaker than the cosmic microwave background. Small primordial holes that would be evaporating today are hypothetical and have never been observed. Analogue experiments, for example in Bose–Einstein condensates (Steinhauer 2016), study Hawking-like radiation and its entanglement – but they are not black holes and do not test the paradox.</p>' +
+            '<h3 class="th-h3">Live in the app</h3>' +
+            '<p>The experiment lets a hole evaporate in time-lapse: ' + t(R`\tau = t/t_{\mathrm{evap}}`) + ' runs from 0 to 1; mass, temperature and entropies come from the engine. Three curves build up in the picture:</p>' +
+            '<ul><li><b>S_BH</b> ' + kind(SEMI) + ' the entropy of the remaining hole,</li><li><b>S_rad</b> ' + kind(SEMI) + ' Hawking’s thermal radiation, whose entropy grows until the end,</li><li><b>S_Page</b> ' + kind(UNIT) + ' the Page curve, reproduced semiclassically in specific models since 2019.</li></ul>' +
+            '<p>β sets the entropy balance: β = 1 is the simplest model, β ≈ 1.48 the value for photons and gravitons. The engine calculates the Page time ' + t(R`1 - \left(\beta/(1 + \beta)\right)^{3/2}`) + ' – for β ≈ 1.4847 this gives Page’s 53.8 %.</p>' +
+            live('bh-page', 'To the experiment: evaporation and the Page curve') + srcs('bh-page');
+        },
+      },
+    },
   ]);
 
   const TITLE = () => T('Offene Fragen', 'Open questions');
   const META = I.localize({
     quarter: { short: { de: 'Warum genau 1/4?', en: 'Why exactly 1/4?' }, teaser: { de: 'Der Vorfaktor der Entropie Schwarzer Löcher ist festgelegt – was sie zählt, ist offen.', en: 'The prefactor of black hole entropy is fixed – what it counts is open.' } },
+    info: { short: { de: 'Geht Information verloren?', en: 'Is information lost?' }, teaser: { de: 'Ein Schwarzes Loch verdampft. Steckt die Information über seinen Anfang am Ende in der Strahlung?', en: 'A black hole evaporates. Does the information about its beginning end up in the radiation?' } },
   });
   const meta = (q) => META[q.id] || { short: q.title, teaser: '' };
   const href = (id) => '#view=offen&amp;sec=' + id;
@@ -133,8 +200,8 @@
       '<p class="faint">' + T('Der Status beschreibt die Frage als Ganzes. Die Etiketten im Text – Mathematik, semiklassisch, Messung, offen – kennzeichnen einzelne Aussagen.',
         'The status describes the question as a whole. The labels in the text – mathematics, semiclassical, measurement, open – mark individual statements.') + '</p></div>';
     h += '<div class="th-cards">' + QUESTIONS.map((q, i) => '<a class="th-card" href="' + href(q.id) + '"><span class="th-card-n">' + (i + 1) + '</span><div><h3>' + esc(q.title) + '</h3><p>' + esc(meta(q).teaser) + '</p>' + chip(q.status) + '</div></a>').join('') + '</div>';
-    h += '<p class="oq-next">' + T('In Vorbereitung: die kosmologische Konstante, das Informationsparadoxon, das Messproblem und die Anforderungen an eine Quantengravitation.',
-      'In preparation: the cosmological constant, the information paradox, the measurement problem and the requirements for quantum gravity.') + '</p>';
+    h += '<p class="oq-next">' + T('In Vorbereitung: die kosmologische Konstante, das Messproblem und die Anforderungen an eine Quantengravitation.',
+      'In preparation: the cosmological constant, the measurement problem and the requirements for quantum gravity.') + '</p>';
     el.innerHTML = h;
   }
 

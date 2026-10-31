@@ -1,6 +1,6 @@
 # Roadmap: Open Questions
 
-**Status: October 31, 2026.** Section 2 (structure) and Question 1 (Why exactly 1/4?) are implemented; Questions 2–4 and the overview of requirements are planned.
+**Status: October 31, 2026.** Section 2 (structure), Question 1 (Why exactly 1/4?) and Question 3 (information paradox) are implemented; Questions 2 and 4 and the overview of requirements are planned.
 
 Add a new section, **Open Questions**, exploring where general relativity (GR) and quantum theory reach their limits or leave important questions unanswered.
 
@@ -235,6 +235,8 @@ $$
 Label each curve as a semiclassical calculation, an expectation under unitarity, or behavior reproduced in specific theoretical calculations.
 
 **Status:** Open.
+
+**Implemented (October 31, 2026):** experiment `bh-page` with τ = t/t_evap as a slider and "Let time run" (the hole evaporates in 10 s; t_evap is the same rough estimate as in the Hawking experiment, its note stays visible), page `#view=offen&sec=info`. Beyond the roadmap, the entropy balance has a factor β: S_rad = β (S₀ − S_BH). β = 1 is the simplified model above (t_Page ≈ 0.6464 t_evap); β ≈ 1.4847 is Page's value for photons and gravitons (2013), for which the engine's t_Page = 1 − (β/(1 + β))^{3/2} gives his 53.81 %. Sources: Hawking 1975 and 1976, Page 1993 (two papers) and 2013, Almheiri et al. 2020 (semiclassical Page curve in a two-dimensional model), Steinhauer 2016 (analogue experiment, explicitly not a test of the paradox).
 
 ## 6. Question 4: The Measurement Problem
 

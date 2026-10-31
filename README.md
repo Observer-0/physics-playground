@@ -32,7 +32,7 @@ in a browser, and publishes `dist/` to GitHub Pages
 Development requires Node.js ≥ 18. `npm install` installs ESLint only.
 
 ``` bash
-npm test         # 105 tests in Node (the 11 UI tests run fully only in a browser)
+npm test         # 108 tests in Node (the 11 UI tests run fully only in a browser)
 npm run lint     # ESLint
 npm run build    # bundles everything into dist/index.html
 npm run check:ui # opens every page in both languages in headless Chrome/Edge and checks it,
@@ -92,7 +92,10 @@ The file loading order is defined only in `src/index.html`;
                                       question: Why exactly 1/4? (black
                                       hole entropy prefactor η as a
                                       slider, first-law check
-                                      R_η = 4η). More questions in
+                                      R_η = 4η) · Is information lost?
+                                      (evaporation in time-lapse with
+                                      the Page curve, Page time from
+                                      the engine). More questions in
                                       `ROADMAP.md`
 
   Tools                               Check your own or incorrect
@@ -183,8 +186,10 @@ in `src/index.html`.
                                       pendulum) and the Jacobi function
                                       `sn(u, k)` (two arguments, also via
                                       the AGM, for the exact pendulum
-                                      motion). Each function declares
-                                      its number of arguments
+                                      motion), `min` and `max` (two
+                                      quantities of the same dimension,
+                                      for the Page curve). Each function
+                                      declares its number of arguments
 
   `src/core/model.js`                 Constants registry with type (exact
                                       / measured / convention /
@@ -430,8 +435,13 @@ visualization header (the value is available in `S.opts`). Add
 control that oscillates a value around its initial value (by a factor of
 `span` in both directions). With `center`, it oscillates around that
 value instead and starts without a jump from the current value (the
-`bh-eta` experiment sweeps η around 1/4). While a value is oscillating,
-no task counts as solved.
+`bh-eta` experiment sweeps η around 1/4). While a value is oscillating
+or time is running, no task counts as solved; stopping at the right
+moment does.
+
+`animateVar` names the slider that "Let time run" advances; it moves by
+one unit per second unless `animateRate` says otherwise (the Page curve
+runs τ = t/t_evap from 0 to 1 at `animateRate: 0.1`, i.e. in 10 s).
 
 An experiment with several `forms` can give a form its own `graph`
 defaults (the pendulum's "Motion θ(t)" form plots θ over t). If a form
